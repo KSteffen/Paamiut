@@ -3,6 +3,7 @@ bookdown::gitbook:
   css: style.css
   config:
     toc:
+      collapse: subsection
       before: |
         <li><a href="./">SUPPLEMENTARY MATERIAL</a></li>
       after: |

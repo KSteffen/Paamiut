@@ -2,7 +2,7 @@
 title: "03 - Microbiota"
 output: html_document
 ---
-```{r setup, include=FALSE}
+```{r setup03, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE, tidy=TRUE, message = FALSE, warning = FALSE)
 library(knitr)
 ```
@@ -244,9 +244,9 @@ multiplot <- function(..., plotlist=NULL, file, cols=1, layout=NULL) {
 ## Functions
 ```{r data}
 #load data
-micro <- read.csv("OTU_all_R.csv", header = T, sep = ";")
-meta_data <- read.csv("Steffen_et_al_metadata_PANGAEA.csv", header=T, sep=";")
-taxonomy <- read.csv("microbiome_taxonomy.csv", header = T, sep = ";")
+micro <- read.csv("data/OTU_all_R.csv", header = T, sep = ";")
+meta_data <- read.csv("data/Steffen_et_al_metadata_PANGAEA.csv", header=T, sep=";")
+taxonomy <- read.csv("data/microbiome_taxonomy.csv", header = T, sep = ";")
 ```
 ## Relative abundance
 ```{r rel_abdc}
@@ -317,8 +317,8 @@ Evaluate OTU response to depth: standardised correlating OTU relative abundance 
 ```{r increade-decrease}
 #====================== INC-DEC CORRELATION ==================
 # Categorises the OTUs by their response to depth. Requires meta_data_prep, OTU_prep_sqrt, rel_abdc.
-micro <- read.csv("OTU_all_R.csv", header = T, sep = ";")
-meta_data <- read.csv("Steffen_et_al_metadata_PANGAEA.csv", header=T, sep=";")
+micro <- read.csv("data/OTU_all_R.csv", header = T, sep = ";")
+meta_data <- read.csv("data/Steffen_et_al_metadata_PANGAEA.csv", header=T, sep=";")
 
 meta_data <- meta_data_prep(meta_data)
 micro_ds <- OTU_prep_sqrt(micro)
