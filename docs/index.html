@@ -6,7 +6,7 @@
   <meta http-equiv="X-UA-Compatible" content="IE=edge" />
   <title>Water masses influence microbiome and metabolome in deep-sea sponges</title>
   <meta name="description" content="Water masses influence microbiome and metabolome in deep-sea sponges" />
-  <meta name="generator" content="bookdown 0.17.2 and GitBook 2.6.7" />
+  <meta name="generator" content="bookdown 0.18 and GitBook 2.6.7" />
 
   <meta property="og:title" content="Water masses influence microbiome and metabolome in deep-sea sponges" />
   <meta property="og:type" content="book" />
@@ -24,7 +24,7 @@
 <meta name="author" content="Karin Steffen" />
 
 
-<meta name="date" content="2020-02-14" />
+<meta name="date" content="2020-04-14" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <meta name="apple-mobile-web-app-capable" content="yes" />
@@ -157,6 +157,7 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 <li class="chapter" data-level="3.2" data-path="microbiota.html"><a href="microbiota.html#relative-abundance"><i class="fa fa-check"></i><b>3.2</b> Relative abundance</a></li>
 <li class="chapter" data-level="3.3" data-path="microbiota.html"><a href="microbiota.html#data-set-description"><i class="fa fa-check"></i><b>3.3</b> Data set description</a></li>
 <li class="chapter" data-level="3.4" data-path="microbiota.html"><a href="microbiota.html#depth-response"><i class="fa fa-check"></i><b>3.4</b> Depth response</a></li>
+<li class="chapter" data-level="3.5" data-path="microbiota.html"><a href="microbiota.html#shortlist"><i class="fa fa-check"></i><b>3.5</b> Shortlist</a></li>
 </ul></li>
 <li class="divider"></li>
 <li><a href="https://github.com/rstudio/bookdown" target="blank">Published with bookdown</a></li>
@@ -181,7 +182,7 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 <div id="header">
 <h1 class="title">Water masses influence microbiome and metabolome in deep-sea sponges</h1>
 <p class="author"><em>Karin Steffen</em></p>
-<p class="date"><em>February 14, 2020</em></p>
+<p class="date"><em>April 14, 2020</em></p>
 </div>
 <div id="content" class="section level1">
 <h1><span class="header-section-number">1</span> Content</h1>
@@ -189,7 +190,9 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 In brief, it contains three parts: the metabolome, microbiota and inter-omics analyses. For the metabolome, we include detailed descriptions of the metabolomics data acquisition, data processing with xcms, and multivariate analyses with ropls. In addition, signals of known and novel compounds of interest were manually extracted and analysed. For the microbiota, we include community visualisation and ecological analyses in vegan. The inter-omics section contains mantel test and procrustes rotations, as well as the microbial interaction network annotated with the OTU’s correlation with barettin, and their response to depth.</p>
 <div id="experimental-setup" class="section level2">
 <h2><span class="header-section-number">1.1</span> Experimental setup</h2>
-<p>Three demosponge species <em>Geodia barretti</em> (n=20), <em>Stryphnus fortis</em> (n=15), and <em>Weberella bursa</em> (n=17) were sampled in the Davis Strait between Canada and Greenland (61.147942-66.38245 Lat,-68.78077- -57.96573 Lon) from 244 m to 1467 m depth. Temperature and salinity <em>in situ</em> were recorded. All sample metadata is deposited at <a href="https://doi.pangaea.de/10.1594/PANGAEA.909246">PANGAEA</a>.</p>
+<p>Three demosponge species <em>Geodia barretti</em> (n=20), <em>Stryphnus fortis</em> (n=15), and <em>Weberella bursa</em> (n=17) were sampled in the Davis Strait between Canada and Greenland (61.147942-66.38245 Lat,-68.78077- -57.96573 Lon) from 244 m to 1467 m depth. Temperature and salinity <em>in situ</em> were recorded. All sample metadata is deposited at <a href="https://doi.pangaea.de/10.1594/PANGAEA.909246">PANGAEA</a>. All data for these analyses can be downloaded here.
+xfun::embed_dir(‘data/’, text = ‘Download full data’)
+EMBEDDED_DATA</p>
 <div id="map" class="section level3">
 <h3><span class="header-section-number">1.1.1</span> Map</h3>
 <div class="sourceCode" id="cb1"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb1-1"><a href="index.html#cb1-1"></a><span class="kw">library</span>(ggplot2)</span>
@@ -199,16 +202,17 @@ In brief, it contains three parts: the metabolome, microbiota and inter-omics an
 <span id="cb1-5"><a href="index.html#cb1-5"></a><span class="kw">library</span>(marmap)</span>
 <span id="cb1-6"><a href="index.html#cb1-6"></a><span class="kw">library</span>(ggrepel)</span>
 <span id="cb1-7"><a href="index.html#cb1-7"></a></span>
-<span id="cb1-8"><a href="index.html#cb1-8"></a>sample_coords &lt;-<span class="st"> </span><span class="kw">read.csv</span>(<span class="st">&quot;Steffen_et_al_metadata_PANGAEA.csv&quot;</span>, <span class="dt">header =</span> T, <span class="dt">sep =</span> <span class="st">&quot;;&quot;</span>)</span>
-<span id="cb1-9"><a href="index.html#cb1-9"></a>sample_coords &lt;-<span class="st"> </span>sample_coords[, <span class="kw">c</span>(<span class="st">&quot;Species&quot;</span>, <span class="st">&quot;unified_ID&quot;</span>, <span class="st">&quot;Latitude&quot;</span>, <span class="st">&quot;Longitude&quot;</span>)]</span>
-<span id="cb1-10"><a href="index.html#cb1-10"></a>sample_coords &lt;-<span class="st"> </span><span class="kw">na.omit</span>(sample_coords)</span>
-<span id="cb1-11"><a href="index.html#cb1-11"></a>map_data &lt;-<span class="st"> </span><span class="kw">getNOAA.bathy</span>(<span class="op">-</span><span class="dv">70</span>, <span class="dv">-50</span>, <span class="dv">58</span>, <span class="dv">68</span>, <span class="dt">resolution =</span> <span class="dv">4</span>, <span class="dt">keep =</span> T, <span class="dt">antimeridian =</span> <span class="ot">FALSE</span>)</span>
-<span id="cb1-12"><a href="index.html#cb1-12"></a>sample_map_<span class="dv">1</span> &lt;-<span class="st"> </span><span class="kw">autoplot</span>(map_data, <span class="dt">geom =</span> <span class="kw">c</span>(<span class="st">&quot;r&quot;</span>, <span class="st">&quot;c&quot;</span>)) <span class="op">+</span><span class="st"> </span><span class="kw">scale_fill_gradient2</span>(<span class="dt">low =</span> <span class="st">&quot;dodgerblue4&quot;</span>, </span>
-<span id="cb1-13"><a href="index.html#cb1-13"></a>    <span class="dt">mid =</span> <span class="st">&quot;gainsboro&quot;</span>, <span class="dt">high =</span> <span class="st">&quot;darkgreen&quot;</span>) <span class="op">+</span><span class="st"> </span><span class="kw">geom_point</span>(<span class="kw">aes</span>(<span class="dt">x =</span> sample_coords<span class="op">$</span>Longitude, </span>
-<span id="cb1-14"><a href="index.html#cb1-14"></a>    <span class="dt">y =</span> sample_coords<span class="op">$</span>Latitude, <span class="dt">colour =</span> <span class="kw">factor</span>(sample_coords<span class="op">$</span>Species)), <span class="dt">data =</span> sample_coords) <span class="op">+</span><span class="st"> </span></span>
-<span id="cb1-15"><a href="index.html#cb1-15"></a><span class="st">    </span><span class="kw">ggtitle</span>(<span class="st">&quot;Sample map&quot;</span>) <span class="op">+</span><span class="st"> </span><span class="kw">xlab</span>(<span class="st">&quot;Longitude&quot;</span>) <span class="op">+</span><span class="st"> </span><span class="kw">ylab</span>(<span class="st">&quot;Latitude&quot;</span>) <span class="op">+</span><span class="st"> </span><span class="kw">labs</span>(<span class="dt">fill =</span> <span class="st">&quot;Depth&quot;</span>, </span>
-<span id="cb1-16"><a href="index.html#cb1-16"></a>    <span class="dt">col =</span> <span class="st">&quot;Species&quot;</span>)</span>
-<span id="cb1-17"><a href="index.html#cb1-17"></a>sample_map_<span class="dv">1</span></span></code></pre></div>
+<span id="cb1-8"><a href="index.html#cb1-8"></a>sample_coords &lt;-<span class="st"> </span><span class="kw">read.csv</span>(<span class="st">&quot;data/Steffen_et_al_metadata_PANGAEA.csv&quot;</span>, <span class="dt">header =</span> T, </span>
+<span id="cb1-9"><a href="index.html#cb1-9"></a>    <span class="dt">sep =</span> <span class="st">&quot;;&quot;</span>)</span>
+<span id="cb1-10"><a href="index.html#cb1-10"></a>sample_coords &lt;-<span class="st"> </span>sample_coords[, <span class="kw">c</span>(<span class="st">&quot;Species&quot;</span>, <span class="st">&quot;unified_ID&quot;</span>, <span class="st">&quot;Latitude&quot;</span>, <span class="st">&quot;Longitude&quot;</span>)]</span>
+<span id="cb1-11"><a href="index.html#cb1-11"></a>sample_coords &lt;-<span class="st"> </span><span class="kw">na.omit</span>(sample_coords)</span>
+<span id="cb1-12"><a href="index.html#cb1-12"></a>map_data &lt;-<span class="st"> </span><span class="kw">getNOAA.bathy</span>(<span class="op">-</span><span class="dv">70</span>, <span class="dv">-50</span>, <span class="dv">58</span>, <span class="dv">68</span>, <span class="dt">resolution =</span> <span class="dv">4</span>, <span class="dt">keep =</span> T, <span class="dt">antimeridian =</span> <span class="ot">FALSE</span>)</span>
+<span id="cb1-13"><a href="index.html#cb1-13"></a>sample_map_<span class="dv">1</span> &lt;-<span class="st"> </span><span class="kw">autoplot</span>(map_data, <span class="dt">geom =</span> <span class="kw">c</span>(<span class="st">&quot;r&quot;</span>, <span class="st">&quot;c&quot;</span>)) <span class="op">+</span><span class="st"> </span><span class="kw">scale_fill_gradient2</span>(<span class="dt">low =</span> <span class="st">&quot;dodgerblue4&quot;</span>, </span>
+<span id="cb1-14"><a href="index.html#cb1-14"></a>    <span class="dt">mid =</span> <span class="st">&quot;gainsboro&quot;</span>, <span class="dt">high =</span> <span class="st">&quot;darkgreen&quot;</span>) <span class="op">+</span><span class="st"> </span><span class="kw">geom_point</span>(<span class="kw">aes</span>(<span class="dt">x =</span> sample_coords<span class="op">$</span>Longitude, </span>
+<span id="cb1-15"><a href="index.html#cb1-15"></a>    <span class="dt">y =</span> sample_coords<span class="op">$</span>Latitude, <span class="dt">colour =</span> <span class="kw">factor</span>(sample_coords<span class="op">$</span>Species)), <span class="dt">data =</span> sample_coords) <span class="op">+</span><span class="st"> </span></span>
+<span id="cb1-16"><a href="index.html#cb1-16"></a><span class="st">    </span><span class="kw">ggtitle</span>(<span class="st">&quot;Sample map&quot;</span>) <span class="op">+</span><span class="st"> </span><span class="kw">xlab</span>(<span class="st">&quot;Longitude&quot;</span>) <span class="op">+</span><span class="st"> </span><span class="kw">ylab</span>(<span class="st">&quot;Latitude&quot;</span>) <span class="op">+</span><span class="st"> </span><span class="kw">labs</span>(<span class="dt">fill =</span> <span class="st">&quot;Depth&quot;</span>, </span>
+<span id="cb1-17"><a href="index.html#cb1-17"></a>    <span class="dt">col =</span> <span class="st">&quot;Species&quot;</span>)</span>
+<span id="cb1-18"><a href="index.html#cb1-18"></a>sample_map_<span class="dv">1</span></span></code></pre></div>
 <p><img src="Water-masses-influence-microbiome-and-metabolome-in-deep-sea-sponges_files/figure-html/sample_map-1.png" width="672" /></p>
 <div class="sourceCode" id="cb2"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb2-1"><a href="index.html#cb2-1"></a><span class="co"># with labels: sample_map_1+geom_label_repel(aes(x=sample_coords$Longitude,</span></span>
 <span id="cb2-2"><a href="index.html#cb2-2"></a><span class="co"># y=sample_coords$Latitude, label = sample_coords$unified_ID), box.padding =</span></span>

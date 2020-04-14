@@ -20,7 +20,9 @@ In brief, it contains three parts: the metabolome, microbiota and inter-omics an
 
 ## Experimental setup 
 
-Three demosponge species _Geodia barretti_ (n=20), _Stryphnus fortis_ (n=15), and _Weberella bursa_ (n=17) were sampled in the Davis Strait between Canada and Greenland (61.147942-66.38245 Lat,-68.78077- -57.96573 Lon) from 244 m to 1467 m depth. Temperature and salinity _in situ_ were recorded. All sample metadata is deposited at [PANGAEA](https://doi.pangaea.de/10.1594/PANGAEA.909246).
+Three demosponge species _Geodia barretti_ (n=20), _Stryphnus fortis_ (n=15), and _Weberella bursa_ (n=17) were sampled in the Davis Strait between Canada and Greenland (61.147942-66.38245 Lat,-68.78077- -57.96573 Lon) from 244 m to 1467 m depth. Temperature and salinity _in situ_ were recorded. All sample metadata is deposited at [PANGAEA](https://doi.pangaea.de/10.1594/PANGAEA.909246). All data for these analyses can be downloaded here.
+xfun::embed_dir('data/', text = 'Download full data')
+EMBEDDED_DATA
 
 ### Map
 
@@ -33,7 +35,7 @@ library(mapdata)
 library(marmap)
 library(ggrepel)
 
-sample_coords <- read.csv("Steffen_et_al_metadata_PANGAEA.csv", header=T, sep=";")
+sample_coords <- read.csv("data/Steffen_et_al_metadata_PANGAEA.csv", header=T, sep=";")
 sample_coords <- sample_coords[,c("Species",  "unified_ID", "Latitude", "Longitude")]
 sample_coords <- na.omit(sample_coords)
 map_data<-getNOAA.bathy(-70,-50,58,68, resolution = 4, keep=T, antimeridian=FALSE)
