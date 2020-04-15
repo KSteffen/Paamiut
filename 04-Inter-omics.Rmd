@@ -1,0 +1,345 @@
+---
+title: "04 - Inter-omics data analyses"
+output: html_document
+---
+```{r setup04, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE, tidy=TRUE, message = FALSE, warning = FALSE)
+library(knitr)
+```
+
+# Inter-omics
+
+```{r io1_functions}
+library(tidyverse)
+library(vegan)
+library(kableExtra)
+
+#############
+# FUNCTIONS #
+#############
+
+# Prepare dataframes aka "data gymnastics". The output is a list with the three data set per experiment for the three different species gb, sf, wb
+gymnastics <- function(df, my_colnames) {
+  df[, c("df.1","df","mz","mzmin","mzmadf","rt","rtmin","rtmadf","npeaks","Gb","QC","Sf","Wb")]<- list(NULL)
+  df[, c("isotopes","adduct","pcgroup","SD","MEAN","CV","fss","df.M.H..", "raw_peaks.pcgroup")]<- list(NULL)
+  df <- data.frame(t(df))
+  df["ID"] <- rownames(df)
+  df["unified_ID"] <-masslynx$unified_ID[match(df$ID, masslynx[[my_colnames]])] 
+  df <- na.omit(df)
+  df <- df[order(df$unified_ID),] 
+  rownames(df) <- df$unified_ID
+  df["spec"] <- str_sub(df$unified_ID, 1,2)
+  df <- df[!df$spec=="QC",]
+  df[, c("ID","unified_ID")]<- list(NULL)
+  df_gb <- df[df$spec=="Gb",]
+  df_sf <- df[df$spec=="Sf",]
+  df_wb <- df[df$spec=="Wb",]
+  df_gb$spec <- NULL
+  df_sf$spec <- NULL
+  df_wb$spec <- NULL
+  # ready for mantel
+  metabolome <- list(gb=df_gb, sf=df_sf, wb=df_wb)
+  return(metabolome)
+}
+
+# Prepares the microbiome data sets to match the metabolomes. The output is a list with all microbiomes and metabolomes
+congruency <- function(metabolomes){
+  metabolome_gb <- metabolomes$gb
+  metabolome_sf <- metabolomes$sf
+  metabolome_wb <- metabolomes$wb
+  
+  micro_gb <- micro[micro$spec=="Gb",]
+  micro_sf <- micro[micro$spec=="Sf",]
+  micro_wb <- micro[micro$spec=="Wb",]
+  
+  micro_gb[, c("spec","unified_ID")]<- list(NULL)
+  micro_sf[, c("spec","unified_ID")]<- list(NULL)
+  micro_wb[, c("spec","unified_ID")]<- list(NULL)
+  
+  micro_gb <- micro_gb[, colSums(micro_gb != 0) > 0]
+  micro_sf <- micro_sf[, colSums(micro_sf != 0) > 0]
+  micro_wb <- micro_wb[, colSums(micro_wb != 0) > 0]
+  
+  micro_gb <- sqrt(micro_gb)
+  micro_sf <- sqrt(micro_sf)
+  micro_wb <- sqrt(micro_wb)
+  
+  micro_gb <- wisconsin(micro_gb)
+  micro_sf <- wisconsin(micro_sf)
+  micro_wb <- wisconsin(micro_wb)
+  
+  micro_gb <- micro_gb[rownames(micro_gb) %in% rownames(metabolome_gb),]
+  metabolome_gb <- metabolome_gb[rownames(metabolome_gb) %in% rownames(micro_gb),]
+  all(rownames(micro_gb)==rownames(metabolome_gb))
+  
+  micro_sf <- micro_sf[rownames(micro_sf) %in% rownames(metabolome_sf),]
+  metabolome_sf <- metabolome_sf[rownames(metabolome_sf) %in% rownames(micro_sf),]
+  all(rownames(micro_sf)==rownames(metabolome_sf))
+  
+  micro_wb <- micro_wb[rownames(micro_wb) %in% rownames(metabolome_wb),]
+  metabolome_wb <- metabolome_wb[rownames(metabolome_wb) %in% rownames(micro_wb),]
+  all(rownames(micro_wb)==rownames(metabolome_wb))
+  
+  congruent_dfs <- list(micro_gb=micro_gb, micro_sf=micro_sf, micro_wb=micro_wb, metabolome_gb=metabolome_gb, metabolome_sf=metabolome_sf, metabolome_wb=metabolome_wb)
+  return(congruent_dfs)
+}
+
+# MANTEL TEST Generates distance matrices "Bray-Curtis" for microbiome, scaled "euclidean" for metabolomes, runs a Mantel test with Spearman correlation, and saves the parameters to a data frame.
+cloak <- function(congruent_dfs, experiment, filtering){
+  gb_meta_dist <- vegdist(scale(congruent_dfs$metabolome_gb), "euclid")
+  micro_gb_dist <- vegdist(congruent_dfs$micro_gb, method="bray")
+  
+  sf_meta_dist <- vegdist(scale(congruent_dfs$metabolome_sf), "euclid")
+  micro_sf_dist <- vegdist(congruent_dfs$micro_sf, method="bray")
+  
+  wb_meta_dist <- vegdist(scale(congruent_dfs$metabolome_wb), "euclid")
+  micro_wb_dist <- vegdist(congruent_dfs$micro_wb, method="bray")
+  
+  m_gb <- mantel(micro_gb_dist, gb_meta_dist, method="spearman")
+  m_sf <- mantel(micro_sf_dist, sf_meta_dist, method="spearman")
+  m_wb <- mantel(micro_wb_dist, wb_meta_dist, method="spearman")
+  
+  micro_dim <- as.data.frame(t(dim(congruent_dfs$micro_gb)))
+  micro_dim <-rbind(micro_dim, as.data.frame(t(dim(congruent_dfs$micro_sf))))
+  micro_dim <-rbind(micro_dim, as.data.frame(t(dim(congruent_dfs$micro_wb))))
+  colnames(micro_dim) <- c("micro_samples","micro_OTUs")
+  
+  meta_dim <- as.data.frame(t(dim(congruent_dfs$metabolome_gb)))
+  meta_dim <-rbind(meta_dim, as.data.frame(t(dim(congruent_dfs$metabolome_sf))))
+  meta_dim <-rbind(meta_dim, as.data.frame(t(dim(congruent_dfs$metabolome_wb)))) 
+  colnames(meta_dim) <- c("meta_samples","meta_features")
+  
+  stats <- data.frame(m_gb$statistic)
+  stats <- rbind(stats, m_sf$statistic)
+  stats <- rbind(stats, m_wb$statistic)
+  
+  signif <- data.frame(m_gb$signif)
+  signif <- rbind(signif, m_sf$signif)
+  signif <- rbind(signif, m_wb$signif)
+  
+  colnames(stats) <- c("statistic")
+  stats["signif"] <- signif
+  stats["Sponge species"] <- c("Geodia barretti", "Stryphnus fortis", "Weberella bursa")
+  
+  stats <- bind_cols(stats, micro_dim)
+  stats <- bind_cols(stats, meta_dim)
+  stats["data set"] <- filtering
+  stats["Experiment"] <- experiment
+  return(stats)
+}
+
+# PROTEST NMDS ordination and protest
+ordination <- function(congruent_dfs, experiment, filtering){
+  # If you do not have community data, you should probably set autotransform = FALSE. k: number of dimensions
+  gb_meta_mds <- metaMDS(congruent_dfs$metabolome_gb, trymax = 100, distance =  "euclid", autotransforme=F) 
+  micro_gb_mds <- metaMDS(congruent_dfs$micro_gb, trymax = 100, distance ="bray")
+  
+  sf_meta_mds <- metaMDS(congruent_dfs$metabolome_sf, trymax = 100, distance =  "euclid", autotransforme=F) 
+  micro_sf_mds <- metaMDS(congruent_dfs$micro_sf, trymax = 100, distance ="bray")
+  
+  wb_meta_mds <- metaMDS(congruent_dfs$metabolome_wb, trymax = 100, distance =  "euclid", autotransforme=F) 
+  micro_wb_mds <- metaMDS(congruent_dfs$micro_wb, trymax = 100, distance ="bray")
+  
+  gb_proc <- procrustes(micro_gb_mds, gb_meta_mds, scores = "sites")
+  gb_prot <- protest(micro_gb_mds, gb_meta_mds, scores = "sites")
+  
+  sf_proc <- procrustes(micro_sf_mds, sf_meta_mds, scores = "sites")
+  sf_prot <- protest(micro_sf_mds, sf_meta_mds, scores = "sites")
+  
+  wb_proc <- procrustes(micro_wb_mds, wb_meta_mds, scores = "sites")
+  wb_prot <- protest(micro_wb_mds, wb_meta_mds, scores = "sites")
+  
+  micro_dim <- as.data.frame(t(dim(congruent_dfs$micro_gb)))
+  micro_dim <-rbind(micro_dim, as.data.frame(t(dim(congruent_dfs$micro_sf))))
+  micro_dim <-rbind(micro_dim, as.data.frame(t(dim(congruent_dfs$micro_wb))))
+  colnames(micro_dim) <- c("micro_samples","micro_OTUs")
+  
+  meta_dim <- as.data.frame(t(dim(congruent_dfs$metabolome_gb)))
+  meta_dim <-rbind(meta_dim, as.data.frame(t(dim(congruent_dfs$metabolome_sf))))
+  meta_dim <-rbind(meta_dim, as.data.frame(t(dim(congruent_dfs$metabolome_wb))))
+  colnames(meta_dim) <- c("meta_samples","meta_features")
+  
+  pss <- data.frame(gb_prot$ss)
+  pss <- rbind(pss, sf_prot$ss)
+  pss <- rbind(pss, wb_prot$ss)
+  colnames(pss) <- c("Procrustes SS")
+  
+  cor <- data.frame(gb_prot$scale)
+  cor <- rbind(cor, sf_prot$scale)
+  cor <- rbind(cor, wb_prot$scale)
+  colnames(cor) <- c("correlation in sym. rotation")
+  
+  signif <- data.frame(gb_prot$signif)
+  signif <- rbind(signif, sf_prot$signif)
+  signif <- rbind(signif, wb_prot$signif)
+  colnames(signif) <- c("signif")
+  
+  stats <- bind_cols(pss, cor, signif, micro_dim, meta_dim)
+  stats["data set"] <- filtering
+  stats["Experiment"] <- experiment
+  stats["Sponge species"] <- c("Geodia barretti", "Stryphnus fortis", "Weberella bursa")
+  return(stats)
+}
+
+```
+
+```{r io2_mantel_data, eval=FALSE}
+#############
+# LOAD DATA #
+#############
+
+micro <- read.csv("data/OTU_all_R.csv", header = T, sep = ";")
+colnames(micro)[colnames(micro) == "Sample_ID"] <- "unified_ID"
+micro <- micro[order(micro$unified_ID),] 
+rownames(micro) <- micro$unified_ID
+micro["spec"] <- str_sub(micro$unified_ID, 1, 2)
+
+meta_data <- read.csv("data/PANGAEA_Final.csv", header = T, sep = ";")  
+masslynx <- meta_data
+masslynx <- masslynx[c("unified_ID", "LC.MS.HILIC.positive", "LC.MS.HILIC.negative", "LC.MS.RP.positive",   "LC.MS.RP.negative")]
+colnames(masslynx) <- c("unified_ID", "H_p","H_n","R_p","R_n")
+masslynx <- na.omit(masslynx)
+masslynx["HILIC_pos"] <- str_sub(masslynx$H_p, 1,-3)
+masslynx["HILIC_neg"] <- str_sub(masslynx$H_n, 1,-3)
+masslynx["RP_pos"] <- str_sub(masslynx$R_p, 1,-3)
+masslynx["RP_neg"] <- str_sub(masslynx$R_n, 1,-3)
+
+# load one set of experiments at a time, i.e. CLEANED, ION or PC_GROUPS
+
+### CLEANED
+hilic_pos <- read.csv("data/HILIC_pos_20190417_cleaned.csv", header=T, sep=",")
+hilic_neg <- read.csv("data/HILIC_neg_20190421_cleaned.csv", header=T, sep=",") 
+rp_pos <- read.csv("data/RP_pos_20190421_cleaned.csv", header=T, sep=",")
+rp_neg <- read.csv("data/RP_neg_20190422_cleaned.csv", header=T, sep=",")
+
+### ION
+hilic_pos <- read.csv("data/HILIC_pos_20190417_cleaned_MH.csv", header=T, sep = ",")
+hilic_neg <- read.csv("data/HILIC_neg_20190421_cleaned_MH.csv", header=T, sep=",")
+rp_pos <- read.csv("data/RP_pos_20190421_cleaned_MH.csv", header=T, sep=",")
+rp_neg <- read.csv("data/RP_neg_20190422_cleaned_MH.csv", header=T, sep=",")
+
+### PC_GROUPS
+hilic_pos <- read.csv("data/HILIC_pos_20190417_cleaned_pcgroup.csv", header=T, sep = ",")
+hilic_neg <- read.csv("data/HILIC_neg_20190421_cleaned_pcgroup.csv", header=T, sep=",")
+rp_pos <- read.csv("data/RP_pos_20190421_cleaned_pcgroup.csv", header=T, sep=",")
+rp_neg <- read.csv("data/RP_neg_20190422_cleaned_pcgroup.csv", header=T, sep=",")
+
+
+###=============================== MANTEL TEST=================================
+
+#run one of this at a time
+metabolomes <- gymnastics(hilic_pos, "H_p")
+metabolomes <- gymnastics(hilic_neg, "H_n")
+metabolomes <- gymnastics(rp_pos, "R_p")
+metabolomes <- gymnastics(rp_neg, "R_n")
+
+# run this
+congruent_dfs <- congruency(metabolomes)
+
+# run one of these: MANTEL TEST
+diagnostics_hp_cleaned  <- cloak(congruent_dfs=congruent_dfs, experiment="HILIC pos", filtering="cleaned")
+diagnostics_hn_cleaned  <- cloak(congruent_dfs=congruent_dfs, experiment="HILIC neg", filtering="cleaned")
+diagnostics_rp_cleaned  <- cloak(congruent_dfs=congruent_dfs, experiment="RP pos", filtering="cleaned")
+diagnostics_rn_cleaned  <- cloak(congruent_dfs=congruent_dfs, experiment="RP neg", filtering="cleaned")
+
+diagnostics_hp_ion  <- cloak(congruent_dfs=congruent_dfs, experiment="HILIC pos", filtering="ion")
+diagnostics_hn_ion  <- cloak(congruent_dfs=congruent_dfs, experiment="HILIC neg", filtering="ion")
+diagnostics_rp_ion  <- cloak(congruent_dfs=congruent_dfs, experiment="RP pos", filtering="ion")
+diagnostics_rn_ion  <- cloak(congruent_dfs=congruent_dfs, experiment="RP neg", filtering="ion")
+
+diagnostics_hp_pc_group  <- cloak(congruent_dfs=congruent_dfs, experiment="HILIC pos", filtering="pc_group")
+diagnostics_hn_pc_group  <- cloak(congruent_dfs=congruent_dfs, experiment="HILIC neg", filtering="pc_group")
+diagnostics_rp_pc_group  <- cloak(congruent_dfs=congruent_dfs, experiment="RP pos", filtering="pc_group")
+diagnostics_rn_pc_group  <- cloak(congruent_dfs=congruent_dfs, experiment="RP neg", filtering="pc_group")
+
+
+### Combine all test results into one file
+
+diagnostics <- diagnostics_hp_cleaned
+diagnostics <- rbind(diagnostics, diagnostics_hn_cleaned, diagnostics_rp_cleaned, diagnostics_rn_cleaned,   diagnostics_hp_pc_group, diagnostics_hn_pc_group, diagnostics_rp_pc_group, diagnostics_rn_pc_group,
+                     diagnostics_hp_ion, diagnostics_hn_ion, diagnostics_rp_ion, diagnostics_rn_ion)
+diagnostics
+#write.csv(diagnostics, "mantel_stats_FUN.csv")
+```
+
+```{r io4_mantel_results}
+diagnostics <- read.csv("data/mantel_stats_FUN.csv")
+diagnostics$X <- NULL
+diagnostics <- diagnostics[,c("statistic", "signif", "micro_samples","micro_OTUs","meta_samples","meta_features","Sponge.species", "Experiment",  "data.set")]
+
+options(kableExtra.html.bsTable = T)
+kable(diagnostics, 
+      col.names = c("Mantel statistic r", "significance", "N microbiome samples", "N OTUs", "N metabolome samples", "N features", "Sponge species", "Experiment", "data set"), 
+      longtable = T, booktabs = T, 
+      caption = "Mantel test diagnostics diagnositcs comparing the microbiome and metabolome of the same sponge specimens", 
+      row.names=FALSE) %>%
+  add_header_above(c("Diagnostics" = 6, "Data set attribution" = 3)) %>%
+  kable_styling(bootstrap_options = c("striped","hover", "bordered", "condensed", "responsive"), font_size = 12, full_width = F,latex_options = c("striped", "scale_down"))
+
+
+```
+
+
+```{r io5_prt, eval=F}
+###=============================== PROTEST ====================================
+
+#run one of this at a time
+metabolomes <- gymnastics(hilic_pos, "H_p")
+metabolomes <- gymnastics(hilic_neg, "H_n")
+metabolomes <- gymnastics(rp_pos, "R_p")
+metabolomes <- gymnastics(rp_neg, "R_n")
+
+# run this
+congruent_dfs <- congruency(metabolomes)
+
+# run one of these: PROTEST TEST
+diagnostics_hp_cleaned  <- ordination(congruent_dfs=congruent_dfs, experiment="HILIC pos", filtering="cleaned")
+diagnostics_hn_cleaned  <- ordination(congruent_dfs=congruent_dfs, experiment="HILIC neg", filtering="cleaned")
+diagnostics_rp_cleaned  <- ordination(congruent_dfs=congruent_dfs, experiment="RP pos", filtering="cleaned")
+diagnostics_rn_cleaned  <- ordination(congruent_dfs=congruent_dfs, experiment="RP neg", filtering="cleaned")
+
+diagnostics_hp_ion  <- ordination(congruent_dfs=congruent_dfs, experiment="HILIC pos", filtering="ion")
+diagnostics_hn_ion  <- ordination(congruent_dfs=congruent_dfs, experiment="HILIC neg", filtering="ion")
+diagnostics_rp_ion  <- ordination(congruent_dfs=congruent_dfs, experiment="RP pos", filtering="ion")
+diagnostics_rn_ion  <- ordination(congruent_dfs=congruent_dfs, experiment="RP neg", filtering="ion")
+
+diagnostics_hp_pc_group  <- ordination(congruent_dfs=congruent_dfs, experiment="HILIC pos", filtering="pc_group")
+diagnostics_hn_pc_group  <- ordination(congruent_dfs=congruent_dfs, experiment="HILIC neg", filtering="pc_group")
+diagnostics_rp_pc_group  <- ordination(congruent_dfs=congruent_dfs, experiment="RP pos", filtering="pc_group")
+diagnostics_rn_pc_group  <- ordination(congruent_dfs=congruent_dfs, experiment="RP neg", filtering="pc_group")
+
+
+### Combine all test results into one file
+
+diagnostics <- diagnostics_hp_cleaned
+diagnostics <- rbind(diagnostics, diagnostics_hn_cleaned, diagnostics_rp_cleaned, diagnostics_rn_cleaned, 
+                     diagnostics_hp_pc_group, diagnostics_hn_pc_group, diagnostics_rp_pc_group, diagnostics_rn_pc_group, 
+                     diagnostics_hp_ion, diagnostics_hn_ion, diagnostics_rp_ion, diagnostics_rn_ion)
+diagnostics
+
+write.csv(diagnostics, "protest_stats_FUN.csv")
+```
+
+```{r io6_prt}
+diagnostics <- read.csv("data/protest_stats_FUN.csv")
+diagnostics$X <- NULL
+diagnostics <- diagnostics[,c("Procrustes.SS","correlation.in.sym..rotation", "signif", "micro_samples","micro_OTUs","meta_samples","meta_features","Sponge.species", "Experiment",  "data.set")]
+
+
+options(kableExtra.html.bsTable = T)
+kable(diagnostics, 
+      col.names = c("Procrustes sum of squares", "correlation in symmetric rotation", "significance", "N microbiome samples", "N OTUs", "N metabolome samples", "N features", "Sponge species", "Experiment", "data set"), 
+      longtable = T, booktabs = T, 
+      caption = "Protest diagnositcs comparing the microbiome and metabolome of the same sponge specimens", 
+      row.names=FALSE) %>%
+  add_header_above(c("Diagnostics" = 7, "Data set attribution" = 3)) %>%
+  kable_styling(bootstrap_options = c("striped","hover", "bordered", "condensed", "responsive"), font_size = 12, full_width = F,
+    latex_options = c("striped", "scale_down"))
+```
+
+```{r sess04}
+sessionInfo()
+```
+
+<!--chapter:end:04-Inter-omics.Rmd-->
+

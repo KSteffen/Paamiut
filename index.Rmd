@@ -1,5 +1,5 @@
 --- 
-title: "Water masses influence microbiome and metabolome in deep-sea sponges"
+title: "Oceanographic setting influences the prokaryote community and metabolome in deep-sea sponges"
 author: ["Karin Steffen"]
 date: '`r format(Sys.Date(), "%B %d, %Y")`'
 site: bookdown::bookdown_site

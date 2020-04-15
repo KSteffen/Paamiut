@@ -73,7 +73,7 @@ xsa<-xsAnnotate(xset3)
 xsaF<-groupFWHM(xsa, perfwhm = 0.3)
 xsaC<-groupCorr(xsaF, cor_eic_th = 0.7) 
 xsaFI<-findIsotopes(xsaC)
-rules <- read.csv("rules_jan_pos.csv", header=T, sep = ",")
+rules <- read.csv("data/rules_jan_pos.csv", header=T, sep = ",")
 xsaFA<-findAdducts(xsaFI, polarity="positive", rules=rules)
 #write.csv(getPeaklist(xsaFA), file="HILIC_pos_20190417.csv")
 ```
@@ -103,7 +103,7 @@ xsa<-xsAnnotate(xset3)
 xsaF<-groupFWHM(xsa,perfwhm = 0.3)
 xsaC<-groupCorr(xsaF,cor_eic_th = 0.7) 
 xsaFI<-findIsotopes(xsaC)
-rules <- read.csv("rules_jan_neg.csv", header=T, sep = ",")
+rules <- read.csv("data/rules_jan_neg.csv", header=T, sep = ",")
 xsaFA<-findAdducts(xsaFI, polarity="negative", rules=rules)
 #write.csv(getPeaklist(xsaFA), file="HILIC_neg_20190421.csv")
 ```
@@ -131,7 +131,7 @@ xsa<-xsAnnotate(xset3)
 xsaF<-groupFWHM(xsa,perfwhm = 0.3)
 xsaC<-groupCorr(xsaF,cor_eic_th = 0.7) 
 xsaFI<-findIsotopes(xsaC)
-rules <- read.csv("rules_jan_pos.csv", header=T, sep = ",")
+rules <- read.csv("data/rules_jan_pos.csv", header=T, sep = ",")
 xsaFA<-findAdducts(xsaFI, polarity="positive", rules=rules)
 #write.csv(getPeaklist(xsaFA), file="RP_pos_20190421.csv")
 ```
@@ -159,7 +159,7 @@ xsa<-xsAnnotate(xset3)
 xsaF<-groupFWHM(xsa,perfwhm = 0.3)
 xsaC<-groupCorr(xsaF,cor_eic_th = 0.7) 
 xsaFI<-findIsotopes(xsaC)
-rules <- read.csv("rules_jan_neg.csv", header=T, sep = ",")
+rules <- read.csv("data/rules_jan_neg.csv", header=T, sep = ",")
 xsaFA<-findAdducts(xsaFI, polarity="negative", rules=rules)
 #write.csv(getPeaklist(xsaFA), file="RP_neg_20190422.csv")
 ```
@@ -179,7 +179,7 @@ As the presence of the same parent feature in the the form of isotopes and adduc
 library(dplyr)
 
 #================================ HILIC pos ===================================
-raw_peaks <- read.csv("HILIC_pos_20190417.csv")
+raw_peaks <- read.csv("data/HILIC_pos_20190417.csv")
 hp_dim1 <- dim(raw_peaks)[1]
 hp_pcg1 <- length(unique(raw_peaks$pcgroup))
 
@@ -225,7 +225,7 @@ hilic_pos <- raw_peaks
 rm (f, l, raw_peaks, selected_peaks)
 
 #================================ HILIC neg ===================================
-raw_peaks <- read.csv("HILIC_neg_20190421.csv")
+raw_peaks <- read.csv("data/HILIC_neg_20190421.csv")
 hn_dim1 <- dim(raw_peaks)[1]
 hn_pcg1 <- length(unique(raw_peaks$pcgroup))
 
@@ -269,7 +269,7 @@ hilic_neg <- raw_peaks
 rm (f, l, raw_peaks)
 
 #================================== RP pos ====================================
-raw_peaks <- read.csv("RP_pos_20190421.csv")
+raw_peaks <- read.csv("data/RP_pos_20190421.csv")
 rp_dim1 <- dim(raw_peaks)[1]
 rp_pcg1 <- length(unique(raw_peaks$pcgroup))
 
@@ -313,7 +313,7 @@ rp_pos <- raw_peaks
 rm (f, l, raw_peaks, selected_peaks)
 
 #================================== RP neg ====================================
-raw_peaks <- read.csv("RP_neg_20190422.csv")
+raw_peaks <- read.csv("data/RP_neg_20190422.csv")
 rn_dim1 <- dim(raw_peaks)[1]
 rn_pcg1 <- length(unique(raw_peaks$pcgroup))
 
@@ -362,10 +362,10 @@ rm (f, l, raw_peaks, selected_peaks)
 To monitor the stability of the signal during the UPLC-HRMS run, we plot the total signal per sample by injection order.
 
 ```{r ms_run_stability}
-hp <- read.csv("HILIC_pos_20190417.csv", header=T, sep=",")
-hn <- read.csv("HILIC_neg_20190421.csv", header=T, sep=",")
-rp <- read.csv("RP_pos_20190421.csv", header=T, sep=",")
-rn <- read.csv("RP_neg_20190422.csv", header=T, sep=",")
+hp <- read.csv("data/HILIC_pos_20190417.csv", header=T, sep=",")
+hn <- read.csv("data/HILIC_neg_20190421.csv", header=T, sep=",")
+rp <- read.csv("data/RP_pos_20190421.csv", header=T, sep=",")
+rn <- read.csv("data/RP_neg_20190422.csv", header=T, sep=",")
 
 # subsetting, keep only sample data
 hp <- hp[,13:(dim(hp)[2]-3)] #14

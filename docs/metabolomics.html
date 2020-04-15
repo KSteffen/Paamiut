@@ -4,11 +4,11 @@
 
   <meta charset="utf-8" />
   <meta http-equiv="X-UA-Compatible" content="IE=edge" />
-  <title>2 Metabolomics | Water masses influence microbiome and metabolome in deep-sea sponges</title>
-  <meta name="description" content="2 Metabolomics | Water masses influence microbiome and metabolome in deep-sea sponges" />
-  <meta name="generator" content="bookdown 0.17 and GitBook 2.6.7" />
+  <title>2 Metabolomics | Oceanographic setting influences the prokaryote community and metabolome in deep-sea sponges</title>
+  <meta name="description" content="2 Metabolomics | Oceanographic setting influences the prokaryote community and metabolome in deep-sea sponges" />
+  <meta name="generator" content="bookdown 0.18 and GitBook 2.6.7" />
 
-  <meta property="og:title" content="2 Metabolomics | Water masses influence microbiome and metabolome in deep-sea sponges" />
+  <meta property="og:title" content="2 Metabolomics | Oceanographic setting influences the prokaryote community and metabolome in deep-sea sponges" />
   <meta property="og:type" content="book" />
   
   
@@ -16,7 +16,7 @@
   
 
   <meta name="twitter:card" content="summary" />
-  <meta name="twitter:title" content="2 Metabolomics | Water masses influence microbiome and metabolome in deep-sea sponges" />
+  <meta name="twitter:title" content="2 Metabolomics | Oceanographic setting influences the prokaryote community and metabolome in deep-sea sponges" />
   
   
   
@@ -24,7 +24,7 @@
 <meta name="author" content="Karin Steffen" />
 
 
-<meta name="date" content="2020-01-31" />
+<meta name="date" content="2020-04-15" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <meta name="apple-mobile-web-app-capable" content="yes" />
@@ -32,10 +32,9 @@
   
   
 <link rel="prev" href="index.html"/>
-
+<link rel="next" href="microbiota.html"/>
 <script src="libs/jquery-2.2.3/jquery.min.js"></script>
 <link href="libs/gitbook-2.6.7/css/style.css" rel="stylesheet" />
-<link href="libs/gitbook-2.6.7/css/plugin-table.css" rel="stylesheet" />
 <link href="libs/gitbook-2.6.7/css/plugin-bookdown.css" rel="stylesheet" />
 <link href="libs/gitbook-2.6.7/css/plugin-highlight.css" rel="stylesheet" />
 <link href="libs/gitbook-2.6.7/css/plugin-search.css" rel="stylesheet" />
@@ -154,6 +153,14 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 <li class="chapter" data-level="2.4" data-path="metabolomics.html"><a href="metabolomics.html#data-quality-control"><i class="fa fa-check"></i><b>2.4</b> Data quality control</a></li>
 <li class="chapter" data-level="2.5" data-path="metabolomics.html"><a href="metabolomics.html#summary"><i class="fa fa-check"></i><b>2.5</b> Summary</a></li>
 </ul></li>
+<li class="chapter" data-level="3" data-path="microbiota.html"><a href="microbiota.html"><i class="fa fa-check"></i><b>3</b> Microbiota</a><ul>
+<li class="chapter" data-level="3.1" data-path="microbiota.html"><a href="microbiota.html#functions"><i class="fa fa-check"></i><b>3.1</b> Functions</a></li>
+<li class="chapter" data-level="3.2" data-path="microbiota.html"><a href="microbiota.html#relative-abundance"><i class="fa fa-check"></i><b>3.2</b> Relative abundance</a></li>
+<li class="chapter" data-level="3.3" data-path="microbiota.html"><a href="microbiota.html#data-set-description"><i class="fa fa-check"></i><b>3.3</b> Data set description</a></li>
+<li class="chapter" data-level="3.4" data-path="microbiota.html"><a href="microbiota.html#depth-response"><i class="fa fa-check"></i><b>3.4</b> Depth response</a></li>
+<li class="chapter" data-level="3.5" data-path="microbiota.html"><a href="microbiota.html#shortlist"><i class="fa fa-check"></i><b>3.5</b> Shortlist</a></li>
+</ul></li>
+<li class="chapter" data-level="4" data-path="inter-omics.html"><a href="inter-omics.html"><i class="fa fa-check"></i><b>4</b> Inter-omics</a></li>
 <li class="divider"></li>
 <li><a href="https://github.com/rstudio/bookdown" target="blank">Published with bookdown</a></li>
 
@@ -166,7 +173,7 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
       <div class="body-inner">
         <div class="book-header" role="navigation">
           <h1>
-            <i class="fa fa-circle-o-notch fa-spin"></i><a href="./">Water masses influence microbiome and metabolome in deep-sea sponges</a>
+            <i class="fa fa-circle-o-notch fa-spin"></i><a href="./">Oceanographic setting influences the prokaryote community and metabolome in deep-sea sponges</a>
           </h1>
         </div>
 
@@ -221,7 +228,7 @@ All study samples were analysed in both RP and HILIC, in positive and negative i
 <span id="cb1-18"><a href="metabolomics.html#cb1-18"></a>xsaF &lt;-<span class="st"> </span><span class="kw">groupFWHM</span>(xsa, <span class="dt">perfwhm =</span> <span class="fl">0.3</span>)</span>
 <span id="cb1-19"><a href="metabolomics.html#cb1-19"></a>xsaC &lt;-<span class="st"> </span><span class="kw">groupCorr</span>(xsaF, <span class="dt">cor_eic_th =</span> <span class="fl">0.7</span>)</span>
 <span id="cb1-20"><a href="metabolomics.html#cb1-20"></a>xsaFI &lt;-<span class="st"> </span><span class="kw">findIsotopes</span>(xsaC)</span>
-<span id="cb1-21"><a href="metabolomics.html#cb1-21"></a>rules &lt;-<span class="st"> </span><span class="kw">read.csv</span>(<span class="st">&quot;rules_jan_pos.csv&quot;</span>, <span class="dt">header =</span> T, <span class="dt">sep =</span> <span class="st">&quot;,&quot;</span>)</span>
+<span id="cb1-21"><a href="metabolomics.html#cb1-21"></a>rules &lt;-<span class="st"> </span><span class="kw">read.csv</span>(<span class="st">&quot;data/rules_jan_pos.csv&quot;</span>, <span class="dt">header =</span> T, <span class="dt">sep =</span> <span class="st">&quot;,&quot;</span>)</span>
 <span id="cb1-22"><a href="metabolomics.html#cb1-22"></a>xsaFA &lt;-<span class="st"> </span><span class="kw">findAdducts</span>(xsaFI, <span class="dt">polarity =</span> <span class="st">&quot;positive&quot;</span>, <span class="dt">rules =</span> rules)</span>
 <span id="cb1-23"><a href="metabolomics.html#cb1-23"></a><span class="co"># write.csv(getPeaklist(xsaFA), file=&#39;HILIC_pos_20190417.csv&#39;)</span></span></code></pre></div>
 <p>The other data experiments, HILIC with negative ESI and RP with positive and negative ESI are processed accordingly.</p>
@@ -247,7 +254,7 @@ All study samples were analysed in both RP and HILIC, in positive and negative i
 <span id="cb2-17"><a href="metabolomics.html#cb2-17"></a>xsaF &lt;-<span class="st"> </span><span class="kw">groupFWHM</span>(xsa, <span class="dt">perfwhm =</span> <span class="fl">0.3</span>)</span>
 <span id="cb2-18"><a href="metabolomics.html#cb2-18"></a>xsaC &lt;-<span class="st"> </span><span class="kw">groupCorr</span>(xsaF, <span class="dt">cor_eic_th =</span> <span class="fl">0.7</span>)</span>
 <span id="cb2-19"><a href="metabolomics.html#cb2-19"></a>xsaFI &lt;-<span class="st"> </span><span class="kw">findIsotopes</span>(xsaC)</span>
-<span id="cb2-20"><a href="metabolomics.html#cb2-20"></a>rules &lt;-<span class="st"> </span><span class="kw">read.csv</span>(<span class="st">&quot;rules_jan_neg.csv&quot;</span>, <span class="dt">header =</span> T, <span class="dt">sep =</span> <span class="st">&quot;,&quot;</span>)</span>
+<span id="cb2-20"><a href="metabolomics.html#cb2-20"></a>rules &lt;-<span class="st"> </span><span class="kw">read.csv</span>(<span class="st">&quot;data/rules_jan_neg.csv&quot;</span>, <span class="dt">header =</span> T, <span class="dt">sep =</span> <span class="st">&quot;,&quot;</span>)</span>
 <span id="cb2-21"><a href="metabolomics.html#cb2-21"></a>xsaFA &lt;-<span class="st"> </span><span class="kw">findAdducts</span>(xsaFI, <span class="dt">polarity =</span> <span class="st">&quot;negative&quot;</span>, <span class="dt">rules =</span> rules)</span>
 <span id="cb2-22"><a href="metabolomics.html#cb2-22"></a><span class="co"># write.csv(getPeaklist(xsaFA), file=&#39;HILIC_neg_20190421.csv&#39;)</span></span></code></pre></div>
 </div>
@@ -272,7 +279,7 @@ All study samples were analysed in both RP and HILIC, in positive and negative i
 <span id="cb3-17"><a href="metabolomics.html#cb3-17"></a>xsaF &lt;-<span class="st"> </span><span class="kw">groupFWHM</span>(xsa, <span class="dt">perfwhm =</span> <span class="fl">0.3</span>)</span>
 <span id="cb3-18"><a href="metabolomics.html#cb3-18"></a>xsaC &lt;-<span class="st"> </span><span class="kw">groupCorr</span>(xsaF, <span class="dt">cor_eic_th =</span> <span class="fl">0.7</span>)</span>
 <span id="cb3-19"><a href="metabolomics.html#cb3-19"></a>xsaFI &lt;-<span class="st"> </span><span class="kw">findIsotopes</span>(xsaC)</span>
-<span id="cb3-20"><a href="metabolomics.html#cb3-20"></a>rules &lt;-<span class="st"> </span><span class="kw">read.csv</span>(<span class="st">&quot;rules_jan_pos.csv&quot;</span>, <span class="dt">header =</span> T, <span class="dt">sep =</span> <span class="st">&quot;,&quot;</span>)</span>
+<span id="cb3-20"><a href="metabolomics.html#cb3-20"></a>rules &lt;-<span class="st"> </span><span class="kw">read.csv</span>(<span class="st">&quot;data/rules_jan_pos.csv&quot;</span>, <span class="dt">header =</span> T, <span class="dt">sep =</span> <span class="st">&quot;,&quot;</span>)</span>
 <span id="cb3-21"><a href="metabolomics.html#cb3-21"></a>xsaFA &lt;-<span class="st"> </span><span class="kw">findAdducts</span>(xsaFI, <span class="dt">polarity =</span> <span class="st">&quot;positive&quot;</span>, <span class="dt">rules =</span> rules)</span>
 <span id="cb3-22"><a href="metabolomics.html#cb3-22"></a><span class="co"># write.csv(getPeaklist(xsaFA), file=&#39;RP_pos_20190421.csv&#39;)</span></span></code></pre></div>
 </div>
@@ -297,7 +304,7 @@ All study samples were analysed in both RP and HILIC, in positive and negative i
 <span id="cb4-17"><a href="metabolomics.html#cb4-17"></a>xsaF &lt;-<span class="st"> </span><span class="kw">groupFWHM</span>(xsa, <span class="dt">perfwhm =</span> <span class="fl">0.3</span>)</span>
 <span id="cb4-18"><a href="metabolomics.html#cb4-18"></a>xsaC &lt;-<span class="st"> </span><span class="kw">groupCorr</span>(xsaF, <span class="dt">cor_eic_th =</span> <span class="fl">0.7</span>)</span>
 <span id="cb4-19"><a href="metabolomics.html#cb4-19"></a>xsaFI &lt;-<span class="st"> </span><span class="kw">findIsotopes</span>(xsaC)</span>
-<span id="cb4-20"><a href="metabolomics.html#cb4-20"></a>rules &lt;-<span class="st"> </span><span class="kw">read.csv</span>(<span class="st">&quot;rules_jan_neg.csv&quot;</span>, <span class="dt">header =</span> T, <span class="dt">sep =</span> <span class="st">&quot;,&quot;</span>)</span>
+<span id="cb4-20"><a href="metabolomics.html#cb4-20"></a>rules &lt;-<span class="st"> </span><span class="kw">read.csv</span>(<span class="st">&quot;data/rules_jan_neg.csv&quot;</span>, <span class="dt">header =</span> T, <span class="dt">sep =</span> <span class="st">&quot;,&quot;</span>)</span>
 <span id="cb4-21"><a href="metabolomics.html#cb4-21"></a>xsaFA &lt;-<span class="st"> </span><span class="kw">findAdducts</span>(xsaFI, <span class="dt">polarity =</span> <span class="st">&quot;negative&quot;</span>, <span class="dt">rules =</span> rules)</span>
 <span id="cb4-22"><a href="metabolomics.html#cb4-22"></a><span class="co"># write.csv(getPeaklist(xsaFA), file=&#39;RP_neg_20190422.csv&#39;)</span></span></code></pre></div>
 </div>
@@ -314,7 +321,7 @@ All study samples were analysed in both RP and HILIC, in positive and negative i
 <div class="sourceCode" id="cb5"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb5-1"><a href="metabolomics.html#cb5-1"></a><span class="kw">library</span>(dplyr)</span>
 <span id="cb5-2"><a href="metabolomics.html#cb5-2"></a></span>
 <span id="cb5-3"><a href="metabolomics.html#cb5-3"></a><span class="co"># ================================ HILIC pos ===================================</span></span>
-<span id="cb5-4"><a href="metabolomics.html#cb5-4"></a>raw_peaks &lt;-<span class="st"> </span><span class="kw">read.csv</span>(<span class="st">&quot;HILIC_pos_20190417.csv&quot;</span>)</span>
+<span id="cb5-4"><a href="metabolomics.html#cb5-4"></a>raw_peaks &lt;-<span class="st"> </span><span class="kw">read.csv</span>(<span class="st">&quot;data/HILIC_pos_20190417.csv&quot;</span>)</span>
 <span id="cb5-5"><a href="metabolomics.html#cb5-5"></a>hp_dim1 &lt;-<span class="st"> </span><span class="kw">dim</span>(raw_peaks)[<span class="dv">1</span>]</span>
 <span id="cb5-6"><a href="metabolomics.html#cb5-6"></a>hp_pcg1 &lt;-<span class="st"> </span><span class="kw">length</span>(<span class="kw">unique</span>(raw_peaks<span class="op">$</span>pcgroup))</span>
 <span id="cb5-7"><a href="metabolomics.html#cb5-7"></a></span>
@@ -361,7 +368,7 @@ All study samples were analysed in both RP and HILIC, in positive and negative i
 <span id="cb5-48"><a href="metabolomics.html#cb5-48"></a><span class="kw">rm</span>(f, l, raw_peaks, selected_peaks)</span>
 <span id="cb5-49"><a href="metabolomics.html#cb5-49"></a></span>
 <span id="cb5-50"><a href="metabolomics.html#cb5-50"></a><span class="co"># ================================ HILIC neg ===================================</span></span>
-<span id="cb5-51"><a href="metabolomics.html#cb5-51"></a>raw_peaks &lt;-<span class="st"> </span><span class="kw">read.csv</span>(<span class="st">&quot;HILIC_neg_20190421.csv&quot;</span>)</span>
+<span id="cb5-51"><a href="metabolomics.html#cb5-51"></a>raw_peaks &lt;-<span class="st"> </span><span class="kw">read.csv</span>(<span class="st">&quot;data/HILIC_neg_20190421.csv&quot;</span>)</span>
 <span id="cb5-52"><a href="metabolomics.html#cb5-52"></a>hn_dim1 &lt;-<span class="st"> </span><span class="kw">dim</span>(raw_peaks)[<span class="dv">1</span>]</span>
 <span id="cb5-53"><a href="metabolomics.html#cb5-53"></a>hn_pcg1 &lt;-<span class="st"> </span><span class="kw">length</span>(<span class="kw">unique</span>(raw_peaks<span class="op">$</span>pcgroup))</span>
 <span id="cb5-54"><a href="metabolomics.html#cb5-54"></a></span>
@@ -405,7 +412,7 @@ All study samples were analysed in both RP and HILIC, in positive and negative i
 <span id="cb5-92"><a href="metabolomics.html#cb5-92"></a><span class="kw">rm</span>(f, l, raw_peaks)</span>
 <span id="cb5-93"><a href="metabolomics.html#cb5-93"></a></span>
 <span id="cb5-94"><a href="metabolomics.html#cb5-94"></a><span class="co"># ================================== RP pos ====================================</span></span>
-<span id="cb5-95"><a href="metabolomics.html#cb5-95"></a>raw_peaks &lt;-<span class="st"> </span><span class="kw">read.csv</span>(<span class="st">&quot;RP_pos_20190421.csv&quot;</span>)</span>
+<span id="cb5-95"><a href="metabolomics.html#cb5-95"></a>raw_peaks &lt;-<span class="st"> </span><span class="kw">read.csv</span>(<span class="st">&quot;data/RP_pos_20190421.csv&quot;</span>)</span>
 <span id="cb5-96"><a href="metabolomics.html#cb5-96"></a>rp_dim1 &lt;-<span class="st"> </span><span class="kw">dim</span>(raw_peaks)[<span class="dv">1</span>]</span>
 <span id="cb5-97"><a href="metabolomics.html#cb5-97"></a>rp_pcg1 &lt;-<span class="st"> </span><span class="kw">length</span>(<span class="kw">unique</span>(raw_peaks<span class="op">$</span>pcgroup))</span>
 <span id="cb5-98"><a href="metabolomics.html#cb5-98"></a></span>
@@ -449,7 +456,7 @@ All study samples were analysed in both RP and HILIC, in positive and negative i
 <span id="cb5-136"><a href="metabolomics.html#cb5-136"></a><span class="kw">rm</span>(f, l, raw_peaks, selected_peaks)</span>
 <span id="cb5-137"><a href="metabolomics.html#cb5-137"></a></span>
 <span id="cb5-138"><a href="metabolomics.html#cb5-138"></a><span class="co"># ================================== RP neg ====================================</span></span>
-<span id="cb5-139"><a href="metabolomics.html#cb5-139"></a>raw_peaks &lt;-<span class="st"> </span><span class="kw">read.csv</span>(<span class="st">&quot;RP_neg_20190422.csv&quot;</span>)</span>
+<span id="cb5-139"><a href="metabolomics.html#cb5-139"></a>raw_peaks &lt;-<span class="st"> </span><span class="kw">read.csv</span>(<span class="st">&quot;data/RP_neg_20190422.csv&quot;</span>)</span>
 <span id="cb5-140"><a href="metabolomics.html#cb5-140"></a>rn_dim1 &lt;-<span class="st"> </span><span class="kw">dim</span>(raw_peaks)[<span class="dv">1</span>]</span>
 <span id="cb5-141"><a href="metabolomics.html#cb5-141"></a>rn_pcg1 &lt;-<span class="st"> </span><span class="kw">length</span>(<span class="kw">unique</span>(raw_peaks<span class="op">$</span>pcgroup))</span>
 <span id="cb5-142"><a href="metabolomics.html#cb5-142"></a></span>
@@ -495,10 +502,10 @@ All study samples were analysed in both RP and HILIC, in positive and negative i
 <div id="data-quality-control" class="section level2">
 <h2><span class="header-section-number">2.4</span> Data quality control</h2>
 <p>To monitor the stability of the signal during the UPLC-HRMS run, we plot the total signal per sample by injection order.</p>
-<div class="sourceCode" id="cb6"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb6-1"><a href="metabolomics.html#cb6-1"></a>hp &lt;-<span class="st"> </span><span class="kw">read.csv</span>(<span class="st">&quot;HILIC_pos_20190417.csv&quot;</span>, <span class="dt">header =</span> T, <span class="dt">sep =</span> <span class="st">&quot;,&quot;</span>)</span>
-<span id="cb6-2"><a href="metabolomics.html#cb6-2"></a>hn &lt;-<span class="st"> </span><span class="kw">read.csv</span>(<span class="st">&quot;HILIC_neg_20190421.csv&quot;</span>, <span class="dt">header =</span> T, <span class="dt">sep =</span> <span class="st">&quot;,&quot;</span>)</span>
-<span id="cb6-3"><a href="metabolomics.html#cb6-3"></a>rp &lt;-<span class="st"> </span><span class="kw">read.csv</span>(<span class="st">&quot;RP_pos_20190421.csv&quot;</span>, <span class="dt">header =</span> T, <span class="dt">sep =</span> <span class="st">&quot;,&quot;</span>)</span>
-<span id="cb6-4"><a href="metabolomics.html#cb6-4"></a>rn &lt;-<span class="st"> </span><span class="kw">read.csv</span>(<span class="st">&quot;RP_neg_20190422.csv&quot;</span>, <span class="dt">header =</span> T, <span class="dt">sep =</span> <span class="st">&quot;,&quot;</span>)</span>
+<div class="sourceCode" id="cb6"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb6-1"><a href="metabolomics.html#cb6-1"></a>hp &lt;-<span class="st"> </span><span class="kw">read.csv</span>(<span class="st">&quot;data/HILIC_pos_20190417.csv&quot;</span>, <span class="dt">header =</span> T, <span class="dt">sep =</span> <span class="st">&quot;,&quot;</span>)</span>
+<span id="cb6-2"><a href="metabolomics.html#cb6-2"></a>hn &lt;-<span class="st"> </span><span class="kw">read.csv</span>(<span class="st">&quot;data/HILIC_neg_20190421.csv&quot;</span>, <span class="dt">header =</span> T, <span class="dt">sep =</span> <span class="st">&quot;,&quot;</span>)</span>
+<span id="cb6-3"><a href="metabolomics.html#cb6-3"></a>rp &lt;-<span class="st"> </span><span class="kw">read.csv</span>(<span class="st">&quot;data/RP_pos_20190421.csv&quot;</span>, <span class="dt">header =</span> T, <span class="dt">sep =</span> <span class="st">&quot;,&quot;</span>)</span>
+<span id="cb6-4"><a href="metabolomics.html#cb6-4"></a>rn &lt;-<span class="st"> </span><span class="kw">read.csv</span>(<span class="st">&quot;data/RP_neg_20190422.csv&quot;</span>, <span class="dt">header =</span> T, <span class="dt">sep =</span> <span class="st">&quot;,&quot;</span>)</span>
 <span id="cb6-5"><a href="metabolomics.html#cb6-5"></a></span>
 <span id="cb6-6"><a href="metabolomics.html#cb6-6"></a><span class="co"># subsetting, keep only sample data</span></span>
 <span id="cb6-7"><a href="metabolomics.html#cb6-7"></a>hp &lt;-<span class="st"> </span>hp[, <span class="dv">13</span><span class="op">:</span>(<span class="kw">dim</span>(hp)[<span class="dv">2</span>] <span class="op">-</span><span class="st"> </span><span class="dv">3</span>)]  <span class="co">#14</span></span>
@@ -562,7 +569,7 @@ All study samples were analysed in both RP and HILIC, in positive and negative i
 <span id="cb6-65"><a href="metabolomics.html#cb6-65"></a><span class="st">    </span><span class="kw">xlab</span>(<span class="st">&quot;sample injection order&quot;</span>) <span class="op">+</span><span class="st"> </span><span class="kw">ylab</span>(<span class="st">&quot;total signal intensity per sample&quot;</span>) <span class="op">+</span><span class="st"> </span></span>
 <span id="cb6-66"><a href="metabolomics.html#cb6-66"></a><span class="st">    </span><span class="kw">labs</span>(<span class="dt">colour =</span> <span class="st">&quot;Experiment&quot;</span>) <span class="op">+</span><span class="st"> </span><span class="kw">theme</span>(<span class="dt">legend.position =</span> <span class="st">&quot;bottom&quot;</span>) <span class="op">+</span><span class="st"> </span><span class="kw">geom_smooth</span>(<span class="dt">method =</span> <span class="st">&quot;lm&quot;</span>, </span>
 <span id="cb6-67"><a href="metabolomics.html#cb6-67"></a>    <span class="dt">size =</span> <span class="fl">0.5</span>) <span class="op">+</span><span class="st"> </span><span class="kw">facet_grid</span>(stability<span class="op">$</span>experiment <span class="op">~</span><span class="st"> </span>., <span class="dt">scales =</span> <span class="st">&quot;free&quot;</span>)</span></code></pre></div>
-<p><img src="Water-masses-influence-microbiome-and-metabolome-in-deep-sea-sponges_files/figure-html/ms_run_stability-1.png" width="672" /></p>
+<p><img src="Oceanographic-setting-influences-the-prokaryote-community-and-metabolome-in-deep-sea-sponges_files/figure-html/ms_run_stability-1.png" width="672" /></p>
 <div class="sourceCode" id="cb7"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb7-1"><a href="metabolomics.html#cb7-1"></a><span class="kw">rm</span>(hp, hp_df, hn, hn_df, rp, rp_df, rn, rn_df, stability)</span></code></pre></div>
 </div>
 <div id="summary" class="section level2">
@@ -804,7 +811,7 @@ RP neg
 <span id="cb9-14"><a href="metabolomics.html#cb9-14"></a><span class="st">    </span><span class="kw">ylab</span>(<span class="st">&quot;Count&quot;</span>) <span class="op">+</span><span class="st"> </span><span class="kw">labs</span>(<span class="dt">fill =</span> <span class="st">&quot;Filtering step&quot;</span>) <span class="op">+</span><span class="st"> </span><span class="kw">theme_bw</span>() <span class="op">+</span><span class="st"> </span><span class="kw">scale_fill_grey</span>() <span class="op">+</span><span class="st"> </span></span>
 <span id="cb9-15"><a href="metabolomics.html#cb9-15"></a><span class="st">    </span><span class="kw">scale_y_continuous</span>(<span class="dt">breaks =</span> <span class="kw">seq</span>(<span class="dv">0</span>, <span class="dv">6000</span>, <span class="dv">1000</span>)) <span class="op">+</span><span class="st"> </span><span class="kw">theme</span>(<span class="dt">axis.text.x =</span> <span class="kw">element_text</span>(<span class="dt">angle =</span> <span class="dv">45</span>, </span>
 <span id="cb9-16"><a href="metabolomics.html#cb9-16"></a>    <span class="dt">vjust =</span> <span class="fl">0.5</span>, <span class="dt">hjust =</span> <span class="fl">0.5</span>), <span class="dt">legend.position =</span> <span class="st">&quot;bottom&quot;</span>)</span></code></pre></div>
-<p><img src="Water-masses-influence-microbiome-and-metabolome-in-deep-sea-sponges_files/figure-html/kable_table-1.png" width="672" style="display: block; margin: auto;" /></p>
+<p><img src="Oceanographic-setting-influences-the-prokaryote-community-and-metabolome-in-deep-sea-sponges_files/figure-html/kable_table-1.png" width="672" style="display: block; margin: auto;" /></p>
 <p>After preliminary analyses of metabolomics data, a few outliers were re-identified by P. Cárdenas, and one specimen was removed from the data set as it originated from another species.</p>
 <div class="sourceCode" id="cb10"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb10-1"><a href="metabolomics.html#cb10-1"></a><span class="kw">sessionInfo</span>()</span></code></pre></div>
 <pre><code>## R version 3.5.1 (2018-07-02)
@@ -822,22 +829,23 @@ RP neg
 ## [1] stats     graphics  grDevices utils     datasets  methods   base     
 ## 
 ## other attached packages:
-## [1] reshape2_1.4.3        kableExtra_1.1.0.9000 ggplot2_3.2.1        
-## [4] stringr_1.4.0         dplyr_0.8.3           knitr_1.26           
+## [1] reshape2_1.4.3        kableExtra_1.1.0.9000 ggplot2_3.3.0        
+## [4] stringr_1.4.0         dplyr_0.8.5           knitr_1.28           
 ## 
 ## loaded via a namespace (and not attached):
-##  [1] Rcpp_1.0.3        highr_0.8         pillar_1.4.3      compiler_3.5.1   
-##  [5] formatR_1.7       plyr_1.8.5        tools_3.5.1       zeallot_0.1.0    
-##  [9] digest_0.6.23     viridisLite_0.3.0 evaluate_0.14     tibble_2.1.3     
-## [13] lifecycle_0.1.0   gtable_0.3.0      pkgconfig_2.0.3   rlang_0.4.2      
-## [17] rstudioapi_0.10   yaml_2.2.0        xfun_0.12         xml2_1.2.2       
-## [21] httr_1.4.1        withr_2.1.2       vctrs_0.2.1       hms_0.5.3        
-## [25] webshot_0.5.2     grid_3.5.1        tidyselect_0.2.5  glue_1.3.1       
-## [29] R6_2.4.1          rmarkdown_2.0     bookdown_0.17     readr_1.3.1      
-## [33] purrr_0.3.3       farver_2.0.1      magrittr_1.5      backports_1.1.5  
-## [37] scales_1.1.0      htmltools_0.4.0   rvest_0.3.5       assertthat_0.2.1 
-## [41] colorspace_1.4-1  labeling_0.3      stringi_1.4.5     lazyeval_0.2.2   
-## [45] munsell_0.5.0     crayon_1.3.4</code></pre>
+##  [1] Rcpp_1.0.4        plyr_1.8.6        highr_0.8         pillar_1.4.3     
+##  [5] compiler_3.5.1    formatR_1.7       tools_3.5.1       digest_0.6.25    
+##  [9] viridisLite_0.3.0 lattice_0.20-41   evaluate_0.14     lifecycle_0.2.0  
+## [13] tibble_3.0.0      gtable_0.3.0      nlme_3.1-145      mgcv_1.8-31      
+## [17] pkgconfig_2.0.3   rlang_0.4.5       Matrix_1.2-18     cli_2.0.2        
+## [21] rstudioapi_0.11   yaml_2.2.1        xfun_0.12         xml2_1.3.0       
+## [25] httr_1.4.1        withr_2.1.2       hms_0.5.3         vctrs_0.2.4      
+## [29] webshot_0.5.2     grid_3.5.1        tidyselect_1.0.0  glue_1.3.2       
+## [33] R6_2.4.1          fansi_0.4.1       rmarkdown_2.1     bookdown_0.18    
+## [37] readr_1.3.1       farver_2.0.3      purrr_0.3.3       magrittr_1.5     
+## [41] scales_1.1.0      ellipsis_0.3.0    htmltools_0.4.0   splines_3.5.1    
+## [45] rvest_0.3.5       assertthat_0.2.1  colorspace_1.4-1  labeling_0.3     
+## [49] stringi_1.4.6     munsell_0.5.0     crayon_1.3.4</code></pre>
 
 </div>
 </div>
@@ -846,8 +854,8 @@ RP neg
           </div>
         </div>
       </div>
-<a href="index.html" class="navigation navigation-prev navigation-unique" aria-label="Previous page"><i class="fa fa-angle-left"></i></a>
-
+<a href="index.html" class="navigation navigation-prev " aria-label="Previous page"><i class="fa fa-angle-left"></i></a>
+<a href="microbiota.html" class="navigation navigation-next " aria-label="Next page"><i class="fa fa-angle-right"></i></a>
     </div>
   </div>
 <script src="libs/gitbook-2.6.7/js/app.min.js"></script>
@@ -889,7 +897,7 @@ gitbook.start({
 "link": null,
 "text": null
 },
-"download": ["Water masses influence microbiome and metabolome in deep-sea sponges.pdf", "Water masses influence microbiome and metabolome in deep-sea sponges.epub"],
+"download": ["Oceanographic-setting-influences-the-prokaryote-community-and-metabolome-in-deep-sea-sponges.pdf", "Oceanographic-setting-influences-the-prokaryote-community-and-metabolome-in-deep-sea-sponges.epub"],
 "toc": {
 "collapse": "subsection"
 }
