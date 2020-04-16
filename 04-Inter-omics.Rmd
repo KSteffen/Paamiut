@@ -9,6 +9,12 @@ library(knitr)
 
 # Inter-omics
 
+The inter-omics analyses are comprised of three parts. In the first part, we evaluate congruency of the prokaryotic and metabolomic data set as a whole using numerical methods (Mantel test) and ordination (Procrustes rotation and Protest). The second part consists of generating a microbial interaction network and annotating it with depth response of the OTUs and correlation with the barettin signal. In the third part, we rank OTUs based on properties hypothesised to be true forthe producer of barettin.
+
+## Mantel test and procrustes rotations
+
+### Libraries and functions
+
 ```{r io1_functions}
 library(tidyverse)
 library(vegan)
@@ -134,10 +140,10 @@ ordination <- function(congruent_dfs, experiment, filtering){
   gb_meta_mds <- metaMDS(congruent_dfs$metabolome_gb, trymax = 100, distance =  "euclid", autotransforme=F) 
   micro_gb_mds <- metaMDS(congruent_dfs$micro_gb, trymax = 100, distance ="bray")
   
-  sf_meta_mds <- metaMDS(congruent_dfs$metabolome_sf, trymax = 100, distance =  "euclid", autotransforme=F) 
+  sf_meta_mds <- metaMDS(congruent_dfs$metabolome_sf, trymax = 100, distance = "euclid", autotransforme=F) 
   micro_sf_mds <- metaMDS(congruent_dfs$micro_sf, trymax = 100, distance ="bray")
   
-  wb_meta_mds <- metaMDS(congruent_dfs$metabolome_wb, trymax = 100, distance =  "euclid", autotransforme=F) 
+  wb_meta_mds <- metaMDS(congruent_dfs$metabolome_wb, trymax = 100, distance = "euclid", autotransforme=F) 
   micro_wb_mds <- metaMDS(congruent_dfs$micro_wb, trymax = 100, distance ="bray")
   
   gb_proc <- procrustes(micro_gb_mds, gb_meta_mds, scores = "sites")
@@ -183,11 +189,10 @@ ordination <- function(congruent_dfs, experiment, filtering){
 
 ```
 
-```{r io2_mantel_data, eval=FALSE}
-#############
-# LOAD DATA #
-#############
+### Data sets
 
+```{r io2_data_mp, eval=FALSE}
+# LOAD DATA 
 micro <- read.csv("data/OTU_all_R.csv", header = T, sep = ";")
 colnames(micro)[colnames(micro) == "Sample_ID"] <- "unified_ID"
 micro <- micro[order(micro$unified_ID),] 
@@ -196,7 +201,7 @@ micro["spec"] <- str_sub(micro$unified_ID, 1, 2)
 
 meta_data <- read.csv("data/PANGAEA_Final.csv", header = T, sep = ";")  
 masslynx <- meta_data
-masslynx <- masslynx[c("unified_ID", "LC.MS.HILIC.positive", "LC.MS.HILIC.negative", "LC.MS.RP.positive",   "LC.MS.RP.negative")]
+masslynx <- masslynx[c("unified_ID", "LC.MS.HILIC.positive", "LC.MS.HILIC.negative", "LC.MS.RP.positive",  "LC.MS.RP.negative")]
 colnames(masslynx) <- c("unified_ID", "H_p","H_n","R_p","R_n")
 masslynx <- na.omit(masslynx)
 masslynx["HILIC_pos"] <- str_sub(masslynx$H_p, 1,-3)
@@ -224,7 +229,11 @@ hilic_neg <- read.csv("data/HILIC_neg_20190421_cleaned_pcgroup.csv", header=T, s
 rp_pos <- read.csv("data/RP_pos_20190421_cleaned_pcgroup.csv", header=T, sep=",")
 rp_neg <- read.csv("data/RP_neg_20190422_cleaned_pcgroup.csv", header=T, sep=",")
 
+```
 
+### Mantel test code and tabular output
+
+```{r io3_mantel-test, eval=F}
 ###=============================== MANTEL TEST=================================
 
 #run one of this at a time
@@ -259,7 +268,7 @@ diagnostics <- diagnostics_hp_cleaned
 diagnostics <- rbind(diagnostics, diagnostics_hn_cleaned, diagnostics_rp_cleaned, diagnostics_rn_cleaned,   diagnostics_hp_pc_group, diagnostics_hn_pc_group, diagnostics_rp_pc_group, diagnostics_rn_pc_group,
                      diagnostics_hp_ion, diagnostics_hn_ion, diagnostics_rp_ion, diagnostics_rn_ion)
 diagnostics
-#write.csv(diagnostics, "mantel_stats_FUN.csv")
+write.csv(diagnostics, "mantel_stats_FUN.csv")
 ```
 
 ```{r io4_mantel_results}
@@ -276,9 +285,19 @@ kable(diagnostics,
   add_header_above(c("Diagnostics" = 6, "Data set attribution" = 3)) %>%
   kable_styling(bootstrap_options = c("striped","hover", "bordered", "condensed", "responsive"), font_size = 12, full_width = F,latex_options = c("striped", "scale_down"))
 
+dig <- diagnostics[diagnostics$signif<=0.05,]
+a <- aggregate(dig, by=list(dig$Sponge.species, dig$Experiment, dig$data.set), FUN="length")
+summary(a$Group.1)
+summary(a$Group.2)
+summary(a$Group.3)
 
+rm(diagnostics_hp_cleaned, diagnostics_hn_cleaned, diagnostics_rp_cleaned, diagnostics_rn_cleaned, diagnostics_hp_ion, diagnostics_hn_ion, diagnostics_rp_ion, diagnostics_rn_ion, diagnostics_hp_pc_group, diagnostics_hn_pc_group, diagnostics_rp_pc_group, diagnostics_rn_pc_group)
+rm(hilic_pos, hilic_neg, rp_pos, rp_neg)
 ```
 
+As we can see from the table, in `r dim(dig)[1]` cases, the Mantel test returns a significant correlation between the two matrices. Above you can see the the significant tests broken down by sponge species, HPCL-experiment and filtering approach.
+
+### Procrustes rotation and protest code and tabular output
 
 ```{r io5_prt, eval=F}
 ###=============================== PROTEST ====================================
@@ -318,13 +337,15 @@ diagnostics <- rbind(diagnostics, diagnostics_hn_cleaned, diagnostics_rp_cleaned
 diagnostics
 
 write.csv(diagnostics, "protest_stats_FUN.csv")
+
+rm(diagnostics_hp_cleaned, diagnostics_hn_cleaned, diagnostics_rp_cleaned, diagnostics_rn_cleaned, diagnostics_hp_ion, diagnostics_hn_ion, diagnostics_rp_ion, diagnostics_rn_ion, diagnostics_hp_pc_group, diagnostics_hn_pc_group, diagnostics_rp_pc_group, diagnostics_rn_pc_group, diagnostics)
+rm(hilic_pos, hilic_neg, rp_pos, rp_neg)
 ```
 
 ```{r io6_prt}
 diagnostics <- read.csv("data/protest_stats_FUN.csv")
 diagnostics$X <- NULL
 diagnostics <- diagnostics[,c("Procrustes.SS","correlation.in.sym..rotation", "signif", "micro_samples","micro_OTUs","meta_samples","meta_features","Sponge.species", "Experiment",  "data.set")]
-
 
 options(kableExtra.html.bsTable = T)
 kable(diagnostics, 
@@ -333,9 +354,469 @@ kable(diagnostics,
       caption = "Protest diagnositcs comparing the microbiome and metabolome of the same sponge specimens", 
       row.names=FALSE) %>%
   add_header_above(c("Diagnostics" = 7, "Data set attribution" = 3)) %>%
-  kable_styling(bootstrap_options = c("striped","hover", "bordered", "condensed", "responsive"), font_size = 12, full_width = F,
-    latex_options = c("striped", "scale_down"))
+  kable_styling(bootstrap_options = c("striped","hover", "bordered", "condensed", "responsive"), font_size = 12, full_width = F, latex_options = c("striped", "scale_down"))
+
+dig <- diagnostics[diagnostics$signif<=0.05,]
+a <- aggregate(dig, by=list(dig$Sponge.species, dig$Experiment, dig$data.set), FUN="length")
+summary(a$Group.1)
+summary(a$Group.2)
+summary(a$Group.3)
+
+
 ```
+Out of the `r dim(diagnostics)[1]` tests performed, `r dim(diagnostics[diagnostics$signif<=0.05,])[1]` are significant (_p_ $\leq$ 0.05). Immediately above you can see the the significant tests broken down by sponge species, HPCL-experiment and filtering approach.
+
+## Microbial interaction network
+
+### Generating network based on different algorithms
+
+The overall goal of the subsequent seqctions of code is to produce a microbial interation network for _Geodia barretti_. Nodes will be OTUs/ASVs from _Geodia barretti_ samples and edges represent an interaction between those OTUs/ASVs. In this first part, we will employ different algorithms for network building. Network building algorithms are mannifold and their results not uncontroversial, thus the recommended strategy is to use different methods and merge the resulting networks to one consensus representation (Weiss _et al_., 2016), which we will do in the second part.
+
+The original data set from 14 specimens of _Geodia barretti_ contained 420 OTUs/ASVs. To reduce sparsity, we removed OTUs/ASVs with two or less non-zero values resulting in a data set containing 289 OTUs/ASVs. This data set was used for network inference with the following methods:
+
+1. MENA Pipeline
+2. fastLSA
+3. SparCC
+4. Maximal information coefficient MIC
+
+#### Molecular Ecological Network Analysis (MENA) Pipeline
+The implementation of MENA (Deng _et al_., 2012; Zhou, Deng _et al_., 2010; Zhou, Deng _et al_.,2011) can be accessed at http://ieg4.rccc.ou.edu/mena. The data set was saved as tab separated values and all zeros were converted to blanks.
+No further filtering for non-zero values was done (more than two non-zero values). For data preparation, default settings were applied, i.e.  missing data was only filled with 0.01 in blanks with paired valid values, logarithm was taken, Pearson correlation coefficient was selected. Likewise, Random matrix theory settings were kept at defaults, decreasing the cutoff from the top using Regress Poisson distribution only. The cutoff of 0.800 was chosen for the similarity matrix to construct the network, corresponding to a Chi-square test on Poisson distribution of 99.191 and a p-value of 0.001. This resulted in a network with 241 nodes and 3582 edges.
+
+A second analysis was produced with the same settings except building the similarity matrix based on Spearman's Rho. The cutoff of 0.820 was chosen for the similarity matrix to construct the network, corresponding to a Chi-square test on Poisson distribution of 98.417 and a p-value of 0.001. This resulted in a network with 252 nodes and 2216 edges.
+
+Network properties and parameters are summarized in MENA_network_parameters_Feb2019.xlsx.
+
+#### Local Similarity Analysis: fastLSA
+The command line program for calcularing local similarity (Durno _et al_., 2013) was downloaded from http://hallam.microbiology.ubc.ca/fastLSA/install/index.html and run specifying the input file, no time lag (-d 0) and significance level alpha (-a 0.05). All other paramters were kept at their default values. The input data set was a tab delimited text file stripped of OTU labels or sample IDs.
+
+```{bash fastLSA1, eval=F}
+$ ./fastLSA -i ../gb_289_feb2019.txt -d 0 -a 0.05 -o ../gb_289_feb2019.out
+```
+
+The output file, as specified on the website, containes five columns. 'index1' and 'index2' represent the significant paired indices ranging from 0 to n-1 (OTUs/ASVs). LSA denotes the LSA statistic of each pair, lag was set to 0 with the -d flag and the p-valueBound column provides the p-value's upper boundary for the significantly paired p-value.
+
+To produce comparable data sets, we replaced the indices with their OTU IDs and removed superfluous columns.
+```{r fastLSA2, echo=T, eval=F}
+fastLSA <- read.csv("data/gb_289_feb2019.out", header = T, sep = "")
+key <- read.csv("data/fastLSA_index_otu_CORRECTEDfeb2019.csv", header=T, sep=";")
+
+fastLSA$index1_otu <- key$fastLSA_OTU[match(fastLSA$index1, key$fastLSA_index)]
+fastLSA$index2_otu <- key$fastLSA_OTU[match(fastLSA$index2, key$fastLSA_index)]
+
+fastLSA$index1 <- NULL
+fastLSA$index2 <- NULL
+fastLSA$lag <- NULL
+fastLSA$X <- NULL
+fastLSA <- fastLSA[,c(3, 4, 1, 2)]
+fastLSA <- fastLSA[order(fastLSA$p.valueBound),]
+
+write.csv(fastLSA, "fastLSA_for_networks.csv")
+rm(fastLSA, key)
+```
+
+LSA scores range from -1 for strong negatively correlations to 1, for strong positive correlations. There were no negative correlations in this data setand we refrained from scaleding the LSA score furhter.
+The resulting network contrained `length(unique(c(fastLSA$index1, fastLSA$index2)))` nodes and `(dim(fastLSA)[1])-1` edges.
+
+#### SparCC
+SparCC (Friedman and Alm, 2012) is a network building algorithm for compositional data and can be found at https://bitbucket.org/yonatanf/sparcc.
+
+Prior to running it I had to get help as there was a minor issue during compilation. SparCC needed specific versions of numpy, panda and python to run properly, which is easiest accomodated in a specific environment. The OTU table needs to be windows formatted text. The embedded code is an example, for the analysis, 500 iterations were combined.
+
+```{bash sparcc1, eval=FALSE, tidy=TRUE}
+$ cd to working directory with SparCC and the data set gb_289.csv
+$ source activate sparcc
+python SparCC.py ../gb_sparcc.txt -c ../gb_sparcc_cor_file.txt -v 
+../gb_sparcc_coverage_file.txt -i 5
+$ deactivate
+```
+
+Create a results directory and redirect all the output there. Pseudo p-value Calculation, generates -n shuffled data sets:
+
+```{bash sparcc2, eval=FALSE, tidy=TRUE}
+$ mkdir results #creates output directory
+$ python MakeBootstraps.py ../gb_sparcc.txt -n 5 -t permutation_#.txt -p ../results/ 
+```
+
+And run SparCC.py on all the re-shuffled data sets: 
+
+```{bash sparcc3, eval=FALSE, tidy=TRUE}
+$ python SparCC.py ../results/permutation_0.txt -i 5 --cor_file=../results/perm_cor_0.txt
+$ python SparCC.py ../results/permutation_1.txt -i 5 --cor_file=../results/perm_cor_1.txt
+$ python SparCC.py ../results/permutation_2.txt -i 5 --cor_file=../results/perm_cor_2.txt
+$ python SparCC.py ../results/permutation_3.txt -i 5 --cor_file=../results/perm_cor_3.txt
+$ python SparCC.py ../results/permutation_4.txt -i 5 --cor_file=../results/perm_cor_4.txt
+```
+
+Generate p-values: 
+
+```{bash sparcc4, eval=FALSE, tidy=TRUE}
+$ python PseudoPvals.py ../results/gb_sparcc_cor_file.txt ../results/perm_cor_#.txt 5 
+-o ../results/pvals.two_sided.txt -t two_sided
+```
+
+Formatting the resulting data set like so:
+
+```{r sparcc5, eval=F}
+library(reshape2)
+cor_file <- read.csv("data/gb_sparcc_cor_file_289.csv",  header=T, sep=";")
+p_vals <- read.csv("data/gb_289_pvals.two_sided.csv",  header=T, sep=";")
+
+# make OTU ID the rowname
+rownames(cor_file) <- cor_file[,1]
+cor_file[,1] <- NULL
+rownames(p_vals) <- p_vals[,1]
+p_vals[,1] <- NULL
+# check ds congruency
+all(colnames(cor_file)==rownames(cor_file))
+all(colnames(p_vals)==rownames(p_vals))
+
+# melt into long format, all vs all comparison: 289^2=83521 rows
+cor_file_m <- melt(as.matrix(cor_file))
+p_vals_m <- melt(as.matrix(p_vals))
+
+all(cor_file_m$Var1==p_vals_m$Var1) 
+all(cor_file_m$Var2==p_vals_m$Var2) 
+
+#complete data set with p_vals and "correlation coeff"
+cor_file_m["p_vals"] <- p_vals_m$value
+
+# This removes AB - BA duplicates but still contains self comprisons, AA, BB,CC etc.
+cols <- c("Var1", "Var2")
+newdf <- cor_file_m[,cols] #generate new data set with just those two
+#a <- Sys.time()
+for (i in 1:nrow(cor_file_m)){
+  newdf[i, ] = sort(cor_file_m[i,cols])
+}
+#b <- Sys.time()
+#b-a
+
+cor_file_shortened<- cor_file_m[!duplicated(newdf),] #and can be removed with duplicate
+cor_file_shortened <- cor_file_shortened[which(cor_file_shortened$Var1 != cor_file_shortened$Var2),] # removing self comparison
+colnames(cor_file_shortened) <- c("Var1_SparCC", "Var2_SparCC", "SparCC", "pSparCC") #41616
+write.csv(cor_file_shortened, "SparCC_for_networks.csv")
+rm(cor_file_m, newdf, p_vals_m, i, cols)
+```
+
+#### Maximal information coefficient MIC 
+MIC for pariwise interaction was calculated with the R package minearva. The MIC is part of a statistic called Maximal Information-Based Nonparametric Exploration (MINE).
+
+```{r MIC1, tidy=TRUE}
+library(minerva)
+
+OTU <- read.csv("data/gb_289.csv", header=T, sep=";")
+rownames(OTU) <- OTU[,1]
+OTU[,1] <- NULL
+OTU <- as.data.frame(t(OTU))
+
+# Calculate MIC of original data set. 
+MINE <- mine(OTU)
+MIC <- MINE$MIC #dim(MIC): 289 289
+```
+
+Obtaining p-values for this statistic can be achieved by premutation of the original OTU table as below or emprirically, by selecting the thousandth stronges interactions.
+
+```{r MIC2, eval=F}
+# 10 needs to be replaced with 1000 for final version, three times!!!
+# reshuffling the OTU table, saving the MIC to a list, a total of 1000 times
+n <- 0
+results <- list()
+
+#For reproducibility, one could e.g.:
+#set.seed(1984)
+
+#c <- Sys.time()
+while (n<1000){
+  n <- n+1
+  mock <- apply(OTU,MARGIN = 2,sample)
+  mock_mine <- mine(mock)
+  results[[n]] <- mock_mine$MIC
+}
+#d <- Sys.time()
+#d-c
+
+#for every element of the true matrix, go through all the same elements in the 1000 generated mock matrix MIC indices and count how many of those are greater.
+MIC <- MINE$MIC
+
+e_values <- matrix(nrow = nrow(MIC), ncol = ncol(MIC), data = 0)
+for(i in 1:nrow(MIC)){
+  for (j in 1:ncol(MIC)){
+    n <- 0
+    while (n<1000){
+      n <- n+1
+      if(results[[n]][i,j]>= MIC[i,j]){
+        e_values[i, j] <- e_values[i, j]+1
+      }
+    }
+  }
+}
+
+e_values <- e_values/1000
+#write.csv(e_values, "MIC_e_values.csv")
+```
+
+For n=1000, the first part takes about 8 mins on one core, the second part about 2 min. The relevant output is saved in the initial calculations of the MIC and the corresponding e-values are in e_values. These are symmetric matrices that will be reduced to a long table with unique OTUs/ASVs pairs, their MIC and the e-value. For clarity, all other files are removed.
+
+```{r MIC3, eval=F}
+rm(MINE, mock, mock_mine, results)
+
+# transforming symmetric matrix to unique-pair long format
+cor_file <- data.frame(MIC)
+p_vals <- data.frame(e_values)
+
+# inspect the files, adapt them and test congruency
+rownames(p_vals) <- rownames(cor_file)
+colnames(p_vals) <- colnames(cor_file)
+all(colnames(cor_file)==rownames(cor_file))
+
+# melt into long format, all vs all comparison: 289*289=83521 rows
+cor_file_m <- melt(as.matrix(cor_file))
+all(colnames(p_vals)==rownames(p_vals))
+p_vals_m <- melt(as.matrix(p_vals))
+
+#complete data set with p_vals
+cor_file_m["p_vals"] <- p_vals_m$value
+
+# This removes AB - BA duplicates but still contains self comprisons, AA, BB, etc.
+cols <- c("Var1", "Var2")
+newdf <- cor_file_m[,cols] #generate new data set with just those two
+
+for (i in 1:nrow(cor_file_m)){
+  newdf[i, ] <-  sort(cor_file_m[i,cols])
+}
+
+cor_file_shortened<- cor_file_m[!duplicated(newdf),] #and can be removed with duplicate
+cor_file_shortened <- cor_file_shortened[which(cor_file_shortened$Var1 != cor_file_shortened$Var2),]# removing self comparison
+rm(cor_file_m, newdf, p_vals_m, i, cols)
+
+#write.csv(cor_file_shortened, "MIC_for_networks.csv")
+```
+
+### Consolidation of the different networks
+
+#### MIC
+MIC allows to detect a variety of interactions. According to the manual of the R wrapper minerva, the resulting MIC score "is related to the relationship strenght and it can be interpreted as a correlation measure. It is symmetric and it ranges in [0,1], where it tends to 0 for statistically independent data and it approaches 1 in probability for noiseless functional relationships". Thus, it also contains strong negative relationship up to mutual exclusivity, which we want to filter out.
+
+```{r MIC4}
+mic <- read.csv("data/MIC_for_networks.csv", header=T, sep=",")
+mic$X <- NULL
+colnames(mic) <- c("node1_mic", "node2_mic", "MIC", "pMIC")
+```
+
+Initially, the MIC network generated by the R wrapper minerva contained MIC values for all possible edges (i.e. `r nrow(mic)`). Of those, `r sum(mic$pMIC<=0.05)` edges/interactions had a p-value $\leq$ 0.05. As we will only include those edges in the final network, we select those and calculate the linear regression coefficient and p-value for the regression, to test whether we are able to distinguish negative from positive interaction.
+
+```{r MIC5}
+# Original OTU table for regressions
+OTU <- read.csv("data/gb_289.csv", header=T, sep=";")
+rownames(OTU) <- OTU[,1]
+OTU[,1] <- NULL
+OTU["ID"] <- row.names(OTU)
+```
+
+```{r MIC6, eval=F}
+# goal: in mic data frame, set to 'NA' MIC and pMIC of edges with a significant p-value for MIC that have a significant negative regression
+
+mic["regression"] <- NA
+mic["p_regression"] <- NA
+
+for (i in 1:nrow(mic)){
+  bac1 <- factor(mic[i,1])
+  bac2 <- factor(mic[i,2])
+  temp_ds <- data.frame(t(rbind(OTU[OTU$ID==bac1,], OTU[OTU$ID==bac2,])))
+  temp_ds<- temp_ds[-c(15),]
+  temp_ds[] <- lapply(temp_ds, function(x) if(is.factor(x)) factor(x) else x) # removes factors, not sure if necessary
+  mic$regression[i] <-  summary(lm(c(temp_ds[,1])~ c(temp_ds[,2])))$coefficients[2,1] #slope
+  mic$p_regression[i] <-  summary(lm(c(temp_ds[,1])~ c(temp_ds[,2])))$coefficients[2,4] #p-val
+}
+
+before <- sum(mic$pMIC<=0.05) #4370
+mic$MIC <- ifelse((mic$pMIC<=0.05 & mic$regression<0 & mic$p_regression<=0.05), NA, mic$MIC)
+mic$pMIC <- ifelse((mic$pMIC<=0.05 & mic$regression<0 & mic$p_regression<=0.05), NA, mic$pMIC)
+after <- sum(mic$pMIC<=0.05, na.rm=T) #3522
+
+write.csv(mic, "MIC.csv")
+rm(temp_ds, bac1, bac2, i, mic)
+```
+
+The MIC data set initially contained 41616 edges, 4370 of which were significant prior to the removal of negative correlations and leaving 3522 edges with a p-value  $\leq$ 0.05.
+
+#### SparCC
+The next network data set is based on the SparCC algorithm for computing correlations in compositional data.
+
+```{r SparCC}
+sparcc <- read.csv("data/SparCC_for_networks.csv", header=T, sep=",")
+sparcc$X <- NULL
+colnames(sparcc) <- c("node1_sparcc", "node2_sparcc", "SparCC", "pSparCC")
+#hist(sparcc$SparCC)
+#hist(sparcc$pSparCC)
+sparcc$pSparCC <- ifelse((sparcc$SparCC<0), NA, sparcc$pSparCC) #setting the p-values of negative interactions to NA
+sparcc$SparCC <- ifelse((sparcc$SparCC<0), NA, sparcc$SparCC) #setting negative interactions to NA
+```
+
+The network based on the SparCC algorithm contained `r nrow(sparcc)` edges of which `r sum(is.na(sparcc$SparCC))` negative interactions that were removed. `r sum(sparcc$pSparCC<=0, na.rm=T)` significant positive edges remain.
+
+#### MENA
+The next two network data sets are generated by MENA based on random matrix theory.
+
+```{r MENA1}
+mena_pcc <- read.csv("data/MENA_0.800_PCC_edge_attribute.txt", header=F, sep=" ")
+# "np" in V2 and -1 in V5 mean negative interaction, these should be removed.
+dim(mena_pcc)[1]-dim(mena_pcc[mena_pcc$V5==-1,])[1] # Number of pos interactions
+mena_pcc["pMENA_PCC"] <- ifelse((mena_pcc$V5<0), NA, 0.001)
+mena_pcc$V2 <- NULL
+mena_pcc$V4 <- NULL
+mena_pcc$V5 <- NULL
+colnames(mena_pcc) <- c("node1_mena", "node2_mena", "pMENA_PCC")
+
+mena_scc <- read.csv("data/MENA_0.820_SCC_edge_attribute.txt", header=F, sep=" ")
+dim(mena_scc)[1]-dim(mena_scc[mena_scc$V5==-1,])[1] # Number of pos interactions
+mena_scc["pMENA_SCC"] <- ifelse((mena_scc$V5<0), NA, 0.001)
+mena_scc$V2 <- NULL
+mena_scc$V4 <- NULL
+mena_scc$V5 <- NULL
+colnames(mena_scc) <- c("node1_mena", "node2_mena", "pMENA_SCC")
+```
+
+MENA network with Pearson correlation contained `r nrow(mena_pcc)` edges of which `r sum(is.na(mena_pcc$pMENA_PCC))` negative interactions were removed. For Spearman correlations, the network contained `r nrow(mena_scc)` edges of which `r sum(is.na(mena_scc$pMENA_SCC))` negative interactions were removed.
+
+#### LSA
+The next network data set is based on local similarity. It does not contain any negative values for LSA, so we do not exclude any edges.
+
+```{r LSA}
+lsa <- read.csv("data/fastLSA_for_networks.csv", header=T, sep=",")
+lsa$X <- NULL
+colnames(lsa) <- c("node1_lsa", "node2_lsa", "LSA", "pLSA") 
+dim(lsa)[1] # Number of edges
+```
+
+#### Integration of the networks 
+Now we combine all five networks into one data set.
+
+```{r integration1, eval=FALSE}
+mic <- read.csv("data/MIC.csv", header=T)
+mic$X <- NULL
+mic$regression <- NULL
+mic$p_regression <- NULL
+master_summary <- mic
+
+library(dplyr)
+master_summary <- full_join(master_summary,lsa, by=c("node1_mic"="node2_lsa","node2_mic"="node1_lsa")) 
+#sum(!is.na(master_summary$pLSA))==nrow(lsa) #TRUE
+master_summary <- full_join(master_summary,sparcc, by=c("node1_mic"="node1_sparcc","node2_mic"="node2_sparcc")) 
+#sum(!is.na(master_summary$pSparCC))==sum(!is.na(sparcc$pSparCC)) #TRUE
+master_summary <- full_join(master_summary,mena_pcc, by=c("node1_mic"="node2_mena","node2_mic"="node1_mena")) 
+#sum(!is.na(master_summary$pMENA_PCC))==sum(!is.na(mena_pcc$pMENA_PCC)) #TRUE
+master_summary <- full_join(master_summary,mena_scc, by=c("node1_mic"="node2_mena","node2_mic"="node1_mena")) 
+#sum(!is.na(master_summary$pMENA_SCC))==sum(!is.na(mena_scc$pMENA_SCC)) #TRUE
+master_summary <- master_summary[,c(1, 2, 4, 6, 8, 9, 10, 3, 5, 7)] #reorder columns
+head(master_summary)
+#write.csv(master_summary, "data/master_summary_networks_1.csv", row.names = FALSE)
+```
+
+
+```{r integration2, out.width='80%'}
+#e.g. metap::sumlog, or EmpiricalBrownsMethod::EBM
+library(metap)
+
+ms <- read.csv("data/master_summary_networks_1.csv", header=T)
+head(ms)
+
+#For metap::sumlog, replace all zeros with small non-zero values. E.g. half-minimum
+par(mfrow=c(2,3))
+hist(ms$pMIC)
+hist(ms$pLSA) #xlim = range(0,1)
+hist(ms$pSparCC)
+plot(ms$pMENA_PCC)
+plot(ms$pMENA_SCC)
+par(mfrow=c(1,1))
+
+#sumlog doesn't think 0 is a valid p-value
+#min(ms$pMIC, na.rm=T)
+#max(ms$pMIC, na.rm=T)
+#min(ms$pLSA, na.rm=T)
+#max(ms$pLSA, na.rm=T)
+#min(ms$pSparCC, na.rm=T)
+#max(ms$pSparCC, na.rm=T)
+#min(ms$pMENA_PCC, na.rm=T)
+#max(ms$pMENA_PCC, na.rm=T)
+#min(ms$pMENA_SCC, na.rm=T)
+#max(ms$pMENA_SCC, na.rm=T)
+
+ms$pSparCC[ms$pSparCC==0.0] <- 0.005
+ms$pMIC[ms$pMIC==0.0] <- 0.0005
+#head(ms)
+
+ms["NA_count"] <- NA
+ms["signif_0.05"] <- NA
+ms["signif_0.001"] <- NA
+ms["sumlog"] <- NA
+
+n <- 0
+k <- dim(ms)[1]
+while (n<k) {
+  n <- n+1
+  ms$NA_count[n] <-  sum(is.na(ms[n,3:7]))
+  ms$signif_0.05[n] <-  sum(ms[n,3:7]<=0.05, na.rm=T)
+  ms$signif_0.001[n] <-  sum(ms[n,3:7]<=0.001, na.rm=T)
+  ifelse((ms$NA_count[n]<=3), (ms$sumlog[n] <- sumlog(ms[n,3:7][!is.na(ms[n,3:7])])$p), NA)
+}
+rm(k,n)
+#head(ms, n=20)
+ms["p.adjust_Bonferroni"] <- p.adjust(ms$sumlog, method = "bonferroni")
+ms["p.adjust_FDR"] <- p.adjust(ms$sumlog, method = "fdr") #aka Benjamini & Hochberg
+#head(ms, n=20)
+
+#write.csv(ms, "master_summary_networks_p-val.csv")
+
+#setwd("~/Documents/Metabolomics/Depth_Gradient_study/R_depth_study/Network_analyses_R")
+#ms <- read.csv("master_summary_networks_p-val.csv", header=T, sep=",") #NEW START HERE
+#rm(lsa, mena_pcc, mena_scc, mic, sparcc)
+
+hist(ms$NA_count, main="NAs", xlab="Count per edge ", breaks = c(0,1,2,3,4,5), labels = TRUE)
+hist(ms$signif_0.05, main="p-values <= 0.05", xlab="Count per edge ", breaks = c(0,1,2,3,4,5), labels = TRUE) # SELECTION/INCLUSION CRITERION
+hist(ms$signif_0.001, main="p-values <= 0.001", xlab="Count per edge ", breaks = c(0,1,2,3,4,5), labels = TRUE)
+```
+
+We select all edges with at least 4 p-values $\leq$ 0.05 (n=`r sum(ms$NA_count==1)+sum(ms$NA_count==0)`) to visualise in the network.
+
+```{r igraph1, echo=TRUE, eval=TRUE, fig.align='center'}
+#head(ms)
+ds <- split(ms, ms$signif_0.05)
+raw_nodes <- rbind(ds$`4`, ds$`5`) # SELECTION/INCLUSION CRITERION
+rm(ds)
+
+# check ms for archaea: X196900146, X196900359
+head(ms)
+top1 <- ms[ms$node1_mic=="OTU196900146",]
+bottom1 <- ms[ms$node2_mic=="OTU196900146",]
+top2 <- ms[ms$node1_mic=="OTU196900359",]
+bottom2 <- ms[ms$node2_mic=="OTU196900359",]
+archaea <- rbind(top1, top2, bottom1, bottom2)
+archaea <- archaea[order(archaea$NA_count),]
+#
+
+
+par(mfrow=c(2,2))
+hist(raw_nodes$sumlog)
+hist(ms$sumlog)
+hist(ms$p.adjust_Bonferroni)
+hist(ms$p.adjust_FDR)
+par(mfrow=c(1,1))
+#nrow(ms)#41616
+#sum(ms$p.adjust_Bonferroni<=0.001, na.rm=T) #39
+#sum(ms$p.adjust_Bonferroni<=0.05, na.rm=T) #168
+#sum(ms$sumlog<=0.001, na.rm=T) #1446
+
+
+
+
+
+
+
+
+
+
+
 
 ```{r sess04}
 sessionInfo()

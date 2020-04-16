@@ -27,7 +27,6 @@ EMBEDDED_DATA
 ### Map
 
 ```{r sample_map}
-
 library(ggplot2)
 library(ggmap)
 library(maps)
