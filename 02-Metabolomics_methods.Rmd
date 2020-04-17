@@ -44,7 +44,9 @@ The data set was curated to remove features eluting in the void (retention time 
 
 An overview of the number of features and PC groups annotated by CAMERA, as well as their exclusion is given in a table at the end of this document.
 
-## Peak picking with XCMS and annotation with CAMERA
+## Data processing
+
+### Peak picking with XCMS and annotation with CAMERA
 
 We processed samples from all three sponnge species in random order with interspersed injection of a combined QC sample to monitor stability of the UPLC-HRMS run. The acquired signals/spectra were convered to netCDF format using the Program DataBridge, and thereafter sorted into four folders, three for the sponge species (Gb, Sf, Wb) and one for the QC samples (QC). Peak picking and combination of pseudospectra is performed with the R package xcms, the subsequent annotation of adducts and isotopes with the R package CAMERA.
 
@@ -164,7 +166,7 @@ xsaFA<-findAdducts(xsaFI, polarity="negative", rules=rules)
 #write.csv(getPeaklist(xsaFA), file="RP_neg_20190422.csv")
 ```
 
-## Filtering of the raw data set
+### Filtering of the raw data set
 
 Features with with following properties were removed:
 
@@ -357,7 +359,7 @@ hilic_neg <- raw_peaks
 rm (f, l, raw_peaks, selected_peaks)
 ```
 
-## Data quality control
+### Data quality control
 
 To monitor the stability of the signal during the UPLC-HRMS run, we plot the total signal per sample by injection order.
 
@@ -424,18 +426,16 @@ colnames(rn_df) <- c("colsum", "id", "io", "n", "experiment" )
 stability <- rbind(hp_df, hn_df, rp_df, rn_df)
 
 library(ggplot2)
-ggplot(stability, aes(x=stability$n, y=stability$colsum, color=stability$experiment))+
+ggplot(stability, aes(x=n, y=colsum, color=experiment))+
   geom_line(size=1.5)+ ggtitle("Signal intensity during UPLC-HRMS experiments")+
   xlab("sample injection order")+ ylab("total signal intensity per sample")+
   labs(colour="Experiment")+ theme(legend.position="bottom")+
-    geom_smooth(method='lm', size=0.5)+ facet_grid(stability$experiment ~., scales = "free")
+    geom_smooth(method='lm', size=0.5)+ facet_grid(experiment ~., scales = "free")
 
 rm(hp, hp_df, hn, hn_df, rp, rp_df, rn, rn_df, stability)
 ```
 
-
-## Summary
-
+### Summary of data processing
 Below we outline the number of features removed in every step as shown in the table and corresponding figure.
 
 ```{r kable_table, fig.align='center'}
@@ -480,7 +480,249 @@ ggplot(df, aes(fill=df$filter, x=df$acquisition, y=df$value))+
 
 After preliminary analyses of metabolomics data, a few outliers were re-identified by P. Cárdenas, and one specimen was removed from the data set as it originated from another species.
 
-```{r system_info, message = TRUE}
+## Multivariate analyses
+I order to investigate whether depth has an effect on the overall metabolome, we use OPLS orthogonal projections of latent structures as multivariate analysis approach. This method allows to separate variations in the data based on e.g. depth and orthogonal, i.e. unrealted variation.
+
+```{r pca1}
+library(ropls)
+library(dplyr)
+library(ggplot2)
+
+# load data
+hilic_pos <- read.csv("data/HILIC_pos_20190417_cleaned.csv", header=T, sep = ",")
+hilic_neg <- read.csv("data/HILIC_neg_20190421_cleaned.csv", header=T, sep=",")
+rp_pos <- read.csv("data/RP_pos_20190421_cleaned.csv", header=T, sep=",")
+rp_neg <- read.csv("data/RP_neg_20190422_cleaned.csv", header=T, sep=",")
+meta_data <- read.csv("data/Steffen_et_al_metadata_PANGAEA.csv", header=T, sep=";")
+
+formatting <- function(metabolome, meta_data, r, my_colnames) {
+  formatted <- metabolome
+  formatted <- formatted[,14:(dim(formatted)[2]-r)]
+  formatted <- data.frame(t(formatted))
+  formatted["ID"] <- rownames(formatted)
+  formatted["unified_ID"] <-meta_data$unified_ID[match(formatted$ID, meta_data[[my_colnames]])]
+  formatted["filter"] <- str_sub(formatted$unified_ID,1,2)
+  formatted <- formatted[!formatted$filter=="QC",]
+  formatted <- na.omit(formatted)
+  #formatted$filter <- NULL
+  formatted$ID <- NULL
+  formatted <- formatted[order(formatted$unified_ID),] 
+  rownames(formatted) <- formatted$unified_ID
+  return(formatted)
+}
+
+hilic_pos <- formatting(hilic_pos, meta_data, 6, "LC.MS.HILIC.positive")
+hilic_neg <- formatting(hilic_neg, meta_data,6, "LC.MS.HILIC.negative")
+rp_pos <- formatting(rp_pos, meta_data,6, "LC.MS.RP.positive")
+rp_neg <- formatting(rp_neg, meta_data,6, "LC.MS.RP.negative")
+
+md <- meta_data[,c("Species", "Depth", "Latitude", "Longitude", "YEAR", "MeanBottomTemp_Cdeg", "MeanBotSalinity_PSU", "unified_ID")]
+
+# Overview PCA illustrating the metabolomes differ by sponge species
+
+pca_wrapper <- function(metabolome, md, my_title){
+  metabolome$unified_ID <- NULL
+  metabolome$filter <- NULL
+  metabolome <- prcomp(metabolome, scale=T)
+  k <- summary(metabolome)[["importance"]]
+  metabolome_df <- data.frame(metabolome$x) #scores, i.e. principal components of the sponge sample 
+  metabolome_df["unified_ID"] <- as.factor(rownames(metabolome_df))
+  x1 <- paste("PC1", round(k[2,1], digits=3)*100, "%")
+  y1 <- paste("PC2", round(k[2,2], digits=3)*100, "%")
+  metabolome_df <- left_join(metabolome_df[,c("PC1", "PC2", "PC3", "unified_ID")], md[,c("Species", "Depth", "Latitude", "Longitude", "MeanBottomTemp_Cdeg", "MeanBotSalinity_PSU", "unified_ID")])
+  p <- ggplot(metabolome_df, aes(x=PC1, y=PC2))+geom_point(size=3, aes(shape=factor(Species)))+ggtitle(my_title)+xlab(x1)+ylab(y1)+theme(legend.position = "none")#+labs(shape="Species")
+  return(p)  
+}
+
+hp_pca <- pca_wrapper(hilic_pos, md, "Hilic pos")
+hn_pca <- pca_wrapper(hilic_neg, md, "Hilic neg")
+rp_pca <- pca_wrapper(rp_pos, md, "RP pos")
+rn_pca <- pca_wrapper(rp_neg, md, "RP pos")
+
+#FUN multiplot # NOT MY OWN
+multiplot <- function(..., plotlist=NULL, file, cols=1, layout=NULL) {
+  library(grid)
+  # Make a list from the ... arguments and plotlist
+  plots <- c(list(...), plotlist)
+  numPlots = length(plots)
+  # If layout is NULL, then use 'cols' to determine layout
+  if (is.null(layout)) {
+    # Make the panel
+    # ncol: Number of columns of plots
+    # nrow: Number of rows needed, calculated from # of cols
+    layout <- matrix(seq(1, cols * ceiling(numPlots/cols)),
+                     ncol = cols, nrow = ceiling(numPlots/cols))
+  }
+  if (numPlots==1) {
+    print(plots[[1]])
+  } else {
+    # Set up the page
+    grid.newpage()
+    pushViewport(viewport(layout = grid.layout(nrow(layout), ncol(layout))))
+    # Make each plot, in the correct location
+    for (i in 1:numPlots) {
+      # Get the i,j matrix positions of the regions that contain this subplot
+      matchidx <- as.data.frame(which(layout == i, arr.ind = TRUE))
+      print(plots[[i]], vp = viewport(layout.pos.row = matchidx$row,
+                                      layout.pos.col = matchidx$col))
+    }
+  }
+}
+
+multiplot(hp_pca, hn_pca, rp_pca, rn_pca, cols=2)
+
+library(vegan)
+
+permanova <- function(metabolome, md){
+  metabolome$filter <- NULL
+  md <- md[md$unified_ID %in% metabolome$unified_ID,]
+  metabolome <- metabolome[order(metabolome$unified_ID),] 
+  md <- md[order(md$unified_ID),] 
+  metabolome$unified_ID <- NULL
+  m <- adonis(metabolome ~ Species, md) 
+  return(m)
+}
+
+permanova(hilic_pos, md)
+permanova(hilic_neg, md)
+permanova(rp_pos, md)
+permanova(rp_neg, md)
+```
+From the PCA and the PERMANOVA, we gather that the metabolomes regardless of how they were acquired are significatly different in the three sponge species. Therefore, we separate the metabolomes for investigating the effect of depth on them individually.
+
+```{r opls1}
+#splitting df and adapting meta data
+spl_ada <- function(metabolome, md){
+  metabolome_gb <- metabolome[metabolome$filter=="Gb",]
+  metabolome_sf <- metabolome[metabolome$filter=="Sf",]
+  metabolome_wb <- metabolome[metabolome$filter=="Wb",]
+  
+  md_gb <- md[md$unified_ID %in% metabolome_gb$unified_ID,]
+  md_sf <- md[md$unified_ID %in% metabolome_sf$unified_ID,]
+  md_wb <- md[md$unified_ID %in% metabolome_wb$unified_ID,]
+  
+  metabolome_gb <- metabolome_gb[order(metabolome_gb$unified_ID),] 
+  metabolome_sf <- metabolome_sf[order(metabolome_sf$unified_ID),] 
+  metabolome_wb <- metabolome_wb[order(metabolome_wb$unified_ID),] 
+  
+  metabolome_gb$filter <- NULL
+  metabolome_gb$unified_ID <- NULL
+  metabolome_sf$filter <- NULL
+  metabolome_sf$unified_ID <- NULL
+  metabolome_wb$filter <- NULL
+  metabolome_wb$unified_ID <- NULL
+  
+  md_gb <- md_gb[order(md_gb$unified_ID),] 
+  md_sf <- md_sf[order(md_sf$unified_ID),] 
+  md_wb <- md_wb[order(md_wb$unified_ID),] 
+  
+  mva_data <- list(metabolome_gb=metabolome_gb, metabolome_sf=metabolome_sf, metabolome_wb=metabolome_wb, md_gb=md_gb, md_sf=md_sf, md_wb=md_wb)
+  return(mva_data)
+}
+
+hp_opls_df <- spl_ada(hilic_pos, md)
+hn_opls_df <- spl_ada(hilic_neg, md)
+rp_opls_df <- spl_ada(rp_pos, md)
+rn_opls_df <- spl_ada(rp_neg, md)
+
+#P should be NA; or 1
+ropls_wrapper <- function(opls_df, p1, p2, p3){
+  # ropls' PCA
+  gb.pca <- opls(opls_df$metabolome_gb)
+  sf.pca <- opls(opls_df$metabolome_sf)
+  wb.pca <- opls(opls_df$metabolome_wb)
+  
+  md_gb <- opls_df$md_gb
+  md_sf <- opls_df$md_sf
+  md_wb <- opls_df$md_wb
+  
+  # ropls' OPLS
+  gb.opls<-opls(opls_df$metabolome_gb, md_gb[, "Depth"], permI=10, orthoI=p1, scaleC="pareto") 
+  sf.opls<-opls(opls_df$metabolome_sf, md_sf[, "Depth"], permI=10, orthoI=p2, scaleC="pareto") 
+  wb.opls<-opls(opls_df$metabolome_wb, md_wb[, "Depth"], permI=10, orthoI=p3, scaleC="pareto") 
+  
+  # summary
+  gb.opls <- gb.opls@summaryDF 
+  sf.opls <- sf.opls@summaryDF
+  wb.opls <- wb.opls@summaryDF
+  
+  opls_diagnostics <- rbind(gb.opls, sf.opls, wb.opls)
+  opls_diagnostics["Species"] <- c("Geodia barretti", "Stryphnus fortis", "Weberella bursa")
+  return(opls_diagnostics)
+}
+
+a <- Sys.time()
+hp_cleaned_opls <- ropls_wrapper(hp_opls_df, NA, 1, NA)
+hn_cleaned_opls <- ropls_wrapper(hn_opls_df, NA, 1, NA)
+rp_cleaned_opls <- ropls_wrapper(rp_opls_df, NA, 1, NA)
+rn_cleaned_opls <- ropls_wrapper(rn_opls_df, 1, 1, NA)
+b <- Sys.time()
+b-a
+
+cleaned <- rbind(hp_cleaned_opls, hn_cleaned_opls, rp_cleaned_opls, rn_cleaned_opls)
+cleaned["Experiment"] <- c(rep("HILIC pos", 3), rep("HILIC neg", 3), rep("RP pos", 3), rep("RP neg", 3))
+write.csv(cleaned,"data/cleaned_opls_diagnostics.csv", row.names = F)
+```
+
+In the same manner, we can analyse the two remaining sets produced by different filtering options.
+
+```{r opls2}
+# load data ION
+hilic_pos <- read.csv("data/HILIC_pos_20190417_cleaned_MH.csv", header=T, sep = ",")
+hilic_neg <- read.csv("data/HILIC_neg_20190421_cleaned_MH.csv", header=T, sep=",")
+rp_pos <- read.csv("data/RP_pos_20190421_cleaned_MH.csv", header=T, sep=",")
+rp_neg <- read.csv("data/RP_neg_20190422_cleaned_MH.csv", header=T, sep=",")
+meta_data <- read.csv("data/Steffen_et_al_metadata_PANGAEA.csv", header=T, sep=";")
+
+hilic_pos <- formatting(hilic_pos, meta_data, 8, "LC.MS.HILIC.positive")
+hilic_neg <- formatting(hilic_neg, meta_data, 8, "LC.MS.HILIC.negative")
+rp_pos <- formatting(rp_pos, meta_data, 8, "LC.MS.RP.positive")
+rp_neg <- formatting(rp_neg, meta_data, 8, "LC.MS.RP.negative")
+
+md <- meta_data[,c("Species", "Depth", "Latitude", "Longitude", "YEAR", "MeanBottomTemp_Cdeg", "MeanBotSalinity_PSU", "unified_ID")]
+
+hp_pca <- pca_wrapper(hilic_pos, md, "Hilic pos")
+hn_pca <- pca_wrapper(hilic_neg, md, "Hilic neg")
+rp_pca <- pca_wrapper(rp_pos, md, "RP pos")
+rn_pca <- pca_wrapper(rp_neg, md, "RP pos")
+
+multiplot(hp_pca, hn_pca, rp_pca, rn_pca, cols=2)
+
+permanova(hilic_pos, md)
+permanova(hilic_neg, md)
+permanova(rp_pos, md)
+permanova(rp_neg, md)
+
+hilic_pos
+
+hp_opls_df <- spl_ada(hilic_pos, md)
+hn_opls_df <- spl_ada(hilic_neg, md)
+rp_opls_df <- spl_ada(rp_pos, md)
+rn_opls_df <- spl_ada(rp_neg, md)
+
+a <- Sys.time()
+hp_cleaned_opls <- ropls_wrapper(hp_opls_df, NA, 1, NA)
+hn_cleaned_opls <- ropls_wrapper(hn_opls_df, NA, NA, NA)
+rp_cleaned_opls <- ropls_wrapper(rp_opls_df, NA, NA, NA)
+rn_cleaned_opls <- ropls_wrapper(rn_opls_df, NA, NA, NA)
+b <- Sys.time()
+b-a
+
+ion <- rbind(hp_cleaned_opls, hn_cleaned_opls, rp_cleaned_opls, rn_cleaned_opls)
+ion["Experiment"] <- c(rep("HILIC pos", 3), rep("HILIC neg", 3), rep("RP pos", 3), rep("RP neg", 3))
+write.csv(ion,"data/cleaned_MH_opls_diagnostics.csv", row.names = F)
+
+
+```
+
+
+## Manual annotation, identification and extraction of metabolic feature signals
+
+## Correlations
+
+
+
+```{r system_info02, message = TRUE}
 sessionInfo()
 ```
 

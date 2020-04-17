@@ -494,7 +494,7 @@ for (i in 1:nrow(cor_file_m)){
 cor_file_shortened<- cor_file_m[!duplicated(newdf),] #and can be removed with duplicate
 cor_file_shortened <- cor_file_shortened[which(cor_file_shortened$Var1 != cor_file_shortened$Var2),] # removing self comparison
 colnames(cor_file_shortened) <- c("Var1_SparCC", "Var2_SparCC", "SparCC", "pSparCC") #41616
-write.csv(cor_file_shortened, "SparCC_for_networks.csv")
+write.csv(cor_file_shortened, "data/SparCC_for_networks.csv")
 rm(cor_file_m, newdf, p_vals_m, i, cols)
 ```
 
@@ -552,7 +552,7 @@ for(i in 1:nrow(MIC)){
 }
 
 e_values <- e_values/1000
-#write.csv(e_values, "MIC_e_values.csv")
+#write.csv(e_values, "data/MIC_e_values.csv")
 ```
 
 For n=1000, the first part takes about 8 mins on one core, the second part about 2 min. The relevant output is saved in the initial calculations of the MIC and the corresponding e-values are in e_values. These are symmetric matrices that will be reduced to a long table with unique OTUs/ASVs pairs, their MIC and the e-value. For clarity, all other files are removed.
@@ -589,7 +589,7 @@ cor_file_shortened<- cor_file_m[!duplicated(newdf),] #and can be removed with du
 cor_file_shortened <- cor_file_shortened[which(cor_file_shortened$Var1 != cor_file_shortened$Var2),]# removing self comparison
 rm(cor_file_m, newdf, p_vals_m, i, cols)
 
-#write.csv(cor_file_shortened, "MIC_for_networks.csv")
+#write.csv(cor_file_shortened, "data/MIC_for_networks.csv")
 ```
 
 ### Consolidation of the different networks
@@ -634,7 +634,7 @@ mic$MIC <- ifelse((mic$pMIC<=0.05 & mic$regression<0 & mic$p_regression<=0.05), 
 mic$pMIC <- ifelse((mic$pMIC<=0.05 & mic$regression<0 & mic$p_regression<=0.05), NA, mic$pMIC)
 after <- sum(mic$pMIC<=0.05, na.rm=T) #3522
 
-write.csv(mic, "MIC.csv")
+write.csv(mic, "data/MIC.csv")
 rm(temp_ds, bac1, bac2, i, mic)
 ```
 
@@ -715,13 +715,12 @@ head(master_summary)
 
 
 ```{r integration2, out.width='80%'}
-#e.g. metap::sumlog, or EmpiricalBrownsMethod::EBM
+# For p-value merging: metap::sumlog, or EmpiricalBrownsMethod::EBM
 library(metap)
 
 ms <- read.csv("data/master_summary_networks_1.csv", header=T)
 head(ms)
 
-#For metap::sumlog, replace all zeros with small non-zero values. E.g. half-minimum
 par(mfrow=c(2,3))
 hist(ms$pMIC)
 hist(ms$pLSA) #xlim = range(0,1)
@@ -730,21 +729,9 @@ plot(ms$pMENA_PCC)
 plot(ms$pMENA_SCC)
 par(mfrow=c(1,1))
 
-#sumlog doesn't think 0 is a valid p-value
-#min(ms$pMIC, na.rm=T)
-#max(ms$pMIC, na.rm=T)
-#min(ms$pLSA, na.rm=T)
-#max(ms$pLSA, na.rm=T)
-#min(ms$pSparCC, na.rm=T)
-#max(ms$pSparCC, na.rm=T)
-#min(ms$pMENA_PCC, na.rm=T)
-#max(ms$pMENA_PCC, na.rm=T)
-#min(ms$pMENA_SCC, na.rm=T)
-#max(ms$pMENA_SCC, na.rm=T)
-
+#metap::sumlog doesn't think 0 is a valid p-value, replace all zeros with small non-zero values, e.g. half-minimum
 ms$pSparCC[ms$pSparCC==0.0] <- 0.005
 ms$pMIC[ms$pMIC==0.0] <- 0.0005
-#head(ms)
 
 ms["NA_count"] <- NA
 ms["signif_0.05"] <- NA
@@ -761,58 +748,120 @@ while (n<k) {
   ifelse((ms$NA_count[n]<=3), (ms$sumlog[n] <- sumlog(ms[n,3:7][!is.na(ms[n,3:7])])$p), NA)
 }
 rm(k,n)
-#head(ms, n=20)
+
 ms["p.adjust_Bonferroni"] <- p.adjust(ms$sumlog, method = "bonferroni")
 ms["p.adjust_FDR"] <- p.adjust(ms$sumlog, method = "fdr") #aka Benjamini & Hochberg
-#head(ms, n=20)
 
-#write.csv(ms, "master_summary_networks_p-val.csv")
+write.csv(ms, "data/master_summary_networks_2.csv")
 
-#setwd("~/Documents/Metabolomics/Depth_Gradient_study/R_depth_study/Network_analyses_R")
-#ms <- read.csv("master_summary_networks_p-val.csv", header=T, sep=",") #NEW START HERE
-#rm(lsa, mena_pcc, mena_scc, mic, sparcc)
+par(mfrow=c(1,3))
+hist(ms$signif_0.05, main="p-values <= 0.05", xlab="Counts per edge ", breaks = c(0,1,2,3,4,5), labels = TRUE) 
+hist(ms$signif_0.001, main="p-values <= 0.001", xlab="Counts per edge ", breaks = c(0,1,2,3,4,5), labels = TRUE)
+hist(ms$NA_count, main="NAs", xlab="Counts per edge ", breaks = c(0,1,2,3,4,5), labels = TRUE)
+par(mfrow=c(1,1))
 
-hist(ms$NA_count, main="NAs", xlab="Count per edge ", breaks = c(0,1,2,3,4,5), labels = TRUE)
-hist(ms$signif_0.05, main="p-values <= 0.05", xlab="Count per edge ", breaks = c(0,1,2,3,4,5), labels = TRUE) # SELECTION/INCLUSION CRITERION
-hist(ms$signif_0.001, main="p-values <= 0.001", xlab="Count per edge ", breaks = c(0,1,2,3,4,5), labels = TRUE)
+ds <- split(ms, ms$signif_0.05)
+raw_nodes <- rbind(ds$`4`, ds$`5`) # Selection/inclusion criterion
+rm(ds)
 ```
 
-We select all edges with at least 4 p-values $\leq$ 0.05 (n=`r sum(ms$NA_count==1)+sum(ms$NA_count==0)`) to visualise in the network.
-
-```{r igraph1, echo=TRUE, eval=TRUE, fig.align='center'}
-#head(ms)
-ds <- split(ms, ms$signif_0.05)
-raw_nodes <- rbind(ds$`4`, ds$`5`) # SELECTION/INCLUSION CRITERION
-rm(ds)
-
-# check ms for archaea: X196900146, X196900359
-head(ms)
-top1 <- ms[ms$node1_mic=="OTU196900146",]
-bottom1 <- ms[ms$node2_mic=="OTU196900146",]
-top2 <- ms[ms$node1_mic=="OTU196900359",]
-bottom2 <- ms[ms$node2_mic=="OTU196900359",]
-archaea <- rbind(top1, top2, bottom1, bottom2)
-archaea <- archaea[order(archaea$NA_count),]
-#
-
-
-par(mfrow=c(2,2))
-hist(raw_nodes$sumlog)
-hist(ms$sumlog)
-hist(ms$p.adjust_Bonferroni)
-hist(ms$p.adjust_FDR)
-par(mfrow=c(1,1))
-#nrow(ms)#41616
-#sum(ms$p.adjust_Bonferroni<=0.001, na.rm=T) #39
-#sum(ms$p.adjust_Bonferroni<=0.05, na.rm=T) #168
-#sum(ms$sumlog<=0.001, na.rm=T) #1446
+We selected all edges with at least 4 p-values $\leq$ 0.05 (n=`r sum(ms$NA_count==1)+sum(ms$NA_count==0)`) to visualise in the network.
 
 
 
+```{r igraph1}
+library(igraph)
+
+edges <- raw_nodes[,1:2]
+nodes <- union(raw_nodes$node1_mic, raw_nodes$node2_mic)
 
 
+###K###
+meta_data <- read.csv("~/Documents/Metabolomics/Depth_Gradient_study/R_depth_study/Network_analyses_R/gb_attributes_barettin_vip2.csv", header = T, sep=";")
+#head(meta_data)
+meta_data <- meta_data[meta_data$OTU_otu %in% nodes,]
+#head(meta_data)
+#str(meta_data)
+meta_data$OTU_num <- NULL
+meta_data$order <- NULL
+nodes <- meta_data
+nodes$labels <- NA
+nodes$labels <- ifelse(nodes$bar_scale_abs==1, as.character(nodes$OTU_otu), NA)
+#sum(!is.na(nodes$labels)) #18
+#nodes$labels
+#head(nodes, n=20)
+nodes$labels <- sub(pattern = "OTU196900", replacement = "", x=nodes$labels, ignore.case = F)
+nodes[] <- lapply(nodes, function(x) if(is.factor(x)) factor(x) else x)
+
+net <- graph_from_data_frame(d=edges, vertices=nodes, directed=F) 
+ 
+#plot(net) 
+#l <- layout_with_kk(net)
+#plot(net, edge.arrow.size=.4,vertex.label=NA, layout=l) #plot again
+
+#Barettin highligted (orange node size)
+l <- layout_with_kk(net)
+plot(net, edge.arrow.size=.2, edge.color="grey",
+     vertex.color="orange", vertex.frame.color="#ffffff",
+     vertex.label=NA, vertex.label.color="black", 
+     vertex.size=V(net)$bar_scale_rel*10, layout=l) 
+
+# node info and classification for all nodes correlated with barettin
+node_info <- nodes[,c("OTU_otu", "phylum", "class")][nodes$bar_scale_abs==1,]
+node_info["counter"] <- 1 #for quick grasp with aggregate
+node_info
+nrow(node_info) #18
+node_info[] <- lapply(node_info, function(x) if(is.factor(x)) factor(x) else x) #dropping factors from full data set for all columns
+node_info[order(node_info$phylum, node_info$class),]
+aggregate(.~ phylum, data=node_info, sum)
+aggregate(.~ class, data=node_info, sum)
+
+#Taxonomy coloring & barettin: Phylum
+ecol <- rep("gray80", ecount(net))
+vcol <- rep("grey40", vcount(net))
+vcol[V(net)$phylum=="Proteobacteria"] <- "yellow"
+vcol[V(net)$phylum=="Acidobacteria"] <- "purple"
+vcol[V(net)$phylum=="Chloroflexi"] <- "blue"
+vcol[V(net)$phylum=="Gemmatimonadetes"] <- "red"
+# The unclassified OTU196900307 will be displayed in grey.
+plot(net, vertex.color=vcol, edge.color=ecol, vertex.size=V(net)$bar_scale_rel*10, edge.width=E(net)$value^2, vertex.label=NA, layout=l)
+
+#PUBLICATION FIGURE
+#Taxonomy coloring & barettin: Class
+ecol <- rep("gray80", ecount(net))
+vcol <- rep("grey40", vcount(net))
+vcol[V(net)$class=="Holophagae"] <- "#9e0142"
+vcol[V(net)$class=="Subgroup_15"] <- "#d53e4f"
+vcol[V(net)$class=="Subgroup_6"] <- "#f46d43"
+vcol[V(net)$class=="Anaerolineae"] <- "#fdae61"
+vcol[V(net)$class=="JG30-KF-CM66"] <- "#fee08b"
+vcol[V(net)$class=="SAR202_clade"] <- "#e6f598"
+vcol[V(net)$class=="TK10"] <- "#abdda4"
+vcol[V(net)$class=="BD2-11_terrestrial_group"] <- "#66c2a5"
+vcol[V(net)$class=="Alphaproteobacteria"] <- "#3288bd"
+vcol[V(net)$class=="JTB23"] <- "#5e4fa2"
+
+colrs <-c('#9e0142','#d53e4f','#f46d43','#fdae61','#fee08b','#e6f598','#abdda4','#66c2a5','#3288bd','#5e4fa2')
+V(net)$color <- colrs[V(net)$class]
+
+#PUBLICATION FIGURE
+plot(net, vertex.color=vcol, edge.color=ecol, vertex.size=V(net)$bar_scale_rel*10, edge.width=E(net)$value^2, vertex.label=NA, layout=l) 
+#legend(x=-2.1, y=0.5, c("Holophagae (Acidobacteria)","Subgroup_15 (Acidobacteria)", "Subgroup_6 (Acidobacteria)", "Anaerolineae (Chloroflexi)", "JG30-KF-CM66 (Chloroflexi)", "SAR202_clade (Chloroflexi)", "TK10 (Chloroflexi)", "BD2-11_terrestrial_group (Gemmatimonadetes)", "Alphaproteobacteria (Proteobacteria)", "JTB23 (Proteobacteria)"), pt.bg=colrs, pch=21,col="#777777", pt.cex=2, cex=.8, bty="n", ncol=1)
+legend(x=-2.9, y=0.5, c("Holophagae (Acidobacteria)","Subgroup_15 (Acidobacteria)", "Subgroup_6 (Acidobacteria)", "Anaerolineae (Chloroflexi)", "JG30-KF-CM66 (Chloroflexi)", "SAR202_clade (Chloroflexi)", "TK10 (Chloroflexi)", "BD2-11_terrestrial_group (Gemmatimonadetes)", "Alphaproteobacteria (Proteobacteria)", "JTB23 (Proteobacteria)"), pt.bg=colrs, pch=21,col="#777777", pt.cex=1.5, cex=.7, bty="n", ncol=1)
+
+#Labels, personal use
+plot(net, vertex.color=vcol, edge.color=ecol, vertex.size=V(net)$bar_scale_rel*10, edge.width=E(net)$value^2, vertex.label=V(net)$labels, layout=l)
+#legend(x=-2.1, y=0.5, c("Holophagae (Acidobacteria)","Subgroup_15 (Acidobacteria)", "Subgroup_6 (Acidobacteria)", "Anaerolineae (Chloroflexi)", "JG30-KF-CM66 (Chloroflexi)", "SAR202_clade (Chloroflexi)", "TK10 (Chloroflexi)", "BD2-11_terrestrial_group (Gemmatimonadetes)", "Alphaproteobacteria (Proteobacteria)", "JTB23 (Proteobacteria)"), pt.bg=colrs, pch=21,col="#777777", pt.cex=2, cex=.8, bty="n", ncol=1)
+legend(x=-2.9, y=0.5, c("Holophagae (Acidobacteria)","Subgroup_15 (Acidobacteria)", "Subgroup_6 (Acidobacteria)", "Anaerolineae (Chloroflexi)", "JG30-KF-CM66 (Chloroflexi)", "SAR202_clade (Chloroflexi)", "TK10 (Chloroflexi)", "BD2-11_terrestrial_group (Gemmatimonadetes)", "Alphaproteobacteria (Proteobacteria)", "JTB23 (Proteobacteria)"), pt.bg=colrs, pch=21,col="#777777", pt.cex=1.5, cex=.7, bty="n", ncol=1)
 
 
+#VIPs
+l <- layout_with_kk(net)
+plot(net, edge.arrow.size=.2, edge.color="grey",
+     vertex.color="orange", vertex.frame.color="#ffffff",
+     vertex.label=NA, vertex.label.color="black", 
+     vertex.size=V(net)$vip_scale_rel*5, layout=l) 
+```
 
 
 

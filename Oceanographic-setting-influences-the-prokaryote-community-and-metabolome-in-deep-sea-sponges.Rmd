@@ -1,0 +1,795 @@
+--- 
+title: "Oceanographic setting influences the prokaryote community and metabolome in deep-sea sponges"
+author: ["Karin Steffen"]
+date: '`r format(Sys.Date(), "%B %d, %Y")`'
+site: bookdown::bookdown_site
+documentclass: book
+bibliography: [book.bib, packages.bib]
+biblio-style: apalike
+link-citations: true
+---
+
+# Content
+
+Placeholder
+
+
+## Experimental setup 
+### Map
+### Water masses
+### Sponges
+### Funding disclaimer
+
+<!--chapter:end:index.Rmd-->
+
+---
+title: "02 - Metabolomics experimental description and data acquisition"
+output: html_document
+---
+```{r setup02, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE, tidy=TRUE, message = FALSE, warning = FALSE)
+library(knitr)
+```
+
+# Metabolomics
+
+## Experimental methods and detailed description
+
+__Additional sampling notes__
+
+During the sampling on the Pâmiut cruises, the sponges remained on deck or in the laboratory for approximately 30--45 min before they were frozen to -20°C. The outside temperature usually oscillated around 4--5°C, and the sorting area was approximately 10°C. The sample consisted of both choanosome and coretx. 
+
+__Laboratory methods and data acquisition__
+
+Metabolites were separated in connection to downstream mass spectrometry (HRMS) analysis using two different chromatographic columns (UPLC): a hydrophilic interaction liquid chromatography (HILIC) column that retains polar compounds, and a reversed-phase (RP) column that favours retention of non-polar compounds. All samples were processed in randomized order using glass instruments during the extraction to avoid chemical contamination.
+
+__Mass spectrometry analysis__
+
+Dried extracts in glass vials were dissolved in 200 µL solvent (HILIC: 50 µL H~2~O and 175 µL acetonitrile AcN; RP: 140 µL H~2~O and 10 µL AcN). Upon addition of the organic solvent for HILIC chromatography, all samples separated into two immiscible layers. The vials were centrifuged for 3 min at 2000 x g to yield an even separation. Only the top layer (approximately 150 µL) was transferred to a Chromacol 03-FISV MS-vial (Thermo Scientific, Waltham, Massachusetts, USA) for MS analyses. For RP chromatography, no layers were observed, and the entire volume of the dissolved sample was used. A five µL aliquot from each individual MS-vial for HILIC and RP, respectively, was combined to produce a quality control (QC) sample.
+
+__High resolution MS analysis system and settings__
+
+The extracts were analyzed back-to-back in positive and negative ionization mode on an Acquity I-Class Ultra Performance Liquid Chromatography UPLC coupled to a G2S Synapt Q-TOF with an electrospray ionization (ESI) ion source (all Waters Corp., Milford, MA, USA).
+
+Chromatographic separation in HILIC mode was performed on an Acquity UPLC BEH Amide column (1.7 µm, 2.1 mm inner diameter × 50 mm, Waters Corp.). Mobile phase A consisted of 95:5 acetonitrile/MQ water with 5 mM ammonium formate and 0.1 % formic acid (FA), and mobile phase B consisted of 40:60 acetonitrile/MQ water with 5 mM ammonium formate and 0.1 % FA. The gradient elution profile was as follows: mobile phase A was decreased non-linearly (slope factor 8, MassLynx) from 100 % A to 100 % B over 14 min, 100 % B was held for 2 min and then decreased back to 100 % A over 1 min. The column was re-equilibrated at 100 % A for 6 min for a total runtime of 23 min.
+
+Chromatographic separation in RP was performed on an Acquity UPLC BEH C18 column (1.7 µ m, 2.1 mm inner diameter × 50 mm, Waters). Mobile phase A consisted of MQ water with 0.1 % FA, and mobile phase B was AcN with 0.1 % FA. The gradient elution profile started at 95 % A, was decreased linearly over 14 min to 5 % A, and 5 % A was held for 2 min before the column was re-equilibrated at 95 % A for 4 min. The flow rate was set to 0.4 mL/min, the column temperature was set to 40°C, the samples were kept at 8°C and the injection volume was 5 µL in all experiments.
+
+__Data acquisition__
+
+Data acquisition was performed using MS^E^ mode, and lock mass correction was applied using a solution of leucine enkephalin in both positive and negative mode. Ionization parameters were set as follows in positive/negative mode; the capillary voltage was 1kV/1.5 kV, the cone voltage was 30 V/25 V, the source offset was 50/60 and the source temperature was set to 120°C. Nitrogen was used as desolvation and cone gas with gas flows of 800 l/h and 50 l/h, respectively, and desolvation temperature was set to 500°C/450°C. For MS^E^ acquisition a collision energy ramp from 20--45 eV was used with argon as collision gas. The instrument was calibrated in the _m/z_ range 50--1500 using sodium formate prior to each analysis.
+All study samples were analysed in both RP and HILIC, in positive and negative ionization mode, resulting in four metabolite datasets per sponge specimen. The column and sample cone was cleaned in between each analysis mode. Prior to each analysis ten QC injections were made to condition the column, and to ensure stable retention times and signal intensities. The study samples were analysed in randomized order with QC injections interspaced every 6^th^ injection.
+
+__MS data processing__
+
+Raw files were converted to netCDF files by Databridge (part of MassLynx, Waters Corporation, Milford, Massachusetts, USA). The netCDF files with the chromatographic spectra were sorted into folders according to species and processed with XCMS in R. Peak picking was performed using the centWave function with parameters ppm=8, peakwidth set to c(5,45) and the noise parameter set to 2000. Retention time alignment was performed with the obiwarp function and the response factor set to 10, grouping was performed with the “group” function and the “fillPeaks” function was used to impute a signal in cases where no matching pseudospectra were detected.
+
+The data set was curated to remove features eluting in the void (retention time less than 45 s). A raw data set as well as two normalized data sets (Log~10~-transformed and median fold change normalized) were produced and filtered to only retain features with a coefficient of variation < 30% in the QC samples. After subsequent evaluation, raw data sets were used in subsequent statistics and modelling. 
+
+An overview of the number of features and PC groups annotated by CAMERA, as well as their exclusion is given in a table at the end of this document.
+
+## Data processing
+
+### Peak picking with XCMS and annotation with CAMERA
+
+We processed samples from all three sponnge species in random order with interspersed injection of a combined QC sample to monitor stability of the UPLC-HRMS run. The acquired signals/spectra were convered to netCDF format using the Program DataBridge, and thereafter sorted into four folders, three for the sponge species (Gb, Sf, Wb) and one for the QC samples (QC). Peak picking and combination of pseudospectra is performed with the R package xcms, the subsequent annotation of adducts and isotopes with the R package CAMERA.
+
+
+### HILIC (Hydrophilic interaction chromatography) column with positive ESI (electron spray ionisation)
+
+```{r HILIC_pos, eval=FALSE}
+# HILIC POS
+# ALWAYS CHECK DATE, CHROMATOGRAPHIC CLOUMN (HILIC, RP) AND ESI-MODE (naming, CAMERA: pos, neg)
+
+#setwd() # work in directory containing the sorted CDF files.
+#getwd()
+library(xcms)
+xset<-xcmsSet(method="centWave", ppm=8, peakwidth=c(5,45), noise=2000)
+save(xset, file="HILIC_pos_xset_20190417.Rda")
+#load(file="HILIC_pos_xset_20190417.Rda") #When resuming after a break
+xset<-group(xset)
+xset2<-retcor(xset, method="obiwarp", response=10, plottype="deviation")
+xset2<-group(xset2)
+xset3<-fillPeaks(xset2)
+save(xset3, file="HILIC_pos_xset3_20190417.Rda")
+reporttab<-diffreport(xset3, "Gb", "Sf", "Gb_Sf_HILIC_pos_20190417", 10)
+
+library(CAMERA)
+xsa<-xsAnnotate(xset3)
+xsaF<-groupFWHM(xsa, perfwhm = 0.3)
+xsaC<-groupCorr(xsaF, cor_eic_th = 0.7) 
+xsaFI<-findIsotopes(xsaC)
+rules <- read.csv("data/rules_jan_pos.csv", header=T, sep = ",")
+xsaFA<-findAdducts(xsaFI, polarity="positive", rules=rules)
+#write.csv(getPeaklist(xsaFA), file="HILIC_pos_20190417.csv")
+```
+
+The other data experiments, HILIC with negative ESI and RP with positive and negative ESI are processed accordingly.
+
+### HILIC Chromatography with negative ESI
+
+```{r HILIC_neg, eval=FALSE}
+# HILIC NEG 20190421
+
+#setwd() # work in directory containing the sorted CDF files.
+#getwd()
+library(xcms)
+xset<-xcmsSet(method="centWave", ppm=8, peakwidth=c(5,45), noise=2000)
+save(xset, file="HILIC_neg_xset_20190421.Rda")
+#load(file="HILIC_neg_xset_20190421.Rda") #When resuming after a break
+xset<-group(xset)
+xset2<-retcor(xset, method="obiwarp", response=10, plottype="deviation")
+xset2<-group(xset2)
+xset3<-fillPeaks(xset2)
+save(xset3, file="HILIC_neg_xset3_20190421.Rda")
+reporttab<-diffreport(xset3, "Gb", "Sf", "Gb_Sf_HILIC_neg_20190421", 10)
+
+library(CAMERA)
+xsa<-xsAnnotate(xset3)
+xsaF<-groupFWHM(xsa,perfwhm = 0.3)
+xsaC<-groupCorr(xsaF,cor_eic_th = 0.7) 
+xsaFI<-findIsotopes(xsaC)
+rules <- read.csv("data/rules_jan_neg.csv", header=T, sep = ",")
+xsaFA<-findAdducts(xsaFI, polarity="negative", rules=rules)
+#write.csv(getPeaklist(xsaFA), file="HILIC_neg_20190421.csv")
+```
+
+### RP (Reversed phase) Chromatography with positive ESI
+
+```{r RP_pos, eval=FALSE}
+# RP POS 20190421
+
+#setwd() # work in directory containing the sorted CDF files.
+#getwd()
+library(xcms)
+xset<-xcmsSet(method="centWave", ppm=8, peakwidth=c(5,45), noise=2000)
+save(xset, file="RP_pos_xset_20190421.Rda")
+#load(file="RP_pos_xset_20190421.Rda") #When resuming after a break
+xset<-group(xset)
+xset2<-retcor(xset, method="obiwarp", response=10, plottype="deviation")
+xset2<-group(xset2)
+xset3<-fillPeaks(xset2)
+save(xset3, file="RP_pos_xset3_20190421.Rda")
+reporttab<-diffreport(xset3, "Gb", "Sf", "Gb_Sf_RP_pos_20190421", 10)
+
+library(CAMERA)
+xsa<-xsAnnotate(xset3)
+xsaF<-groupFWHM(xsa,perfwhm = 0.3)
+xsaC<-groupCorr(xsaF,cor_eic_th = 0.7) 
+xsaFI<-findIsotopes(xsaC)
+rules <- read.csv("data/rules_jan_pos.csv", header=T, sep = ",")
+xsaFA<-findAdducts(xsaFI, polarity="positive", rules=rules)
+#write.csv(getPeaklist(xsaFA), file="RP_pos_20190421.csv")
+```
+
+### RP Chromatography with negative ESI
+
+```{r RP_neg, eval=FALSE}
+# RP NEG 20190422
+
+#setwd() # work in directory containing the sorted CDF files.
+#getwd()
+library(xcms)
+xset<-xcmsSet(method="centWave", ppm=8, peakwidth=c(5,45), noise=2000)
+save(xset, file="RP_neg_xset_20190422.Rda")
+#load(file="RP_neg_xset_20190422.Rda") #When resuming after a break
+xset<-group(xset)
+xset2<-retcor(xset, method="obiwarp", response=10, plottype="deviation")
+xset2<-group(xset2)
+xset3<-fillPeaks(xset2)
+save(xset3, file="RP_neg_xset3_20190422.Rda")
+reporttab<-diffreport(xset3, "Gb", "Sf", "Gb_Sf_RP_neg_20190422", 10)
+
+library(CAMERA)
+xsa<-xsAnnotate(xset3)
+xsaF<-groupFWHM(xsa,perfwhm = 0.3)
+xsaC<-groupCorr(xsaF,cor_eic_th = 0.7) 
+xsaFI<-findIsotopes(xsaC)
+rules <- read.csv("data/rules_jan_neg.csv", header=T, sep = ",")
+xsaFA<-findAdducts(xsaFI, polarity="negative", rules=rules)
+#write.csv(getPeaklist(xsaFA), file="RP_neg_20190422.csv")
+```
+
+### Filtering of the raw data set
+
+Features with with following properties were removed:
+
+- Eluting in the void (RT < 45 s)
+- CV>30 % in QC samples
+- Adducts as annotated by CAMERA
+
+As the presence of the same parent feature in the the form of isotopes and adducts distorts downstream global metabolome analyses, we generated two versions of curated or selective feature tables. In both, void and unstably measured features are removed ("cleaned"). One retains only the feature with the largest signal per pc group ("cleaned_pcgroup"), the other is more stringent and only contains explicitly annotated parent ions ("cleaned_MH"), i.e. [M+H]+ for positive ESI and [M-H]- for negative ESI acquired data.
+
+
+```{r cleaning}
+library(dplyr)
+
+#================================ HILIC pos ===================================
+raw_peaks <- read.csv("data/HILIC_pos_20190417.csv")
+hp_dim1 <- dim(raw_peaks)[1]
+hp_pcg1 <- length(unique(raw_peaks$pcgroup))
+
+# Removing features eluting in the void
+raw_peaks <- raw_peaks[raw_peaks$rt>45,]
+hp_dim2 <- dim(raw_peaks)[1]
+hp_pcg2 <- length(unique(raw_peaks$pcgroup))
+
+# Removing features with a CV < 30%
+f <- which(colnames(raw_peaks)=="IE_20170918_02001") # first QC HILIC pos
+l <- which(colnames(raw_peaks)=="IE_20170918_07601") # last QC HILIC pos
+raw_peaks["SD"] <- apply(raw_peaks[,f:l], 1, sd)
+raw_peaks["MEAN"] <- apply(raw_peaks[,f:l], 1, mean)
+raw_peaks["CV"] <- raw_peaks$SD/raw_peaks$MEAN
+raw_peaks <- raw_peaks[raw_peaks$CV<0.3,]
+hp_dim3 <- dim(raw_peaks)[1]
+hp_pcg3 <- length(unique(raw_peaks$pcgroup))
+#write.csv(raw_peaks, "HILIC_pos_20190417_cleaned.csv")
+
+# Keep only the feature with the greatest sum of signal per pc group
+l <- dim(raw_peaks)[2]-6
+raw_peaks["fss"] <- apply(raw_peaks[,13:l], 1, sum) #feature signal sum
+raw_peaks <- raw_peaks[order(raw_peaks$pcgroup, -raw_peaks$fss),] 
+#for every pc group, the first line has the strongest signal.
+#The function distinct() [dplyr package] can be used to keep only unique/distinct rows from a data frame. If there are duplicate rows, _only the first row_ is preserved. 
+selected_peaks <- distinct(raw_peaks, raw_peaks$pcgroup, .keep_all = TRUE)
+hp_dim4 <- dim(selected_peaks)[1]
+hp_pcg4 <- length(unique(selected_peaks$pcgroup))
+#write.csv(selected_peaks, "HILIC_pos_20190417_cleaned_pcgroup.csv")
+rm(selected_peaks)
+
+# Keep only features with explicit annotations of [M+H]+
+library(stringr)
+raw_peaks["[M+H]+"] <- NA
+pattern <- "[M+H]+"
+raw_peaks["[M+H]+"] <- str_detect(raw_peaks$adduct, paste0("^\\Q",pattern, "\\E"))
+selected_peaks <- raw_peaks[raw_peaks$`[M+H]+`=="TRUE",]
+hp_dim5 <- dim(selected_peaks)[1]
+hp_pcg5 <- length(unique(selected_peaks$pcgroup))
+#write.csv(selected_peaks, "HILIC_pos_20190417_cleaned_MH.csv")
+
+hilic_pos <- raw_peaks
+rm (f, l, raw_peaks, selected_peaks)
+
+#================================ HILIC neg ===================================
+raw_peaks <- read.csv("data/HILIC_neg_20190421.csv")
+hn_dim1 <- dim(raw_peaks)[1]
+hn_pcg1 <- length(unique(raw_peaks$pcgroup))
+
+# Removing features eluting in the void
+raw_peaks <- raw_peaks[raw_peaks$rt>45,]
+hn_dim2 <- dim(raw_peaks)[1]
+hn_pcg2 <- length(unique(raw_peaks$pcgroup))
+
+# Removing features with a CV < 30%
+f <- which(colnames(raw_peaks)=="IE_20170919_01301") # first QC HILIC neg
+l <- which(colnames(raw_peaks)=="IE_20170919_06901") # last QC HILIC neg
+raw_peaks["SD"] <- apply(raw_peaks[,f:l], 1, sd)
+raw_peaks["MEAN"] <- apply(raw_peaks[,f:l], 1, mean)
+raw_peaks["CV"] <- raw_peaks$SD/raw_peaks$MEAN
+raw_peaks <- raw_peaks[raw_peaks$CV<0.3,]
+hn_dim3 <- dim(raw_peaks)[1]
+hn_pcg3 <- length(unique(raw_peaks$pcgroup))
+#write.csv(raw_peaks, "HILIC_neg_20190421_cleaned.csv")
+
+# Keep only the feature with the greatest sum of signal per pc group
+l <- dim(raw_peaks)[2]-6
+raw_peaks["fss"] <- apply(raw_peaks[,13:l], 1, sum) #feature signal sum
+raw_peaks <- raw_peaks[order(raw_peaks$pcgroup, -raw_peaks$fss),] 
+selected_peaks <- distinct(raw_peaks, raw_peaks$pcgroup, .keep_all = TRUE)
+hn_dim4 <- dim(selected_peaks)[1]
+hn_pcg4 <- length(unique(selected_peaks$pcgroup))
+#write.csv(selected_peaks, "HILIC_neg_20190421_cleaned_pcgroup.csv")
+rm(selected_peaks)
+
+# Keep only features with explicit annotations of [M-H]-
+library(stringr)
+raw_peaks["[M-H]-"] <- NA
+pattern <- "[M-H]-"
+raw_peaks["[M-H]-"] <- str_detect(raw_peaks$adduct, paste0("^\\Q",pattern, "\\E"))
+selected_peaks <- raw_peaks[raw_peaks$`[M-H]-`=="TRUE",]
+hn_dim5 <- dim(selected_peaks)[1]
+hn_pcg5 <- length(unique(selected_peaks$pcgroup))
+#write.csv(selected_peaks, "HILIC_neg_20190421_cleaned_MH.csv")
+
+hilic_neg <- raw_peaks
+rm (f, l, raw_peaks)
+
+#================================== RP pos ====================================
+raw_peaks <- read.csv("data/RP_pos_20190421.csv")
+rp_dim1 <- dim(raw_peaks)[1]
+rp_pcg1 <- length(unique(raw_peaks$pcgroup))
+
+# Removing features eluting in the void
+raw_peaks <- raw_peaks[raw_peaks$rt>45,]
+rp_dim2 <- dim(raw_peaks)[1]
+rp_pcg2 <- length(unique(raw_peaks$pcgroup))
+
+# Removing features with a CV < 30%
+f <- which(colnames(raw_peaks)=="IE_20171002_01401") # first QC RP neg
+l <- which(colnames(raw_peaks)=="IE_20171002_07201") # last QC RP neg
+raw_peaks["SD"] <- apply(raw_peaks[,f:l], 1, sd)
+raw_peaks["MEAN"] <- apply(raw_peaks[,f:l], 1, mean)
+raw_peaks["CV"] <- raw_peaks$SD/raw_peaks$MEAN
+raw_peaks <- raw_peaks[raw_peaks$CV<0.3,]
+rp_dim3 <- dim(raw_peaks)[1]
+rp_pcg3 <- length(unique(raw_peaks$pcgroup))
+#write.csv(raw_peaks, "RP_pos_20190421_cleaned.csv")
+
+# Keep only the feature with the greatest sum of signal per pc group
+l <- dim(raw_peaks)[2]-6
+raw_peaks["fss"] <- apply(raw_peaks[,13:l], 1, sum) #feature signal sum
+raw_peaks <- raw_peaks[order(raw_peaks$pcgroup, -raw_peaks$fss),] 
+selected_peaks <- distinct(raw_peaks, raw_peaks$pcgroup, .keep_all = TRUE)
+rp_dim4 <- dim(selected_peaks)[1]
+rp_pcg4 <- length(unique(selected_peaks$pcgroup))
+#write.csv(selected_peaks, "RP_pos_20190421_cleaned_pcgroup.csv")
+rm(selected_peaks)
+
+# Keep only features with explicit annotations of [M+H]+
+library(stringr)
+raw_peaks["[M+H]+"] <- NA
+pattern <- "[M+H]+"
+raw_peaks["[M+H]+"] <- str_detect(raw_peaks$adduct, paste0("^\\Q",pattern, "\\E"))
+selected_peaks <- raw_peaks[raw_peaks$`[M+H]+`=="TRUE",]
+rp_dim5 <- dim(selected_peaks)[1]
+rp_pcg5 <- length(unique(selected_peaks$pcgroup))
+#write.csv(selected_peaks, "RP_pos_20190421_cleaned_MH.csv")
+
+rp_pos <- raw_peaks
+rm (f, l, raw_peaks, selected_peaks)
+
+#================================== RP neg ====================================
+raw_peaks <- read.csv("data/RP_neg_20190422.csv")
+rn_dim1 <- dim(raw_peaks)[1]
+rn_pcg1 <- length(unique(raw_peaks$pcgroup))
+
+# Removing features eluting in the void
+raw_peaks <- raw_peaks[raw_peaks$rt>45,]
+rn_dim2 <- dim(raw_peaks)[1]
+rn_pcg2 <- length(unique(raw_peaks$pcgroup))
+
+# Removing features with a CV < 30%
+f <- which(colnames(raw_peaks)=="IE_20171003_01301") # first QC RP neg
+l <- which(colnames(raw_peaks)=="IE_20171003_05701") # 3rd last QC RP neg; QC empty after this injection
+raw_peaks["SD"] <- apply(raw_peaks[,f:l], 1, sd)
+raw_peaks["MEAN"] <- apply(raw_peaks[,f:l], 1, mean)
+raw_peaks["CV"] <- raw_peaks$SD/raw_peaks$MEAN
+raw_peaks <- raw_peaks[raw_peaks$CV<0.3,]
+rn_dim3 <- dim(raw_peaks)[1]
+rn_pcg3 <- length(unique(raw_peaks$pcgroup))
+#write.csv(raw_peaks, "RP_neg_20190422_cleaned.csv")
+
+# Keep only the feature with the greatest sum of signal per pc group
+l <- dim(raw_peaks)[2]-6
+raw_peaks["fss"] <- apply(raw_peaks[,13:l], 1, sum) #feature signal sum
+raw_peaks <- raw_peaks[order(raw_peaks$pcgroup, -raw_peaks$fss),] 
+selected_peaks <- distinct(raw_peaks, raw_peaks$pcgroup, .keep_all = TRUE)
+rn_dim4 <- dim(selected_peaks)[1]
+rn_pcg4 <- length(unique(selected_peaks$pcgroup))
+#write.csv(selected_peaks, "RP_neg_20190422_cleaned_pcgroup.csv")
+rm(selected_peaks)
+
+# Keep only features with explicit annotations of [M-H]-
+library(stringr)
+raw_peaks["[M-H]-"] <- NA
+pattern <- "[M-H]-"
+raw_peaks["[M-H]-"] <- str_detect(raw_peaks$adduct, paste0("^\\Q",pattern, "\\E"))
+selected_peaks <- raw_peaks[raw_peaks$`[M-H]-`=="TRUE",]
+rn_dim5 <- dim(selected_peaks)[1]
+rn_pcg5 <- length(unique(selected_peaks$pcgroup))
+#write.csv(selected_peaks, "RP_neg_20190422_cleaned_MH.csv")
+
+hilic_neg <- raw_peaks
+rm (f, l, raw_peaks, selected_peaks)
+```
+
+### Data quality control
+
+To monitor the stability of the signal during the UPLC-HRMS run, we plot the total signal per sample by injection order.
+
+```{r ms_run_stability}
+hp <- read.csv("data/HILIC_pos_20190417.csv", header=T, sep=",")
+hn <- read.csv("data/HILIC_neg_20190421.csv", header=T, sep=",")
+rp <- read.csv("data/RP_pos_20190421.csv", header=T, sep=",")
+rn <- read.csv("data/RP_neg_20190422.csv", header=T, sep=",")
+
+# subsetting, keep only sample data
+hp <- hp[,13:(dim(hp)[2]-3)] #14
+hn <- hn[,13:(dim(hn)[2]-3)]
+rp <- rp[,13:(dim(rp)[2]-3)]
+rn <- rn[,13:(dim(rn)[2]-3)]
+
+# sum signal of columns, i.e. per sample 
+hp[nrow(hp)+1,] <- apply(hp, 2, sum) 
+hn[nrow(hn)+1,] <- apply(hn, 2, sum) 
+rp[nrow(rp)+1,] <- apply(rp, 2, sum) 
+rn[nrow(rn)+1,] <- apply(rn, 2, sum) 
+
+# data frame gymnastics
+hp_df <- data.frame(t((hp[dim(hp)[1],])))
+hn_df <- data.frame(t((hn[dim(hn)[1],])))
+rp_df <- data.frame(t((rp[dim(rp)[1],])))
+rn_df <- data.frame(t((rn[dim(rn)[1],])))
+
+colnames(hp_df) <- c("colsum_hp")
+hp_df["id"] <- rownames(hp_df)
+colnames(hn_df) <- c("colsum_hn")
+hn_df["id"] <- rownames(hn_df)
+colnames(rp_df) <- c("colsum_rp")
+rp_df["id"] <- rownames(rp_df)
+colnames(rn_df) <- c("colsum_rn")
+rn_df["id"] <- rownames(rn_df)
+
+library(stringr)
+hp_df["hp_io"] <- as.integer(str_sub(hp_df$id, -4, -3))
+hn_df["hn_io"] <- as.integer(str_sub(hn_df$id, -4, -3))
+rp_df["rp_io"] <- as.integer(str_sub(rp_df$id, -4, -3))
+rn_df["rn_io"] <- as.integer(str_sub(rn_df$id, -4, -3))
+
+hp_df <- hp_df[order(hp_df$hp_io),] 
+hp_df["n"] <- seq(nrow(hp_df))
+hp_df["experiment"] <- "HILIC pos."
+
+hn_df <- hn_df[order(hn_df$hn_io),] 
+hn_df["n"] <- seq(nrow(hn_df))
+hn_df["experiment"] <- "HILIC neg."
+
+rp_df <- rp_df[order(rp_df$rp_io),] 
+rp_df["n"] <- seq(nrow(rp_df))
+rp_df["experiment"] <- "RP pos."
+
+rn_df <- rn_df[order(rn_df$rn_io),] 
+rn_df["n"] <- seq(nrow(rn_df))
+rn_df["experiment"] <- "RP neg."
+
+colnames(hp_df) <- c("colsum", "id", "io", "n", "experiment" )
+colnames(hn_df) <- c("colsum", "id", "io", "n", "experiment" )
+colnames(rp_df) <- c("colsum", "id", "io", "n", "experiment" )
+colnames(rn_df) <- c("colsum", "id", "io", "n", "experiment" )
+
+stability <- rbind(hp_df, hn_df, rp_df, rn_df)
+
+library(ggplot2)
+ggplot(stability, aes(x=n, y=colsum, color=experiment))+
+  geom_line(size=1.5)+ ggtitle("Signal intensity during UPLC-HRMS experiments")+
+  xlab("sample injection order")+ ylab("total signal intensity per sample")+
+  labs(colour="Experiment")+ theme(legend.position="bottom")+
+    geom_smooth(method='lm', size=0.5)+ facet_grid(experiment ~., scales = "free")
+
+rm(hp, hp_df, hn, hn_df, rp, rp_df, rn, rn_df, stability)
+```
+
+### Summary of data processing
+Below we outline the number of features removed in every step as shown in the table and corresponding figure.
+
+```{r kable_table, fig.align='center'}
+
+initial_f <- c(hp_dim1, hn_dim1, rp_dim1, rn_dim1)
+rt_f <- c(hp_dim2, hn_dim2, rp_dim2, rn_dim2)
+cv_f <- c(hp_dim3, hn_dim3, rp_dim3, rn_dim3)
+representative_f <- c(hp_dim4, hn_dim4, rp_dim4, rn_dim4)
+ion_f <- c(hp_dim5, hn_dim5, rp_dim5, rn_dim5)
+
+initial_p <- c(hp_pcg1, hn_pcg1, rp_pcg1, rn_pcg1)
+rt_p <- c(hp_pcg2, hn_pcg2, rp_pcg2, rn_pcg2)
+cv_p <- c(hp_pcg3, hn_pcg3, rp_pcg3, rn_pcg3)
+representative_p <- c(hp_pcg4, hn_pcg4, rp_pcg4, rn_pcg4)
+ion_p <- c(hp_pcg5, hn_pcg5, rp_pcg5, rn_pcg5)
+
+df <- cbind(initial_f, rt_f, cv_f, representative_f, ion_f, initial_p, rt_p, cv_p, representative_p, ion_p)
+rownames(df) <- c("HILIC pos", "HILIC neg", "RP pos", "RP neg")
+
+library(kableExtra)
+kable(df, col.names = c("initial", "RT >45 s", "CV <30%", "repr. feat.", "ion", "initial", "RT >45 s", "CV <30%", "repr. feat.", "ion"), longtable = T, booktabs = T, caption = "Number of features and pc groups 
+      remaining after each filtering step.") %>%
+  add_header_above(c("","features" = 5, "pc groups" = 5)) %>%
+  kable_styling(bootstrap_options =  "condensed", full_width = T)
+
+library(reshape2)
+df <- melt(df)
+df["filter"] <- c(rep(("initial"), 4),rep(("RT >45 s"), 4),rep(("CV <30%"), 4), rep(("rep"), 4), rep(("ion"), 4))
+df$filter <- factor(df$filter, levels=c("initial", "RT >45 s", "CV <30%", "rep", "ion"))
+df["category"] <- c(rep(("feature"), 20),rep(("pc group"), 20))
+df$Var2 <- NULL
+colnames(df) <- c("acquisition", "value", "filter", "category")
+
+library(ggplot2)
+ggplot(df, aes(fill=df$filter, x=df$acquisition, y=df$value))+
+  geom_bar(position="dodge", stat = "identity")+
+  facet_grid(.~df$category)+
+  xlab("Data acquisition mode")+ylab("Count")+labs(fill="Filtering step")+
+  theme_bw()+ scale_fill_grey()+ scale_y_continuous(breaks=seq(0,6000,1000))+
+  theme(axis.text.x = element_text(angle = 45, vjust = 0.5, hjust = 0.5), legend.position="bottom")
+```
+
+After preliminary analyses of metabolomics data, a few outliers were re-identified by P. Cárdenas, and one specimen was removed from the data set as it originated from another species.
+
+## Multivariate analyses
+I order to investigate whether depth has an effect on the overall metabolome, we use OPLS orthogonal projections of latent structures as multivariate analysis approach. This method allows to separate variations in the data based on e.g. depth and orthogonal, i.e. unrealted variation.
+
+```{r pca1}
+library(ropls)
+library(dplyr)
+library(ggplot2)
+
+# load data
+hilic_pos <- read.csv("data/HILIC_pos_20190417_cleaned.csv", header=T, sep = ",")
+hilic_neg <- read.csv("data/HILIC_neg_20190421_cleaned.csv", header=T, sep=",")
+rp_pos <- read.csv("data/RP_pos_20190421_cleaned.csv", header=T, sep=",")
+rp_neg <- read.csv("data/RP_neg_20190422_cleaned.csv", header=T, sep=",")
+meta_data <- read.csv("data/Steffen_et_al_metadata_PANGAEA.csv", header=T, sep=";")
+
+formatting <- function(metabolome, meta_data, r, my_colnames) {
+  formatted <- metabolome
+  formatted <- formatted[,14:(dim(formatted)[2]-r)]
+  formatted <- data.frame(t(formatted))
+  formatted["ID"] <- rownames(formatted)
+  formatted["unified_ID"] <-meta_data$unified_ID[match(formatted$ID, meta_data[[my_colnames]])]
+  formatted["filter"] <- str_sub(formatted$unified_ID,1,2)
+  formatted <- formatted[!formatted$filter=="QC",]
+  formatted <- na.omit(formatted)
+  #formatted$filter <- NULL
+  formatted$ID <- NULL
+  formatted <- formatted[order(formatted$unified_ID),] 
+  rownames(formatted) <- formatted$unified_ID
+  return(formatted)
+}
+
+hilic_pos <- formatting(hilic_pos, meta_data, 6, "LC.MS.HILIC.positive")
+hilic_neg <- formatting(hilic_neg, meta_data,6, "LC.MS.HILIC.negative")
+rp_pos <- formatting(rp_pos, meta_data,6, "LC.MS.RP.positive")
+rp_neg <- formatting(rp_neg, meta_data,6, "LC.MS.RP.negative")
+
+md <- meta_data[,c("Species", "Depth", "Latitude", "Longitude", "YEAR", "MeanBottomTemp_Cdeg", "MeanBotSalinity_PSU", "unified_ID")]
+
+# Overview PCA illustrating the metabolomes differ by sponge species
+
+pca_wrapper <- function(metabolome, md, my_title){
+  metabolome$unified_ID <- NULL
+  metabolome$filter <- NULL
+  metabolome <- prcomp(metabolome, scale=T)
+  k <- summary(metabolome)[["importance"]]
+  metabolome_df <- data.frame(metabolome$x) #scores, i.e. principal components of the sponge sample 
+  metabolome_df["unified_ID"] <- as.factor(rownames(metabolome_df))
+  x1 <- paste("PC1", round(k[2,1], digits=3)*100, "%")
+  y1 <- paste("PC2", round(k[2,2], digits=3)*100, "%")
+  metabolome_df <- left_join(metabolome_df[,c("PC1", "PC2", "PC3", "unified_ID")], md[,c("Species", "Depth", "Latitude", "Longitude", "MeanBottomTemp_Cdeg", "MeanBotSalinity_PSU", "unified_ID")])
+  p <- ggplot(metabolome_df, aes(x=PC1, y=PC2))+geom_point(size=3, aes(shape=factor(Species)))+ggtitle(my_title)+xlab(x1)+ylab(y1)+theme(legend.position = "none")#+labs(shape="Species")
+  return(p)  
+}
+
+hp_pca <- pca_wrapper(hilic_pos, md, "Hilic pos")
+hn_pca <- pca_wrapper(hilic_neg, md, "Hilic neg")
+rp_pca <- pca_wrapper(rp_pos, md, "RP pos")
+rn_pca <- pca_wrapper(rp_neg, md, "RP pos")
+
+#FUN multiplot # NOT MY OWN
+multiplot <- function(..., plotlist=NULL, file, cols=1, layout=NULL) {
+  library(grid)
+  # Make a list from the ... arguments and plotlist
+  plots <- c(list(...), plotlist)
+  numPlots = length(plots)
+  # If layout is NULL, then use 'cols' to determine layout
+  if (is.null(layout)) {
+    # Make the panel
+    # ncol: Number of columns of plots
+    # nrow: Number of rows needed, calculated from # of cols
+    layout <- matrix(seq(1, cols * ceiling(numPlots/cols)),
+                     ncol = cols, nrow = ceiling(numPlots/cols))
+  }
+  if (numPlots==1) {
+    print(plots[[1]])
+  } else {
+    # Set up the page
+    grid.newpage()
+    pushViewport(viewport(layout = grid.layout(nrow(layout), ncol(layout))))
+    # Make each plot, in the correct location
+    for (i in 1:numPlots) {
+      # Get the i,j matrix positions of the regions that contain this subplot
+      matchidx <- as.data.frame(which(layout == i, arr.ind = TRUE))
+      print(plots[[i]], vp = viewport(layout.pos.row = matchidx$row,
+                                      layout.pos.col = matchidx$col))
+    }
+  }
+}
+
+multiplot(hp_pca, hn_pca, rp_pca, rn_pca, cols=2)
+
+library(vegan)
+
+permanova <- function(metabolome, md){
+  metabolome$filter <- NULL
+  md <- md[md$unified_ID %in% metabolome$unified_ID,]
+  metabolome <- metabolome[order(metabolome$unified_ID),] 
+  md <- md[order(md$unified_ID),] 
+  metabolome$unified_ID <- NULL
+  m <- adonis(metabolome ~ Species, md) 
+  return(m)
+}
+
+permanova(hilic_pos, md)
+permanova(hilic_neg, md)
+permanova(rp_pos, md)
+permanova(rp_neg, md)
+```
+From the PCA and the PERMANOVA, we gather that the metabolomes regardless of how they were acquired are significatly different in the three sponge species. Therefore, we separate the metabolomes for investigating the effect of depth on them individually.
+
+```{r opls1}
+#splitting df and adapting meta data
+spl_ada <- function(metabolome, md){
+  metabolome_gb <- metabolome[metabolome$filter=="Gb",]
+  metabolome_sf <- metabolome[metabolome$filter=="Sf",]
+  metabolome_wb <- metabolome[metabolome$filter=="Wb",]
+  
+  md_gb <- md[md$unified_ID %in% metabolome_gb$unified_ID,]
+  md_sf <- md[md$unified_ID %in% metabolome_sf$unified_ID,]
+  md_wb <- md[md$unified_ID %in% metabolome_wb$unified_ID,]
+  
+  metabolome_gb <- metabolome_gb[order(metabolome_gb$unified_ID),] 
+  metabolome_sf <- metabolome_sf[order(metabolome_sf$unified_ID),] 
+  metabolome_wb <- metabolome_wb[order(metabolome_wb$unified_ID),] 
+  
+  metabolome_gb$filter <- NULL
+  metabolome_gb$unified_ID <- NULL
+  metabolome_sf$filter <- NULL
+  metabolome_sf$unified_ID <- NULL
+  metabolome_wb$filter <- NULL
+  metabolome_wb$unified_ID <- NULL
+  
+  md_gb <- md_gb[order(md_gb$unified_ID),] 
+  md_sf <- md_sf[order(md_sf$unified_ID),] 
+  md_wb <- md_wb[order(md_wb$unified_ID),] 
+  
+  mva_data <- list(metabolome_gb=metabolome_gb, metabolome_sf=metabolome_sf, metabolome_wb=metabolome_wb, md_gb=md_gb, md_sf=md_sf, md_wb=md_wb)
+  return(mva_data)
+}
+
+hp_opls_df <- spl_ada(hilic_pos, md)
+hn_opls_df <- spl_ada(hilic_neg, md)
+rp_opls_df <- spl_ada(rp_pos, md)
+rn_opls_df <- spl_ada(rp_neg, md)
+
+#P should be NA; or 1
+ropls_wrapper <- function(opls_df, p1, p2, p3){
+  # ropls' PCA
+  gb.pca <- opls(opls_df$metabolome_gb)
+  sf.pca <- opls(opls_df$metabolome_sf)
+  wb.pca <- opls(opls_df$metabolome_wb)
+  
+  md_gb <- opls_df$md_gb
+  md_sf <- opls_df$md_sf
+  md_wb <- opls_df$md_wb
+  
+  # ropls' OPLS
+  gb.opls<-opls(opls_df$metabolome_gb, md_gb[, "Depth"], permI=10, orthoI=p1, scaleC="pareto") 
+  sf.opls<-opls(opls_df$metabolome_sf, md_sf[, "Depth"], permI=10, orthoI=p2, scaleC="pareto") 
+  wb.opls<-opls(opls_df$metabolome_wb, md_wb[, "Depth"], permI=10, orthoI=p3, scaleC="pareto") 
+  
+  # summary
+  gb.opls <- gb.opls@summaryDF 
+  sf.opls <- sf.opls@summaryDF
+  wb.opls <- wb.opls@summaryDF
+  
+  opls_diagnostics <- rbind(gb.opls, sf.opls, wb.opls)
+  opls_diagnostics["Species"] <- c("Geodia barretti", "Stryphnus fortis", "Weberella bursa")
+  return(opls_diagnostics)
+}
+
+a <- Sys.time()
+hp_cleaned_opls <- ropls_wrapper(hp_opls_df, NA, 1, NA)
+hn_cleaned_opls <- ropls_wrapper(hn_opls_df, NA, 1, NA)
+rp_cleaned_opls <- ropls_wrapper(rp_opls_df, NA, 1, NA)
+rn_cleaned_opls <- ropls_wrapper(rn_opls_df, 1, 1, NA)
+b <- Sys.time()
+b-a
+
+cleaned <- rbind(hp_cleaned_opls, hn_cleaned_opls, rp_cleaned_opls, rn_cleaned_opls)
+cleaned["Experiment"] <- c(rep("HILIC pos", 3), rep("HILIC neg", 3), rep("RP pos", 3), rep("RP neg", 3))
+write.csv(cleaned,"data/cleaned_opls_diagnostics.csv", row.names = F)
+```
+
+In the same manner, we can analyse the two remaining sets produced by different filtering options.
+
+```{r opls2}
+# load data ION
+hilic_pos <- read.csv("data/HILIC_pos_20190417_cleaned_MH.csv", header=T, sep = ",")
+hilic_neg <- read.csv("data/HILIC_neg_20190421_cleaned_MH.csv", header=T, sep=",")
+rp_pos <- read.csv("data/RP_pos_20190421_cleaned_MH.csv", header=T, sep=",")
+rp_neg <- read.csv("data/RP_neg_20190422_cleaned_MH.csv", header=T, sep=",")
+meta_data <- read.csv("data/Steffen_et_al_metadata_PANGAEA.csv", header=T, sep=";")
+
+hilic_pos <- formatting(hilic_pos, meta_data, 8, "LC.MS.HILIC.positive")
+hilic_neg <- formatting(hilic_neg, meta_data, 8, "LC.MS.HILIC.negative")
+rp_pos <- formatting(rp_pos, meta_data, 8, "LC.MS.RP.positive")
+rp_neg <- formatting(rp_neg, meta_data, 8, "LC.MS.RP.negative")
+
+md <- meta_data[,c("Species", "Depth", "Latitude", "Longitude", "YEAR", "MeanBottomTemp_Cdeg", "MeanBotSalinity_PSU", "unified_ID")]
+
+hp_pca <- pca_wrapper(hilic_pos, md, "Hilic pos")
+hn_pca <- pca_wrapper(hilic_neg, md, "Hilic neg")
+rp_pca <- pca_wrapper(rp_pos, md, "RP pos")
+rn_pca <- pca_wrapper(rp_neg, md, "RP pos")
+
+multiplot(hp_pca, hn_pca, rp_pca, rn_pca, cols=2)
+
+permanova(hilic_pos, md)
+permanova(hilic_neg, md)
+permanova(rp_pos, md)
+permanova(rp_neg, md)
+
+hilic_pos
+
+hp_opls_df <- spl_ada(hilic_pos, md)
+hn_opls_df <- spl_ada(hilic_neg, md)
+rp_opls_df <- spl_ada(rp_pos, md)
+rn_opls_df <- spl_ada(rp_neg, md)
+
+a <- Sys.time()
+hp_cleaned_opls <- ropls_wrapper(hp_opls_df, NA, 1, NA)
+hn_cleaned_opls <- ropls_wrapper(hn_opls_df, NA, NA, NA)
+rp_cleaned_opls <- ropls_wrapper(rp_opls_df, NA)
+rn_cleaned_opls <- ropls_wrapper(rn_opls_df, NA)
+b <- Sys.time()
+b-a
+
+ion <- rbind(hp_cleaned_opls, hn_cleaned_opls, rp_cleaned_opls, rn_cleaned_opls)
+ion["Experiment"] <- c(rep("HILIC pos", 3), rep("HILIC neg", 3), rep("RP pos", 3), rep("RP neg", 3))
+write.csv(ion,"data/cleaned_MH_opls_diagnostics.csv", row.names = F)
+
+
+```
+
+
+## Manual annotation, identification and extraction of metabolic feature signals
+
+## Correlations
+
+
+
+```{r system_info02, message = TRUE}
+sessionInfo()
+```
+
+
+<!--chapter:end:02-Metabolomics_methods.Rmd-->
+
+
+# Microbiota
+
+Placeholder
+
+
+## Functions
+## Relative abundance
+## Data set description
+## Depth response
+## Shortlist
+
+<!--chapter:end:03-Microbiota.Rmd-->
+
+
+# Inter-omics
+
+Placeholder
+
+
+## Mantel test and procrustes rotations
+### Libraries and functions
+### Data sets
+### Mantel test code and tabular output
+### Procrustes rotation and protest code and tabular output
+## Microbial interaction network
+### Generating network based on different algorithms
+#### Molecular Ecological Network Analysis (MENA) Pipeline
+#### Local Similarity Analysis: fastLSA
+#### SparCC
+#### Maximal information coefficient MIC 
+### Consolidation of the different networks
+#### MIC
+#### SparCC
+#### MENA
+#### LSA
+#### Integration of the networks 
+
+<!--chapter:end:04-Inter-omics.Rmd-->
+
