@@ -487,6 +487,8 @@ I order to investigate whether depth has an effect on the overall metabolome, we
 library(ropls)
 library(dplyr)
 library(ggplot2)
+library(tidyverse)
+library(vegan)
 
 # load data
 hilic_pos <- read.csv("data/HILIC_pos_20190417_cleaned.csv", header=T, sep = ",")
@@ -542,9 +544,12 @@ rn_pca <- pca_wrapper(rp_neg, md, "RP pos")
 #FUN multiplot # NOT MY OWN
 multiplot <- function(..., plotlist=NULL, file, cols=1, layout=NULL) {
   library(grid)
+  
   # Make a list from the ... arguments and plotlist
   plots <- c(list(...), plotlist)
+  
   numPlots = length(plots)
+  
   # If layout is NULL, then use 'cols' to determine layout
   if (is.null(layout)) {
     # Make the panel
@@ -553,16 +558,20 @@ multiplot <- function(..., plotlist=NULL, file, cols=1, layout=NULL) {
     layout <- matrix(seq(1, cols * ceiling(numPlots/cols)),
                      ncol = cols, nrow = ceiling(numPlots/cols))
   }
+  
   if (numPlots==1) {
     print(plots[[1]])
+    
   } else {
     # Set up the page
     grid.newpage()
     pushViewport(viewport(layout = grid.layout(nrow(layout), ncol(layout))))
+    
     # Make each plot, in the correct location
     for (i in 1:numPlots) {
       # Get the i,j matrix positions of the regions that contain this subplot
       matchidx <- as.data.frame(which(layout == i, arr.ind = TRUE))
+      
       print(plots[[i]], vp = viewport(layout.pos.row = matchidx$row,
                                       layout.pos.col = matchidx$col))
     }
@@ -590,7 +599,7 @@ permanova(rp_neg, md)
 ```
 From the PCA and the PERMANOVA, we gather that the metabolomes regardless of how they were acquired are significatly different in the three sponge species. Therefore, we separate the metabolomes for investigating the effect of depth on them individually.
 
-```{r opls1}
+```{r opls1, eval=F}
 #splitting df and adapting meta data
 spl_ada <- function(metabolome, md){
   metabolome_gb <- metabolome[metabolome$filter=="Gb",]
@@ -628,18 +637,18 @@ rn_opls_df <- spl_ada(rp_neg, md)
 #P should be NA; or 1
 ropls_wrapper <- function(opls_df, p1, p2, p3){
   # ropls' PCA
-  gb.pca <- opls(opls_df$metabolome_gb)
-  sf.pca <- opls(opls_df$metabolome_sf)
-  wb.pca <- opls(opls_df$metabolome_wb)
+  gb.pca <- opls(opls_df$metabolome_gb, plotL=F, printL=F) 
+  sf.pca <- opls(opls_df$metabolome_sf, plotL=F, printL=F) 
+  wb.pca <- opls(opls_df$metabolome_wb, plotL=F, printL=F) 
   
   md_gb <- opls_df$md_gb
   md_sf <- opls_df$md_sf
   md_wb <- opls_df$md_wb
   
   # ropls' OPLS
-  gb.opls<-opls(opls_df$metabolome_gb, md_gb[, "Depth"], permI=10, orthoI=p1, scaleC="pareto") 
-  sf.opls<-opls(opls_df$metabolome_sf, md_sf[, "Depth"], permI=10, orthoI=p2, scaleC="pareto") 
-  wb.opls<-opls(opls_df$metabolome_wb, md_wb[, "Depth"], permI=10, orthoI=p3, scaleC="pareto") 
+  gb.opls<-opls(opls_df$metabolome_gb, md_gb[, "Depth"], permI=1000, orthoI=p1, scaleC="pareto", plotL=F) 
+  sf.opls<-opls(opls_df$metabolome_sf, md_sf[, "Depth"], permI=1000, orthoI=p2, scaleC="pareto", plotL=F) 
+  wb.opls<-opls(opls_df$metabolome_wb, md_wb[, "Depth"], permI=1000, orthoI=p3, scaleC="pareto", plotL=F) 
   
   # summary
   gb.opls <- gb.opls@summaryDF 
@@ -666,7 +675,7 @@ write.csv(cleaned,"data/cleaned_opls_diagnostics.csv", row.names = F)
 
 In the same manner, we can analyse the two remaining sets produced by different filtering options.
 
-```{r opls2}
+```{r opls2, eval=F}
 # load data ION
 hilic_pos <- read.csv("data/HILIC_pos_20190417_cleaned_MH.csv", header=T, sep = ",")
 hilic_neg <- read.csv("data/HILIC_neg_20190421_cleaned_MH.csv", header=T, sep=",")
@@ -693,7 +702,6 @@ permanova(hilic_neg, md)
 permanova(rp_pos, md)
 permanova(rp_neg, md)
 
-hilic_pos
 
 hp_opls_df <- spl_ada(hilic_pos, md)
 hn_opls_df <- spl_ada(hilic_neg, md)
@@ -703,20 +711,87 @@ rn_opls_df <- spl_ada(rp_neg, md)
 a <- Sys.time()
 hp_cleaned_opls <- ropls_wrapper(hp_opls_df, NA, 1, NA)
 hn_cleaned_opls <- ropls_wrapper(hn_opls_df, NA, NA, NA)
-rp_cleaned_opls <- ropls_wrapper(rp_opls_df, NA, NA, NA)
-rn_cleaned_opls <- ropls_wrapper(rn_opls_df, NA, NA, NA)
+rp_cleaned_opls <- ropls_wrapper(rp_opls_df, NA, 1, NA)
+rn_cleaned_opls <- ropls_wrapper(rn_opls_df, 1, 1, NA)
 b <- Sys.time()
 b-a
 
 ion <- rbind(hp_cleaned_opls, hn_cleaned_opls, rp_cleaned_opls, rn_cleaned_opls)
 ion["Experiment"] <- c(rep("HILIC pos", 3), rep("HILIC neg", 3), rep("RP pos", 3), rep("RP neg", 3))
 write.csv(ion,"data/cleaned_MH_opls_diagnostics.csv", row.names = F)
-
-
 ```
 
 
+```{r opls3, eval=F}
+# load data PC_GROUP
+hilic_pos <- read.csv("data/HILIC_pos_20190417_cleaned_pcgroup.csv", header=T, sep = ",")
+hilic_neg <- read.csv("data/HILIC_neg_20190421_cleaned_pcgroup.csv", header=T, sep=",")
+rp_pos <- read.csv("data/RP_pos_20190421_cleaned_pcgroup.csv", header=T, sep=",")
+rp_neg <- read.csv("data/RP_neg_20190422_cleaned_pcgroup.csv", header=T, sep=",")
+meta_data <- read.csv("data/Steffen_et_al_metadata_PANGAEA.csv", header=T, sep=";")
+
+hilic_pos <- formatting(hilic_pos, meta_data, 8, "LC.MS.HILIC.positive")
+hilic_neg <- formatting(hilic_neg, meta_data, 8, "LC.MS.HILIC.negative")
+rp_pos <- formatting(rp_pos, meta_data, 8, "LC.MS.RP.positive")
+rp_neg <- formatting(rp_neg, meta_data, 8, "LC.MS.RP.negative")
+
+md <- meta_data[,c("Species", "Depth", "Latitude", "Longitude", "YEAR", "MeanBottomTemp_Cdeg", "MeanBotSalinity_PSU", "unified_ID")]
+
+hp_pca <- pca_wrapper(hilic_pos, md, "Hilic pos")
+hn_pca <- pca_wrapper(hilic_neg, md, "Hilic neg")
+rp_pca <- pca_wrapper(rp_pos, md, "RP pos")
+rn_pca <- pca_wrapper(rp_neg, md, "RP pos")
+
+multiplot(hp_pca, hn_pca, rp_pca, rn_pca, cols=2)
+
+permanova(hilic_pos, md)
+permanova(hilic_neg, md)
+permanova(rp_pos, md)
+permanova(rp_neg, md)
+
+hp_opls_df <- spl_ada(hilic_pos, md)
+hn_opls_df <- spl_ada(hilic_neg, md)
+rp_opls_df <- spl_ada(rp_pos, md)
+rn_opls_df <- spl_ada(rp_neg, md)
+
+a <- Sys.time()
+hp_cleaned_opls <- ropls_wrapper(hp_opls_df, NA, NA, NA)
+hn_cleaned_opls <- ropls_wrapper(hn_opls_df, NA, NA, NA)
+rp_cleaned_opls <- ropls_wrapper(rp_opls_df, NA, NA, NA)
+rn_cleaned_opls <- ropls_wrapper(rn_opls_df, NA, NA, NA)
+b <- Sys.time()
+b-a
+
+pcg <- rbind(hp_cleaned_opls, hn_cleaned_opls, rp_cleaned_opls, rn_cleaned_opls)
+pcg["Experiment"] <- c(rep("HILIC pos", 3), rep("HILIC neg", 3), rep("RP pos", 3), rep("RP neg", 3))
+write.csv(pcg,"data/cleaned_PC_opls_diagnostics.csv", row.names = F)
+```
+
+The multivariate analyses were quite time consuming, requiring 1.4 hours for the "cleaned" data sets, 46.3 min for the "PC-group" data stes and 4 min for the "ion" data sets. The combined model diagnostics are summarised below.
+
+```{r opls4}
+library(kableExtra)
+cleaned <- read.csv("data/cleaned_opls_diagnostics.csv", header=T)
+pcgrp <- read.csv("data/cleaned_PC_opls_diagnostics.csv", header=T)
+ion <- read.csv("data/cleaned_MH_opls_diagnostics.csv", header=T)
+
+opls_diagnostics <- rbind(cleaned, pcgrp, ion)
+opls_diagnostics["filtering"] <- c(rep("cleaned", 12), rep("pc group", 12), rep("ion", 12))
+
+options(kableExtra.html.bsTable = T)
+kable(opls_diagnostics, 
+      col.names = c("R2X cum", "R2Y cum", "Q2 cum", "RMSEE", "pre", "ort", "pR2Y", "pQ2", "Species", "Experiment", "data set"), 
+      longtable = T, booktabs = T, 
+      caption = "Model diagnostics of the metabolome variations modelled by depth", 
+      row.names=FALSE) %>%
+  add_header_above(c("Diagnostics" = 8, "Data set attribution" = 3)) %>%
+  kable_styling(bootstrap_options = c("striped","hover", "bordered", "condensed", "responsive"), font_size = 12, full_width = F, latex_options = c("striped", "scale_down"))
+
+write.csv(opls_diagnostics, "data/opls_diagnostics.csv", row.names = F)
+```
+
 ## Manual annotation, identification and extraction of metabolic feature signals
+
 
 ## Correlations
 

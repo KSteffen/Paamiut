@@ -50,6 +50,7 @@
 
 
 <script src="libs/kePrint-0.0.1/kePrint.js"></script>
+<link href="libs/bsTable-3.3.7/bootstrapTable.min.css" rel="stylesheet" />
 
 
 <style type="text/css">
@@ -837,90 +838,99 @@ RP neg
 <div class="sourceCode" id="cb10"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb10-1"><a href="metabolomics.html#cb10-1"></a><span class="kw">library</span>(ropls)</span>
 <span id="cb10-2"><a href="metabolomics.html#cb10-2"></a><span class="kw">library</span>(dplyr)</span>
 <span id="cb10-3"><a href="metabolomics.html#cb10-3"></a><span class="kw">library</span>(ggplot2)</span>
-<span id="cb10-4"><a href="metabolomics.html#cb10-4"></a></span>
-<span id="cb10-5"><a href="metabolomics.html#cb10-5"></a><span class="co"># load data</span></span>
-<span id="cb10-6"><a href="metabolomics.html#cb10-6"></a>hilic_pos &lt;-<span class="st"> </span><span class="kw">read.csv</span>(<span class="st">&quot;data/HILIC_pos_20190417_cleaned.csv&quot;</span>, <span class="dt">header =</span> T, <span class="dt">sep =</span> <span class="st">&quot;,&quot;</span>)</span>
-<span id="cb10-7"><a href="metabolomics.html#cb10-7"></a>hilic_neg &lt;-<span class="st"> </span><span class="kw">read.csv</span>(<span class="st">&quot;data/HILIC_neg_20190421_cleaned.csv&quot;</span>, <span class="dt">header =</span> T, <span class="dt">sep =</span> <span class="st">&quot;,&quot;</span>)</span>
-<span id="cb10-8"><a href="metabolomics.html#cb10-8"></a>rp_pos &lt;-<span class="st"> </span><span class="kw">read.csv</span>(<span class="st">&quot;data/RP_pos_20190421_cleaned.csv&quot;</span>, <span class="dt">header =</span> T, <span class="dt">sep =</span> <span class="st">&quot;,&quot;</span>)</span>
-<span id="cb10-9"><a href="metabolomics.html#cb10-9"></a>rp_neg &lt;-<span class="st"> </span><span class="kw">read.csv</span>(<span class="st">&quot;data/RP_neg_20190422_cleaned.csv&quot;</span>, <span class="dt">header =</span> T, <span class="dt">sep =</span> <span class="st">&quot;,&quot;</span>)</span>
-<span id="cb10-10"><a href="metabolomics.html#cb10-10"></a>meta_data &lt;-<span class="st"> </span><span class="kw">read.csv</span>(<span class="st">&quot;data/Steffen_et_al_metadata_PANGAEA.csv&quot;</span>, <span class="dt">header =</span> T, <span class="dt">sep =</span> <span class="st">&quot;;&quot;</span>)</span>
-<span id="cb10-11"><a href="metabolomics.html#cb10-11"></a></span>
-<span id="cb10-12"><a href="metabolomics.html#cb10-12"></a>formatting &lt;-<span class="st"> </span><span class="cf">function</span>(metabolome, meta_data, my_colnames) {</span>
-<span id="cb10-13"><a href="metabolomics.html#cb10-13"></a>    formatted &lt;-<span class="st"> </span>metabolome</span>
-<span id="cb10-14"><a href="metabolomics.html#cb10-14"></a>    formatted &lt;-<span class="st"> </span>formatted[, <span class="dv">14</span><span class="op">:</span>(<span class="kw">dim</span>(formatted)[<span class="dv">2</span>] <span class="op">-</span><span class="st"> </span><span class="dv">6</span>)]</span>
-<span id="cb10-15"><a href="metabolomics.html#cb10-15"></a>    formatted &lt;-<span class="st"> </span><span class="kw">data.frame</span>(<span class="kw">t</span>(formatted))</span>
-<span id="cb10-16"><a href="metabolomics.html#cb10-16"></a>    formatted[<span class="st">&quot;ID&quot;</span>] &lt;-<span class="st"> </span><span class="kw">rownames</span>(formatted)</span>
-<span id="cb10-17"><a href="metabolomics.html#cb10-17"></a>    formatted[<span class="st">&quot;unified_ID&quot;</span>] &lt;-<span class="st"> </span>meta_data<span class="op">$</span>unified_ID[<span class="kw">match</span>(formatted<span class="op">$</span>ID, meta_data[[my_colnames]])]</span>
-<span id="cb10-18"><a href="metabolomics.html#cb10-18"></a>    formatted[<span class="st">&quot;filter&quot;</span>] &lt;-<span class="st"> </span><span class="kw">str_sub</span>(formatted<span class="op">$</span>unified_ID, <span class="dv">1</span>, <span class="dv">2</span>)</span>
-<span id="cb10-19"><a href="metabolomics.html#cb10-19"></a>    formatted &lt;-<span class="st"> </span>formatted[<span class="op">!</span>formatted<span class="op">$</span>filter <span class="op">==</span><span class="st"> &quot;QC&quot;</span>, ]</span>
-<span id="cb10-20"><a href="metabolomics.html#cb10-20"></a>    formatted &lt;-<span class="st"> </span><span class="kw">na.omit</span>(formatted)</span>
-<span id="cb10-21"><a href="metabolomics.html#cb10-21"></a>    <span class="co"># formatted$filter &lt;- NULL</span></span>
-<span id="cb10-22"><a href="metabolomics.html#cb10-22"></a>    formatted<span class="op">$</span>ID &lt;-<span class="st"> </span><span class="ot">NULL</span></span>
-<span id="cb10-23"><a href="metabolomics.html#cb10-23"></a>    formatted &lt;-<span class="st"> </span>formatted[<span class="kw">order</span>(formatted<span class="op">$</span>unified_ID), ]</span>
-<span id="cb10-24"><a href="metabolomics.html#cb10-24"></a>    <span class="kw">rownames</span>(formatted) &lt;-<span class="st"> </span>formatted<span class="op">$</span>unified_ID</span>
-<span id="cb10-25"><a href="metabolomics.html#cb10-25"></a>    <span class="kw">return</span>(formatted)</span>
-<span id="cb10-26"><a href="metabolomics.html#cb10-26"></a>}</span>
-<span id="cb10-27"><a href="metabolomics.html#cb10-27"></a></span>
-<span id="cb10-28"><a href="metabolomics.html#cb10-28"></a>hilic_pos &lt;-<span class="st"> </span><span class="kw">formatting</span>(hilic_pos, meta_data, <span class="st">&quot;LC.MS.HILIC.positive&quot;</span>)</span>
-<span id="cb10-29"><a href="metabolomics.html#cb10-29"></a>hilic_neg &lt;-<span class="st"> </span><span class="kw">formatting</span>(hilic_neg, meta_data, <span class="st">&quot;LC.MS.HILIC.negative&quot;</span>)</span>
-<span id="cb10-30"><a href="metabolomics.html#cb10-30"></a>rp_pos &lt;-<span class="st"> </span><span class="kw">formatting</span>(rp_pos, meta_data, <span class="st">&quot;LC.MS.RP.positive&quot;</span>)</span>
-<span id="cb10-31"><a href="metabolomics.html#cb10-31"></a>rp_neg &lt;-<span class="st"> </span><span class="kw">formatting</span>(rp_neg, meta_data, <span class="st">&quot;LC.MS.RP.negative&quot;</span>)</span>
-<span id="cb10-32"><a href="metabolomics.html#cb10-32"></a></span>
-<span id="cb10-33"><a href="metabolomics.html#cb10-33"></a>md &lt;-<span class="st"> </span>meta_data[, <span class="kw">c</span>(<span class="st">&quot;Species&quot;</span>, <span class="st">&quot;Depth&quot;</span>, <span class="st">&quot;Latitude&quot;</span>, <span class="st">&quot;Longitude&quot;</span>, <span class="st">&quot;YEAR&quot;</span>, <span class="st">&quot;MeanBottomTemp_Cdeg&quot;</span>, </span>
-<span id="cb10-34"><a href="metabolomics.html#cb10-34"></a>    <span class="st">&quot;MeanBotSalinity_PSU&quot;</span>, <span class="st">&quot;unified_ID&quot;</span>)]</span>
-<span id="cb10-35"><a href="metabolomics.html#cb10-35"></a></span>
-<span id="cb10-36"><a href="metabolomics.html#cb10-36"></a><span class="co"># Overview PCA illustrating the metabolomes differ by sponge species</span></span>
+<span id="cb10-4"><a href="metabolomics.html#cb10-4"></a><span class="kw">library</span>(tidyverse)</span>
+<span id="cb10-5"><a href="metabolomics.html#cb10-5"></a><span class="kw">library</span>(vegan)</span>
+<span id="cb10-6"><a href="metabolomics.html#cb10-6"></a></span>
+<span id="cb10-7"><a href="metabolomics.html#cb10-7"></a><span class="co"># load data</span></span>
+<span id="cb10-8"><a href="metabolomics.html#cb10-8"></a>hilic_pos &lt;-<span class="st"> </span><span class="kw">read.csv</span>(<span class="st">&quot;data/HILIC_pos_20190417_cleaned.csv&quot;</span>, <span class="dt">header =</span> T, <span class="dt">sep =</span> <span class="st">&quot;,&quot;</span>)</span>
+<span id="cb10-9"><a href="metabolomics.html#cb10-9"></a>hilic_neg &lt;-<span class="st"> </span><span class="kw">read.csv</span>(<span class="st">&quot;data/HILIC_neg_20190421_cleaned.csv&quot;</span>, <span class="dt">header =</span> T, <span class="dt">sep =</span> <span class="st">&quot;,&quot;</span>)</span>
+<span id="cb10-10"><a href="metabolomics.html#cb10-10"></a>rp_pos &lt;-<span class="st"> </span><span class="kw">read.csv</span>(<span class="st">&quot;data/RP_pos_20190421_cleaned.csv&quot;</span>, <span class="dt">header =</span> T, <span class="dt">sep =</span> <span class="st">&quot;,&quot;</span>)</span>
+<span id="cb10-11"><a href="metabolomics.html#cb10-11"></a>rp_neg &lt;-<span class="st"> </span><span class="kw">read.csv</span>(<span class="st">&quot;data/RP_neg_20190422_cleaned.csv&quot;</span>, <span class="dt">header =</span> T, <span class="dt">sep =</span> <span class="st">&quot;,&quot;</span>)</span>
+<span id="cb10-12"><a href="metabolomics.html#cb10-12"></a>meta_data &lt;-<span class="st"> </span><span class="kw">read.csv</span>(<span class="st">&quot;data/Steffen_et_al_metadata_PANGAEA.csv&quot;</span>, <span class="dt">header =</span> T, <span class="dt">sep =</span> <span class="st">&quot;;&quot;</span>)</span>
+<span id="cb10-13"><a href="metabolomics.html#cb10-13"></a></span>
+<span id="cb10-14"><a href="metabolomics.html#cb10-14"></a>formatting &lt;-<span class="st"> </span><span class="cf">function</span>(metabolome, meta_data, r, my_colnames) {</span>
+<span id="cb10-15"><a href="metabolomics.html#cb10-15"></a>    formatted &lt;-<span class="st"> </span>metabolome</span>
+<span id="cb10-16"><a href="metabolomics.html#cb10-16"></a>    formatted &lt;-<span class="st"> </span>formatted[, <span class="dv">14</span><span class="op">:</span>(<span class="kw">dim</span>(formatted)[<span class="dv">2</span>] <span class="op">-</span><span class="st"> </span>r)]</span>
+<span id="cb10-17"><a href="metabolomics.html#cb10-17"></a>    formatted &lt;-<span class="st"> </span><span class="kw">data.frame</span>(<span class="kw">t</span>(formatted))</span>
+<span id="cb10-18"><a href="metabolomics.html#cb10-18"></a>    formatted[<span class="st">&quot;ID&quot;</span>] &lt;-<span class="st"> </span><span class="kw">rownames</span>(formatted)</span>
+<span id="cb10-19"><a href="metabolomics.html#cb10-19"></a>    formatted[<span class="st">&quot;unified_ID&quot;</span>] &lt;-<span class="st"> </span>meta_data<span class="op">$</span>unified_ID[<span class="kw">match</span>(formatted<span class="op">$</span>ID, meta_data[[my_colnames]])]</span>
+<span id="cb10-20"><a href="metabolomics.html#cb10-20"></a>    formatted[<span class="st">&quot;filter&quot;</span>] &lt;-<span class="st"> </span><span class="kw">str_sub</span>(formatted<span class="op">$</span>unified_ID, <span class="dv">1</span>, <span class="dv">2</span>)</span>
+<span id="cb10-21"><a href="metabolomics.html#cb10-21"></a>    formatted &lt;-<span class="st"> </span>formatted[<span class="op">!</span>formatted<span class="op">$</span>filter <span class="op">==</span><span class="st"> &quot;QC&quot;</span>, ]</span>
+<span id="cb10-22"><a href="metabolomics.html#cb10-22"></a>    formatted &lt;-<span class="st"> </span><span class="kw">na.omit</span>(formatted)</span>
+<span id="cb10-23"><a href="metabolomics.html#cb10-23"></a>    <span class="co"># formatted$filter &lt;- NULL</span></span>
+<span id="cb10-24"><a href="metabolomics.html#cb10-24"></a>    formatted<span class="op">$</span>ID &lt;-<span class="st"> </span><span class="ot">NULL</span></span>
+<span id="cb10-25"><a href="metabolomics.html#cb10-25"></a>    formatted &lt;-<span class="st"> </span>formatted[<span class="kw">order</span>(formatted<span class="op">$</span>unified_ID), ]</span>
+<span id="cb10-26"><a href="metabolomics.html#cb10-26"></a>    <span class="kw">rownames</span>(formatted) &lt;-<span class="st"> </span>formatted<span class="op">$</span>unified_ID</span>
+<span id="cb10-27"><a href="metabolomics.html#cb10-27"></a>    <span class="kw">return</span>(formatted)</span>
+<span id="cb10-28"><a href="metabolomics.html#cb10-28"></a>}</span>
+<span id="cb10-29"><a href="metabolomics.html#cb10-29"></a></span>
+<span id="cb10-30"><a href="metabolomics.html#cb10-30"></a>hilic_pos &lt;-<span class="st"> </span><span class="kw">formatting</span>(hilic_pos, meta_data, <span class="dv">6</span>, <span class="st">&quot;LC.MS.HILIC.positive&quot;</span>)</span>
+<span id="cb10-31"><a href="metabolomics.html#cb10-31"></a>hilic_neg &lt;-<span class="st"> </span><span class="kw">formatting</span>(hilic_neg, meta_data, <span class="dv">6</span>, <span class="st">&quot;LC.MS.HILIC.negative&quot;</span>)</span>
+<span id="cb10-32"><a href="metabolomics.html#cb10-32"></a>rp_pos &lt;-<span class="st"> </span><span class="kw">formatting</span>(rp_pos, meta_data, <span class="dv">6</span>, <span class="st">&quot;LC.MS.RP.positive&quot;</span>)</span>
+<span id="cb10-33"><a href="metabolomics.html#cb10-33"></a>rp_neg &lt;-<span class="st"> </span><span class="kw">formatting</span>(rp_neg, meta_data, <span class="dv">6</span>, <span class="st">&quot;LC.MS.RP.negative&quot;</span>)</span>
+<span id="cb10-34"><a href="metabolomics.html#cb10-34"></a></span>
+<span id="cb10-35"><a href="metabolomics.html#cb10-35"></a>md &lt;-<span class="st"> </span>meta_data[, <span class="kw">c</span>(<span class="st">&quot;Species&quot;</span>, <span class="st">&quot;Depth&quot;</span>, <span class="st">&quot;Latitude&quot;</span>, <span class="st">&quot;Longitude&quot;</span>, <span class="st">&quot;YEAR&quot;</span>, <span class="st">&quot;MeanBottomTemp_Cdeg&quot;</span>, </span>
+<span id="cb10-36"><a href="metabolomics.html#cb10-36"></a>    <span class="st">&quot;MeanBotSalinity_PSU&quot;</span>, <span class="st">&quot;unified_ID&quot;</span>)]</span>
 <span id="cb10-37"><a href="metabolomics.html#cb10-37"></a></span>
-<span id="cb10-38"><a href="metabolomics.html#cb10-38"></a>pca_wrapper &lt;-<span class="st"> </span><span class="cf">function</span>(metabolome, md, my_title) {</span>
-<span id="cb10-39"><a href="metabolomics.html#cb10-39"></a>    metabolome<span class="op">$</span>unified_ID &lt;-<span class="st"> </span><span class="ot">NULL</span></span>
-<span id="cb10-40"><a href="metabolomics.html#cb10-40"></a>    metabolome<span class="op">$</span>filter &lt;-<span class="st"> </span><span class="ot">NULL</span></span>
-<span id="cb10-41"><a href="metabolomics.html#cb10-41"></a>    metabolome &lt;-<span class="st"> </span><span class="kw">prcomp</span>(metabolome, <span class="dt">scale =</span> T)</span>
-<span id="cb10-42"><a href="metabolomics.html#cb10-42"></a>    k &lt;-<span class="st"> </span><span class="kw">summary</span>(metabolome)[[<span class="st">&quot;importance&quot;</span>]]</span>
-<span id="cb10-43"><a href="metabolomics.html#cb10-43"></a>    metabolome_df &lt;-<span class="st"> </span><span class="kw">data.frame</span>(metabolome<span class="op">$</span>x)  <span class="co">#scores, i.e. principal components of the sponge sample </span></span>
-<span id="cb10-44"><a href="metabolomics.html#cb10-44"></a>    metabolome_df[<span class="st">&quot;unified_ID&quot;</span>] &lt;-<span class="st"> </span><span class="kw">as.factor</span>(<span class="kw">rownames</span>(metabolome_df))</span>
-<span id="cb10-45"><a href="metabolomics.html#cb10-45"></a>    x1 &lt;-<span class="st"> </span><span class="kw">paste</span>(<span class="st">&quot;PC1&quot;</span>, <span class="kw">round</span>(k[<span class="dv">2</span>, <span class="dv">1</span>], <span class="dt">digits =</span> <span class="dv">3</span>) <span class="op">*</span><span class="st"> </span><span class="dv">100</span>, <span class="st">&quot;%&quot;</span>)</span>
-<span id="cb10-46"><a href="metabolomics.html#cb10-46"></a>    y1 &lt;-<span class="st"> </span><span class="kw">paste</span>(<span class="st">&quot;PC2&quot;</span>, <span class="kw">round</span>(k[<span class="dv">2</span>, <span class="dv">2</span>], <span class="dt">digits =</span> <span class="dv">3</span>) <span class="op">*</span><span class="st"> </span><span class="dv">100</span>, <span class="st">&quot;%&quot;</span>)</span>
-<span id="cb10-47"><a href="metabolomics.html#cb10-47"></a>    metabolome_df &lt;-<span class="st"> </span><span class="kw">left_join</span>(metabolome_df[, <span class="kw">c</span>(<span class="st">&quot;PC1&quot;</span>, <span class="st">&quot;PC2&quot;</span>, <span class="st">&quot;PC3&quot;</span>, <span class="st">&quot;unified_ID&quot;</span>)], </span>
-<span id="cb10-48"><a href="metabolomics.html#cb10-48"></a>        md[, <span class="kw">c</span>(<span class="st">&quot;Species&quot;</span>, <span class="st">&quot;Depth&quot;</span>, <span class="st">&quot;Latitude&quot;</span>, <span class="st">&quot;Longitude&quot;</span>, <span class="st">&quot;MeanBottomTemp_Cdeg&quot;</span>, </span>
-<span id="cb10-49"><a href="metabolomics.html#cb10-49"></a>            <span class="st">&quot;MeanBotSalinity_PSU&quot;</span>, <span class="st">&quot;unified_ID&quot;</span>)])</span>
-<span id="cb10-50"><a href="metabolomics.html#cb10-50"></a>    p &lt;-<span class="st"> </span><span class="kw">ggplot</span>(metabolome_df, <span class="kw">aes</span>(<span class="dt">x =</span> PC1, <span class="dt">y =</span> PC2)) <span class="op">+</span><span class="st"> </span><span class="kw">geom_point</span>(<span class="dt">size =</span> <span class="dv">3</span>, <span class="kw">aes</span>(<span class="dt">shape =</span> <span class="kw">factor</span>(Species))) <span class="op">+</span><span class="st"> </span></span>
-<span id="cb10-51"><a href="metabolomics.html#cb10-51"></a><span class="st">        </span><span class="kw">ggtitle</span>(my_title) <span class="op">+</span><span class="st"> </span><span class="kw">xlab</span>(x1) <span class="op">+</span><span class="st"> </span><span class="kw">ylab</span>(y1) <span class="op">+</span><span class="st"> </span><span class="kw">theme</span>(<span class="dt">legend.position =</span> <span class="st">&quot;none&quot;</span>)  <span class="co">#+labs(shape=&#39;Species&#39;)</span></span>
-<span id="cb10-52"><a href="metabolomics.html#cb10-52"></a>    <span class="kw">return</span>(p)</span>
-<span id="cb10-53"><a href="metabolomics.html#cb10-53"></a>}</span>
-<span id="cb10-54"><a href="metabolomics.html#cb10-54"></a></span>
-<span id="cb10-55"><a href="metabolomics.html#cb10-55"></a>hp_pca &lt;-<span class="st"> </span><span class="kw">pca_wrapper</span>(hilic_pos, md, <span class="st">&quot;Hilic pos&quot;</span>)</span>
-<span id="cb10-56"><a href="metabolomics.html#cb10-56"></a>hn_pca &lt;-<span class="st"> </span><span class="kw">pca_wrapper</span>(hilic_neg, md, <span class="st">&quot;Hilic neg&quot;</span>)</span>
-<span id="cb10-57"><a href="metabolomics.html#cb10-57"></a>rp_pca &lt;-<span class="st"> </span><span class="kw">pca_wrapper</span>(rp_pos, md, <span class="st">&quot;RP pos&quot;</span>)</span>
-<span id="cb10-58"><a href="metabolomics.html#cb10-58"></a>rn_pca &lt;-<span class="st"> </span><span class="kw">pca_wrapper</span>(rp_neg, md, <span class="st">&quot;RP pos&quot;</span>)</span>
-<span id="cb10-59"><a href="metabolomics.html#cb10-59"></a></span>
-<span id="cb10-60"><a href="metabolomics.html#cb10-60"></a><span class="co"># FUN multiplot # NOT MY OWN</span></span>
-<span id="cb10-61"><a href="metabolomics.html#cb10-61"></a>multiplot &lt;-<span class="st"> </span><span class="cf">function</span>(..., <span class="dt">plotlist =</span> <span class="ot">NULL</span>, file, <span class="dt">cols =</span> <span class="dv">1</span>, <span class="dt">layout =</span> <span class="ot">NULL</span>) {</span>
-<span id="cb10-62"><a href="metabolomics.html#cb10-62"></a>    <span class="kw">library</span>(grid)</span>
-<span id="cb10-63"><a href="metabolomics.html#cb10-63"></a>    <span class="co"># Make a list from the ... arguments and plotlist</span></span>
-<span id="cb10-64"><a href="metabolomics.html#cb10-64"></a>    plots &lt;-<span class="st"> </span><span class="kw">c</span>(<span class="kw">list</span>(...), plotlist)</span>
-<span id="cb10-65"><a href="metabolomics.html#cb10-65"></a>    numPlots =<span class="st"> </span><span class="kw">length</span>(plots)</span>
-<span id="cb10-66"><a href="metabolomics.html#cb10-66"></a>    <span class="co"># If layout is NULL, then use &#39;cols&#39; to determine layout</span></span>
-<span id="cb10-67"><a href="metabolomics.html#cb10-67"></a>    <span class="cf">if</span> (<span class="kw">is.null</span>(layout)) {</span>
-<span id="cb10-68"><a href="metabolomics.html#cb10-68"></a>        <span class="co"># Make the panel ncol: Number of columns of plots nrow: Number of rows needed,</span></span>
-<span id="cb10-69"><a href="metabolomics.html#cb10-69"></a>        <span class="co"># calculated from # of cols</span></span>
-<span id="cb10-70"><a href="metabolomics.html#cb10-70"></a>        layout &lt;-<span class="st"> </span><span class="kw">matrix</span>(<span class="kw">seq</span>(<span class="dv">1</span>, cols <span class="op">*</span><span class="st"> </span><span class="kw">ceiling</span>(numPlots<span class="op">/</span>cols)), <span class="dt">ncol =</span> cols, <span class="dt">nrow =</span> <span class="kw">ceiling</span>(numPlots<span class="op">/</span>cols))</span>
-<span id="cb10-71"><a href="metabolomics.html#cb10-71"></a>    }</span>
-<span id="cb10-72"><a href="metabolomics.html#cb10-72"></a>    <span class="cf">if</span> (numPlots <span class="op">==</span><span class="st"> </span><span class="dv">1</span>) {</span>
-<span id="cb10-73"><a href="metabolomics.html#cb10-73"></a>        <span class="kw">print</span>(plots[[<span class="dv">1</span>]])</span>
-<span id="cb10-74"><a href="metabolomics.html#cb10-74"></a>    } <span class="cf">else</span> {</span>
-<span id="cb10-75"><a href="metabolomics.html#cb10-75"></a>        <span class="co"># Set up the page</span></span>
-<span id="cb10-76"><a href="metabolomics.html#cb10-76"></a>        <span class="kw">grid.newpage</span>()</span>
-<span id="cb10-77"><a href="metabolomics.html#cb10-77"></a>        <span class="kw">pushViewport</span>(<span class="kw">viewport</span>(<span class="dt">layout =</span> <span class="kw">grid.layout</span>(<span class="kw">nrow</span>(layout), <span class="kw">ncol</span>(layout))))</span>
-<span id="cb10-78"><a href="metabolomics.html#cb10-78"></a>        <span class="co"># Make each plot, in the correct location</span></span>
-<span id="cb10-79"><a href="metabolomics.html#cb10-79"></a>        <span class="cf">for</span> (i <span class="cf">in</span> <span class="dv">1</span><span class="op">:</span>numPlots) {</span>
-<span id="cb10-80"><a href="metabolomics.html#cb10-80"></a>            <span class="co"># Get the i,j matrix positions of the regions that contain this subplot</span></span>
-<span id="cb10-81"><a href="metabolomics.html#cb10-81"></a>            matchidx &lt;-<span class="st"> </span><span class="kw">as.data.frame</span>(<span class="kw">which</span>(layout <span class="op">==</span><span class="st"> </span>i, <span class="dt">arr.ind =</span> <span class="ot">TRUE</span>))</span>
-<span id="cb10-82"><a href="metabolomics.html#cb10-82"></a>            <span class="kw">print</span>(plots[[i]], <span class="dt">vp =</span> <span class="kw">viewport</span>(<span class="dt">layout.pos.row =</span> matchidx<span class="op">$</span>row, <span class="dt">layout.pos.col =</span> matchidx<span class="op">$</span>col))</span>
-<span id="cb10-83"><a href="metabolomics.html#cb10-83"></a>        }</span>
-<span id="cb10-84"><a href="metabolomics.html#cb10-84"></a>    }</span>
-<span id="cb10-85"><a href="metabolomics.html#cb10-85"></a>}</span>
-<span id="cb10-86"><a href="metabolomics.html#cb10-86"></a></span>
-<span id="cb10-87"><a href="metabolomics.html#cb10-87"></a><span class="kw">multiplot</span>(hp_pca, hn_pca, rp_pca, rn_pca, <span class="dt">cols =</span> <span class="dv">2</span>)</span></code></pre></div>
+<span id="cb10-38"><a href="metabolomics.html#cb10-38"></a><span class="co"># Overview PCA illustrating the metabolomes differ by sponge species</span></span>
+<span id="cb10-39"><a href="metabolomics.html#cb10-39"></a></span>
+<span id="cb10-40"><a href="metabolomics.html#cb10-40"></a>pca_wrapper &lt;-<span class="st"> </span><span class="cf">function</span>(metabolome, md, my_title) {</span>
+<span id="cb10-41"><a href="metabolomics.html#cb10-41"></a>    metabolome<span class="op">$</span>unified_ID &lt;-<span class="st"> </span><span class="ot">NULL</span></span>
+<span id="cb10-42"><a href="metabolomics.html#cb10-42"></a>    metabolome<span class="op">$</span>filter &lt;-<span class="st"> </span><span class="ot">NULL</span></span>
+<span id="cb10-43"><a href="metabolomics.html#cb10-43"></a>    metabolome &lt;-<span class="st"> </span><span class="kw">prcomp</span>(metabolome, <span class="dt">scale =</span> T)</span>
+<span id="cb10-44"><a href="metabolomics.html#cb10-44"></a>    k &lt;-<span class="st"> </span><span class="kw">summary</span>(metabolome)[[<span class="st">&quot;importance&quot;</span>]]</span>
+<span id="cb10-45"><a href="metabolomics.html#cb10-45"></a>    metabolome_df &lt;-<span class="st"> </span><span class="kw">data.frame</span>(metabolome<span class="op">$</span>x)  <span class="co">#scores, i.e. principal components of the sponge sample </span></span>
+<span id="cb10-46"><a href="metabolomics.html#cb10-46"></a>    metabolome_df[<span class="st">&quot;unified_ID&quot;</span>] &lt;-<span class="st"> </span><span class="kw">as.factor</span>(<span class="kw">rownames</span>(metabolome_df))</span>
+<span id="cb10-47"><a href="metabolomics.html#cb10-47"></a>    x1 &lt;-<span class="st"> </span><span class="kw">paste</span>(<span class="st">&quot;PC1&quot;</span>, <span class="kw">round</span>(k[<span class="dv">2</span>, <span class="dv">1</span>], <span class="dt">digits =</span> <span class="dv">3</span>) <span class="op">*</span><span class="st"> </span><span class="dv">100</span>, <span class="st">&quot;%&quot;</span>)</span>
+<span id="cb10-48"><a href="metabolomics.html#cb10-48"></a>    y1 &lt;-<span class="st"> </span><span class="kw">paste</span>(<span class="st">&quot;PC2&quot;</span>, <span class="kw">round</span>(k[<span class="dv">2</span>, <span class="dv">2</span>], <span class="dt">digits =</span> <span class="dv">3</span>) <span class="op">*</span><span class="st"> </span><span class="dv">100</span>, <span class="st">&quot;%&quot;</span>)</span>
+<span id="cb10-49"><a href="metabolomics.html#cb10-49"></a>    metabolome_df &lt;-<span class="st"> </span><span class="kw">left_join</span>(metabolome_df[, <span class="kw">c</span>(<span class="st">&quot;PC1&quot;</span>, <span class="st">&quot;PC2&quot;</span>, <span class="st">&quot;PC3&quot;</span>, <span class="st">&quot;unified_ID&quot;</span>)], </span>
+<span id="cb10-50"><a href="metabolomics.html#cb10-50"></a>        md[, <span class="kw">c</span>(<span class="st">&quot;Species&quot;</span>, <span class="st">&quot;Depth&quot;</span>, <span class="st">&quot;Latitude&quot;</span>, <span class="st">&quot;Longitude&quot;</span>, <span class="st">&quot;MeanBottomTemp_Cdeg&quot;</span>, </span>
+<span id="cb10-51"><a href="metabolomics.html#cb10-51"></a>            <span class="st">&quot;MeanBotSalinity_PSU&quot;</span>, <span class="st">&quot;unified_ID&quot;</span>)])</span>
+<span id="cb10-52"><a href="metabolomics.html#cb10-52"></a>    p &lt;-<span class="st"> </span><span class="kw">ggplot</span>(metabolome_df, <span class="kw">aes</span>(<span class="dt">x =</span> PC1, <span class="dt">y =</span> PC2)) <span class="op">+</span><span class="st"> </span><span class="kw">geom_point</span>(<span class="dt">size =</span> <span class="dv">3</span>, <span class="kw">aes</span>(<span class="dt">shape =</span> <span class="kw">factor</span>(Species))) <span class="op">+</span><span class="st"> </span></span>
+<span id="cb10-53"><a href="metabolomics.html#cb10-53"></a><span class="st">        </span><span class="kw">ggtitle</span>(my_title) <span class="op">+</span><span class="st"> </span><span class="kw">xlab</span>(x1) <span class="op">+</span><span class="st"> </span><span class="kw">ylab</span>(y1) <span class="op">+</span><span class="st"> </span><span class="kw">theme</span>(<span class="dt">legend.position =</span> <span class="st">&quot;none&quot;</span>)  <span class="co">#+labs(shape=&#39;Species&#39;)</span></span>
+<span id="cb10-54"><a href="metabolomics.html#cb10-54"></a>    <span class="kw">return</span>(p)</span>
+<span id="cb10-55"><a href="metabolomics.html#cb10-55"></a>}</span>
+<span id="cb10-56"><a href="metabolomics.html#cb10-56"></a></span>
+<span id="cb10-57"><a href="metabolomics.html#cb10-57"></a>hp_pca &lt;-<span class="st"> </span><span class="kw">pca_wrapper</span>(hilic_pos, md, <span class="st">&quot;Hilic pos&quot;</span>)</span>
+<span id="cb10-58"><a href="metabolomics.html#cb10-58"></a>hn_pca &lt;-<span class="st"> </span><span class="kw">pca_wrapper</span>(hilic_neg, md, <span class="st">&quot;Hilic neg&quot;</span>)</span>
+<span id="cb10-59"><a href="metabolomics.html#cb10-59"></a>rp_pca &lt;-<span class="st"> </span><span class="kw">pca_wrapper</span>(rp_pos, md, <span class="st">&quot;RP pos&quot;</span>)</span>
+<span id="cb10-60"><a href="metabolomics.html#cb10-60"></a>rn_pca &lt;-<span class="st"> </span><span class="kw">pca_wrapper</span>(rp_neg, md, <span class="st">&quot;RP pos&quot;</span>)</span>
+<span id="cb10-61"><a href="metabolomics.html#cb10-61"></a></span>
+<span id="cb10-62"><a href="metabolomics.html#cb10-62"></a><span class="co"># FUN multiplot # NOT MY OWN</span></span>
+<span id="cb10-63"><a href="metabolomics.html#cb10-63"></a>multiplot &lt;-<span class="st"> </span><span class="cf">function</span>(..., <span class="dt">plotlist =</span> <span class="ot">NULL</span>, file, <span class="dt">cols =</span> <span class="dv">1</span>, <span class="dt">layout =</span> <span class="ot">NULL</span>) {</span>
+<span id="cb10-64"><a href="metabolomics.html#cb10-64"></a>    <span class="kw">library</span>(grid)</span>
+<span id="cb10-65"><a href="metabolomics.html#cb10-65"></a>    </span>
+<span id="cb10-66"><a href="metabolomics.html#cb10-66"></a>    <span class="co"># Make a list from the ... arguments and plotlist</span></span>
+<span id="cb10-67"><a href="metabolomics.html#cb10-67"></a>    plots &lt;-<span class="st"> </span><span class="kw">c</span>(<span class="kw">list</span>(...), plotlist)</span>
+<span id="cb10-68"><a href="metabolomics.html#cb10-68"></a>    </span>
+<span id="cb10-69"><a href="metabolomics.html#cb10-69"></a>    numPlots =<span class="st"> </span><span class="kw">length</span>(plots)</span>
+<span id="cb10-70"><a href="metabolomics.html#cb10-70"></a>    </span>
+<span id="cb10-71"><a href="metabolomics.html#cb10-71"></a>    <span class="co"># If layout is NULL, then use &#39;cols&#39; to determine layout</span></span>
+<span id="cb10-72"><a href="metabolomics.html#cb10-72"></a>    <span class="cf">if</span> (<span class="kw">is.null</span>(layout)) {</span>
+<span id="cb10-73"><a href="metabolomics.html#cb10-73"></a>        <span class="co"># Make the panel ncol: Number of columns of plots nrow: Number of rows needed,</span></span>
+<span id="cb10-74"><a href="metabolomics.html#cb10-74"></a>        <span class="co"># calculated from # of cols</span></span>
+<span id="cb10-75"><a href="metabolomics.html#cb10-75"></a>        layout &lt;-<span class="st"> </span><span class="kw">matrix</span>(<span class="kw">seq</span>(<span class="dv">1</span>, cols <span class="op">*</span><span class="st"> </span><span class="kw">ceiling</span>(numPlots<span class="op">/</span>cols)), <span class="dt">ncol =</span> cols, <span class="dt">nrow =</span> <span class="kw">ceiling</span>(numPlots<span class="op">/</span>cols))</span>
+<span id="cb10-76"><a href="metabolomics.html#cb10-76"></a>    }</span>
+<span id="cb10-77"><a href="metabolomics.html#cb10-77"></a>    </span>
+<span id="cb10-78"><a href="metabolomics.html#cb10-78"></a>    <span class="cf">if</span> (numPlots <span class="op">==</span><span class="st"> </span><span class="dv">1</span>) {</span>
+<span id="cb10-79"><a href="metabolomics.html#cb10-79"></a>        <span class="kw">print</span>(plots[[<span class="dv">1</span>]])</span>
+<span id="cb10-80"><a href="metabolomics.html#cb10-80"></a>        </span>
+<span id="cb10-81"><a href="metabolomics.html#cb10-81"></a>    } <span class="cf">else</span> {</span>
+<span id="cb10-82"><a href="metabolomics.html#cb10-82"></a>        <span class="co"># Set up the page</span></span>
+<span id="cb10-83"><a href="metabolomics.html#cb10-83"></a>        <span class="kw">grid.newpage</span>()</span>
+<span id="cb10-84"><a href="metabolomics.html#cb10-84"></a>        <span class="kw">pushViewport</span>(<span class="kw">viewport</span>(<span class="dt">layout =</span> <span class="kw">grid.layout</span>(<span class="kw">nrow</span>(layout), <span class="kw">ncol</span>(layout))))</span>
+<span id="cb10-85"><a href="metabolomics.html#cb10-85"></a>        </span>
+<span id="cb10-86"><a href="metabolomics.html#cb10-86"></a>        <span class="co"># Make each plot, in the correct location</span></span>
+<span id="cb10-87"><a href="metabolomics.html#cb10-87"></a>        <span class="cf">for</span> (i <span class="cf">in</span> <span class="dv">1</span><span class="op">:</span>numPlots) {</span>
+<span id="cb10-88"><a href="metabolomics.html#cb10-88"></a>            <span class="co"># Get the i,j matrix positions of the regions that contain this subplot</span></span>
+<span id="cb10-89"><a href="metabolomics.html#cb10-89"></a>            matchidx &lt;-<span class="st"> </span><span class="kw">as.data.frame</span>(<span class="kw">which</span>(layout <span class="op">==</span><span class="st"> </span>i, <span class="dt">arr.ind =</span> <span class="ot">TRUE</span>))</span>
+<span id="cb10-90"><a href="metabolomics.html#cb10-90"></a>            </span>
+<span id="cb10-91"><a href="metabolomics.html#cb10-91"></a>            <span class="kw">print</span>(plots[[i]], <span class="dt">vp =</span> <span class="kw">viewport</span>(<span class="dt">layout.pos.row =</span> matchidx<span class="op">$</span>row, <span class="dt">layout.pos.col =</span> matchidx<span class="op">$</span>col))</span>
+<span id="cb10-92"><a href="metabolomics.html#cb10-92"></a>        }</span>
+<span id="cb10-93"><a href="metabolomics.html#cb10-93"></a>    }</span>
+<span id="cb10-94"><a href="metabolomics.html#cb10-94"></a>}</span>
+<span id="cb10-95"><a href="metabolomics.html#cb10-95"></a></span>
+<span id="cb10-96"><a href="metabolomics.html#cb10-96"></a><span class="kw">multiplot</span>(hp_pca, hn_pca, rp_pca, rn_pca, <span class="dt">cols =</span> <span class="dv">2</span>)</span></code></pre></div>
 <p><img src="Oceanographic-setting-influences-the-prokaryote-community-and-metabolome-in-deep-sea-sponges_files/figure-html/pca1-1.png" width="672" /></p>
 <div class="sourceCode" id="cb11"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb11-1"><a href="metabolomics.html#cb11-1"></a><span class="kw">library</span>(vegan)</span>
 <span id="cb11-2"><a href="metabolomics.html#cb11-2"></a></span>
@@ -1034,173 +1044,1481 @@ RP neg
 <span id="cb19-33"><a href="metabolomics.html#cb19-33"></a>rp_opls_df &lt;-<span class="st"> </span><span class="kw">spl_ada</span>(rp_pos, md)</span>
 <span id="cb19-34"><a href="metabolomics.html#cb19-34"></a>rn_opls_df &lt;-<span class="st"> </span><span class="kw">spl_ada</span>(rp_neg, md)</span>
 <span id="cb19-35"><a href="metabolomics.html#cb19-35"></a></span>
-<span id="cb19-36"><a href="metabolomics.html#cb19-36"></a>ropls_wrapper &lt;-<span class="st"> </span><span class="cf">function</span>(opls_df) {</span>
-<span id="cb19-37"><a href="metabolomics.html#cb19-37"></a>    <span class="co"># ropls&#39; PCA</span></span>
-<span id="cb19-38"><a href="metabolomics.html#cb19-38"></a>    gb.pca &lt;-<span class="st"> </span><span class="kw">opls</span>(opls_df<span class="op">$</span>metabolome_gb)</span>
-<span id="cb19-39"><a href="metabolomics.html#cb19-39"></a>    sf.pca &lt;-<span class="st"> </span><span class="kw">opls</span>(opls_df<span class="op">$</span>metabolome_sf)</span>
-<span id="cb19-40"><a href="metabolomics.html#cb19-40"></a>    wb.pca &lt;-<span class="st"> </span><span class="kw">opls</span>(opls_df<span class="op">$</span>metabolome_wb)</span>
-<span id="cb19-41"><a href="metabolomics.html#cb19-41"></a>    </span>
-<span id="cb19-42"><a href="metabolomics.html#cb19-42"></a>    md_gb &lt;-<span class="st"> </span>opls_df<span class="op">$</span>md_gb</span>
-<span id="cb19-43"><a href="metabolomics.html#cb19-43"></a>    md_sf &lt;-<span class="st"> </span>opls_df<span class="op">$</span>md_sf</span>
-<span id="cb19-44"><a href="metabolomics.html#cb19-44"></a>    md_wb &lt;-<span class="st"> </span>opls_df<span class="op">$</span>md_wb</span>
-<span id="cb19-45"><a href="metabolomics.html#cb19-45"></a>    </span>
-<span id="cb19-46"><a href="metabolomics.html#cb19-46"></a>    <span class="co"># ropls&#39; OPLS</span></span>
-<span id="cb19-47"><a href="metabolomics.html#cb19-47"></a>    gb.opls &lt;-<span class="st"> </span><span class="kw">opls</span>(opls_df<span class="op">$</span>metabolome_gb, md_gb[, <span class="st">&quot;Depth&quot;</span>], <span class="dt">permI =</span> <span class="dv">10</span>, <span class="dt">orthoI =</span> <span class="ot">NA</span>, </span>
-<span id="cb19-48"><a href="metabolomics.html#cb19-48"></a>        <span class="dt">scaleC =</span> <span class="st">&quot;pareto&quot;</span>)</span>
-<span id="cb19-49"><a href="metabolomics.html#cb19-49"></a>    sf.opls &lt;-<span class="st"> </span><span class="kw">opls</span>(opls_df<span class="op">$</span>metabolome_sf, md_sf[, <span class="st">&quot;Depth&quot;</span>], <span class="dt">permI =</span> <span class="dv">10</span>, <span class="dt">orthoI =</span> <span class="ot">NA</span>, </span>
-<span id="cb19-50"><a href="metabolomics.html#cb19-50"></a>        <span class="dt">scaleC =</span> <span class="st">&quot;pareto&quot;</span>)</span>
-<span id="cb19-51"><a href="metabolomics.html#cb19-51"></a>    wb.opls &lt;-<span class="st"> </span><span class="kw">opls</span>(opls_df<span class="op">$</span>metabolome_wb, md_wb[, <span class="st">&quot;Depth&quot;</span>], <span class="dt">permI =</span> <span class="dv">10</span>, <span class="dt">orthoI =</span> <span class="ot">NA</span>, </span>
-<span id="cb19-52"><a href="metabolomics.html#cb19-52"></a>        <span class="dt">scaleC =</span> <span class="st">&quot;pareto&quot;</span>)</span>
-<span id="cb19-53"><a href="metabolomics.html#cb19-53"></a>    </span>
-<span id="cb19-54"><a href="metabolomics.html#cb19-54"></a>    <span class="co"># summary</span></span>
-<span id="cb19-55"><a href="metabolomics.html#cb19-55"></a>    gb.opls &lt;-<span class="st"> </span>gb.opls<span class="op">@</span>summaryDF</span>
-<span id="cb19-56"><a href="metabolomics.html#cb19-56"></a>    sf.opls &lt;-<span class="st"> </span>sf.opls<span class="op">@</span>summaryDF</span>
-<span id="cb19-57"><a href="metabolomics.html#cb19-57"></a>    wb.opls &lt;-<span class="st"> </span>wb.opls<span class="op">@</span>summaryDF</span>
-<span id="cb19-58"><a href="metabolomics.html#cb19-58"></a>    </span>
-<span id="cb19-59"><a href="metabolomics.html#cb19-59"></a>    opls_diagnostics &lt;-<span class="st"> </span><span class="kw">rbind</span>(gb.opls, sf.opls, wb.opls)</span>
-<span id="cb19-60"><a href="metabolomics.html#cb19-60"></a>    opls_diagnostics[<span class="st">&quot;Species&quot;</span>] &lt;-<span class="st"> </span><span class="kw">c</span>(<span class="st">&quot;Geodia barretti&quot;</span>, <span class="st">&quot;Stryphnus fortis&quot;</span>, <span class="st">&quot;Weberella bursa&quot;</span>)</span>
-<span id="cb19-61"><a href="metabolomics.html#cb19-61"></a>    <span class="kw">return</span>(opls_diagnostics)</span>
-<span id="cb19-62"><a href="metabolomics.html#cb19-62"></a>}</span>
-<span id="cb19-63"><a href="metabolomics.html#cb19-63"></a></span>
-<span id="cb19-64"><a href="metabolomics.html#cb19-64"></a>a &lt;-<span class="st"> </span><span class="kw">Sys.time</span>()</span>
-<span id="cb19-65"><a href="metabolomics.html#cb19-65"></a>hp_cleaned_opls &lt;-<span class="st"> </span><span class="kw">ropls_wrapper</span>(hp_opls_df)</span></code></pre></div>
-<pre><code>## PCA
-## 16 samples x 3507 variables
-## standard scaling of predictors
-##       R2X(cum) pre ort
-## Total     0.57   5   0</code></pre>
-<pre><code>## PCA
-## 13 samples x 3507 variables
-## standard scaling of predictors
-##       R2X(cum) pre ort
-## Total    0.584   5   0</code></pre>
-<pre><code>## PCA
-## 16 samples x 3507 variables
-## standard scaling of predictors
-##       R2X(cum) pre ort
-## Total    0.555   5   0</code></pre>
-<pre><code>## OPLS
-## 16 samples x 3507 variables and 1 response
-## pareto scaling of predictors and response(s)
-##       R2X(cum) R2Y(cum) Q2(cum) RMSEE pre ort pR2Y pQ2
-## Total    0.425    0.998   0.867  19.7   1   2  0.1 0.1</code></pre>
-<pre><code>## OPLS
-## 13 samples x 3507 variables and 1 response
-## pareto scaling of predictors and response(s)
-##       R2X(cum) R2Y(cum) Q2(cum) RMSEE pre ort pR2Y pQ2
-## Total    0.349    0.998   0.719  17.3   1   2  0.1 0.1</code></pre>
-<pre><code>## OPLS
-## 16 samples x 3507 variables and 1 response
-## pareto scaling of predictors and response(s)
-##       R2X(cum) R2Y(cum) Q2(cum) RMSEE pre ort pR2Y pQ2
-## Total    0.496    0.999   0.549  13.7   1   3  0.1 0.1</code></pre>
-<div class="sourceCode" id="cb26"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb26-1"><a href="metabolomics.html#cb26-1"></a>hn_cleaned_opls &lt;-<span class="st"> </span><span class="kw">ropls_wrapper</span>(hn_opls_df)</span></code></pre></div>
-<pre><code>## PCA
-## 16 samples x 2808 variables
-## standard scaling of predictors
-##       R2X(cum) pre ort
-## Total     0.58   4   0</code></pre>
-<pre><code>## PCA
-## 13 samples x 2808 variables
-## standard scaling of predictors
-##       R2X(cum) pre ort
-## Total    0.512   3   0</code></pre>
-<pre><code>## PCA
-## 16 samples x 2808 variables
-## standard scaling of predictors
-##       R2X(cum) pre ort
-## Total    0.549   4   0</code></pre>
-<pre><code>## OPLS
-## 16 samples x 2808 variables and 1 response
-## pareto scaling of predictors and response(s)
-##       R2X(cum) R2Y(cum) Q2(cum) RMSEE pre ort pR2Y pQ2
-## Total    0.464    0.988   0.767  47.4   1   2  0.1 0.1</code></pre>
-<pre><code>## OPLS
-## 13 samples x 2808 variables and 1 response
-## pareto scaling of predictors and response(s)
-##       R2X(cum) R2Y(cum) Q2(cum) RMSEE pre ort pR2Y pQ2
-## Total     0.61    0.998   0.737  20.8   1   3  0.3 0.1</code></pre>
-<pre><code>## OPLS
-## 16 samples x 2808 variables and 1 response
-## pareto scaling of predictors and response(s)
-##       R2X(cum) R2Y(cum) Q2(cum) RMSEE pre ort pR2Y pQ2
-## Total    0.366    0.985   0.556  42.4   1   2  0.2 0.1</code></pre>
-<div class="sourceCode" id="cb33"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb33-1"><a href="metabolomics.html#cb33-1"></a>rp_cleaned_opls &lt;-<span class="st"> </span><span class="kw">ropls_wrapper</span>(rp_opls_df)</span></code></pre></div>
-<pre><code>## PCA
-## 16 samples x 4673 variables
-## standard scaling of predictors
-##       R2X(cum) pre ort
-## Total    0.503   4   0</code></pre>
-<pre><code>## PCA
-## 13 samples x 4673 variables
-## standard scaling of predictors
-##       R2X(cum) pre ort
-## Total    0.551   4   0</code></pre>
-<pre><code>## PCA
-## 16 samples x 4673 variables
-## standard scaling of predictors
-##       R2X(cum) pre ort
-## Total    0.501   4   0</code></pre>
-<pre><code>## OPLS
-## 16 samples x 4673 variables and 1 response
-## pareto scaling of predictors and response(s)
-##       R2X(cum) R2Y(cum) Q2(cum) RMSEE pre ort pR2Y pQ2
-## Total    0.585    0.998   0.796  22.6   1   3  0.1 0.1</code></pre>
-<pre><code>## OPLS
-## 13 samples x 4673 variables and 1 response
-## pareto scaling of predictors and response(s)
-##       R2X(cum) R2Y(cum) Q2(cum) RMSEE pre ort pR2Y pQ2
-## Total    0.469    0.991    0.63  37.5   1   2  0.1 0.1</code></pre>
-<pre><code>## OPLS
-## 16 samples x 4673 variables and 1 response
-## pareto scaling of predictors and response(s)
-##       R2X(cum) R2Y(cum) Q2(cum) RMSEE pre ort pR2Y pQ2
-## Total    0.343     0.98   0.335  48.8   1   2  0.1 0.2</code></pre>
-<div class="sourceCode" id="cb40"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb40-1"><a href="metabolomics.html#cb40-1"></a>rn_cleaned_opls &lt;-<span class="st"> </span><span class="kw">ropls_wrapper</span>(rn_opls_df)</span></code></pre></div>
-<pre><code>## PCA
-## 15 samples x 3166 variables
-## standard scaling of predictors
-##       R2X(cum) pre ort
-## Total     0.52   4   0</code></pre>
-<pre><code>## PCA
-## 13 samples x 3166 variables
-## standard scaling of predictors
-##       R2X(cum) pre ort
-## Total    0.579   4   0</code></pre>
-<pre><code>## PCA
-## 16 samples x 3166 variables
-## standard scaling of predictors
-##       R2X(cum) pre ort
-## Total    0.511   4   0</code></pre>
-<pre><code>## OPLS
-## 15 samples x 3166 variables and 1 response
-## pareto scaling of predictors and response(s)
-##       R2X(cum) R2Y(cum) Q2(cum) RMSEE pre ort pR2Y pQ2
-## Total    0.377    0.987    0.71  46.9   1   2  0.2 0.1</code></pre>
-<pre><code>## OPLS
-## 13 samples x 3166 variables and 1 response
-## pareto scaling of predictors and response(s)
-##       R2X(cum) R2Y(cum) Q2(cum) RMSEE pre ort pR2Y pQ2
-## Total    0.476    0.985   0.623  49.3   1   2  0.2 0.1</code></pre>
-<pre><code>## OPLS
-## 16 samples x 3166 variables and 1 response
-## pareto scaling of predictors and response(s)
-##       R2X(cum) R2Y(cum) Q2(cum) RMSEE pre ort pR2Y pQ2
-## Total    0.412    0.985    0.45  41.9   1   2  0.1 0.1</code></pre>
-<div class="sourceCode" id="cb47"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb47-1"><a href="metabolomics.html#cb47-1"></a>b &lt;-<span class="st"> </span><span class="kw">Sys.time</span>()</span>
-<span id="cb47-2"><a href="metabolomics.html#cb47-2"></a>b <span class="op">-</span><span class="st"> </span>a</span></code></pre></div>
-<pre><code>## Time difference of 1.315334 mins</code></pre>
-<div class="sourceCode" id="cb49"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb49-1"><a href="metabolomics.html#cb49-1"></a>cleaned &lt;-<span class="st"> </span><span class="kw">rbind</span>(hp_cleaned_opls, hn_cleaned_opls, rp_cleaned_opls, rn_cleaned_opls)</span>
-<span id="cb49-2"><a href="metabolomics.html#cb49-2"></a>cleaned[<span class="st">&quot;Experiment&quot;</span>] &lt;-<span class="st"> </span><span class="kw">c</span>(<span class="kw">rep</span>(<span class="st">&quot;HILIC pos&quot;</span>, <span class="dv">3</span>), <span class="kw">rep</span>(<span class="st">&quot;HILIC neg&quot;</span>, <span class="dv">3</span>), <span class="kw">rep</span>(<span class="st">&quot;RP pos&quot;</span>, </span>
-<span id="cb49-3"><a href="metabolomics.html#cb49-3"></a>    <span class="dv">3</span>), <span class="kw">rep</span>(<span class="st">&quot;RP neg&quot;</span>, <span class="dv">3</span>))</span>
-<span id="cb49-4"><a href="metabolomics.html#cb49-4"></a><span class="kw">write.csv</span>(cleaned, <span class="st">&quot;data/cleaned_opls_diagnostics.csv&quot;</span>, <span class="dt">row.names =</span> F)</span></code></pre></div>
+<span id="cb19-36"><a href="metabolomics.html#cb19-36"></a><span class="co"># P should be NA; or 1</span></span>
+<span id="cb19-37"><a href="metabolomics.html#cb19-37"></a>ropls_wrapper &lt;-<span class="st"> </span><span class="cf">function</span>(opls_df, p1, p2, p3) {</span>
+<span id="cb19-38"><a href="metabolomics.html#cb19-38"></a>    <span class="co"># ropls&#39; PCA</span></span>
+<span id="cb19-39"><a href="metabolomics.html#cb19-39"></a>    gb.pca &lt;-<span class="st"> </span><span class="kw">opls</span>(opls_df<span class="op">$</span>metabolome_gb, <span class="dt">plotL =</span> F, <span class="dt">printL =</span> F)</span>
+<span id="cb19-40"><a href="metabolomics.html#cb19-40"></a>    sf.pca &lt;-<span class="st"> </span><span class="kw">opls</span>(opls_df<span class="op">$</span>metabolome_sf, <span class="dt">plotL =</span> F, <span class="dt">printL =</span> F)</span>
+<span id="cb19-41"><a href="metabolomics.html#cb19-41"></a>    wb.pca &lt;-<span class="st"> </span><span class="kw">opls</span>(opls_df<span class="op">$</span>metabolome_wb, <span class="dt">plotL =</span> F, <span class="dt">printL =</span> F)</span>
+<span id="cb19-42"><a href="metabolomics.html#cb19-42"></a>    </span>
+<span id="cb19-43"><a href="metabolomics.html#cb19-43"></a>    md_gb &lt;-<span class="st"> </span>opls_df<span class="op">$</span>md_gb</span>
+<span id="cb19-44"><a href="metabolomics.html#cb19-44"></a>    md_sf &lt;-<span class="st"> </span>opls_df<span class="op">$</span>md_sf</span>
+<span id="cb19-45"><a href="metabolomics.html#cb19-45"></a>    md_wb &lt;-<span class="st"> </span>opls_df<span class="op">$</span>md_wb</span>
+<span id="cb19-46"><a href="metabolomics.html#cb19-46"></a>    </span>
+<span id="cb19-47"><a href="metabolomics.html#cb19-47"></a>    <span class="co"># ropls&#39; OPLS</span></span>
+<span id="cb19-48"><a href="metabolomics.html#cb19-48"></a>    gb.opls &lt;-<span class="st"> </span><span class="kw">opls</span>(opls_df<span class="op">$</span>metabolome_gb, md_gb[, <span class="st">&quot;Depth&quot;</span>], <span class="dt">permI =</span> <span class="dv">1000</span>, <span class="dt">orthoI =</span> p1, </span>
+<span id="cb19-49"><a href="metabolomics.html#cb19-49"></a>        <span class="dt">scaleC =</span> <span class="st">&quot;pareto&quot;</span>, <span class="dt">plotL =</span> F)</span>
+<span id="cb19-50"><a href="metabolomics.html#cb19-50"></a>    sf.opls &lt;-<span class="st"> </span><span class="kw">opls</span>(opls_df<span class="op">$</span>metabolome_sf, md_sf[, <span class="st">&quot;Depth&quot;</span>], <span class="dt">permI =</span> <span class="dv">1000</span>, <span class="dt">orthoI =</span> p2, </span>
+<span id="cb19-51"><a href="metabolomics.html#cb19-51"></a>        <span class="dt">scaleC =</span> <span class="st">&quot;pareto&quot;</span>, <span class="dt">plotL =</span> F)</span>
+<span id="cb19-52"><a href="metabolomics.html#cb19-52"></a>    wb.opls &lt;-<span class="st"> </span><span class="kw">opls</span>(opls_df<span class="op">$</span>metabolome_wb, md_wb[, <span class="st">&quot;Depth&quot;</span>], <span class="dt">permI =</span> <span class="dv">1000</span>, <span class="dt">orthoI =</span> p3, </span>
+<span id="cb19-53"><a href="metabolomics.html#cb19-53"></a>        <span class="dt">scaleC =</span> <span class="st">&quot;pareto&quot;</span>, <span class="dt">plotL =</span> F)</span>
+<span id="cb19-54"><a href="metabolomics.html#cb19-54"></a>    </span>
+<span id="cb19-55"><a href="metabolomics.html#cb19-55"></a>    <span class="co"># summary</span></span>
+<span id="cb19-56"><a href="metabolomics.html#cb19-56"></a>    gb.opls &lt;-<span class="st"> </span>gb.opls<span class="op">@</span>summaryDF</span>
+<span id="cb19-57"><a href="metabolomics.html#cb19-57"></a>    sf.opls &lt;-<span class="st"> </span>sf.opls<span class="op">@</span>summaryDF</span>
+<span id="cb19-58"><a href="metabolomics.html#cb19-58"></a>    wb.opls &lt;-<span class="st"> </span>wb.opls<span class="op">@</span>summaryDF</span>
+<span id="cb19-59"><a href="metabolomics.html#cb19-59"></a>    </span>
+<span id="cb19-60"><a href="metabolomics.html#cb19-60"></a>    opls_diagnostics &lt;-<span class="st"> </span><span class="kw">rbind</span>(gb.opls, sf.opls, wb.opls)</span>
+<span id="cb19-61"><a href="metabolomics.html#cb19-61"></a>    opls_diagnostics[<span class="st">&quot;Species&quot;</span>] &lt;-<span class="st"> </span><span class="kw">c</span>(<span class="st">&quot;Geodia barretti&quot;</span>, <span class="st">&quot;Stryphnus fortis&quot;</span>, <span class="st">&quot;Weberella bursa&quot;</span>)</span>
+<span id="cb19-62"><a href="metabolomics.html#cb19-62"></a>    <span class="kw">return</span>(opls_diagnostics)</span>
+<span id="cb19-63"><a href="metabolomics.html#cb19-63"></a>}</span>
+<span id="cb19-64"><a href="metabolomics.html#cb19-64"></a></span>
+<span id="cb19-65"><a href="metabolomics.html#cb19-65"></a>a &lt;-<span class="st"> </span><span class="kw">Sys.time</span>()</span>
+<span id="cb19-66"><a href="metabolomics.html#cb19-66"></a>hp_cleaned_opls &lt;-<span class="st"> </span><span class="kw">ropls_wrapper</span>(hp_opls_df, <span class="ot">NA</span>, <span class="dv">1</span>, <span class="ot">NA</span>)</span>
+<span id="cb19-67"><a href="metabolomics.html#cb19-67"></a>hn_cleaned_opls &lt;-<span class="st"> </span><span class="kw">ropls_wrapper</span>(hn_opls_df, <span class="ot">NA</span>, <span class="dv">1</span>, <span class="ot">NA</span>)</span>
+<span id="cb19-68"><a href="metabolomics.html#cb19-68"></a>rp_cleaned_opls &lt;-<span class="st"> </span><span class="kw">ropls_wrapper</span>(rp_opls_df, <span class="ot">NA</span>, <span class="dv">1</span>, <span class="ot">NA</span>)</span>
+<span id="cb19-69"><a href="metabolomics.html#cb19-69"></a>rn_cleaned_opls &lt;-<span class="st"> </span><span class="kw">ropls_wrapper</span>(rn_opls_df, <span class="dv">1</span>, <span class="dv">1</span>, <span class="ot">NA</span>)</span>
+<span id="cb19-70"><a href="metabolomics.html#cb19-70"></a>b &lt;-<span class="st"> </span><span class="kw">Sys.time</span>()</span>
+<span id="cb19-71"><a href="metabolomics.html#cb19-71"></a>b <span class="op">-</span><span class="st"> </span>a</span>
+<span id="cb19-72"><a href="metabolomics.html#cb19-72"></a></span>
+<span id="cb19-73"><a href="metabolomics.html#cb19-73"></a>cleaned &lt;-<span class="st"> </span><span class="kw">rbind</span>(hp_cleaned_opls, hn_cleaned_opls, rp_cleaned_opls, rn_cleaned_opls)</span>
+<span id="cb19-74"><a href="metabolomics.html#cb19-74"></a>cleaned[<span class="st">&quot;Experiment&quot;</span>] &lt;-<span class="st"> </span><span class="kw">c</span>(<span class="kw">rep</span>(<span class="st">&quot;HILIC pos&quot;</span>, <span class="dv">3</span>), <span class="kw">rep</span>(<span class="st">&quot;HILIC neg&quot;</span>, <span class="dv">3</span>), <span class="kw">rep</span>(<span class="st">&quot;RP pos&quot;</span>, </span>
+<span id="cb19-75"><a href="metabolomics.html#cb19-75"></a>    <span class="dv">3</span>), <span class="kw">rep</span>(<span class="st">&quot;RP neg&quot;</span>, <span class="dv">3</span>))</span>
+<span id="cb19-76"><a href="metabolomics.html#cb19-76"></a><span class="kw">write.csv</span>(cleaned, <span class="st">&quot;data/cleaned_opls_diagnostics.csv&quot;</span>, <span class="dt">row.names =</span> F)</span></code></pre></div>
+<p>In the same manner, we can analyse the two remaining sets produced by different filtering options.</p>
+<div class="sourceCode" id="cb20"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb20-1"><a href="metabolomics.html#cb20-1"></a><span class="co"># load data ION</span></span>
+<span id="cb20-2"><a href="metabolomics.html#cb20-2"></a>hilic_pos &lt;-<span class="st"> </span><span class="kw">read.csv</span>(<span class="st">&quot;data/HILIC_pos_20190417_cleaned_MH.csv&quot;</span>, <span class="dt">header =</span> T, <span class="dt">sep =</span> <span class="st">&quot;,&quot;</span>)</span>
+<span id="cb20-3"><a href="metabolomics.html#cb20-3"></a>hilic_neg &lt;-<span class="st"> </span><span class="kw">read.csv</span>(<span class="st">&quot;data/HILIC_neg_20190421_cleaned_MH.csv&quot;</span>, <span class="dt">header =</span> T, <span class="dt">sep =</span> <span class="st">&quot;,&quot;</span>)</span>
+<span id="cb20-4"><a href="metabolomics.html#cb20-4"></a>rp_pos &lt;-<span class="st"> </span><span class="kw">read.csv</span>(<span class="st">&quot;data/RP_pos_20190421_cleaned_MH.csv&quot;</span>, <span class="dt">header =</span> T, <span class="dt">sep =</span> <span class="st">&quot;,&quot;</span>)</span>
+<span id="cb20-5"><a href="metabolomics.html#cb20-5"></a>rp_neg &lt;-<span class="st"> </span><span class="kw">read.csv</span>(<span class="st">&quot;data/RP_neg_20190422_cleaned_MH.csv&quot;</span>, <span class="dt">header =</span> T, <span class="dt">sep =</span> <span class="st">&quot;,&quot;</span>)</span>
+<span id="cb20-6"><a href="metabolomics.html#cb20-6"></a>meta_data &lt;-<span class="st"> </span><span class="kw">read.csv</span>(<span class="st">&quot;data/Steffen_et_al_metadata_PANGAEA.csv&quot;</span>, <span class="dt">header =</span> T, <span class="dt">sep =</span> <span class="st">&quot;;&quot;</span>)</span>
+<span id="cb20-7"><a href="metabolomics.html#cb20-7"></a></span>
+<span id="cb20-8"><a href="metabolomics.html#cb20-8"></a>hilic_pos &lt;-<span class="st"> </span><span class="kw">formatting</span>(hilic_pos, meta_data, <span class="dv">8</span>, <span class="st">&quot;LC.MS.HILIC.positive&quot;</span>)</span>
+<span id="cb20-9"><a href="metabolomics.html#cb20-9"></a>hilic_neg &lt;-<span class="st"> </span><span class="kw">formatting</span>(hilic_neg, meta_data, <span class="dv">8</span>, <span class="st">&quot;LC.MS.HILIC.negative&quot;</span>)</span>
+<span id="cb20-10"><a href="metabolomics.html#cb20-10"></a>rp_pos &lt;-<span class="st"> </span><span class="kw">formatting</span>(rp_pos, meta_data, <span class="dv">8</span>, <span class="st">&quot;LC.MS.RP.positive&quot;</span>)</span>
+<span id="cb20-11"><a href="metabolomics.html#cb20-11"></a>rp_neg &lt;-<span class="st"> </span><span class="kw">formatting</span>(rp_neg, meta_data, <span class="dv">8</span>, <span class="st">&quot;LC.MS.RP.negative&quot;</span>)</span>
+<span id="cb20-12"><a href="metabolomics.html#cb20-12"></a></span>
+<span id="cb20-13"><a href="metabolomics.html#cb20-13"></a>md &lt;-<span class="st"> </span>meta_data[, <span class="kw">c</span>(<span class="st">&quot;Species&quot;</span>, <span class="st">&quot;Depth&quot;</span>, <span class="st">&quot;Latitude&quot;</span>, <span class="st">&quot;Longitude&quot;</span>, <span class="st">&quot;YEAR&quot;</span>, <span class="st">&quot;MeanBottomTemp_Cdeg&quot;</span>, </span>
+<span id="cb20-14"><a href="metabolomics.html#cb20-14"></a>    <span class="st">&quot;MeanBotSalinity_PSU&quot;</span>, <span class="st">&quot;unified_ID&quot;</span>)]</span>
+<span id="cb20-15"><a href="metabolomics.html#cb20-15"></a></span>
+<span id="cb20-16"><a href="metabolomics.html#cb20-16"></a>hp_pca &lt;-<span class="st"> </span><span class="kw">pca_wrapper</span>(hilic_pos, md, <span class="st">&quot;Hilic pos&quot;</span>)</span>
+<span id="cb20-17"><a href="metabolomics.html#cb20-17"></a>hn_pca &lt;-<span class="st"> </span><span class="kw">pca_wrapper</span>(hilic_neg, md, <span class="st">&quot;Hilic neg&quot;</span>)</span>
+<span id="cb20-18"><a href="metabolomics.html#cb20-18"></a>rp_pca &lt;-<span class="st"> </span><span class="kw">pca_wrapper</span>(rp_pos, md, <span class="st">&quot;RP pos&quot;</span>)</span>
+<span id="cb20-19"><a href="metabolomics.html#cb20-19"></a>rn_pca &lt;-<span class="st"> </span><span class="kw">pca_wrapper</span>(rp_neg, md, <span class="st">&quot;RP pos&quot;</span>)</span>
+<span id="cb20-20"><a href="metabolomics.html#cb20-20"></a></span>
+<span id="cb20-21"><a href="metabolomics.html#cb20-21"></a><span class="kw">multiplot</span>(hp_pca, hn_pca, rp_pca, rn_pca, <span class="dt">cols =</span> <span class="dv">2</span>)</span>
+<span id="cb20-22"><a href="metabolomics.html#cb20-22"></a></span>
+<span id="cb20-23"><a href="metabolomics.html#cb20-23"></a><span class="kw">permanova</span>(hilic_pos, md)</span>
+<span id="cb20-24"><a href="metabolomics.html#cb20-24"></a><span class="kw">permanova</span>(hilic_neg, md)</span>
+<span id="cb20-25"><a href="metabolomics.html#cb20-25"></a><span class="kw">permanova</span>(rp_pos, md)</span>
+<span id="cb20-26"><a href="metabolomics.html#cb20-26"></a><span class="kw">permanova</span>(rp_neg, md)</span>
+<span id="cb20-27"><a href="metabolomics.html#cb20-27"></a></span>
+<span id="cb20-28"><a href="metabolomics.html#cb20-28"></a></span>
+<span id="cb20-29"><a href="metabolomics.html#cb20-29"></a>hp_opls_df &lt;-<span class="st"> </span><span class="kw">spl_ada</span>(hilic_pos, md)</span>
+<span id="cb20-30"><a href="metabolomics.html#cb20-30"></a>hn_opls_df &lt;-<span class="st"> </span><span class="kw">spl_ada</span>(hilic_neg, md)</span>
+<span id="cb20-31"><a href="metabolomics.html#cb20-31"></a>rp_opls_df &lt;-<span class="st"> </span><span class="kw">spl_ada</span>(rp_pos, md)</span>
+<span id="cb20-32"><a href="metabolomics.html#cb20-32"></a>rn_opls_df &lt;-<span class="st"> </span><span class="kw">spl_ada</span>(rp_neg, md)</span>
+<span id="cb20-33"><a href="metabolomics.html#cb20-33"></a></span>
+<span id="cb20-34"><a href="metabolomics.html#cb20-34"></a>a &lt;-<span class="st"> </span><span class="kw">Sys.time</span>()</span>
+<span id="cb20-35"><a href="metabolomics.html#cb20-35"></a>hp_cleaned_opls &lt;-<span class="st"> </span><span class="kw">ropls_wrapper</span>(hp_opls_df, <span class="ot">NA</span>, <span class="dv">1</span>, <span class="ot">NA</span>)</span>
+<span id="cb20-36"><a href="metabolomics.html#cb20-36"></a>hn_cleaned_opls &lt;-<span class="st"> </span><span class="kw">ropls_wrapper</span>(hn_opls_df, <span class="ot">NA</span>, <span class="ot">NA</span>, <span class="ot">NA</span>)</span>
+<span id="cb20-37"><a href="metabolomics.html#cb20-37"></a>rp_cleaned_opls &lt;-<span class="st"> </span><span class="kw">ropls_wrapper</span>(rp_opls_df, <span class="ot">NA</span>, <span class="dv">1</span>, <span class="ot">NA</span>)</span>
+<span id="cb20-38"><a href="metabolomics.html#cb20-38"></a>rn_cleaned_opls &lt;-<span class="st"> </span><span class="kw">ropls_wrapper</span>(rn_opls_df, <span class="dv">1</span>, <span class="dv">1</span>, <span class="ot">NA</span>)</span>
+<span id="cb20-39"><a href="metabolomics.html#cb20-39"></a>b &lt;-<span class="st"> </span><span class="kw">Sys.time</span>()</span>
+<span id="cb20-40"><a href="metabolomics.html#cb20-40"></a>b <span class="op">-</span><span class="st"> </span>a</span>
+<span id="cb20-41"><a href="metabolomics.html#cb20-41"></a></span>
+<span id="cb20-42"><a href="metabolomics.html#cb20-42"></a>ion &lt;-<span class="st"> </span><span class="kw">rbind</span>(hp_cleaned_opls, hn_cleaned_opls, rp_cleaned_opls, rn_cleaned_opls)</span>
+<span id="cb20-43"><a href="metabolomics.html#cb20-43"></a>ion[<span class="st">&quot;Experiment&quot;</span>] &lt;-<span class="st"> </span><span class="kw">c</span>(<span class="kw">rep</span>(<span class="st">&quot;HILIC pos&quot;</span>, <span class="dv">3</span>), <span class="kw">rep</span>(<span class="st">&quot;HILIC neg&quot;</span>, <span class="dv">3</span>), <span class="kw">rep</span>(<span class="st">&quot;RP pos&quot;</span>, <span class="dv">3</span>), </span>
+<span id="cb20-44"><a href="metabolomics.html#cb20-44"></a>    <span class="kw">rep</span>(<span class="st">&quot;RP neg&quot;</span>, <span class="dv">3</span>))</span>
+<span id="cb20-45"><a href="metabolomics.html#cb20-45"></a><span class="kw">write.csv</span>(ion, <span class="st">&quot;data/cleaned_MH_opls_diagnostics.csv&quot;</span>, <span class="dt">row.names =</span> F)</span></code></pre></div>
+<div class="sourceCode" id="cb21"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb21-1"><a href="metabolomics.html#cb21-1"></a><span class="co"># load data PC_GROUP</span></span>
+<span id="cb21-2"><a href="metabolomics.html#cb21-2"></a>hilic_pos &lt;-<span class="st"> </span><span class="kw">read.csv</span>(<span class="st">&quot;data/HILIC_pos_20190417_cleaned_pcgroup.csv&quot;</span>, <span class="dt">header =</span> T, </span>
+<span id="cb21-3"><a href="metabolomics.html#cb21-3"></a>    <span class="dt">sep =</span> <span class="st">&quot;,&quot;</span>)</span>
+<span id="cb21-4"><a href="metabolomics.html#cb21-4"></a>hilic_neg &lt;-<span class="st"> </span><span class="kw">read.csv</span>(<span class="st">&quot;data/HILIC_neg_20190421_cleaned_pcgroup.csv&quot;</span>, <span class="dt">header =</span> T, </span>
+<span id="cb21-5"><a href="metabolomics.html#cb21-5"></a>    <span class="dt">sep =</span> <span class="st">&quot;,&quot;</span>)</span>
+<span id="cb21-6"><a href="metabolomics.html#cb21-6"></a>rp_pos &lt;-<span class="st"> </span><span class="kw">read.csv</span>(<span class="st">&quot;data/RP_pos_20190421_cleaned_pcgroup.csv&quot;</span>, <span class="dt">header =</span> T, <span class="dt">sep =</span> <span class="st">&quot;,&quot;</span>)</span>
+<span id="cb21-7"><a href="metabolomics.html#cb21-7"></a>rp_neg &lt;-<span class="st"> </span><span class="kw">read.csv</span>(<span class="st">&quot;data/RP_neg_20190422_cleaned_pcgroup.csv&quot;</span>, <span class="dt">header =</span> T, <span class="dt">sep =</span> <span class="st">&quot;,&quot;</span>)</span>
+<span id="cb21-8"><a href="metabolomics.html#cb21-8"></a>meta_data &lt;-<span class="st"> </span><span class="kw">read.csv</span>(<span class="st">&quot;data/Steffen_et_al_metadata_PANGAEA.csv&quot;</span>, <span class="dt">header =</span> T, <span class="dt">sep =</span> <span class="st">&quot;;&quot;</span>)</span>
+<span id="cb21-9"><a href="metabolomics.html#cb21-9"></a></span>
+<span id="cb21-10"><a href="metabolomics.html#cb21-10"></a>hilic_pos &lt;-<span class="st"> </span><span class="kw">formatting</span>(hilic_pos, meta_data, <span class="dv">8</span>, <span class="st">&quot;LC.MS.HILIC.positive&quot;</span>)</span>
+<span id="cb21-11"><a href="metabolomics.html#cb21-11"></a>hilic_neg &lt;-<span class="st"> </span><span class="kw">formatting</span>(hilic_neg, meta_data, <span class="dv">8</span>, <span class="st">&quot;LC.MS.HILIC.negative&quot;</span>)</span>
+<span id="cb21-12"><a href="metabolomics.html#cb21-12"></a>rp_pos &lt;-<span class="st"> </span><span class="kw">formatting</span>(rp_pos, meta_data, <span class="dv">8</span>, <span class="st">&quot;LC.MS.RP.positive&quot;</span>)</span>
+<span id="cb21-13"><a href="metabolomics.html#cb21-13"></a>rp_neg &lt;-<span class="st"> </span><span class="kw">formatting</span>(rp_neg, meta_data, <span class="dv">8</span>, <span class="st">&quot;LC.MS.RP.negative&quot;</span>)</span>
+<span id="cb21-14"><a href="metabolomics.html#cb21-14"></a></span>
+<span id="cb21-15"><a href="metabolomics.html#cb21-15"></a>md &lt;-<span class="st"> </span>meta_data[, <span class="kw">c</span>(<span class="st">&quot;Species&quot;</span>, <span class="st">&quot;Depth&quot;</span>, <span class="st">&quot;Latitude&quot;</span>, <span class="st">&quot;Longitude&quot;</span>, <span class="st">&quot;YEAR&quot;</span>, <span class="st">&quot;MeanBottomTemp_Cdeg&quot;</span>, </span>
+<span id="cb21-16"><a href="metabolomics.html#cb21-16"></a>    <span class="st">&quot;MeanBotSalinity_PSU&quot;</span>, <span class="st">&quot;unified_ID&quot;</span>)]</span>
+<span id="cb21-17"><a href="metabolomics.html#cb21-17"></a></span>
+<span id="cb21-18"><a href="metabolomics.html#cb21-18"></a>hp_pca &lt;-<span class="st"> </span><span class="kw">pca_wrapper</span>(hilic_pos, md, <span class="st">&quot;Hilic pos&quot;</span>)</span>
+<span id="cb21-19"><a href="metabolomics.html#cb21-19"></a>hn_pca &lt;-<span class="st"> </span><span class="kw">pca_wrapper</span>(hilic_neg, md, <span class="st">&quot;Hilic neg&quot;</span>)</span>
+<span id="cb21-20"><a href="metabolomics.html#cb21-20"></a>rp_pca &lt;-<span class="st"> </span><span class="kw">pca_wrapper</span>(rp_pos, md, <span class="st">&quot;RP pos&quot;</span>)</span>
+<span id="cb21-21"><a href="metabolomics.html#cb21-21"></a>rn_pca &lt;-<span class="st"> </span><span class="kw">pca_wrapper</span>(rp_neg, md, <span class="st">&quot;RP pos&quot;</span>)</span>
+<span id="cb21-22"><a href="metabolomics.html#cb21-22"></a></span>
+<span id="cb21-23"><a href="metabolomics.html#cb21-23"></a><span class="kw">multiplot</span>(hp_pca, hn_pca, rp_pca, rn_pca, <span class="dt">cols =</span> <span class="dv">2</span>)</span>
+<span id="cb21-24"><a href="metabolomics.html#cb21-24"></a></span>
+<span id="cb21-25"><a href="metabolomics.html#cb21-25"></a><span class="kw">permanova</span>(hilic_pos, md)</span>
+<span id="cb21-26"><a href="metabolomics.html#cb21-26"></a><span class="kw">permanova</span>(hilic_neg, md)</span>
+<span id="cb21-27"><a href="metabolomics.html#cb21-27"></a><span class="kw">permanova</span>(rp_pos, md)</span>
+<span id="cb21-28"><a href="metabolomics.html#cb21-28"></a><span class="kw">permanova</span>(rp_neg, md)</span>
+<span id="cb21-29"><a href="metabolomics.html#cb21-29"></a></span>
+<span id="cb21-30"><a href="metabolomics.html#cb21-30"></a>hp_opls_df &lt;-<span class="st"> </span><span class="kw">spl_ada</span>(hilic_pos, md)</span>
+<span id="cb21-31"><a href="metabolomics.html#cb21-31"></a>hn_opls_df &lt;-<span class="st"> </span><span class="kw">spl_ada</span>(hilic_neg, md)</span>
+<span id="cb21-32"><a href="metabolomics.html#cb21-32"></a>rp_opls_df &lt;-<span class="st"> </span><span class="kw">spl_ada</span>(rp_pos, md)</span>
+<span id="cb21-33"><a href="metabolomics.html#cb21-33"></a>rn_opls_df &lt;-<span class="st"> </span><span class="kw">spl_ada</span>(rp_neg, md)</span>
+<span id="cb21-34"><a href="metabolomics.html#cb21-34"></a></span>
+<span id="cb21-35"><a href="metabolomics.html#cb21-35"></a>a &lt;-<span class="st"> </span><span class="kw">Sys.time</span>()</span>
+<span id="cb21-36"><a href="metabolomics.html#cb21-36"></a>hp_cleaned_opls &lt;-<span class="st"> </span><span class="kw">ropls_wrapper</span>(hp_opls_df, <span class="ot">NA</span>, <span class="ot">NA</span>, <span class="ot">NA</span>)</span>
+<span id="cb21-37"><a href="metabolomics.html#cb21-37"></a>hn_cleaned_opls &lt;-<span class="st"> </span><span class="kw">ropls_wrapper</span>(hn_opls_df, <span class="ot">NA</span>, <span class="ot">NA</span>, <span class="ot">NA</span>)</span>
+<span id="cb21-38"><a href="metabolomics.html#cb21-38"></a>rp_cleaned_opls &lt;-<span class="st"> </span><span class="kw">ropls_wrapper</span>(rp_opls_df, <span class="ot">NA</span>, <span class="ot">NA</span>, <span class="ot">NA</span>)</span>
+<span id="cb21-39"><a href="metabolomics.html#cb21-39"></a>rn_cleaned_opls &lt;-<span class="st"> </span><span class="kw">ropls_wrapper</span>(rn_opls_df, <span class="ot">NA</span>, <span class="ot">NA</span>, <span class="ot">NA</span>)</span>
+<span id="cb21-40"><a href="metabolomics.html#cb21-40"></a>b &lt;-<span class="st"> </span><span class="kw">Sys.time</span>()</span>
+<span id="cb21-41"><a href="metabolomics.html#cb21-41"></a>b <span class="op">-</span><span class="st"> </span>a</span>
+<span id="cb21-42"><a href="metabolomics.html#cb21-42"></a></span>
+<span id="cb21-43"><a href="metabolomics.html#cb21-43"></a>pcg &lt;-<span class="st"> </span><span class="kw">rbind</span>(hp_cleaned_opls, hn_cleaned_opls, rp_cleaned_opls, rn_cleaned_opls)</span>
+<span id="cb21-44"><a href="metabolomics.html#cb21-44"></a>pcg[<span class="st">&quot;Experiment&quot;</span>] &lt;-<span class="st"> </span><span class="kw">c</span>(<span class="kw">rep</span>(<span class="st">&quot;HILIC pos&quot;</span>, <span class="dv">3</span>), <span class="kw">rep</span>(<span class="st">&quot;HILIC neg&quot;</span>, <span class="dv">3</span>), <span class="kw">rep</span>(<span class="st">&quot;RP pos&quot;</span>, <span class="dv">3</span>), </span>
+<span id="cb21-45"><a href="metabolomics.html#cb21-45"></a>    <span class="kw">rep</span>(<span class="st">&quot;RP neg&quot;</span>, <span class="dv">3</span>))</span>
+<span id="cb21-46"><a href="metabolomics.html#cb21-46"></a><span class="kw">write.csv</span>(pcg, <span class="st">&quot;data/cleaned_PC_opls_diagnostics.csv&quot;</span>, <span class="dt">row.names =</span> F)</span></code></pre></div>
+<p>The multivariate analyses were quite time consuming, requiring 1.4 hours for the “cleaned” data sets, 46.3 min for the “PC-group” data stes and 4 min for the “ion” data sets. The combined model diagnostics are summarised below.</p>
+<div class="sourceCode" id="cb22"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb22-1"><a href="metabolomics.html#cb22-1"></a><span class="kw">library</span>(kableExtra)</span>
+<span id="cb22-2"><a href="metabolomics.html#cb22-2"></a>cleaned &lt;-<span class="st"> </span><span class="kw">read.csv</span>(<span class="st">&quot;data/cleaned_opls_diagnostics.csv&quot;</span>, <span class="dt">header =</span> T)</span>
+<span id="cb22-3"><a href="metabolomics.html#cb22-3"></a>pcgrp &lt;-<span class="st"> </span><span class="kw">read.csv</span>(<span class="st">&quot;data/cleaned_PC_opls_diagnostics.csv&quot;</span>, <span class="dt">header =</span> T)</span>
+<span id="cb22-4"><a href="metabolomics.html#cb22-4"></a>ion &lt;-<span class="st"> </span><span class="kw">read.csv</span>(<span class="st">&quot;data/cleaned_MH_opls_diagnostics.csv&quot;</span>, <span class="dt">header =</span> T)</span>
+<span id="cb22-5"><a href="metabolomics.html#cb22-5"></a></span>
+<span id="cb22-6"><a href="metabolomics.html#cb22-6"></a>opls_diagnostics &lt;-<span class="st"> </span><span class="kw">rbind</span>(cleaned, pcgrp, ion)</span>
+<span id="cb22-7"><a href="metabolomics.html#cb22-7"></a>opls_diagnostics[<span class="st">&quot;filtering&quot;</span>] &lt;-<span class="st"> </span><span class="kw">c</span>(<span class="kw">rep</span>(<span class="st">&quot;cleaned&quot;</span>, <span class="dv">12</span>), <span class="kw">rep</span>(<span class="st">&quot;pc group&quot;</span>, <span class="dv">12</span>), <span class="kw">rep</span>(<span class="st">&quot;ion&quot;</span>, </span>
+<span id="cb22-8"><a href="metabolomics.html#cb22-8"></a>    <span class="dv">12</span>))</span>
+<span id="cb22-9"><a href="metabolomics.html#cb22-9"></a></span>
+<span id="cb22-10"><a href="metabolomics.html#cb22-10"></a><span class="kw">options</span>(<span class="dt">kableExtra.html.bsTable =</span> T)</span>
+<span id="cb22-11"><a href="metabolomics.html#cb22-11"></a><span class="kw">kable</span>(opls_diagnostics, <span class="dt">col.names =</span> <span class="kw">c</span>(<span class="st">&quot;R2X cum&quot;</span>, <span class="st">&quot;R2Y cum&quot;</span>, <span class="st">&quot;Q2 cum&quot;</span>, <span class="st">&quot;RMSEE&quot;</span>, <span class="st">&quot;pre&quot;</span>, </span>
+<span id="cb22-12"><a href="metabolomics.html#cb22-12"></a>    <span class="st">&quot;ort&quot;</span>, <span class="st">&quot;pR2Y&quot;</span>, <span class="st">&quot;pQ2&quot;</span>, <span class="st">&quot;Species&quot;</span>, <span class="st">&quot;Experiment&quot;</span>, <span class="st">&quot;data set&quot;</span>), <span class="dt">longtable =</span> T, <span class="dt">booktabs =</span> T, </span>
+<span id="cb22-13"><a href="metabolomics.html#cb22-13"></a>    <span class="dt">caption =</span> <span class="st">&quot;Model diagnostics of the metabolome variations modelled by depth&quot;</span>, </span>
+<span id="cb22-14"><a href="metabolomics.html#cb22-14"></a>    <span class="dt">row.names =</span> <span class="ot">FALSE</span>) <span class="op">%&gt;%</span><span class="st"> </span><span class="kw">add_header_above</span>(<span class="kw">c</span>(<span class="dt">Diagnostics =</span> <span class="dv">8</span>, <span class="st">`</span><span class="dt">Data set attribution</span><span class="st">`</span> =<span class="st"> </span><span class="dv">3</span>)) <span class="op">%&gt;%</span><span class="st"> </span></span>
+<span id="cb22-15"><a href="metabolomics.html#cb22-15"></a><span class="st">    </span><span class="kw">kable_styling</span>(<span class="dt">bootstrap_options =</span> <span class="kw">c</span>(<span class="st">&quot;striped&quot;</span>, <span class="st">&quot;hover&quot;</span>, <span class="st">&quot;bordered&quot;</span>, <span class="st">&quot;condensed&quot;</span>, </span>
+<span id="cb22-16"><a href="metabolomics.html#cb22-16"></a>        <span class="st">&quot;responsive&quot;</span>), <span class="dt">font_size =</span> <span class="dv">12</span>, <span class="dt">full_width =</span> F, <span class="dt">latex_options =</span> <span class="kw">c</span>(<span class="st">&quot;striped&quot;</span>, </span>
+<span id="cb22-17"><a href="metabolomics.html#cb22-17"></a>        <span class="st">&quot;scale_down&quot;</span>))</span></code></pre></div>
+<table class="table table-striped table-hover table-bordered table-condensed table-responsive" style="font-size: 12px; width: auto !important; margin-left: auto; margin-right: auto;">
+<caption style="font-size: initial !important;">
+<span id="tab:opls4">Table 2.1: </span>Model diagnostics of the metabolome variations modelled by depth
+</caption>
+<thead>
+<tr>
+<th style="border-bottom:hidden; padding-bottom:0; padding-left:3px;padding-right:3px;text-align: center; " colspan="8">
+<div style="border-bottom: 1px solid #ddd; padding-bottom: 5px; ">
+Diagnostics
+</div>
+</th>
+<th style="border-bottom:hidden; padding-bottom:0; padding-left:3px;padding-right:3px;text-align: center; " colspan="3">
+<div style="border-bottom: 1px solid #ddd; padding-bottom: 5px; ">
+Data set attribution
+</div>
+</th>
+</tr>
+<tr>
+<th style="text-align:right;">
+R2X cum
+</th>
+<th style="text-align:right;">
+R2Y cum
+</th>
+<th style="text-align:right;">
+Q2 cum
+</th>
+<th style="text-align:right;">
+RMSEE
+</th>
+<th style="text-align:right;">
+pre
+</th>
+<th style="text-align:right;">
+ort
+</th>
+<th style="text-align:right;">
+pR2Y
+</th>
+<th style="text-align:right;">
+pQ2
+</th>
+<th style="text-align:left;">
+Species
+</th>
+<th style="text-align:left;">
+Experiment
+</th>
+<th style="text-align:left;">
+data set
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:right;">
+0.425
+</td>
+<td style="text-align:right;">
+0.998
+</td>
+<td style="text-align:right;">
+0.8670
+</td>
+<td style="text-align:right;">
+19.7
+</td>
+<td style="text-align:right;">
+1
+</td>
+<td style="text-align:right;">
+2
+</td>
+<td style="text-align:right;">
+0.001
+</td>
+<td style="text-align:right;">
+0.001
+</td>
+<td style="text-align:left;">
+Geodia barretti
+</td>
+<td style="text-align:left;">
+HILIC pos
+</td>
+<td style="text-align:left;">
+cleaned
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+0.257
+</td>
+<td style="text-align:right;">
+0.988
+</td>
+<td style="text-align:right;">
+0.6530
+</td>
+<td style="text-align:right;">
+42.0
+</td>
+<td style="text-align:right;">
+1
+</td>
+<td style="text-align:right;">
+1
+</td>
+<td style="text-align:right;">
+0.067
+</td>
+<td style="text-align:right;">
+0.002
+</td>
+<td style="text-align:left;">
+Stryphnus fortis
+</td>
+<td style="text-align:left;">
+HILIC pos
+</td>
+<td style="text-align:left;">
+cleaned
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+0.496
+</td>
+<td style="text-align:right;">
+0.999
+</td>
+<td style="text-align:right;">
+0.5490
+</td>
+<td style="text-align:right;">
+13.7
+</td>
+<td style="text-align:right;">
+1
+</td>
+<td style="text-align:right;">
+3
+</td>
+<td style="text-align:right;">
+0.002
+</td>
+<td style="text-align:right;">
+0.028
+</td>
+<td style="text-align:left;">
+Weberella bursa
+</td>
+<td style="text-align:left;">
+HILIC pos
+</td>
+<td style="text-align:left;">
+cleaned
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+0.464
+</td>
+<td style="text-align:right;">
+0.988
+</td>
+<td style="text-align:right;">
+0.7670
+</td>
+<td style="text-align:right;">
+47.4
+</td>
+<td style="text-align:right;">
+1
+</td>
+<td style="text-align:right;">
+2
+</td>
+<td style="text-align:right;">
+0.010
+</td>
+<td style="text-align:right;">
+0.001
+</td>
+<td style="text-align:left;">
+Geodia barretti
+</td>
+<td style="text-align:left;">
+HILIC neg
+</td>
+<td style="text-align:left;">
+cleaned
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+0.436
+</td>
+<td style="text-align:right;">
+0.924
+</td>
+<td style="text-align:right;">
+0.6290
+</td>
+<td style="text-align:right;">
+106.0
+</td>
+<td style="text-align:right;">
+1
+</td>
+<td style="text-align:right;">
+1
+</td>
+<td style="text-align:right;">
+0.074
+</td>
+<td style="text-align:right;">
+0.002
+</td>
+<td style="text-align:left;">
+Stryphnus fortis
+</td>
+<td style="text-align:left;">
+HILIC neg
+</td>
+<td style="text-align:left;">
+cleaned
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+0.366
+</td>
+<td style="text-align:right;">
+0.985
+</td>
+<td style="text-align:right;">
+0.5560
+</td>
+<td style="text-align:right;">
+42.4
+</td>
+<td style="text-align:right;">
+1
+</td>
+<td style="text-align:right;">
+2
+</td>
+<td style="text-align:right;">
+0.233
+</td>
+<td style="text-align:right;">
+0.013
+</td>
+<td style="text-align:left;">
+Weberella bursa
+</td>
+<td style="text-align:left;">
+HILIC neg
+</td>
+<td style="text-align:left;">
+cleaned
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+0.585
+</td>
+<td style="text-align:right;">
+0.998
+</td>
+<td style="text-align:right;">
+0.7960
+</td>
+<td style="text-align:right;">
+22.6
+</td>
+<td style="text-align:right;">
+1
+</td>
+<td style="text-align:right;">
+3
+</td>
+<td style="text-align:right;">
+0.003
+</td>
+<td style="text-align:right;">
+0.001
+</td>
+<td style="text-align:left;">
+Geodia barretti
+</td>
+<td style="text-align:left;">
+RP pos
+</td>
+<td style="text-align:left;">
+cleaned
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+0.328
+</td>
+<td style="text-align:right;">
+0.965
+</td>
+<td style="text-align:right;">
+0.5680
+</td>
+<td style="text-align:right;">
+71.5
+</td>
+<td style="text-align:right;">
+1
+</td>
+<td style="text-align:right;">
+1
+</td>
+<td style="text-align:right;">
+0.039
+</td>
+<td style="text-align:right;">
+0.010
+</td>
+<td style="text-align:left;">
+Stryphnus fortis
+</td>
+<td style="text-align:left;">
+RP pos
+</td>
+<td style="text-align:left;">
+cleaned
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+0.343
+</td>
+<td style="text-align:right;">
+0.980
+</td>
+<td style="text-align:right;">
+0.3350
+</td>
+<td style="text-align:right;">
+48.8
+</td>
+<td style="text-align:right;">
+1
+</td>
+<td style="text-align:right;">
+2
+</td>
+<td style="text-align:right;">
+0.113
+</td>
+<td style="text-align:right;">
+0.108
+</td>
+<td style="text-align:left;">
+Weberella bursa
+</td>
+<td style="text-align:left;">
+RP pos
+</td>
+<td style="text-align:left;">
+cleaned
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+0.304
+</td>
+<td style="text-align:right;">
+0.937
+</td>
+<td style="text-align:right;">
+0.6140
+</td>
+<td style="text-align:right;">
+99.8
+</td>
+<td style="text-align:right;">
+1
+</td>
+<td style="text-align:right;">
+1
+</td>
+<td style="text-align:right;">
+0.040
+</td>
+<td style="text-align:right;">
+0.003
+</td>
+<td style="text-align:left;">
+Geodia barretti
+</td>
+<td style="text-align:left;">
+RP neg
+</td>
+<td style="text-align:left;">
+cleaned
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+0.390
+</td>
+<td style="text-align:right;">
+0.924
+</td>
+<td style="text-align:right;">
+0.5060
+</td>
+<td style="text-align:right;">
+106.0
+</td>
+<td style="text-align:right;">
+1
+</td>
+<td style="text-align:right;">
+1
+</td>
+<td style="text-align:right;">
+0.089
+</td>
+<td style="text-align:right;">
+0.015
+</td>
+<td style="text-align:left;">
+Stryphnus fortis
+</td>
+<td style="text-align:left;">
+RP neg
+</td>
+<td style="text-align:left;">
+cleaned
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+0.412
+</td>
+<td style="text-align:right;">
+0.985
+</td>
+<td style="text-align:right;">
+0.4500
+</td>
+<td style="text-align:right;">
+41.9
+</td>
+<td style="text-align:right;">
+1
+</td>
+<td style="text-align:right;">
+2
+</td>
+<td style="text-align:right;">
+0.029
+</td>
+<td style="text-align:right;">
+0.027
+</td>
+<td style="text-align:left;">
+Weberella bursa
+</td>
+<td style="text-align:left;">
+RP neg
+</td>
+<td style="text-align:left;">
+cleaned
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+0.429
+</td>
+<td style="text-align:right;">
+0.997
+</td>
+<td style="text-align:right;">
+0.8660
+</td>
+<td style="text-align:right;">
+23.7
+</td>
+<td style="text-align:right;">
+1
+</td>
+<td style="text-align:right;">
+2
+</td>
+<td style="text-align:right;">
+0.003
+</td>
+<td style="text-align:right;">
+0.001
+</td>
+<td style="text-align:left;">
+Geodia barretti
+</td>
+<td style="text-align:left;">
+HILIC pos
+</td>
+<td style="text-align:left;">
+pc group
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+0.362
+</td>
+<td style="text-align:right;">
+0.998
+</td>
+<td style="text-align:right;">
+0.7020
+</td>
+<td style="text-align:right;">
+19.9
+</td>
+<td style="text-align:right;">
+1
+</td>
+<td style="text-align:right;">
+2
+</td>
+<td style="text-align:right;">
+0.049
+</td>
+<td style="text-align:right;">
+0.004
+</td>
+<td style="text-align:left;">
+Stryphnus fortis
+</td>
+<td style="text-align:left;">
+HILIC pos
+</td>
+<td style="text-align:left;">
+pc group
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+0.542
+</td>
+<td style="text-align:right;">
+0.995
+</td>
+<td style="text-align:right;">
+0.5820
+</td>
+<td style="text-align:right;">
+25.9
+</td>
+<td style="text-align:right;">
+1
+</td>
+<td style="text-align:right;">
+3
+</td>
+<td style="text-align:right;">
+0.114
+</td>
+<td style="text-align:right;">
+0.015
+</td>
+<td style="text-align:left;">
+Weberella bursa
+</td>
+<td style="text-align:left;">
+HILIC pos
+</td>
+<td style="text-align:left;">
+pc group
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+0.499
+</td>
+<td style="text-align:right;">
+0.990
+</td>
+<td style="text-align:right;">
+0.7500
+</td>
+<td style="text-align:right;">
+43.2
+</td>
+<td style="text-align:right;">
+1
+</td>
+<td style="text-align:right;">
+2
+</td>
+<td style="text-align:right;">
+0.004
+</td>
+<td style="text-align:right;">
+0.002
+</td>
+<td style="text-align:left;">
+Geodia barretti
+</td>
+<td style="text-align:left;">
+HILIC neg
+</td>
+<td style="text-align:left;">
+pc group
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+0.433
+</td>
+<td style="text-align:right;">
+0.990
+</td>
+<td style="text-align:right;">
+0.7230
+</td>
+<td style="text-align:right;">
+40.9
+</td>
+<td style="text-align:right;">
+1
+</td>
+<td style="text-align:right;">
+2
+</td>
+<td style="text-align:right;">
+0.068
+</td>
+<td style="text-align:right;">
+0.002
+</td>
+<td style="text-align:left;">
+Stryphnus fortis
+</td>
+<td style="text-align:left;">
+HILIC neg
+</td>
+<td style="text-align:left;">
+pc group
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+0.390
+</td>
+<td style="text-align:right;">
+0.986
+</td>
+<td style="text-align:right;">
+0.6000
+</td>
+<td style="text-align:right;">
+39.8
+</td>
+<td style="text-align:right;">
+1
+</td>
+<td style="text-align:right;">
+2
+</td>
+<td style="text-align:right;">
+0.132
+</td>
+<td style="text-align:right;">
+0.005
+</td>
+<td style="text-align:left;">
+Weberella bursa
+</td>
+<td style="text-align:left;">
+HILIC neg
+</td>
+<td style="text-align:left;">
+pc group
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+0.602
+</td>
+<td style="text-align:right;">
+0.996
+</td>
+<td style="text-align:right;">
+0.8090
+</td>
+<td style="text-align:right;">
+28.9
+</td>
+<td style="text-align:right;">
+1
+</td>
+<td style="text-align:right;">
+3
+</td>
+<td style="text-align:right;">
+0.014
+</td>
+<td style="text-align:right;">
+0.001
+</td>
+<td style="text-align:left;">
+Geodia barretti
+</td>
+<td style="text-align:left;">
+RP pos
+</td>
+<td style="text-align:left;">
+pc group
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+0.464
+</td>
+<td style="text-align:right;">
+0.990
+</td>
+<td style="text-align:right;">
+0.5850
+</td>
+<td style="text-align:right;">
+40.9
+</td>
+<td style="text-align:right;">
+1
+</td>
+<td style="text-align:right;">
+2
+</td>
+<td style="text-align:right;">
+0.122
+</td>
+<td style="text-align:right;">
+0.017
+</td>
+<td style="text-align:left;">
+Stryphnus fortis
+</td>
+<td style="text-align:left;">
+RP pos
+</td>
+<td style="text-align:left;">
+pc group
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+0.393
+</td>
+<td style="text-align:right;">
+0.979
+</td>
+<td style="text-align:right;">
+0.3590
+</td>
+<td style="text-align:right;">
+49.8
+</td>
+<td style="text-align:right;">
+1
+</td>
+<td style="text-align:right;">
+2
+</td>
+<td style="text-align:right;">
+0.045
+</td>
+<td style="text-align:right;">
+0.115
+</td>
+<td style="text-align:left;">
+Weberella bursa
+</td>
+<td style="text-align:left;">
+RP pos
+</td>
+<td style="text-align:left;">
+pc group
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+0.373
+</td>
+<td style="text-align:right;">
+0.979
+</td>
+<td style="text-align:right;">
+0.6850
+</td>
+<td style="text-align:right;">
+59.9
+</td>
+<td style="text-align:right;">
+1
+</td>
+<td style="text-align:right;">
+2
+</td>
+<td style="text-align:right;">
+0.137
+</td>
+<td style="text-align:right;">
+0.002
+</td>
+<td style="text-align:left;">
+Geodia barretti
+</td>
+<td style="text-align:left;">
+RP neg
+</td>
+<td style="text-align:left;">
+pc group
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+0.637
+</td>
+<td style="text-align:right;">
+0.991
+</td>
+<td style="text-align:right;">
+0.6140
+</td>
+<td style="text-align:right;">
+39.9
+</td>
+<td style="text-align:right;">
+1
+</td>
+<td style="text-align:right;">
+3
+</td>
+<td style="text-align:right;">
+0.455
+</td>
+<td style="text-align:right;">
+0.035
+</td>
+<td style="text-align:left;">
+Stryphnus fortis
+</td>
+<td style="text-align:left;">
+RP neg
+</td>
+<td style="text-align:left;">
+pc group
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+0.440
+</td>
+<td style="text-align:right;">
+0.980
+</td>
+<td style="text-align:right;">
+0.4170
+</td>
+<td style="text-align:right;">
+48.6
+</td>
+<td style="text-align:right;">
+1
+</td>
+<td style="text-align:right;">
+2
+</td>
+<td style="text-align:right;">
+0.089
+</td>
+<td style="text-align:right;">
+0.049
+</td>
+<td style="text-align:left;">
+Weberella bursa
+</td>
+<td style="text-align:left;">
+RP neg
+</td>
+<td style="text-align:left;">
+pc group
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+0.761
+</td>
+<td style="text-align:right;">
+0.995
+</td>
+<td style="text-align:right;">
+0.6610
+</td>
+<td style="text-align:right;">
+34.2
+</td>
+<td style="text-align:right;">
+1
+</td>
+<td style="text-align:right;">
+5
+</td>
+<td style="text-align:right;">
+0.072
+</td>
+<td style="text-align:right;">
+0.018
+</td>
+<td style="text-align:left;">
+Geodia barretti
+</td>
+<td style="text-align:left;">
+HILIC pos
+</td>
+<td style="text-align:left;">
+ion
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+0.294
+</td>
+<td style="text-align:right;">
+0.915
+</td>
+<td style="text-align:right;">
+0.3540
+</td>
+<td style="text-align:right;">
+112.0
+</td>
+<td style="text-align:right;">
+1
+</td>
+<td style="text-align:right;">
+1
+</td>
+<td style="text-align:right;">
+0.226
+</td>
+<td style="text-align:right;">
+0.109
+</td>
+<td style="text-align:left;">
+Stryphnus fortis
+</td>
+<td style="text-align:left;">
+HILIC pos
+</td>
+<td style="text-align:left;">
+ion
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+0.694
+</td>
+<td style="text-align:right;">
+0.988
+</td>
+<td style="text-align:right;">
+0.6570
+</td>
+<td style="text-align:right;">
+40.2
+</td>
+<td style="text-align:right;">
+1
+</td>
+<td style="text-align:right;">
+4
+</td>
+<td style="text-align:right;">
+0.032
+</td>
+<td style="text-align:right;">
+0.019
+</td>
+<td style="text-align:left;">
+Weberella bursa
+</td>
+<td style="text-align:left;">
+HILIC pos
+</td>
+<td style="text-align:left;">
+ion
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+0.401
+</td>
+<td style="text-align:right;">
+0.942
+</td>
+<td style="text-align:right;">
+0.6580
+</td>
+<td style="text-align:right;">
+105.0
+</td>
+<td style="text-align:right;">
+1
+</td>
+<td style="text-align:right;">
+2
+</td>
+<td style="text-align:right;">
+0.013
+</td>
+<td style="text-align:right;">
+0.002
+</td>
+<td style="text-align:left;">
+Geodia barretti
+</td>
+<td style="text-align:left;">
+HILIC neg
+</td>
+<td style="text-align:left;">
+ion
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+0.815
+</td>
+<td style="text-align:right;">
+0.992
+</td>
+<td style="text-align:right;">
+0.7570
+</td>
+<td style="text-align:right;">
+39.5
+</td>
+<td style="text-align:right;">
+1
+</td>
+<td style="text-align:right;">
+3
+</td>
+<td style="text-align:right;">
+0.007
+</td>
+<td style="text-align:right;">
+0.008
+</td>
+<td style="text-align:left;">
+Stryphnus fortis
+</td>
+<td style="text-align:left;">
+HILIC neg
+</td>
+<td style="text-align:left;">
+ion
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+0.556
+</td>
+<td style="text-align:right;">
+0.949
+</td>
+<td style="text-align:right;">
+0.6530
+</td>
+<td style="text-align:right;">
+77.3
+</td>
+<td style="text-align:right;">
+1
+</td>
+<td style="text-align:right;">
+2
+</td>
+<td style="text-align:right;">
+0.005
+</td>
+<td style="text-align:right;">
+0.004
+</td>
+<td style="text-align:left;">
+Weberella bursa
+</td>
+<td style="text-align:left;">
+HILIC neg
+</td>
+<td style="text-align:left;">
+ion
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+0.778
+</td>
+<td style="text-align:right;">
+0.910
+</td>
+<td style="text-align:right;">
+0.7940
+</td>
+<td style="text-align:right;">
+126.0
+</td>
+<td style="text-align:right;">
+1
+</td>
+<td style="text-align:right;">
+1
+</td>
+<td style="text-align:right;">
+0.001
+</td>
+<td style="text-align:right;">
+0.001
+</td>
+<td style="text-align:left;">
+Geodia barretti
+</td>
+<td style="text-align:left;">
+RP pos
+</td>
+<td style="text-align:left;">
+ion
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+0.368
+</td>
+<td style="text-align:right;">
+0.874
+</td>
+<td style="text-align:right;">
+0.2560
+</td>
+<td style="text-align:right;">
+137.0
+</td>
+<td style="text-align:right;">
+1
+</td>
+<td style="text-align:right;">
+1
+</td>
+<td style="text-align:right;">
+0.026
+</td>
+<td style="text-align:right;">
+0.159
+</td>
+<td style="text-align:left;">
+Stryphnus fortis
+</td>
+<td style="text-align:left;">
+RP pos
+</td>
+<td style="text-align:left;">
+ion
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+0.479
+</td>
+<td style="text-align:right;">
+0.960
+</td>
+<td style="text-align:right;">
+0.4060
+</td>
+<td style="text-align:right;">
+68.1
+</td>
+<td style="text-align:right;">
+1
+</td>
+<td style="text-align:right;">
+2
+</td>
+<td style="text-align:right;">
+0.005
+</td>
+<td style="text-align:right;">
+0.032
+</td>
+<td style="text-align:left;">
+Weberella bursa
+</td>
+<td style="text-align:left;">
+RP pos
+</td>
+<td style="text-align:left;">
+ion
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+0.430
+</td>
+<td style="text-align:right;">
+0.624
+</td>
+<td style="text-align:right;">
+0.0345
+</td>
+<td style="text-align:right;">
+244.0
+</td>
+<td style="text-align:right;">
+1
+</td>
+<td style="text-align:right;">
+1
+</td>
+<td style="text-align:right;">
+0.268
+</td>
+<td style="text-align:right;">
+0.198
+</td>
+<td style="text-align:left;">
+Geodia barretti
+</td>
+<td style="text-align:left;">
+RP neg
+</td>
+<td style="text-align:left;">
+ion
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+0.821
+</td>
+<td style="text-align:right;">
+0.392
+</td>
+<td style="text-align:right;">
+0.0936
+</td>
+<td style="text-align:right;">
+300.0
+</td>
+<td style="text-align:right;">
+1
+</td>
+<td style="text-align:right;">
+1
+</td>
+<td style="text-align:right;">
+0.585
+</td>
+<td style="text-align:right;">
+0.190
+</td>
+<td style="text-align:left;">
+Stryphnus fortis
+</td>
+<td style="text-align:left;">
+RP neg
+</td>
+<td style="text-align:left;">
+ion
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+0.804
+</td>
+<td style="text-align:right;">
+0.973
+</td>
+<td style="text-align:right;">
+0.5850
+</td>
+<td style="text-align:right;">
+61.8
+</td>
+<td style="text-align:right;">
+1
+</td>
+<td style="text-align:right;">
+4
+</td>
+<td style="text-align:right;">
+0.065
+</td>
+<td style="text-align:right;">
+0.027
+</td>
+<td style="text-align:left;">
+Weberella bursa
+</td>
+<td style="text-align:left;">
+RP neg
+</td>
+<td style="text-align:left;">
+ion
+</td>
+</tr>
+</tbody>
+</table>
+<div class="sourceCode" id="cb23"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb23-1"><a href="metabolomics.html#cb23-1"></a><span class="kw">write.csv</span>(opls_diagnostics, <span class="st">&quot;data/opls_diagnostics.csv&quot;</span>, <span class="dt">row.names =</span> F)</span></code></pre></div>
 </div>
 <div id="manual-annotation-identification-and-extraction-of-metabolic-feature-signals" class="section level2">
 <h2><span class="header-section-number">2.4</span> Manual annotation, identification and extraction of metabolic feature signals</h2>
 </div>
 <div id="correlations" class="section level2">
 <h2><span class="header-section-number">2.5</span> Correlations</h2>
-<div class="sourceCode" id="cb50"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb50-1"><a href="metabolomics.html#cb50-1"></a><span class="kw">sessionInfo</span>()</span></code></pre></div>
+<div class="sourceCode" id="cb24"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb24-1"><a href="metabolomics.html#cb24-1"></a><span class="kw">sessionInfo</span>()</span></code></pre></div>
 <pre><code>## R version 3.5.1 (2018-07-02)
 ## Platform: x86_64-apple-darwin15.6.0 (64-bit)
 ## Running under: macOS  10.14.6
@@ -1218,29 +2536,35 @@ RP neg
 ## 
 ## other attached packages:
 ##  [1] vegan_2.5-6           lattice_0.20-41       permute_0.9-5        
-##  [4] ropls_1.14.1          reshape2_1.4.3        kableExtra_1.1.0.9000
-##  [7] ggplot2_3.3.0         stringr_1.4.0         dplyr_0.8.5          
-## [10] knitr_1.28           
+##  [4] forcats_0.5.0         purrr_0.3.3           readr_1.3.1          
+##  [7] tidyr_1.0.2           tibble_3.0.0          tidyverse_1.3.0      
+## [10] ropls_1.14.1          reshape2_1.4.3        kableExtra_1.1.0.9000
+## [13] ggplot2_3.3.0         stringr_1.4.0         dplyr_0.8.5          
+## [16] knitr_1.28           
 ## 
 ## loaded via a namespace (and not attached):
-##  [1] tidyselect_1.0.0    xfun_0.12           purrr_0.3.3        
-##  [4] splines_3.5.1       colorspace_1.4-1    vctrs_0.2.4        
-##  [7] htmltools_0.4.0     viridisLite_0.3.0   yaml_2.2.1         
-## [10] mgcv_1.8-31         rlang_0.4.5         pillar_1.4.3       
-## [13] glue_1.3.2          withr_2.1.2         BiocGenerics_0.28.0
-## [16] lifecycle_0.2.0     plyr_1.8.6          munsell_0.5.0      
-## [19] gtable_0.3.0        rvest_0.3.5         evaluate_0.14      
-## [22] labeling_0.3        Biobase_2.42.0      parallel_3.5.1     
-## [25] fansi_0.4.1         highr_0.8           Rcpp_1.0.4         
-## [28] readr_1.3.1         scales_1.1.0        formatR_1.7        
-## [31] webshot_0.5.2       farver_2.0.3        hms_0.5.3          
-## [34] digest_0.6.25       stringi_1.4.6       bookdown_0.18      
-## [37] cli_2.0.2           tools_3.5.1         magrittr_1.5       
-## [40] tibble_3.0.0        cluster_2.1.0       crayon_1.3.4       
-## [43] pkgconfig_2.0.3     MASS_7.3-51.5       ellipsis_0.3.0     
-## [46] Matrix_1.2-18       xml2_1.3.0          assertthat_0.2.1   
-## [49] rmarkdown_2.1       httr_1.4.1          rstudioapi_0.11    
-## [52] R6_2.4.1            nlme_3.1-145        compiler_3.5.1</code></pre>
+##  [1] Rcpp_1.0.4          lubridate_1.7.4     assertthat_0.2.1   
+##  [4] digest_0.6.25       cellranger_1.1.0    R6_2.4.1           
+##  [7] plyr_1.8.6          backports_1.1.5     reprex_0.3.0       
+## [10] evaluate_0.14       httr_1.4.1          highr_0.8          
+## [13] pillar_1.4.3        rlang_0.4.5         readxl_1.3.1       
+## [16] rstudioapi_0.11     Matrix_1.2-18       rmarkdown_2.1      
+## [19] labeling_0.3        splines_3.5.1       webshot_0.5.2      
+## [22] munsell_0.5.0       broom_0.5.5         compiler_3.5.1     
+## [25] modelr_0.1.6        xfun_0.12           pkgconfig_2.0.3    
+## [28] BiocGenerics_0.28.0 mgcv_1.8-31         htmltools_0.4.0    
+## [31] tidyselect_1.0.0    bookdown_0.18       fansi_0.4.1        
+## [34] viridisLite_0.3.0   crayon_1.3.4        dbplyr_1.4.2       
+## [37] withr_2.1.2         MASS_7.3-51.5       nlme_3.1-145       
+## [40] jsonlite_1.6.1      gtable_0.3.0        lifecycle_0.2.0    
+## [43] DBI_1.1.0           magrittr_1.5        formatR_1.7        
+## [46] scales_1.1.0        cli_2.0.2           stringi_1.4.6      
+## [49] farver_2.0.3        fs_1.4.0            xml2_1.3.0         
+## [52] ellipsis_0.3.0      vctrs_0.2.4         generics_0.0.2     
+## [55] tools_3.5.1         Biobase_2.42.0      glue_1.3.2         
+## [58] hms_0.5.3           parallel_3.5.1      yaml_2.2.1         
+## [61] colorspace_1.4-1    cluster_2.1.0       rvest_0.3.5        
+## [64] haven_2.2.0</code></pre>
 
 </div>
 </div>
