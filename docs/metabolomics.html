@@ -155,8 +155,9 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 <li class="chapter" data-level="2.2.8" data-path="metabolomics.html"><a href="metabolomics.html#summary-of-data-processing"><i class="fa fa-check"></i><b>2.2.8</b> Summary of data processing</a></li>
 </ul></li>
 <li class="chapter" data-level="2.3" data-path="metabolomics.html"><a href="metabolomics.html#multivariate-analyses"><i class="fa fa-check"></i><b>2.3</b> Multivariate analyses</a></li>
-<li class="chapter" data-level="2.4" data-path="metabolomics.html"><a href="metabolomics.html#manual-annotation-identification-and-extraction-of-metabolic-feature-signals"><i class="fa fa-check"></i><b>2.4</b> Manual annotation, identification and extraction of metabolic feature signals</a></li>
-<li class="chapter" data-level="2.5" data-path="metabolomics.html"><a href="metabolomics.html#correlations"><i class="fa fa-check"></i><b>2.5</b> Correlations</a></li>
+<li class="chapter" data-level="2.4" data-path="metabolomics.html"><a href="metabolomics.html#vips"><i class="fa fa-check"></i><b>2.4</b> VIPS???</a></li>
+<li class="chapter" data-level="2.5" data-path="metabolomics.html"><a href="metabolomics.html#manual-annotation-identification-and-extraction-of-metabolic-feature-signals"><i class="fa fa-check"></i><b>2.5</b> Manual annotation, identification and extraction of metabolic feature signals</a></li>
+<li class="chapter" data-level="2.6" data-path="metabolomics.html"><a href="metabolomics.html#correlations"><i class="fa fa-check"></i><b>2.6</b> Correlations</a></li>
 </ul></li>
 <li class="chapter" data-level="3" data-path="microbiota.html"><a href="microbiota.html"><i class="fa fa-check"></i><b>3</b> Microbiota</a><ul>
 <li class="chapter" data-level="3.1" data-path="microbiota.html"><a href="microbiota.html#functions"><i class="fa fa-check"></i><b>3.1</b> Functions</a></li>
@@ -2513,12 +2514,66 @@ ion
 </table>
 <div class="sourceCode" id="cb23"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb23-1"><a href="metabolomics.html#cb23-1"></a><span class="kw">write.csv</span>(opls_diagnostics, <span class="st">&quot;data/opls_diagnostics.csv&quot;</span>, <span class="dt">row.names =</span> F)</span></code></pre></div>
 </div>
+<div id="vips" class="section level2">
+<h2><span class="header-section-number">2.4</span> VIPS???</h2>
+</div>
 <div id="manual-annotation-identification-and-extraction-of-metabolic-feature-signals" class="section level2">
-<h2><span class="header-section-number">2.4</span> Manual annotation, identification and extraction of metabolic feature signals</h2>
+<h2><span class="header-section-number">2.5</span> Manual annotation, identification and extraction of metabolic feature signals</h2>
+<p>A manually curated data set of signal intensities was produced for analysis of identified known and novel compounds.</p>
+<div class="sourceCode" id="cb24"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb24-1"><a href="metabolomics.html#cb24-1"></a><span class="kw">library</span>(ggplot2)</span>
+<span id="cb24-2"><a href="metabolomics.html#cb24-2"></a><span class="kw">library</span>(ggrepel)</span>
+<span id="cb24-3"><a href="metabolomics.html#cb24-3"></a><span class="kw">library</span>(reshape)</span>
+<span id="cb24-4"><a href="metabolomics.html#cb24-4"></a><span class="kw">library</span>(tidyverse)</span>
+<span id="cb24-5"><a href="metabolomics.html#cb24-5"></a><span class="kw">library</span>(forcats)</span>
+<span id="cb24-6"><a href="metabolomics.html#cb24-6"></a></span>
+<span id="cb24-7"><a href="metabolomics.html#cb24-7"></a>cmp &lt;-<span class="st"> </span><span class="kw">read.csv</span>(<span class="st">&quot;data/metabolite_master_20190605.csv&quot;</span>, <span class="dt">header =</span> T, <span class="dt">sep =</span> <span class="st">&quot;,&quot;</span>)</span>
+<span id="cb24-8"><a href="metabolomics.html#cb24-8"></a>meta_data &lt;-<span class="st"> </span><span class="kw">read.csv</span>(<span class="st">&quot;data/Steffen_et_al_metadata_PANGAEA.csv&quot;</span>, <span class="dt">header =</span> T, <span class="dt">sep =</span> <span class="st">&quot;;&quot;</span>)</span>
+<span id="cb24-9"><a href="metabolomics.html#cb24-9"></a>md &lt;-<span class="st"> </span>md[<span class="kw">c</span>(<span class="st">&quot;Depth&quot;</span>, <span class="st">&quot;unified_ID&quot;</span>)]</span>
+<span id="cb24-10"><a href="metabolomics.html#cb24-10"></a></span>
+<span id="cb24-11"><a href="metabolomics.html#cb24-11"></a><span class="co"># FUN prep: remove, QC samples format depth and IDs</span></span>
+<span id="cb24-12"><a href="metabolomics.html#cb24-12"></a>prep &lt;-<span class="st"> </span><span class="cf">function</span>(metabolites, md) {</span>
+<span id="cb24-13"><a href="metabolomics.html#cb24-13"></a>    metabolites<span class="op">$</span>X &lt;-<span class="st"> </span><span class="ot">NULL</span></span>
+<span id="cb24-14"><a href="metabolomics.html#cb24-14"></a>    metabolites[<span class="st">&quot;spec&quot;</span>] &lt;-<span class="st"> </span><span class="kw">str_sub</span>(metabolites<span class="op">$</span>unified_ID, <span class="dv">1</span>, <span class="dv">2</span>)</span>
+<span id="cb24-15"><a href="metabolomics.html#cb24-15"></a>    metabolites &lt;-<span class="st"> </span>metabolites[<span class="op">!</span>metabolites<span class="op">$</span>spec <span class="op">==</span><span class="st"> &quot;QC&quot;</span>, ]</span>
+<span id="cb24-16"><a href="metabolomics.html#cb24-16"></a>    metabolites &lt;-<span class="st"> </span><span class="kw">left_join</span>(metabolites, md)</span>
+<span id="cb24-17"><a href="metabolomics.html#cb24-17"></a>    metabolites &lt;-<span class="st"> </span>metabolites[<span class="op">-</span><span class="kw">c</span>(<span class="dv">9</span>), ]  <span class="co">#removes Gb16 (Geodia atlantica)</span></span>
+<span id="cb24-18"><a href="metabolomics.html#cb24-18"></a>    metabolites<span class="op">$</span>Depth &lt;-<span class="st"> </span><span class="kw">as.numeric</span>(metabolites<span class="op">$</span>Depth)</span>
+<span id="cb24-19"><a href="metabolomics.html#cb24-19"></a>    metabolites &lt;-<span class="st"> </span>metabolites[<span class="kw">with</span>(metabolites, <span class="kw">order</span>(metabolites<span class="op">$</span>spec, metabolites<span class="op">$</span>Depth)), </span>
+<span id="cb24-20"><a href="metabolomics.html#cb24-20"></a>        ]</span>
+<span id="cb24-21"><a href="metabolomics.html#cb24-21"></a>    metabolites[] &lt;-<span class="st"> </span><span class="kw">lapply</span>(metabolites, <span class="cf">function</span>(x) <span class="cf">if</span> (<span class="kw">is.factor</span>(x)) </span>
+<span id="cb24-22"><a href="metabolomics.html#cb24-22"></a>        <span class="kw">factor</span>(x) <span class="cf">else</span> x)</span>
+<span id="cb24-23"><a href="metabolomics.html#cb24-23"></a>    metabolites<span class="op">$</span>unified_ID &lt;-<span class="st"> </span><span class="kw">factor</span>(metabolites<span class="op">$</span>unified_ID, <span class="dt">levels =</span> metabolites<span class="op">$</span>unified_ID)</span>
+<span id="cb24-24"><a href="metabolomics.html#cb24-24"></a>    <span class="kw">return</span>(metabolites)</span>
+<span id="cb24-25"><a href="metabolomics.html#cb24-25"></a>}</span>
+<span id="cb24-26"><a href="metabolomics.html#cb24-26"></a></span>
+<span id="cb24-27"><a href="metabolomics.html#cb24-27"></a>metabolites &lt;-<span class="st"> </span><span class="kw">prep</span>(cmp, md)</span></code></pre></div>
+<div class="sourceCode" id="cb25"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb25-1"><a href="metabolomics.html#cb25-1"></a><span class="kw">library</span>(reshape2)</span>
+<span id="cb25-2"><a href="metabolomics.html#cb25-2"></a>mets &lt;-<span class="st"> </span>metabolites[, <span class="kw">c</span>(<span class="st">&quot;asb&quot;</span>, <span class="st">&quot;his&quot;</span>, <span class="st">&quot;cre&quot;</span>, <span class="st">&quot;pch&quot;</span>, <span class="st">&quot;crn&quot;</span>, <span class="st">&quot;acl&quot;</span>, <span class="st">&quot;ser&quot;</span>, <span class="st">&quot;mbc&quot;</span>, <span class="st">&quot;chol_s&quot;</span>, </span>
+<span id="cb25-3"><a href="metabolomics.html#cb25-3"></a>    <span class="st">&quot;bet&quot;</span>, <span class="st">&quot;choline&quot;</span>, <span class="st">&quot;ura&quot;</span>, <span class="st">&quot;unified_ID&quot;</span>, <span class="st">&quot;spec&quot;</span>, <span class="st">&quot;Depth&quot;</span>)]</span>
+<span id="cb25-4"><a href="metabolomics.html#cb25-4"></a><span class="kw">colnames</span>(mets) &lt;-<span class="st"> </span><span class="kw">c</span>(<span class="st">&quot;arseno- betaine&quot;</span>, <span class="st">&quot;histamine&quot;</span>, <span class="st">&quot;creatine&quot;</span>, <span class="st">&quot;phospho- choline&quot;</span>, </span>
+<span id="cb25-5"><a href="metabolomics.html#cb25-5"></a>    <span class="st">&quot;carnitine&quot;</span>, <span class="st">&quot;acetyl- choline&quot;</span>, <span class="st">&quot;serotonin&quot;</span>, <span class="st">&quot;2-methyl- butyroyl- carnitine&quot;</span>, </span>
+<span id="cb25-6"><a href="metabolomics.html#cb25-6"></a>    <span class="st">&quot;choline sulfate&quot;</span>, <span class="st">&quot;betaine&quot;</span>, <span class="st">&quot;choline&quot;</span>, <span class="st">&quot;uranidine&quot;</span>, <span class="st">&quot;unified_ID&quot;</span>, <span class="st">&quot;spec&quot;</span>, <span class="st">&quot;Depth&quot;</span>)</span>
+<span id="cb25-7"><a href="metabolomics.html#cb25-7"></a></span>
+<span id="cb25-8"><a href="metabolomics.html#cb25-8"></a>mets &lt;-<span class="st"> </span><span class="kw">melt</span>(mets, <span class="dt">id.vars =</span> <span class="kw">c</span>(<span class="st">&quot;spec&quot;</span>, <span class="st">&quot;Depth&quot;</span>, <span class="st">&quot;unified_ID&quot;</span>))</span>
+<span id="cb25-9"><a href="metabolomics.html#cb25-9"></a>mets[<span class="st">&quot;Species&quot;</span>] &lt;-<span class="st"> </span><span class="ot">NA</span></span>
+<span id="cb25-10"><a href="metabolomics.html#cb25-10"></a>mets<span class="op">$</span>Species[mets<span class="op">$</span>spec <span class="op">==</span><span class="st"> &quot;Gb&quot;</span>] &lt;-<span class="st"> </span><span class="kw">c</span>(<span class="st">&quot;Geodia barretti&quot;</span>)</span>
+<span id="cb25-11"><a href="metabolomics.html#cb25-11"></a>mets<span class="op">$</span>Species[mets<span class="op">$</span>spec <span class="op">==</span><span class="st"> &quot;Sf&quot;</span>] &lt;-<span class="st"> </span><span class="kw">c</span>(<span class="st">&quot;Stryphnus fortis&quot;</span>)</span>
+<span id="cb25-12"><a href="metabolomics.html#cb25-12"></a>mets<span class="op">$</span>Species[mets<span class="op">$</span>spec <span class="op">==</span><span class="st"> &quot;Wb&quot;</span>] &lt;-<span class="st"> </span><span class="kw">c</span>(<span class="st">&quot;Weberella bursa&quot;</span>)</span>
+<span id="cb25-13"><a href="metabolomics.html#cb25-13"></a></span>
+<span id="cb25-14"><a href="metabolomics.html#cb25-14"></a><span class="co"># labeller needs formula interface</span></span>
+<span id="cb25-15"><a href="metabolomics.html#cb25-15"></a>all &lt;-<span class="st"> </span><span class="kw">ggplot</span>(mets, <span class="kw">aes</span>(<span class="dt">x =</span> Depth, <span class="dt">y =</span> value)) <span class="op">+</span><span class="st"> </span><span class="kw">geom_point</span>() <span class="op">+</span><span class="st"> </span><span class="kw">facet_grid</span>(variable <span class="op">~</span><span class="st"> </span></span>
+<span id="cb25-16"><a href="metabolomics.html#cb25-16"></a><span class="st">    </span>Species, <span class="dt">labeller =</span> <span class="kw">labeller</span>(<span class="dt">variable =</span> <span class="kw">label_wrap_gen</span>(<span class="dv">10</span>, <span class="dt">multi_line =</span> <span class="ot">TRUE</span>)), </span>
+<span id="cb25-17"><a href="metabolomics.html#cb25-17"></a>    <span class="dt">scales =</span> <span class="st">&quot;free&quot;</span>)</span>
+<span id="cb25-18"><a href="metabolomics.html#cb25-18"></a>all &lt;-<span class="st"> </span>all <span class="op">+</span><span class="st"> </span><span class="kw">ggtitle</span>(<span class="st">&quot;VIPs&quot;</span>) <span class="op">+</span><span class="st"> </span><span class="kw">ylab</span>(<span class="st">&quot;signal&quot;</span>) <span class="op">+</span><span class="st"> </span><span class="kw">xlab</span>(<span class="st">&quot;Depth&quot;</span>) <span class="op">+</span><span class="st"> </span><span class="kw">theme_bw</span>() <span class="op">+</span><span class="st"> </span><span class="kw">theme</span>(<span class="dt">strip.text.x =</span> <span class="kw">element_text</span>(<span class="dt">face =</span> <span class="st">&quot;italic&quot;</span>), </span>
+<span id="cb25-19"><a href="metabolomics.html#cb25-19"></a>    <span class="dt">panel.background =</span> <span class="kw">element_rect</span>(<span class="dt">fill =</span> <span class="st">&quot;white&quot;</span>, <span class="dt">colour =</span> <span class="st">&quot;black&quot;</span>), <span class="dt">panel.border =</span> <span class="kw">element_rect</span>(<span class="dt">colour =</span> <span class="st">&quot;black&quot;</span>, </span>
+<span id="cb25-20"><a href="metabolomics.html#cb25-20"></a>        <span class="dt">fill =</span> <span class="ot">NA</span>), <span class="dt">axis.text.x =</span> <span class="kw">element_text</span>(<span class="dt">angle =</span> <span class="dv">90</span>, <span class="dt">hjust =</span> <span class="dv">1</span>)) <span class="op">+</span><span class="st"> </span><span class="kw">scale_y_continuous</span>(<span class="dt">labels =</span> scales<span class="op">::</span>scientific) <span class="op">+</span><span class="st"> </span></span>
+<span id="cb25-21"><a href="metabolomics.html#cb25-21"></a><span class="st">    </span><span class="kw">scale_x_continuous</span>(<span class="dt">breaks =</span> scales<span class="op">::</span><span class="kw">pretty_breaks</span>(<span class="dt">n =</span> <span class="dv">12</span>))</span>
+<span id="cb25-22"><a href="metabolomics.html#cb25-22"></a>all</span></code></pre></div>
+<p><img src="Oceanographic-setting-influences-the-prokaryote-community-and-metabolome-in-deep-sea-sponges_files/figure-html/compounds2-1.png" width="85%" /></p>
 </div>
 <div id="correlations" class="section level2">
-<h2><span class="header-section-number">2.5</span> Correlations</h2>
-<div class="sourceCode" id="cb24"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb24-1"><a href="metabolomics.html#cb24-1"></a><span class="kw">sessionInfo</span>()</span></code></pre></div>
+<h2><span class="header-section-number">2.6</span> Correlations</h2>
+<div class="sourceCode" id="cb26"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb26-1"><a href="metabolomics.html#cb26-1"></a><span class="kw">sessionInfo</span>()</span></code></pre></div>
 <pre><code>## R version 3.5.1 (2018-07-02)
 ## Platform: x86_64-apple-darwin15.6.0 (64-bit)
 ## Running under: macOS  10.14.6
@@ -2535,12 +2590,12 @@ ion
 ## [8] base     
 ## 
 ## other attached packages:
-##  [1] vegan_2.5-6           lattice_0.20-41       permute_0.9-5        
-##  [4] forcats_0.5.0         purrr_0.3.3           readr_1.3.1          
-##  [7] tidyr_1.0.2           tibble_3.0.0          tidyverse_1.3.0      
-## [10] ropls_1.14.1          reshape2_1.4.3        kableExtra_1.1.0.9000
-## [13] ggplot2_3.3.0         stringr_1.4.0         dplyr_0.8.5          
-## [16] knitr_1.28           
+##  [1] reshape_0.8.8         ggrepel_0.8.2         vegan_2.5-6          
+##  [4] lattice_0.20-41       permute_0.9-5         forcats_0.5.0        
+##  [7] purrr_0.3.3           readr_1.3.1           tidyr_1.0.2          
+## [10] tibble_3.0.0          tidyverse_1.3.0       ropls_1.14.1         
+## [13] reshape2_1.4.3        kableExtra_1.1.0.9000 ggplot2_3.3.0        
+## [16] stringr_1.4.0         dplyr_0.8.5           knitr_1.28           
 ## 
 ## loaded via a namespace (and not attached):
 ##  [1] Rcpp_1.0.4          lubridate_1.7.4     assertthat_0.2.1   

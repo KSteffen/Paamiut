@@ -789,8 +789,55 @@ kable(opls_diagnostics,
 
 write.csv(opls_diagnostics, "data/opls_diagnostics.csv", row.names = F)
 ```
+## VIPS???
 
 ## Manual annotation, identification and extraction of metabolic feature signals
+
+A manually curated data set of signal intensities was produced for analysis of identified known and novel compounds.
+```{r compounds1}
+library(ggplot2)
+library(ggrepel)
+library(reshape)
+library(tidyverse)
+library(forcats)
+
+cmp <- read.csv("data/metabolite_master_20190605.csv", header=T, sep=",")
+meta_data <- read.csv("data/Steffen_et_al_metadata_PANGAEA.csv", header = T, sep = ";")   
+md <- md[c("Depth", "unified_ID")]
+
+# FUN prep: remove, QC samples format depth and IDs
+prep <- function(metabolites, md){
+  metabolites$X <- NULL
+  metabolites["spec"] <- str_sub(metabolites$unified_ID, 1,2)
+  metabolites <- metabolites[!metabolites$spec=="QC",]
+  metabolites <- left_join(metabolites, md)
+  metabolites <- metabolites[-c(9), ] #removes Gb16 (Geodia atlantica)
+  metabolites$Depth <- as.numeric(metabolites$Depth)
+  metabolites <- metabolites[with(metabolites, order(metabolites$spec, metabolites$Depth)),]
+  metabolites[] <- lapply(metabolites, function(x) if(is.factor(x)) factor(x) else x)
+  metabolites$unified_ID <- factor(metabolites$unified_ID, levels = metabolites$unified_ID)
+  return(metabolites)  
+}
+
+metabolites <- prep(cmp, md)
+```
+
+```{r compounds2, out.width='85%', fig.asp=1.25}
+library(reshape2)
+mets <- metabolites[,c("asb","his", "cre", "pch", "crn", "acl", "ser", "mbc", "chol_s", "bet", "choline", "ura", "unified_ID", "spec", "Depth")]
+colnames(mets) <- c("arseno- betaine", "histamine", "creatine", "phospho- choline", "carnitine", "acetyl- choline", "serotonin", "2-methyl- butyroyl- carnitine", "choline sulfate", "betaine", "choline", "uranidine", "unified_ID", "spec", "Depth")
+
+mets <- melt(mets, id.vars=c("spec", "Depth", "unified_ID"))
+mets["Species"] <- NA
+mets$Species[mets$spec=="Gb"] <- c("Geodia barretti")
+mets$Species[mets$spec=="Sf"] <- c("Stryphnus fortis")
+mets$Species[mets$spec=="Wb"] <- c("Weberella bursa")
+
+#labeller needs formula interface
+all <- ggplot(mets, aes(x=Depth, y=value))+geom_point()+facet_grid(variable~Species, labeller = labeller(variable=label_wrap_gen(10, multi_line = TRUE)), scales="free")
+all <- all+ggtitle("VIPs")+ylab("signal")+xlab("Depth")+theme_bw()+theme(strip.text.x = element_text(face = "italic"), panel.background = element_rect(fill = "white", colour = "black"), panel.border = element_rect(colour = "black", fill=NA), axis.text.x = element_text(angle = 90, hjust = 1))+scale_y_continuous(labels = scales::scientific)+scale_x_continuous(breaks = scales::pretty_breaks(n = 12))
+all
+```
 
 
 ## Correlations
