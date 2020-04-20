@@ -20,35 +20,32 @@ In brief, it contains three parts: the metabolome, microbiota and inter-omics an
 
 ## Experimental setup 
 
-Three demosponge species _Geodia barretti_ (n=20), _Stryphnus fortis_ (n=15), and _Weberella bursa_ (n=17) were sampled in the Davis Strait between Canada and Greenland (61.147942-66.38245 Lat,-68.78077- -57.96573 Lon) from 244 m to 1467 m depth. Temperature and salinity _in situ_ were recorded. All sample metadata is deposited at [PANGAEA](https://doi.pangaea.de/10.1594/PANGAEA.909246). All data for these analyses can be downloaded here.
+Three demosponge species _Geodia barretti_ (n=20), _Stryphnus fortis_ (n=15), and _Weberella bursa_ (n=17) (Fig \@ref(fig:sponges)) were sampled in the Davis Strait between Canada and Greenland (61.147942-66.38245 Lat,-68.78077- -57.96573 Lon) from 244 m to 1467 m depth (Fig \@ref(fig:sample-map1), \@ref(fig:sample-map2)). Temperature and salinity _in situ_ were recorded. All sample metadata is deposited at [PANGAEA](https://doi.pangaea.de/10.1594/PANGAEA.909246). All data for these analyses can be downloaded here.
+
+```{r data_src, eval=F}
+library(xfun)
+xfun::pkg_load2(c("base64enc", "htmltools", "mime"))
 xfun::embed_dir('data/', text = 'Download full data')
-EMBEDDED_DATA
+```
+
 
 ### Map
 
-```{r sample_map}
+```{r sample-map1, fig.cap="Geographic placement of the sample site on the Northern hemisphere, between Canada and Greenland. Dots indicate individual samples."}
 library(ggplot2)
 library(ggmap)
 library(maps)
 library(mapdata)
 library(marmap)
 library(ggrepel)
+library(sf)
+library(rnaturalearth)
+library(rnaturalearthdata)
+
 
 sample_coords <- read.csv("data/Steffen_et_al_metadata_PANGAEA.csv", header=T, sep=";")
 sample_coords <- sample_coords[,c("Species",  "unified_ID", "Latitude", "Longitude")]
 sample_coords <- na.omit(sample_coords)
-map_data<-getNOAA.bathy(-70,-50,58,68, resolution = 4, keep=T, antimeridian=FALSE)
-sample_map_1 <- autoplot(map_data, geom=c("r", "c"))+
-  scale_fill_gradient2(low="dodgerblue4", mid="gainsboro", high="darkgreen")+ 
-  geom_point(aes(x=sample_coords$Longitude, y=sample_coords$Latitude, colour = factor(sample_coords$Species)), data=sample_coords)+
-  ggtitle("Sample map")+xlab("Longitude")+ylab("Latitude")+labs(fill="Depth", col="Species")
-sample_map_1
-# with labels:
-#sample_map_1+geom_label_repel(aes(x=sample_coords$Longitude, y=sample_coords$Latitude, label = sample_coords$unified_ID), box.padding = 0.35, point.padding = 0.5, data=sample_coords)
-
-library("sf")
-library("rnaturalearth")
-library("rnaturalearthdata")
 
 world <- ne_countries(scale = "medium", returnclass = "sf")
 sample_map2 <- ggplot(data = world) +geom_sf() +
@@ -57,23 +54,51 @@ sample_map2 <- ggplot(data = world) +geom_sf() +
   annotate("rect", xmin=-68.78077, xmax=-57.96573, ymin=61.147942 , ymax=66.38245, alpha = .2)+
   ggtitle("Sample map")+xlab("Longitude")+ylab("Latitude")
 sample_map2
+```
 
+```{r sample-map2, fig.cap="Detail map of the sampling site, samples represented by dots are coloured according to sponge species."}
+map_data<-getNOAA.bathy(-70,-50,58,68, resolution = 4, keep=T, antimeridian=FALSE)
+sample_map_1 <- autoplot(map_data, geom=c("r", "c"))+
+  scale_fill_gradient2(low="dodgerblue4", mid="gainsboro", high="darkgreen")+ 
+  geom_point(aes(x=sample_coords$Longitude, y=sample_coords$Latitude, colour = factor(sample_coords$Species)), data=sample_coords)+
+  ggtitle("Sample map")+xlab("Longitude")+ylab("Latitude")+labs(fill="Depth", col="Species")
+sample_map_1
+# with labels:
+#sample_map_1+geom_label_repel(aes(x=sample_coords$Longitude, y=sample_coords$Latitude, label = sample_coords$unified_ID), box.padding = 0.35, point.padding = 0.5, data=sample_coords)
+```
+
+```{r sample-map3a, eval=F}
 # 3D map
 library(marmap)
 library(lattice) #for wireframe
 
-#map_data_hires<-getNOAA.bathy(-70,-50,58,68, resolution = 1, keep=T, antimeridian=FALSE)
-#wireframe(unclass(map_data_hires), shade=T, aspect=c(1/2, 0.1),
-#          screen = list(z = 0, x = -50),
-#          par.settings = list(axis.line = list(col = "transparent")),
-#          par.box = c(col = rgb(0,0,0,0.1)))
+map_data_hires<-getNOAA.bathy(-70,-50,58,68, resolution = 1, keep=T, antimeridian=FALSE)
+wireframe(unclass(map_data_hires), shade=T, aspect=c(1/2, 0.1),
+          screen = list(z = 0, x = -50),
+          par.settings = list(axis.line = list(col = "transparent")),
+          par.box = c(col = rgb(0,0,0,0.1)))
+```
 
+```{r sample-map3b, fig.cap="3D representation of the threshold and slope in the Davis strait."}
+knitr::include_graphics("data/map_screenshot.png")
 ```
 
 ### Water masses
+```{r igor1, fig.cap="Currents in the North Atlantic between Greenland and Canada. Analysis and figure contributed by Igor Yashayaev."}
+knitr::include_graphics("data/Argo_Mean_on_Grid_Size_0dec25_2002_3-2018_6_Lambert_Lat_Range_59-65_Vector_IY20191123.png")
+```
 
+```{r igor2, fig.cap="Temperature and salinity (T-S) plot showing the different water masses in the Davis strait by depth: Shelf Water (ShW), Slope Water (SW), Irminger Current (IC), Labrador Sea Water (LSW), and Icelandic slope water (ISW). Analysis and figure contributed by Igor Yashayaev."}
+knitr::include_graphics("data/water_masses_2002-2015 T-S Profiles Selected in Topo-range 300-1900 m & Colored by Depth - Labeled.png")
+```
 ### Sponges
+```{r sponges, fig.cap="__A__ _G. barretti_ and __B__ _S. fortis_ from West Shetland Channel. Image Crown Copyright ©2006, all rights reserved. Image provided by K. Howell, Plymouth University, UK. __C__ _W. bursa_, picture taken by scuba diving at 40 m in Svalbard by Peter Leopold."}
+knitr::include_graphics("data/sponges.png")
+```
 
+
+### Sample metadata analysis
+correlation of lat = depth usw.
 
 ### Funding disclaimer
 This study was financially supported by the SponGES project from the European Union’s Horizon 2020 research and innovation programme under grant agreement No 679849. This document reflects only the authors’ view and the Executive Agency for Small and Medium-sized Enterprises (EASME) is not responsible for any use that may be made of the information it contains.    
