@@ -1,0 +1,669 @@
+<!DOCTYPE html>
+<html lang="" xml:lang="">
+<head>
+
+  <meta charset="utf-8" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+  <title>Oceanographic setting influences the prokaryote community and metabolome in deep-sea sponges</title>
+  <meta name="description" content="Oceanographic setting influences the prokaryote community and metabolome in deep-sea sponges" />
+  <meta name="generator" content="bookdown 0.18 and GitBook 2.6.7" />
+
+  <meta property="og:title" content="Oceanographic setting influences the prokaryote community and metabolome in deep-sea sponges" />
+  <meta property="og:type" content="book" />
+  
+  
+  
+  
+
+  <meta name="twitter:card" content="summary" />
+  <meta name="twitter:title" content="Oceanographic setting influences the prokaryote community and metabolome in deep-sea sponges" />
+  
+  
+  
+
+<meta name="author" content="Karin Steffen" />
+
+
+<meta name="date" content="2020-04-20" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black" />
+  
+  
+
+
+<script src="libs/jquery-2.2.3/jquery.min.js"></script>
+<link href="libs/gitbook-2.6.7/css/style.css" rel="stylesheet" />
+<link href="libs/gitbook-2.6.7/css/plugin-bookdown.css" rel="stylesheet" />
+<link href="libs/gitbook-2.6.7/css/plugin-highlight.css" rel="stylesheet" />
+<link href="libs/gitbook-2.6.7/css/plugin-search.css" rel="stylesheet" />
+<link href="libs/gitbook-2.6.7/css/plugin-fontsettings.css" rel="stylesheet" />
+<link href="libs/gitbook-2.6.7/css/plugin-clipboard.css" rel="stylesheet" />
+
+
+
+
+
+
+
+
+
+<script src="libs/kePrint-0.0.1/kePrint.js"></script>
+<link href="libs/bsTable-3.3.7/bootstrapTable.min.css" rel="stylesheet" />
+<script type="text/javascript">
+
+// toggle visibility of R source blocks in R Markdown output
+function toggle_R() {
+  var x = document.getElementsByClassName('r');
+  if (x.length == 0) return;
+  function toggle_vis(o) {
+    var d = o.style.display;
+    o.style.display = (d == 'block' || d == '') ? 'none':'block';
+  }
+
+  for (i = 0; i < x.length; i++) {
+    var y = x[i];
+    if (y.tagName.toLowerCase() === 'pre') toggle_vis(y);
+  }
+
+    var elem = document.getElementById("myButton1");
+    if (elem.value === "Hide all code") elem.value = "Show all code";
+    else elem.value = "Hide all code";
+}
+
+document.write('<input onclick="toggle_R();" type="button" value="Hide all code" id="myButton1" style="position: absolute; top: 10%; right: 2%; z-index: 200"></input>')
+
+</script>
+
+
+<style type="text/css">
+code.sourceCode > span { display: inline-block; line-height: 1.25; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode { white-space: pre; position: relative; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+code.sourceCode { white-space: pre-wrap; }
+code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+    color: #aaaaaa;
+  }
+pre.numberSource { margin-left: 3em; border-left: 1px solid #aaaaaa;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+code span.al { color: #ff0000; font-weight: bold; } /* Alert */
+code span.an { color: #60a0b0; font-weight: bold; font-style: italic; } /* Annotation */
+code span.at { color: #7d9029; } /* Attribute */
+code span.bn { color: #40a070; } /* BaseN */
+code span.bu { } /* BuiltIn */
+code span.cf { color: #007020; font-weight: bold; } /* ControlFlow */
+code span.ch { color: #4070a0; } /* Char */
+code span.cn { color: #880000; } /* Constant */
+code span.co { color: #60a0b0; font-style: italic; } /* Comment */
+code span.cv { color: #60a0b0; font-weight: bold; font-style: italic; } /* CommentVar */
+code span.do { color: #ba2121; font-style: italic; } /* Documentation */
+code span.dt { color: #902000; } /* DataType */
+code span.dv { color: #40a070; } /* DecVal */
+code span.er { color: #ff0000; font-weight: bold; } /* Error */
+code span.ex { } /* Extension */
+code span.fl { color: #40a070; } /* Float */
+code span.fu { color: #06287e; } /* Function */
+code span.im { } /* Import */
+code span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Information */
+code span.kw { color: #007020; font-weight: bold; } /* Keyword */
+code span.op { color: #666666; } /* Operator */
+code span.ot { color: #007020; } /* Other */
+code span.pp { color: #bc7a00; } /* Preprocessor */
+code span.sc { color: #4070a0; } /* SpecialChar */
+code span.ss { color: #bb6688; } /* SpecialString */
+code span.st { color: #4070a0; } /* String */
+code span.va { color: #19177c; } /* Variable */
+code span.vs { color: #4070a0; } /* VerbatimString */
+code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warning */
+</style>
+
+<link rel="stylesheet" href="style.css" type="text/css" />
+</head>
+
+<body>
+
+
+
+  <div class="book without-animation with-summary font-size-2 font-family-1" data-basepath=".">
+
+    <div class="book-summary">
+      <nav role="navigation">
+
+<ul class="summary">
+<li><a href="./">SUPPLEMENTARY MATERIAL</a></li>
+
+<li class="divider"></li>
+<li class="chapter" data-level="1" data-path=""><a href="#content"><i class="fa fa-check"></i><b>1</b> Content</a><ul>
+<li class="chapter" data-level="1.1" data-path=""><a href="#experimental-setup"><i class="fa fa-check"></i><b>1.1</b> Experimental setup</a><ul>
+<li class="chapter" data-level="1.1.1" data-path=""><a href="#map"><i class="fa fa-check"></i><b>1.1.1</b> Map</a></li>
+<li class="chapter" data-level="1.1.2" data-path=""><a href="#water-masses"><i class="fa fa-check"></i><b>1.1.2</b> Water masses</a></li>
+<li class="chapter" data-level="1.1.3" data-path=""><a href="#sponges"><i class="fa fa-check"></i><b>1.1.3</b> Sponges</a></li>
+</ul></li>
+<li class="chapter" data-level="1.2" data-path=""><a href="#sample-metadata-analysis"><i class="fa fa-check"></i><b>1.2</b> Sample metadata analysis</a><ul>
+<li class="chapter" data-level="1.2.1" data-path=""><a href="#correlations-visual-inspection-and-variance-inflation-factors-vif-across-all-samples"><i class="fa fa-check"></i><b>1.2.1</b> Correlations, visual inspection and variance inflation factors (VIF) across all samples</a></li>
+<li class="chapter" data-level="1.2.2" data-path=""><a href="#correlations-visual-inspection-and-variance-inflation-factors-vif-across-g.-barretti-samples"><i class="fa fa-check"></i><b>1.2.2</b> Correlations, visual inspection and variance inflation factors (VIF) across <em>G. barretti</em> samples</a></li>
+</ul></li>
+</ul></li>
+<li class="divider"></li>
+<li><a href="https://github.com/rstudio/bookdown" target="blank">Published with bookdown</a></li>
+
+</ul>
+
+      </nav>
+    </div>
+
+    <div class="book-body">
+      <div class="body-inner">
+        <div class="book-header" role="navigation">
+          <h1>
+            <i class="fa fa-circle-o-notch fa-spin"></i><a href="./">Oceanographic setting influences the prokaryote community and metabolome in deep-sea sponges</a>
+          </h1>
+        </div>
+
+        <div class="page-wrapper" tabindex="-1" role="main">
+          <div class="page-inner">
+
+            <section class="normal" id="section-">
+<div id="header">
+<h1 class="title">Oceanographic setting influences the prokaryote community and metabolome in deep-sea sponges</h1>
+<p class="author"><em>Karin Steffen</em></p>
+<p class="date"><em>April 20, 2020</em></p>
+</div>
+<div id="content" class="section level1">
+<h1><span class="header-section-number">1</span> Content</h1>
+<p>This is a set of code and data sets to document and reproduce the computational analyses in Steffen <em>et al.</em>, 2020.
+In brief, it contains three parts: the metabolome, microbiota and inter-omics analyses. For the metabolome, we include detailed descriptions of the metabolomics data acquisition, data processing with xcms, and multivariate analyses with ropls. In addition, signals of known and novel compounds of interest were manually extracted and analysed. For the microbiota, we include community visualisation and ecological analyses in vegan. The inter-omics section contains mantel test and procrustes rotations, as well as the microbial interaction network annotated with the OTU’s correlation with barettin, and their response to depth.</p>
+<div id="experimental-setup" class="section level2">
+<h2><span class="header-section-number">1.1</span> Experimental setup</h2>
+<p>Three demosponge species <em>Geodia barretti</em> (n=20), <em>Stryphnus fortis</em> (n=15), and <em>Weberella bursa</em> (n=17) (Fig <a href="#fig:sponges">1.6</a>) were sampled in the Davis Strait between Canada and Greenland (61.147942-66.38245 Lat,-68.78077- -57.96573 Lon) from 244 m to 1467 m depth (Fig <a href="#fig:sample-map1">1.1</a>, <a href="#fig:sample-map2">1.2</a>). Temperature and salinity <em>in situ</em> were recorded. All sample metadata is deposited at <a href="https://doi.pangaea.de/10.1594/PANGAEA.909246">PANGAEA</a>. All data for these analyses can be downloaded here.</p>
+<div class="sourceCode" id="cb1"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1"></a><span class="kw">library</span>(xfun)</span>
+<span id="cb1-2"><a href="#cb1-2"></a>xfun<span class="op">::</span><span class="kw">pkg_load2</span>(<span class="kw">c</span>(<span class="st">&quot;base64enc&quot;</span>, <span class="st">&quot;htmltools&quot;</span>, <span class="st">&quot;mime&quot;</span>))</span>
+<span id="cb1-3"><a href="#cb1-3"></a>xfun<span class="op">::</span><span class="kw">embed_dir</span>(<span class="st">&quot;data/&quot;</span>, <span class="dt">text =</span> <span class="st">&quot;Download full data&quot;</span>)</span></code></pre></div>
+<div id="map" class="section level3">
+<h3><span class="header-section-number">1.1.1</span> Map</h3>
+<div class="sourceCode" id="cb2"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1"></a><span class="kw">library</span>(ggplot2)</span>
+<span id="cb2-2"><a href="#cb2-2"></a><span class="kw">library</span>(ggmap)</span>
+<span id="cb2-3"><a href="#cb2-3"></a><span class="kw">library</span>(maps)</span>
+<span id="cb2-4"><a href="#cb2-4"></a><span class="kw">library</span>(mapdata)</span>
+<span id="cb2-5"><a href="#cb2-5"></a><span class="kw">library</span>(marmap)</span>
+<span id="cb2-6"><a href="#cb2-6"></a><span class="kw">library</span>(ggrepel)</span>
+<span id="cb2-7"><a href="#cb2-7"></a><span class="kw">library</span>(sf)</span>
+<span id="cb2-8"><a href="#cb2-8"></a><span class="kw">library</span>(rnaturalearth)</span>
+<span id="cb2-9"><a href="#cb2-9"></a><span class="kw">library</span>(rnaturalearthdata)</span>
+<span id="cb2-10"><a href="#cb2-10"></a></span>
+<span id="cb2-11"><a href="#cb2-11"></a></span>
+<span id="cb2-12"><a href="#cb2-12"></a>sample_coords &lt;-<span class="st"> </span><span class="kw">read.csv</span>(<span class="st">&quot;data/Steffen_et_al_metadata_PANGAEA.csv&quot;</span>, <span class="dt">header =</span> T, </span>
+<span id="cb2-13"><a href="#cb2-13"></a>    <span class="dt">sep =</span> <span class="st">&quot;;&quot;</span>)</span>
+<span id="cb2-14"><a href="#cb2-14"></a>sample_coords &lt;-<span class="st"> </span>sample_coords[, <span class="kw">c</span>(<span class="st">&quot;Species&quot;</span>, <span class="st">&quot;unified_ID&quot;</span>, <span class="st">&quot;Latitude&quot;</span>, <span class="st">&quot;Longitude&quot;</span>)]</span>
+<span id="cb2-15"><a href="#cb2-15"></a>sample_coords &lt;-<span class="st"> </span><span class="kw">na.omit</span>(sample_coords)</span>
+<span id="cb2-16"><a href="#cb2-16"></a></span>
+<span id="cb2-17"><a href="#cb2-17"></a>world &lt;-<span class="st"> </span><span class="kw">ne_countries</span>(<span class="dt">scale =</span> <span class="st">&quot;medium&quot;</span>, <span class="dt">returnclass =</span> <span class="st">&quot;sf&quot;</span>)</span>
+<span id="cb2-18"><a href="#cb2-18"></a>sample_map2 &lt;-<span class="st"> </span><span class="kw">ggplot</span>(<span class="dt">data =</span> world) <span class="op">+</span><span class="st"> </span><span class="kw">geom_sf</span>() <span class="op">+</span><span class="st"> </span><span class="kw">coord_sf</span>(<span class="dt">xlim =</span> <span class="kw">c</span>(<span class="op">-</span><span class="dv">95</span>, <span class="dv">0</span>), <span class="dt">ylim =</span> <span class="kw">c</span>(<span class="dv">45</span>, </span>
+<span id="cb2-19"><a href="#cb2-19"></a>    <span class="dv">75</span>), <span class="dt">expand =</span> T) <span class="op">+</span><span class="st"> </span><span class="kw">geom_point</span>(<span class="dt">data =</span> sample_coords, <span class="kw">aes</span>(<span class="dt">x =</span> sample_coords<span class="op">$</span>Longitude, </span>
+<span id="cb2-20"><a href="#cb2-20"></a>    <span class="dt">y =</span> sample_coords<span class="op">$</span>Latitude)) <span class="op">+</span><span class="st"> </span><span class="kw">annotate</span>(<span class="st">&quot;rect&quot;</span>, <span class="dt">xmin =</span> <span class="fl">-68.78077</span>, <span class="dt">xmax =</span> <span class="fl">-57.96573</span>, </span>
+<span id="cb2-21"><a href="#cb2-21"></a>    <span class="dt">ymin =</span> <span class="fl">61.147942</span>, <span class="dt">ymax =</span> <span class="fl">66.38245</span>, <span class="dt">alpha =</span> <span class="fl">0.2</span>) <span class="op">+</span><span class="st"> </span><span class="kw">ggtitle</span>(<span class="st">&quot;Sample map&quot;</span>) <span class="op">+</span><span class="st"> </span><span class="kw">xlab</span>(<span class="st">&quot;Longitude&quot;</span>) <span class="op">+</span><span class="st"> </span></span>
+<span id="cb2-22"><a href="#cb2-22"></a><span class="st">    </span><span class="kw">ylab</span>(<span class="st">&quot;Latitude&quot;</span>)</span>
+<span id="cb2-23"><a href="#cb2-23"></a>sample_map2</span></code></pre></div>
+<div class="figure"><span id="fig:sample-map1"></span>
+<img src="index_files/figure-html/sample-map1-1.png" alt="Geographic placement of the sample site on the Northern hemisphere, between Canada and Greenland. Dots indicate individual samples." width="672" />
+<p class="caption">
+Figure 1.1: Geographic placement of the sample site on the Northern hemisphere, between Canada and Greenland. Dots indicate individual samples.
+</p>
+</div>
+<div class="sourceCode" id="cb3"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1"></a>map_data &lt;-<span class="st"> </span><span class="kw">getNOAA.bathy</span>(<span class="op">-</span><span class="dv">70</span>, <span class="dv">-50</span>, <span class="dv">58</span>, <span class="dv">68</span>, <span class="dt">resolution =</span> <span class="dv">4</span>, <span class="dt">keep =</span> T, <span class="dt">antimeridian =</span> <span class="ot">FALSE</span>)</span>
+<span id="cb3-2"><a href="#cb3-2"></a>sample_map_<span class="dv">1</span> &lt;-<span class="st"> </span><span class="kw">autoplot</span>(map_data, <span class="dt">geom =</span> <span class="kw">c</span>(<span class="st">&quot;r&quot;</span>, <span class="st">&quot;c&quot;</span>)) <span class="op">+</span><span class="st"> </span><span class="kw">scale_fill_gradient2</span>(<span class="dt">low =</span> <span class="st">&quot;dodgerblue4&quot;</span>, </span>
+<span id="cb3-3"><a href="#cb3-3"></a>    <span class="dt">mid =</span> <span class="st">&quot;gainsboro&quot;</span>, <span class="dt">high =</span> <span class="st">&quot;darkgreen&quot;</span>) <span class="op">+</span><span class="st"> </span><span class="kw">geom_point</span>(<span class="kw">aes</span>(<span class="dt">x =</span> sample_coords<span class="op">$</span>Longitude, </span>
+<span id="cb3-4"><a href="#cb3-4"></a>    <span class="dt">y =</span> sample_coords<span class="op">$</span>Latitude, <span class="dt">colour =</span> <span class="kw">factor</span>(sample_coords<span class="op">$</span>Species)), <span class="dt">data =</span> sample_coords) <span class="op">+</span><span class="st"> </span></span>
+<span id="cb3-5"><a href="#cb3-5"></a><span class="st">    </span><span class="kw">ggtitle</span>(<span class="st">&quot;Sample map&quot;</span>) <span class="op">+</span><span class="st"> </span><span class="kw">xlab</span>(<span class="st">&quot;Longitude&quot;</span>) <span class="op">+</span><span class="st"> </span><span class="kw">ylab</span>(<span class="st">&quot;Latitude&quot;</span>) <span class="op">+</span><span class="st"> </span><span class="kw">labs</span>(<span class="dt">fill =</span> <span class="st">&quot;Depth&quot;</span>, </span>
+<span id="cb3-6"><a href="#cb3-6"></a>    <span class="dt">col =</span> <span class="st">&quot;Species&quot;</span>)</span>
+<span id="cb3-7"><a href="#cb3-7"></a>sample_map_<span class="dv">1</span></span></code></pre></div>
+<div class="figure"><span id="fig:sample-map2"></span>
+<img src="index_files/figure-html/sample-map2-1.png" alt="Detail map of the sampling site, samples represented by dots are coloured according to sponge species." width="672" />
+<p class="caption">
+Figure 1.2: Detail map of the sampling site, samples represented by dots are coloured according to sponge species.
+</p>
+</div>
+<div class="sourceCode" id="cb4"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1"></a><span class="co"># with labels: sample_map_1+geom_label_repel(aes(x=sample_coords$Longitude,</span></span>
+<span id="cb4-2"><a href="#cb4-2"></a><span class="co"># y=sample_coords$Latitude, label = sample_coords$unified_ID), box.padding =</span></span>
+<span id="cb4-3"><a href="#cb4-3"></a><span class="co"># 0.35, point.padding = 0.5, data=sample_coords)</span></span></code></pre></div>
+<div class="sourceCode" id="cb5"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1"></a><span class="co"># 3D map</span></span>
+<span id="cb5-2"><a href="#cb5-2"></a><span class="kw">library</span>(marmap)</span>
+<span id="cb5-3"><a href="#cb5-3"></a><span class="kw">library</span>(lattice)  <span class="co">#for wireframe</span></span>
+<span id="cb5-4"><a href="#cb5-4"></a></span>
+<span id="cb5-5"><a href="#cb5-5"></a>map_data_hires &lt;-<span class="st"> </span><span class="kw">getNOAA.bathy</span>(<span class="op">-</span><span class="dv">70</span>, <span class="dv">-50</span>, <span class="dv">58</span>, <span class="dv">68</span>, <span class="dt">resolution =</span> <span class="dv">1</span>, <span class="dt">keep =</span> T, <span class="dt">antimeridian =</span> <span class="ot">FALSE</span>)</span>
+<span id="cb5-6"><a href="#cb5-6"></a><span class="kw">wireframe</span>(<span class="kw">unclass</span>(map_data_hires), <span class="dt">shade =</span> T, <span class="dt">aspect =</span> <span class="kw">c</span>(<span class="dv">1</span><span class="op">/</span><span class="dv">2</span>, <span class="fl">0.1</span>), <span class="dt">screen =</span> <span class="kw">list</span>(<span class="dt">z =</span> <span class="dv">0</span>, </span>
+<span id="cb5-7"><a href="#cb5-7"></a>    <span class="dt">x =</span> <span class="dv">-50</span>), <span class="dt">par.settings =</span> <span class="kw">list</span>(<span class="dt">axis.line =</span> <span class="kw">list</span>(<span class="dt">col =</span> <span class="st">&quot;transparent&quot;</span>)), <span class="dt">par.box =</span> <span class="kw">c</span>(<span class="dt">col =</span> <span class="kw">rgb</span>(<span class="dv">0</span>, </span>
+<span id="cb5-8"><a href="#cb5-8"></a>    <span class="dv">0</span>, <span class="dv">0</span>, <span class="fl">0.1</span>)))</span></code></pre></div>
+<div class="sourceCode" id="cb6"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1"></a>knitr<span class="op">::</span><span class="kw">include_graphics</span>(<span class="st">&quot;data/map_screenshot.png&quot;</span>)</span></code></pre></div>
+<div class="figure"><span id="fig:sample-map3b"></span>
+<img src="data/map_screenshot.png" alt="3D representation of the threshold and slope in the Davis strait." width="887" />
+<p class="caption">
+Figure 1.3: 3D representation of the threshold and slope in the Davis strait.
+</p>
+</div>
+</div>
+<div id="water-masses" class="section level3">
+<h3><span class="header-section-number">1.1.2</span> Water masses</h3>
+<div class="sourceCode" id="cb7"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1"></a>knitr<span class="op">::</span><span class="kw">include_graphics</span>(<span class="st">&quot;data/Argo_Mean_on_Grid_Size_0dec25_2002_3-2018_6_Lambert_Lat_Range_59-65_Vector_IY20191123.png&quot;</span>)</span></code></pre></div>
+<div class="figure"><span id="fig:igor1"></span>
+<img src="data/Argo_Mean_on_Grid_Size_0dec25_2002_3-2018_6_Lambert_Lat_Range_59-65_Vector_IY20191123.png" alt="Currents in the North Atlantic between Greenland and Canada. Analysis and figure contributed by Igor Yashayaev." width="2400" />
+<p class="caption">
+Figure 1.4: Currents in the North Atlantic between Greenland and Canada. Analysis and figure contributed by Igor Yashayaev.
+</p>
+</div>
+<div class="sourceCode" id="cb8"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1"></a>knitr<span class="op">::</span><span class="kw">include_graphics</span>(<span class="st">&quot;data/water_masses_2002-2015 T-S Profiles Selected in Topo-range 300-1900 m &amp; Colored by Depth - Labeled.png&quot;</span>)</span></code></pre></div>
+<div class="figure"><span id="fig:igor2"></span>
+<img src="data/water_masses_2002-2015%20T-S%20Profiles%20Selected%20in%20Topo-range%20300-1900%20m%20&%20Colored%20by%20Depth%20-%20Labeled.png" alt="Temperature and salinity (T-S) plot showing the different water masses in the Davis strait by depth: Shelf Water (ShW), Slope Water (SW), Irminger Current (IC), Labrador Sea Water (LSW), and Icelandic slope water (ISW). Analysis and figure contributed by Igor Yashayaev." width="1943" />
+<p class="caption">
+Figure 1.5: Temperature and salinity (T-S) plot showing the different water masses in the Davis strait by depth: Shelf Water (ShW), Slope Water (SW), Irminger Current (IC), Labrador Sea Water (LSW), and Icelandic slope water (ISW). Analysis and figure contributed by Igor Yashayaev.
+</p>
+</div>
+</div>
+<div id="sponges" class="section level3">
+<h3><span class="header-section-number">1.1.3</span> Sponges</h3>
+<div class="sourceCode" id="cb9"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1"></a>knitr<span class="op">::</span><span class="kw">include_graphics</span>(<span class="st">&quot;data/sponges.png&quot;</span>)</span></code></pre></div>
+<div class="figure"><span id="fig:sponges"></span>
+<img src="data/sponges.png" alt="__A__ _G. barretti_ and __B__ _S. fortis_ from West Shetland Channel. Image Crown Copyright ©2006, all rights reserved. Image provided by K. Howell, Plymouth University, UK. __C__ _W. bursa_, picture taken by scuba diving at 40 m in Svalbard by Peter Leopold." width="510" />
+<p class="caption">
+Figure 1.6: <strong>A</strong> <em>G. barretti</em> and <strong>B</strong> <em>S. fortis</em> from West Shetland Channel. Image Crown Copyright ©2006, all rights reserved. Image provided by K. Howell, Plymouth University, UK. <strong>C</strong> <em>W. bursa</em>, picture taken by scuba diving at 40 m in Svalbard by Peter Leopold.
+</p>
+</div>
+<p><em>G. barretti</em> and <em>S. fortis</em> are high microbial abundance sponges ofthen found living in proximity. <em>W. bursa</em> is likely a low microbial abundance sponges (see diversity metrics, Nicole Boury-Esnault <em>per.comm.</em>). While all songes originate from the same geographic region, <em>W. bursa</em> typically does not occur in the same habitats as <em>G. barretti</em> and <em>S. fortis</em> <span class="citation">(Murillo et al. <a href="#ref-murillo_sponge_2018" role="doc-biblioref">2018</a>)</span>.
+It is omportant to note that <em>S. fortis</em> is whiteish in colour, and the yellow shown in the picture stems from <em>Hexadella dedritifera</em> frequently found overgrowing it.</p>
+</div>
+</div>
+<div id="sample-metadata-analysis" class="section level2">
+<h2><span class="header-section-number">1.2</span> Sample metadata analysis</h2>
+<p>To investigate underlying data patterns, we assess correlation of our predictor variables, i.e. the meta data of our samples (depth, latitude, longitude, sampling year, salinity and temperature).</p>
+<div id="correlations-visual-inspection-and-variance-inflation-factors-vif-across-all-samples" class="section level3">
+<h3><span class="header-section-number">1.2.1</span> Correlations, visual inspection and variance inflation factors (VIF) across all samples</h3>
+<div class="sourceCode" id="cb10"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb10-1"><a href="#cb10-1"></a>md &lt;-<span class="st"> </span><span class="kw">read.csv</span>(<span class="st">&quot;data/Steffen_et_al_metadata_PANGAEA.csv&quot;</span>, <span class="dt">header =</span> T, <span class="dt">sep =</span> <span class="st">&quot;;&quot;</span>)</span>
+<span id="cb10-2"><a href="#cb10-2"></a>md &lt;-<span class="st"> </span>md[, <span class="kw">c</span>(<span class="st">&quot;Species&quot;</span>, <span class="st">&quot;Depth&quot;</span>, <span class="st">&quot;Latitude&quot;</span>, <span class="st">&quot;Longitude&quot;</span>, <span class="st">&quot;YEAR&quot;</span>, <span class="st">&quot;MeanBotSalinity_PSU&quot;</span>, </span>
+<span id="cb10-3"><a href="#cb10-3"></a>    <span class="st">&quot;MeanBottomTemp_Cdeg&quot;</span>, <span class="st">&quot;unified_ID&quot;</span>)]</span>
+<span id="cb10-4"><a href="#cb10-4"></a></span>
+<span id="cb10-5"><a href="#cb10-5"></a>a &lt;-<span class="st"> </span><span class="kw">cor.test</span>(md<span class="op">$</span>Depth, md<span class="op">$</span>Latitude, <span class="dt">method =</span> <span class="st">&quot;spearman&quot;</span>)</span>
+<span id="cb10-6"><a href="#cb10-6"></a>a &lt;-<span class="st"> </span><span class="kw">paste</span>(<span class="st">&quot;Rho =&quot;</span>, <span class="kw">round</span>(a<span class="op">$</span>estimate, <span class="dt">digits =</span> <span class="dv">3</span>), <span class="st">&quot; p-value=&quot;</span>, <span class="kw">round</span>(a<span class="op">$</span>p.value, </span>
+<span id="cb10-7"><a href="#cb10-7"></a>    <span class="dt">digits =</span> <span class="dv">3</span>))</span>
+<span id="cb10-8"><a href="#cb10-8"></a>b &lt;-<span class="st"> </span><span class="kw">cor.test</span>(md<span class="op">$</span>Depth, md<span class="op">$</span>Longitude, <span class="dt">method =</span> <span class="st">&quot;spearman&quot;</span>)</span>
+<span id="cb10-9"><a href="#cb10-9"></a>b &lt;-<span class="st"> </span><span class="kw">paste</span>(<span class="st">&quot;Rho =&quot;</span>, <span class="kw">round</span>(b<span class="op">$</span>estimate, <span class="dt">digits =</span> <span class="dv">3</span>), <span class="st">&quot; p-value=&quot;</span>, <span class="kw">round</span>(b<span class="op">$</span>p.value, </span>
+<span id="cb10-10"><a href="#cb10-10"></a>    <span class="dt">digits =</span> <span class="dv">3</span>))</span>
+<span id="cb10-11"><a href="#cb10-11"></a>c &lt;-<span class="st"> </span><span class="kw">cor.test</span>(md<span class="op">$</span>Depth, md<span class="op">$</span>YEAR, <span class="dt">method =</span> <span class="st">&quot;spearman&quot;</span>)</span>
+<span id="cb10-12"><a href="#cb10-12"></a>c &lt;-<span class="st"> </span><span class="kw">paste</span>(<span class="st">&quot;Rho =&quot;</span>, <span class="kw">round</span>(c<span class="op">$</span>estimate, <span class="dt">digits =</span> <span class="dv">3</span>), <span class="st">&quot; p-value=&quot;</span>, <span class="kw">round</span>(c<span class="op">$</span>p.value, </span>
+<span id="cb10-13"><a href="#cb10-13"></a>    <span class="dt">digits =</span> <span class="dv">3</span>))</span>
+<span id="cb10-14"><a href="#cb10-14"></a>d &lt;-<span class="st"> </span><span class="kw">cor.test</span>(md<span class="op">$</span>Depth, md<span class="op">$</span>MeanBotSalinity_PSU, <span class="dt">method =</span> <span class="st">&quot;spearman&quot;</span>)</span>
+<span id="cb10-15"><a href="#cb10-15"></a>d &lt;-<span class="st"> </span><span class="kw">paste</span>(<span class="st">&quot;Rho =&quot;</span>, <span class="kw">round</span>(d<span class="op">$</span>estimate, <span class="dt">digits =</span> <span class="dv">3</span>), <span class="st">&quot; p-value=&quot;</span>, <span class="kw">round</span>(d<span class="op">$</span>p.value, </span>
+<span id="cb10-16"><a href="#cb10-16"></a>    <span class="dt">digits =</span> <span class="dv">3</span>))</span>
+<span id="cb10-17"><a href="#cb10-17"></a>e &lt;-<span class="st"> </span><span class="kw">cor.test</span>(md<span class="op">$</span>Depth, md<span class="op">$</span>MeanBottomTemp_Cdeg, <span class="dt">method =</span> <span class="st">&quot;spearman&quot;</span>)</span>
+<span id="cb10-18"><a href="#cb10-18"></a>e &lt;-<span class="st"> </span><span class="kw">paste</span>(<span class="st">&quot;Rho =&quot;</span>, <span class="kw">round</span>(e<span class="op">$</span>estimate, <span class="dt">digits =</span> <span class="dv">3</span>), <span class="st">&quot; p-value=&quot;</span>, <span class="kw">round</span>(e<span class="op">$</span>p.value, </span>
+<span id="cb10-19"><a href="#cb10-19"></a>    <span class="dt">digits =</span> <span class="dv">3</span>))</span>
+<span id="cb10-20"><a href="#cb10-20"></a>f &lt;-<span class="st"> </span><span class="kw">cor.test</span>(md<span class="op">$</span>MeanBotSalinity_PSU, md<span class="op">$</span>MeanBottomTemp_Cdeg, <span class="dt">method =</span> <span class="st">&quot;spearman&quot;</span>)</span>
+<span id="cb10-21"><a href="#cb10-21"></a>f &lt;-<span class="st"> </span><span class="kw">paste</span>(<span class="st">&quot;T-S plot: Rho =&quot;</span>, <span class="kw">round</span>(f<span class="op">$</span>estimate, <span class="dt">digits =</span> <span class="dv">3</span>), <span class="st">&quot; p-value=&quot;</span>, <span class="kw">round</span>(f<span class="op">$</span>p.value, </span>
+<span id="cb10-22"><a href="#cb10-22"></a>    <span class="dt">digits =</span> <span class="dv">3</span>))</span>
+<span id="cb10-23"><a href="#cb10-23"></a></span>
+<span id="cb10-24"><a href="#cb10-24"></a>k &lt;-<span class="st"> </span><span class="kw">ggplot</span>(md, <span class="kw">aes</span>(<span class="dt">x =</span> md<span class="op">$</span>Latitude, <span class="dt">y =</span> md<span class="op">$</span>Depth)) <span class="op">+</span><span class="st"> </span><span class="kw">geom_point</span>() <span class="op">+</span><span class="st"> </span><span class="kw">scale_y_continuous</span>(<span class="dt">trans =</span> <span class="st">&quot;reverse&quot;</span>) <span class="op">+</span><span class="st"> </span></span>
+<span id="cb10-25"><a href="#cb10-25"></a><span class="st">    </span><span class="kw">xlab</span>(<span class="st">&quot;Latitude&quot;</span>) <span class="op">+</span><span class="st"> </span><span class="kw">ylab</span>(<span class="st">&quot;Depth&quot;</span>) <span class="op">+</span><span class="st"> </span><span class="kw">ggtitle</span>(a) <span class="op">+</span><span class="st"> </span><span class="kw">theme</span>(<span class="dt">plot.title =</span> <span class="kw">element_text</span>(<span class="dt">size =</span> <span class="dv">10</span>))</span>
+<span id="cb10-26"><a href="#cb10-26"></a>l &lt;-<span class="st"> </span><span class="kw">ggplot</span>(md, <span class="kw">aes</span>(<span class="dt">x =</span> md<span class="op">$</span>Longitude, <span class="dt">y =</span> md<span class="op">$</span>Depth)) <span class="op">+</span><span class="st"> </span><span class="kw">geom_point</span>() <span class="op">+</span><span class="st"> </span><span class="kw">scale_y_continuous</span>(<span class="dt">trans =</span> <span class="st">&quot;reverse&quot;</span>) <span class="op">+</span><span class="st"> </span></span>
+<span id="cb10-27"><a href="#cb10-27"></a><span class="st">    </span><span class="kw">xlab</span>(<span class="st">&quot;Longitude&quot;</span>) <span class="op">+</span><span class="st"> </span><span class="kw">ylab</span>(<span class="st">&quot;Depth&quot;</span>) <span class="op">+</span><span class="st"> </span><span class="kw">ggtitle</span>(b) <span class="op">+</span><span class="st"> </span><span class="kw">theme</span>(<span class="dt">plot.title =</span> <span class="kw">element_text</span>(<span class="dt">size =</span> <span class="dv">10</span>))</span>
+<span id="cb10-28"><a href="#cb10-28"></a>m &lt;-<span class="st"> </span><span class="kw">ggplot</span>(md, <span class="kw">aes</span>(<span class="dt">x =</span> md<span class="op">$</span>YEAR, <span class="dt">y =</span> md<span class="op">$</span>Depth)) <span class="op">+</span><span class="st"> </span><span class="kw">geom_point</span>() <span class="op">+</span><span class="st"> </span><span class="kw">scale_y_continuous</span>(<span class="dt">trans =</span> <span class="st">&quot;reverse&quot;</span>) <span class="op">+</span><span class="st"> </span></span>
+<span id="cb10-29"><a href="#cb10-29"></a><span class="st">    </span><span class="kw">xlab</span>(<span class="st">&quot;Year&quot;</span>) <span class="op">+</span><span class="st"> </span><span class="kw">ylab</span>(<span class="st">&quot;Depth&quot;</span>) <span class="op">+</span><span class="st"> </span><span class="kw">ggtitle</span>(c) <span class="op">+</span><span class="st"> </span><span class="kw">theme</span>(<span class="dt">plot.title =</span> <span class="kw">element_text</span>(<span class="dt">size =</span> <span class="dv">10</span>))</span>
+<span id="cb10-30"><a href="#cb10-30"></a>n &lt;-<span class="st"> </span><span class="kw">ggplot</span>(md, <span class="kw">aes</span>(<span class="dt">x =</span> md<span class="op">$</span>MeanBotSalinity_PSU, <span class="dt">y =</span> md<span class="op">$</span>Depth)) <span class="op">+</span><span class="st"> </span><span class="kw">geom_point</span>() <span class="op">+</span><span class="st"> </span><span class="kw">scale_y_continuous</span>(<span class="dt">trans =</span> <span class="st">&quot;reverse&quot;</span>) <span class="op">+</span><span class="st"> </span></span>
+<span id="cb10-31"><a href="#cb10-31"></a><span class="st">    </span><span class="kw">xlab</span>(<span class="st">&quot;Salinity&quot;</span>) <span class="op">+</span><span class="st"> </span><span class="kw">ylab</span>(<span class="st">&quot;Depth&quot;</span>) <span class="op">+</span><span class="st"> </span><span class="kw">ggtitle</span>(d) <span class="op">+</span><span class="st"> </span><span class="kw">theme</span>(<span class="dt">plot.title =</span> <span class="kw">element_text</span>(<span class="dt">size =</span> <span class="dv">10</span>))</span>
+<span id="cb10-32"><a href="#cb10-32"></a>o &lt;-<span class="st"> </span><span class="kw">ggplot</span>(md, <span class="kw">aes</span>(<span class="dt">x =</span> md<span class="op">$</span>MeanBottomTemp_Cdeg, <span class="dt">y =</span> md<span class="op">$</span>Depth)) <span class="op">+</span><span class="st"> </span><span class="kw">geom_point</span>() <span class="op">+</span><span class="st"> </span><span class="kw">scale_y_continuous</span>(<span class="dt">trans =</span> <span class="st">&quot;reverse&quot;</span>) <span class="op">+</span><span class="st"> </span></span>
+<span id="cb10-33"><a href="#cb10-33"></a><span class="st">    </span><span class="kw">xlab</span>(<span class="st">&quot;Temperature&quot;</span>) <span class="op">+</span><span class="st"> </span><span class="kw">ylab</span>(<span class="st">&quot;Depth&quot;</span>) <span class="op">+</span><span class="st"> </span><span class="kw">ggtitle</span>(e) <span class="op">+</span><span class="st"> </span><span class="kw">theme</span>(<span class="dt">plot.title =</span> <span class="kw">element_text</span>(<span class="dt">size =</span> <span class="dv">10</span>))</span>
+<span id="cb10-34"><a href="#cb10-34"></a>p &lt;-<span class="st"> </span><span class="kw">ggplot</span>(md, <span class="kw">aes</span>(<span class="dt">x =</span> md<span class="op">$</span>MeanBotSalinity_PSU, <span class="dt">y =</span> md<span class="op">$</span>MeanBottomTemp_Cdeg, <span class="dt">colour =</span> md<span class="op">$</span>Depth)) <span class="op">+</span><span class="st"> </span></span>
+<span id="cb10-35"><a href="#cb10-35"></a><span class="st">    </span><span class="kw">geom_point</span>(<span class="dt">size =</span> <span class="dv">2</span>) <span class="op">+</span><span class="st"> </span><span class="kw">scale_colour_gradient</span>(<span class="dt">guide =</span> <span class="kw">guide_colourbar</span>(), <span class="dt">high =</span> <span class="st">&quot;#f4c430&quot;</span>, </span>
+<span id="cb10-36"><a href="#cb10-36"></a>    <span class="dt">low =</span> <span class="st">&quot;#3b3bc4&quot;</span>, <span class="dt">trans =</span> <span class="st">&quot;reverse&quot;</span>) <span class="op">+</span><span class="st"> </span><span class="kw">xlab</span>(<span class="st">&quot;Salinity in psu&quot;</span>) <span class="op">+</span><span class="st"> </span><span class="kw">ylab</span>(<span class="st">&quot;Temperature in °C&quot;</span>) <span class="op">+</span><span class="st"> </span></span>
+<span id="cb10-37"><a href="#cb10-37"></a><span class="st">    </span><span class="kw">labs</span>(<span class="dt">colour =</span> <span class="st">&quot;Depth&quot;</span>) <span class="op">+</span><span class="st"> </span><span class="kw">ggtitle</span>(f) <span class="op">+</span><span class="st"> </span><span class="kw">theme</span>(<span class="dt">plot.title =</span> <span class="kw">element_text</span>(<span class="dt">size =</span> <span class="dv">10</span>), </span>
+<span id="cb10-38"><a href="#cb10-38"></a>    <span class="dt">legend.key.size =</span> <span class="kw">unit</span>(<span class="fl">0.3</span>, <span class="st">&quot;cm&quot;</span>)) <span class="op">+</span><span class="st"> </span><span class="kw">scale_x_continuous</span>(<span class="dt">limits =</span> <span class="kw">c</span>(<span class="fl">34.4</span>, <span class="dv">35</span>))</span>
+<span id="cb10-39"><a href="#cb10-39"></a><span class="co"># The limits of the x-axis exclude two samples from water with comparably low</span></span>
+<span id="cb10-40"><a href="#cb10-40"></a><span class="co"># salinity</span></span></code></pre></div>
+<div class="sourceCode" id="cb11"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb11-1"><a href="#cb11-1"></a><span class="kw">library</span>(gridExtra)</span>
+<span id="cb11-2"><a href="#cb11-2"></a><span class="kw">grid.arrange</span>(k, l, m, n, o, p, <span class="dt">nrow =</span> <span class="dv">3</span>, <span class="dt">top =</span> <span class="st">&quot;Spearman correlation of sample associated meta data&quot;</span>)</span></code></pre></div>
+<div class="figure"><span id="fig:mda-2"></span>
+<img src="index_files/figure-html/mda-2-1.png" alt="Correlation of depth with other envirnomental parameters/predictor variables across all samples." width="672" />
+<p class="caption">
+Figure 1.7: Correlation of depth with other envirnomental parameters/predictor variables across all samples.
+</p>
+</div>
+<div class="sourceCode" id="cb12"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb12-1"><a href="#cb12-1"></a><span class="kw">rm</span>(a, b, c, d, e, f, k, l, m, n, o, p, df)</span></code></pre></div>
+<p>In the bottom right plot showing temperature versus salinity, two samples from lower salinity were excluded for visual clarity. From the plots above and their correlation tests, we find that longitude, salinity and temperature are significantly correltated with depth, and that salinity and temperature also correlate with each other.</p>
+<p>This is further corroborated in the variance inflation factors. A VIF &gt; 10 indicates redundancy/collinearity.
+This means that we have to be cautious to avoid including redundant constraints in ecological models.</p>
+<div class="sourceCode" id="cb13"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb13-1"><a href="#cb13-1"></a><span class="kw">library</span>(usdm)</span>
+<span id="cb13-2"><a href="#cb13-2"></a>md<span class="op">$</span>Species &lt;-<span class="st"> </span><span class="ot">NULL</span></span>
+<span id="cb13-3"><a href="#cb13-3"></a>md<span class="op">$</span>unified_ID &lt;-<span class="st"> </span><span class="ot">NULL</span></span>
+<span id="cb13-4"><a href="#cb13-4"></a>vif_all &lt;-<span class="st"> </span><span class="kw">vif</span>(md)</span>
+<span id="cb13-5"><a href="#cb13-5"></a></span>
+<span id="cb13-6"><a href="#cb13-6"></a><span class="kw">library</span>(kableExtra)</span>
+<span id="cb13-7"><a href="#cb13-7"></a><span class="kw">options</span>(<span class="dt">kableExtra.html.bsTable =</span> T)</span>
+<span id="cb13-8"><a href="#cb13-8"></a><span class="kw">kable</span>(vif_all, <span class="dt">longtable =</span> T, <span class="dt">booktabs =</span> T, <span class="dt">caption =</span> <span class="st">&quot;VIF for meta data from all samples&quot;</span>, </span>
+<span id="cb13-9"><a href="#cb13-9"></a>    <span class="dt">row.names =</span> F) <span class="op">%&gt;%</span><span class="st"> </span><span class="kw">kable_styling</span>(<span class="dt">bootstrap_options =</span> <span class="kw">c</span>(<span class="st">&quot;striped&quot;</span>, <span class="st">&quot;hover&quot;</span>, <span class="st">&quot;bordered&quot;</span>, </span>
+<span id="cb13-10"><a href="#cb13-10"></a>    <span class="st">&quot;condensed&quot;</span>, <span class="st">&quot;responsive&quot;</span>), <span class="dt">full_width =</span> F, <span class="dt">latex_options =</span> <span class="kw">c</span>(<span class="st">&quot;striped&quot;</span>, <span class="st">&quot;scale_down&quot;</span>))</span></code></pre></div>
+<table class="table table-striped table-hover table-bordered table-condensed table-responsive" style="width: auto !important; margin-left: auto; margin-right: auto;">
+<caption>
+<span id="tab:vif-1">Table 1.1: </span>VIF for meta data from all samples
+</caption>
+<thead>
+<tr>
+<th style="text-align:left;">
+Variables
+</th>
+<th style="text-align:right;">
+VIF
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left;">
+Depth
+</td>
+<td style="text-align:right;">
+3.267983
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Latitude
+</td>
+<td style="text-align:right;">
+6.125058
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Longitude
+</td>
+<td style="text-align:right;">
+7.189093
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+YEAR
+</td>
+<td style="text-align:right;">
+1.122117
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+MeanBotSalinity_PSU
+</td>
+<td style="text-align:right;">
+16.131495
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+MeanBottomTemp_Cdeg
+</td>
+<td style="text-align:right;">
+12.301386
+</td>
+</tr>
+</tbody>
+</table>
+<div class="sourceCode" id="cb14"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb14-1"><a href="#cb14-1"></a><span class="kw">rm</span>(md)</span></code></pre></div>
+<p>As we will be focussing on <em>Geodia barretti</em>, we repeat the same inspection procedure for the sample subset.</p>
+</div>
+<div id="correlations-visual-inspection-and-variance-inflation-factors-vif-across-g.-barretti-samples" class="section level3">
+<h3><span class="header-section-number">1.2.2</span> Correlations, visual inspection and variance inflation factors (VIF) across <em>G. barretti</em> samples</h3>
+<div class="sourceCode" id="cb15"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb15-1"><a href="#cb15-1"></a>md &lt;-<span class="st"> </span><span class="kw">read.csv</span>(<span class="st">&quot;data/Steffen_et_al_metadata_PANGAEA.csv&quot;</span>, <span class="dt">header =</span> T, <span class="dt">sep =</span> <span class="st">&quot;;&quot;</span>)</span>
+<span id="cb15-2"><a href="#cb15-2"></a>md &lt;-<span class="st"> </span>md[, <span class="kw">c</span>(<span class="st">&quot;Species&quot;</span>, <span class="st">&quot;Depth&quot;</span>, <span class="st">&quot;Latitude&quot;</span>, <span class="st">&quot;Longitude&quot;</span>, <span class="st">&quot;YEAR&quot;</span>, <span class="st">&quot;MeanBotSalinity_PSU&quot;</span>, </span>
+<span id="cb15-3"><a href="#cb15-3"></a>    <span class="st">&quot;MeanBottomTemp_Cdeg&quot;</span>, <span class="st">&quot;unified_ID&quot;</span>)]</span>
+<span id="cb15-4"><a href="#cb15-4"></a>md &lt;-<span class="st"> </span>md[md<span class="op">$</span>Species <span class="op">==</span><span class="st"> &quot;Geodia barretti&quot;</span>, ]</span>
+<span id="cb15-5"><a href="#cb15-5"></a></span>
+<span id="cb15-6"><a href="#cb15-6"></a>a &lt;-<span class="st"> </span><span class="kw">cor.test</span>(md<span class="op">$</span>Depth, md<span class="op">$</span>Latitude, <span class="dt">method =</span> <span class="st">&quot;spearman&quot;</span>)</span>
+<span id="cb15-7"><a href="#cb15-7"></a>a &lt;-<span class="st"> </span><span class="kw">paste</span>(<span class="st">&quot;Rho =&quot;</span>, <span class="kw">round</span>(a<span class="op">$</span>estimate, <span class="dt">digits =</span> <span class="dv">3</span>), <span class="st">&quot; p-value=&quot;</span>, <span class="kw">round</span>(a<span class="op">$</span>p.value, </span>
+<span id="cb15-8"><a href="#cb15-8"></a>    <span class="dt">digits =</span> <span class="dv">3</span>))</span>
+<span id="cb15-9"><a href="#cb15-9"></a>b &lt;-<span class="st"> </span><span class="kw">cor.test</span>(md<span class="op">$</span>Depth, md<span class="op">$</span>Longitude, <span class="dt">method =</span> <span class="st">&quot;spearman&quot;</span>)</span>
+<span id="cb15-10"><a href="#cb15-10"></a>b &lt;-<span class="st"> </span><span class="kw">paste</span>(<span class="st">&quot;Rho =&quot;</span>, <span class="kw">round</span>(b<span class="op">$</span>estimate, <span class="dt">digits =</span> <span class="dv">3</span>), <span class="st">&quot; p-value=&quot;</span>, <span class="kw">round</span>(b<span class="op">$</span>p.value, </span>
+<span id="cb15-11"><a href="#cb15-11"></a>    <span class="dt">digits =</span> <span class="dv">3</span>))</span>
+<span id="cb15-12"><a href="#cb15-12"></a>c &lt;-<span class="st"> </span><span class="kw">cor.test</span>(md<span class="op">$</span>Depth, md<span class="op">$</span>YEAR, <span class="dt">method =</span> <span class="st">&quot;spearman&quot;</span>)</span>
+<span id="cb15-13"><a href="#cb15-13"></a>c &lt;-<span class="st"> </span><span class="kw">paste</span>(<span class="st">&quot;Rho =&quot;</span>, <span class="kw">round</span>(c<span class="op">$</span>estimate, <span class="dt">digits =</span> <span class="dv">3</span>), <span class="st">&quot; p-value=&quot;</span>, <span class="kw">round</span>(c<span class="op">$</span>p.value, </span>
+<span id="cb15-14"><a href="#cb15-14"></a>    <span class="dt">digits =</span> <span class="dv">3</span>))</span>
+<span id="cb15-15"><a href="#cb15-15"></a>d &lt;-<span class="st"> </span><span class="kw">cor.test</span>(md<span class="op">$</span>Depth, md<span class="op">$</span>MeanBotSalinity_PSU, <span class="dt">method =</span> <span class="st">&quot;spearman&quot;</span>)</span>
+<span id="cb15-16"><a href="#cb15-16"></a>d &lt;-<span class="st"> </span><span class="kw">paste</span>(<span class="st">&quot;Rho =&quot;</span>, <span class="kw">round</span>(d<span class="op">$</span>estimate, <span class="dt">digits =</span> <span class="dv">3</span>), <span class="st">&quot; p-value=&quot;</span>, <span class="kw">round</span>(d<span class="op">$</span>p.value, </span>
+<span id="cb15-17"><a href="#cb15-17"></a>    <span class="dt">digits =</span> <span class="dv">3</span>))</span>
+<span id="cb15-18"><a href="#cb15-18"></a>e &lt;-<span class="st"> </span><span class="kw">cor.test</span>(md<span class="op">$</span>Depth, md<span class="op">$</span>MeanBottomTemp_Cdeg, <span class="dt">method =</span> <span class="st">&quot;spearman&quot;</span>)</span>
+<span id="cb15-19"><a href="#cb15-19"></a>e &lt;-<span class="st"> </span><span class="kw">paste</span>(<span class="st">&quot;Rho =&quot;</span>, <span class="kw">round</span>(e<span class="op">$</span>estimate, <span class="dt">digits =</span> <span class="dv">3</span>), <span class="st">&quot; p-value=&quot;</span>, <span class="kw">round</span>(e<span class="op">$</span>p.value, </span>
+<span id="cb15-20"><a href="#cb15-20"></a>    <span class="dt">digits =</span> <span class="dv">3</span>))</span>
+<span id="cb15-21"><a href="#cb15-21"></a>f &lt;-<span class="st"> </span><span class="kw">cor.test</span>(md<span class="op">$</span>MeanBotSalinity_PSU, md<span class="op">$</span>MeanBottomTemp_Cdeg, <span class="dt">method =</span> <span class="st">&quot;spearman&quot;</span>)</span>
+<span id="cb15-22"><a href="#cb15-22"></a>f &lt;-<span class="st"> </span><span class="kw">paste</span>(<span class="st">&quot;Rho =&quot;</span>, <span class="kw">round</span>(f<span class="op">$</span>estimate, <span class="dt">digits =</span> <span class="dv">3</span>), <span class="st">&quot; p-value=&quot;</span>, <span class="kw">round</span>(f<span class="op">$</span>p.value, </span>
+<span id="cb15-23"><a href="#cb15-23"></a>    <span class="dt">digits =</span> <span class="dv">3</span>))</span>
+<span id="cb15-24"><a href="#cb15-24"></a></span>
+<span id="cb15-25"><a href="#cb15-25"></a>k &lt;-<span class="st"> </span><span class="kw">ggplot</span>(md, <span class="kw">aes</span>(<span class="dt">x =</span> md<span class="op">$</span>Latitude, <span class="dt">y =</span> md<span class="op">$</span>Depth)) <span class="op">+</span><span class="st"> </span><span class="kw">geom_point</span>() <span class="op">+</span><span class="st"> </span><span class="kw">scale_y_continuous</span>(<span class="dt">trans =</span> <span class="st">&quot;reverse&quot;</span>) <span class="op">+</span><span class="st"> </span></span>
+<span id="cb15-26"><a href="#cb15-26"></a><span class="st">    </span><span class="kw">xlab</span>(<span class="st">&quot;Latitude&quot;</span>) <span class="op">+</span><span class="st"> </span><span class="kw">ylab</span>(<span class="st">&quot;Depth&quot;</span>) <span class="op">+</span><span class="st"> </span><span class="kw">ggtitle</span>(a) <span class="op">+</span><span class="st"> </span><span class="kw">theme</span>(<span class="dt">plot.title =</span> <span class="kw">element_text</span>(<span class="dt">size =</span> <span class="dv">10</span>))</span>
+<span id="cb15-27"><a href="#cb15-27"></a>l &lt;-<span class="st"> </span><span class="kw">ggplot</span>(md, <span class="kw">aes</span>(<span class="dt">x =</span> md<span class="op">$</span>Longitude, <span class="dt">y =</span> md<span class="op">$</span>Depth)) <span class="op">+</span><span class="st"> </span><span class="kw">geom_point</span>() <span class="op">+</span><span class="st"> </span><span class="kw">scale_y_continuous</span>(<span class="dt">trans =</span> <span class="st">&quot;reverse&quot;</span>) <span class="op">+</span><span class="st"> </span></span>
+<span id="cb15-28"><a href="#cb15-28"></a><span class="st">    </span><span class="kw">xlab</span>(<span class="st">&quot;Longitude&quot;</span>) <span class="op">+</span><span class="st"> </span><span class="kw">ylab</span>(<span class="st">&quot;Depth&quot;</span>) <span class="op">+</span><span class="st"> </span><span class="kw">ggtitle</span>(b) <span class="op">+</span><span class="st"> </span><span class="kw">theme</span>(<span class="dt">plot.title =</span> <span class="kw">element_text</span>(<span class="dt">size =</span> <span class="dv">10</span>))</span>
+<span id="cb15-29"><a href="#cb15-29"></a>m &lt;-<span class="st"> </span><span class="kw">ggplot</span>(md, <span class="kw">aes</span>(<span class="dt">x =</span> md<span class="op">$</span>YEAR, <span class="dt">y =</span> md<span class="op">$</span>Depth)) <span class="op">+</span><span class="st"> </span><span class="kw">geom_point</span>() <span class="op">+</span><span class="st"> </span><span class="kw">scale_y_continuous</span>(<span class="dt">trans =</span> <span class="st">&quot;reverse&quot;</span>) <span class="op">+</span><span class="st"> </span></span>
+<span id="cb15-30"><a href="#cb15-30"></a><span class="st">    </span><span class="kw">xlab</span>(<span class="st">&quot;Year&quot;</span>) <span class="op">+</span><span class="st"> </span><span class="kw">ylab</span>(<span class="st">&quot;Depth&quot;</span>) <span class="op">+</span><span class="st"> </span><span class="kw">ggtitle</span>(c) <span class="op">+</span><span class="st"> </span><span class="kw">theme</span>(<span class="dt">plot.title =</span> <span class="kw">element_text</span>(<span class="dt">size =</span> <span class="dv">10</span>))</span>
+<span id="cb15-31"><a href="#cb15-31"></a>n &lt;-<span class="st"> </span><span class="kw">ggplot</span>(md, <span class="kw">aes</span>(<span class="dt">x =</span> md<span class="op">$</span>MeanBotSalinity_PSU, <span class="dt">y =</span> md<span class="op">$</span>Depth)) <span class="op">+</span><span class="st"> </span><span class="kw">geom_point</span>() <span class="op">+</span><span class="st"> </span><span class="kw">scale_y_continuous</span>(<span class="dt">trans =</span> <span class="st">&quot;reverse&quot;</span>) <span class="op">+</span><span class="st"> </span></span>
+<span id="cb15-32"><a href="#cb15-32"></a><span class="st">    </span><span class="kw">xlab</span>(<span class="st">&quot;Salinity&quot;</span>) <span class="op">+</span><span class="st"> </span><span class="kw">ylab</span>(<span class="st">&quot;Depth&quot;</span>) <span class="op">+</span><span class="st"> </span><span class="kw">ggtitle</span>(d) <span class="op">+</span><span class="st"> </span><span class="kw">theme</span>(<span class="dt">plot.title =</span> <span class="kw">element_text</span>(<span class="dt">size =</span> <span class="dv">10</span>))</span>
+<span id="cb15-33"><a href="#cb15-33"></a>o &lt;-<span class="st"> </span><span class="kw">ggplot</span>(md, <span class="kw">aes</span>(<span class="dt">x =</span> md<span class="op">$</span>MeanBottomTemp_Cdeg, <span class="dt">y =</span> md<span class="op">$</span>Depth)) <span class="op">+</span><span class="st"> </span><span class="kw">geom_point</span>() <span class="op">+</span><span class="st"> </span><span class="kw">scale_y_continuous</span>(<span class="dt">trans =</span> <span class="st">&quot;reverse&quot;</span>) <span class="op">+</span><span class="st"> </span></span>
+<span id="cb15-34"><a href="#cb15-34"></a><span class="st">    </span><span class="kw">xlab</span>(<span class="st">&quot;Temperature&quot;</span>) <span class="op">+</span><span class="st"> </span><span class="kw">ylab</span>(<span class="st">&quot;Depth&quot;</span>) <span class="op">+</span><span class="st"> </span><span class="kw">ggtitle</span>(e) <span class="op">+</span><span class="st"> </span><span class="kw">theme</span>(<span class="dt">plot.title =</span> <span class="kw">element_text</span>(<span class="dt">size =</span> <span class="dv">10</span>))</span>
+<span id="cb15-35"><a href="#cb15-35"></a>p &lt;-<span class="st"> </span><span class="kw">ggplot</span>(md, <span class="kw">aes</span>(<span class="dt">x =</span> md<span class="op">$</span>MeanBotSalinity_PSU, <span class="dt">y =</span> md<span class="op">$</span>MeanBottomTemp_Cdeg, <span class="dt">colour =</span> md<span class="op">$</span>Depth)) <span class="op">+</span><span class="st"> </span></span>
+<span id="cb15-36"><a href="#cb15-36"></a><span class="st">    </span><span class="kw">geom_point</span>(<span class="dt">size =</span> <span class="dv">2</span>) <span class="op">+</span><span class="st"> </span><span class="kw">scale_colour_gradient</span>(<span class="dt">guide =</span> <span class="kw">guide_colourbar</span>(), <span class="dt">high =</span> <span class="st">&quot;#f4c430&quot;</span>, </span>
+<span id="cb15-37"><a href="#cb15-37"></a>    <span class="dt">low =</span> <span class="st">&quot;#3b3bc4&quot;</span>, <span class="dt">trans =</span> <span class="st">&quot;reverse&quot;</span>) <span class="op">+</span><span class="st"> </span><span class="kw">xlab</span>(<span class="st">&quot;Salinity in psu&quot;</span>) <span class="op">+</span><span class="st"> </span><span class="kw">ylab</span>(<span class="st">&quot;Temperature in °C&quot;</span>) <span class="op">+</span><span class="st"> </span></span>
+<span id="cb15-38"><a href="#cb15-38"></a><span class="st">    </span><span class="kw">labs</span>(<span class="dt">colour =</span> <span class="st">&quot;Depth&quot;</span>) <span class="op">+</span><span class="st"> </span><span class="kw">ggtitle</span>(f) <span class="op">+</span><span class="st"> </span><span class="kw">theme</span>(<span class="dt">plot.title =</span> <span class="kw">element_text</span>(<span class="dt">size =</span> <span class="dv">10</span>), </span>
+<span id="cb15-39"><a href="#cb15-39"></a>    <span class="dt">legend.key.size =</span> <span class="kw">unit</span>(<span class="fl">0.3</span>, <span class="st">&quot;cm&quot;</span>))</span></code></pre></div>
+<div class="sourceCode" id="cb16"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb16-1"><a href="#cb16-1"></a><span class="kw">library</span>(gridExtra)</span>
+<span id="cb16-2"><a href="#cb16-2"></a><span class="kw">grid.arrange</span>(k, l, m, n, o, p, <span class="dt">nrow =</span> <span class="dv">3</span>, <span class="dt">top =</span> <span class="st">&quot;Spearman correlation of Geodia barretti associated meta data&quot;</span>)</span></code></pre></div>
+<div class="figure"><span id="fig:mda-4"></span>
+<img src="index_files/figure-html/mda-4-1.png" alt="Correlation of depth with other envirnomental parameters/predictor variables across samples of _G. barretti_." width="672" />
+<p class="caption">
+Figure 1.8: Correlation of depth with other envirnomental parameters/predictor variables across samples of <em>G. barretti</em>.
+</p>
+</div>
+<div class="sourceCode" id="cb17"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb17-1"><a href="#cb17-1"></a><span class="kw">rm</span>(a, b, c, d, e, f, k, l, m, n, o, p, df)</span></code></pre></div>
+<div class="sourceCode" id="cb18"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb18-1"><a href="#cb18-1"></a><span class="kw">library</span>(usdm)</span>
+<span id="cb18-2"><a href="#cb18-2"></a>md<span class="op">$</span>Species &lt;-<span class="st"> </span><span class="ot">NULL</span></span>
+<span id="cb18-3"><a href="#cb18-3"></a>md<span class="op">$</span>unified_ID &lt;-<span class="st"> </span><span class="ot">NULL</span></span>
+<span id="cb18-4"><a href="#cb18-4"></a>vif1 &lt;-<span class="st"> </span><span class="kw">vif</span>(md)</span>
+<span id="cb18-5"><a href="#cb18-5"></a>vif1<span class="op">$</span>VIF &lt;-<span class="st"> </span><span class="kw">round</span>(vif1<span class="op">$</span>VIF, <span class="dt">digits =</span> <span class="dv">2</span>)</span>
+<span id="cb18-6"><a href="#cb18-6"></a></span>
+<span id="cb18-7"><a href="#cb18-7"></a>md<span class="op">$</span>MeanBotSalinity_PSU &lt;-<span class="st"> </span><span class="ot">NULL</span></span>
+<span id="cb18-8"><a href="#cb18-8"></a>md<span class="op">$</span>MeanBottomTemp_Cdeg &lt;-<span class="st"> </span><span class="ot">NULL</span></span>
+<span id="cb18-9"><a href="#cb18-9"></a>vif2 &lt;-<span class="st"> </span><span class="kw">vif</span>(md)</span>
+<span id="cb18-10"><a href="#cb18-10"></a>vif2<span class="op">$</span>VIF &lt;-<span class="st"> </span><span class="kw">round</span>(vif2<span class="op">$</span>VIF, <span class="dt">digits =</span> <span class="dv">2</span>)</span>
+<span id="cb18-11"><a href="#cb18-11"></a></span>
+<span id="cb18-12"><a href="#cb18-12"></a><span class="kw">library</span>(dplyr)</span>
+<span id="cb18-13"><a href="#cb18-13"></a>vifs &lt;-<span class="st"> </span><span class="kw">full_join</span>(vif1, vif2, <span class="dt">by =</span> <span class="kw">c</span>(<span class="dt">Variables =</span> <span class="st">&quot;Variables&quot;</span>))</span>
+<span id="cb18-14"><a href="#cb18-14"></a><span class="kw">colnames</span>(vifs) &lt;-<span class="st"> </span><span class="kw">c</span>(<span class="st">&quot;Variables&quot;</span>, <span class="st">&quot;All predictors&quot;</span>, <span class="st">&quot;Subset&quot;</span>)</span>
+<span id="cb18-15"><a href="#cb18-15"></a>vifs[<span class="kw">c</span>(<span class="dv">5</span>, <span class="dv">6</span>), <span class="dv">3</span>] &lt;-<span class="st"> &quot;&quot;</span></span>
+<span id="cb18-16"><a href="#cb18-16"></a></span>
+<span id="cb18-17"><a href="#cb18-17"></a><span class="kw">library</span>(kableExtra)</span>
+<span id="cb18-18"><a href="#cb18-18"></a><span class="kw">options</span>(<span class="dt">kableExtra.html.bsTable =</span> T)</span>
+<span id="cb18-19"><a href="#cb18-19"></a></span>
+<span id="cb18-20"><a href="#cb18-20"></a>cap &lt;-<span class="st"> </span><span class="kw">paste</span>(<span class="st">&quot;VIF for extensive and simplified models for&quot;</span>, <span class="kw">text_spec</span>(<span class="st">&quot;G. barretti&quot;</span>, </span>
+<span id="cb18-21"><a href="#cb18-21"></a>    <span class="dt">italic =</span> T))</span>
+<span id="cb18-22"><a href="#cb18-22"></a></span>
+<span id="cb18-23"><a href="#cb18-23"></a><span class="kw">kable</span>(vifs, <span class="dt">longtable =</span> T, <span class="dt">booktabs =</span> T, <span class="dt">caption =</span> cap, <span class="dt">row.names =</span> F) <span class="op">%&gt;%</span><span class="st"> </span><span class="kw">kable_styling</span>(<span class="dt">bootstrap_options =</span> <span class="kw">c</span>(<span class="st">&quot;striped&quot;</span>, </span>
+<span id="cb18-24"><a href="#cb18-24"></a>    <span class="st">&quot;hover&quot;</span>, <span class="st">&quot;bordered&quot;</span>, <span class="st">&quot;condensed&quot;</span>, <span class="st">&quot;responsive&quot;</span>), <span class="dt">full_width =</span> F, <span class="dt">latex_options =</span> <span class="kw">c</span>(<span class="st">&quot;striped&quot;</span>, </span>
+<span id="cb18-25"><a href="#cb18-25"></a>    <span class="st">&quot;scale_down&quot;</span>))</span></code></pre></div>
+<table class="table table-striped table-hover table-bordered table-condensed table-responsive" style="width: auto !important; margin-left: auto; margin-right: auto;">
+<caption>
+<span id="tab:vif-2">Table 1.2: </span>VIF for extensive and simplified models for <span style="  font-style: italic;   ">G. barretti</span>
+</caption>
+<thead>
+<tr>
+<th style="text-align:left;">
+Variables
+</th>
+<th style="text-align:right;">
+All predictors
+</th>
+<th style="text-align:left;">
+Subset
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left;">
+Depth
+</td>
+<td style="text-align:right;">
+22.15
+</td>
+<td style="text-align:left;">
+5.91
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Latitude
+</td>
+<td style="text-align:right;">
+11.63
+</td>
+<td style="text-align:left;">
+10.31
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Longitude
+</td>
+<td style="text-align:right;">
+16.59
+</td>
+<td style="text-align:left;">
+13.38
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+YEAR
+</td>
+<td style="text-align:right;">
+1.73
+</td>
+<td style="text-align:left;">
+1.46
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+MeanBotSalinity_PSU
+</td>
+<td style="text-align:right;">
+61.13
+</td>
+<td style="text-align:left;">
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+MeanBottomTemp_Cdeg
+</td>
+<td style="text-align:right;">
+47.52
+</td>
+<td style="text-align:left;">
+</td>
+</tr>
+</tbody>
+</table>
+<div class="sourceCode" id="cb19"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb19-1"><a href="#cb19-1"></a><span class="kw">rm</span>(md)</span></code></pre></div>
+<p>With this subset, the collinearity becomes even more pronounced. Salinity, temperature and depth are strongly correlated and the VIFs indicated that they should not be included in a model together. This correlation is due to physical properties of water. Density of water increases with increasing salinity and decreasing temperature. To a lesser extent, longitude and lattitude are collinear in our sampling. However, removing the predictor variables salinity and temperature mititgated/lowered the effect of collinearity.</p>
+<div id="refs" class="references">
+<div>
+<p>Murillo, Fj, E Kenchington, G Tompkins, L Beazley, E Baker, A Knudby, and W Walkusz. 2018. “Sponge Assemblages and Predicted Archetypes in the Eastern Canadian Arctic.” <em>Marine Ecology Progress Series</em> 597 (June): 115–35. <a href="https://doi.org/10.3354/meps12589">https://doi.org/10.3354/meps12589</a>.</p>
+</div>
+</div>
+</div>
+</div>
+</div>
+<h3>References</h3>
+<div id="refs" class="references">
+<div id="ref-murillo_sponge_2018">
+<p>Murillo, Fj, E Kenchington, G Tompkins, L Beazley, E Baker, A Knudby, and W Walkusz. 2018. “Sponge Assemblages and Predicted Archetypes in the Eastern Canadian Arctic.” <em>Marine Ecology Progress Series</em> 597 (June): 115–35. <a href="https://doi.org/10.3354/meps12589">https://doi.org/10.3354/meps12589</a>.</p>
+</div>
+</div>
+            </section>
+
+          </div>
+        </div>
+      </div>
+
+
+    </div>
+  </div>
+<script src="libs/gitbook-2.6.7/js/app.min.js"></script>
+<script src="libs/gitbook-2.6.7/js/lunr.js"></script>
+<script src="libs/gitbook-2.6.7/js/clipboard.min.js"></script>
+<script src="libs/gitbook-2.6.7/js/plugin-search.js"></script>
+<script src="libs/gitbook-2.6.7/js/plugin-sharing.js"></script>
+<script src="libs/gitbook-2.6.7/js/plugin-fontsettings.js"></script>
+<script src="libs/gitbook-2.6.7/js/plugin-bookdown.js"></script>
+<script src="libs/gitbook-2.6.7/js/jquery.highlight.js"></script>
+<script src="libs/gitbook-2.6.7/js/plugin-clipboard.js"></script>
+<script>
+gitbook.require(["gitbook"], function(gitbook) {
+gitbook.start({
+"sharing": {
+"github": false,
+"facebook": true,
+"twitter": true,
+"linkedin": false,
+"weibo": false,
+"instapaper": false,
+"vk": false,
+"all": ["facebook", "twitter", "linkedin", "weibo", "instapaper"]
+},
+"fontsettings": {
+"theme": "white",
+"family": "sans",
+"size": 2
+},
+"edit": {
+"link": null,
+"text": null
+},
+"history": {
+"link": null,
+"text": null
+},
+"view": {
+"link": null,
+"text": null
+},
+"download": null,
+"toc": {
+"collapse": "subsection"
+},
+"search": false
+});
+});
+</script>
+
+</body>
+
+</html>

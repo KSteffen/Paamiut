@@ -24,7 +24,7 @@
 <meta name="author" content="Karin Steffen" />
 
 
-<meta name="date" content="2020-04-17" />
+<meta name="date" content="2020-04-21" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <meta name="apple-mobile-web-app-capable" content="yes" />
@@ -51,6 +51,554 @@
 
 <script src="libs/kePrint-0.0.1/kePrint.js"></script>
 <link href="libs/bsTable-3.3.7/bootstrapTable.min.css" rel="stylesheet" />
+
+<script>
+/* ========================================================================
+ * Bootstrap: transition.js v3.3.7
+ * http://getbootstrap.com/javascript/#transitions
+ * ========================================================================
+ * Copyright 2011-2016 Twitter, Inc.
+ * Licensed under MIT (https://github.com/twbs/bootstrap/blob/master/LICENSE)
+ * ======================================================================== */
+
+
++function ($) {
+  'use strict';
+
+  // CSS TRANSITION SUPPORT (Shoutout: http://www.modernizr.com/)
+  // ============================================================
+
+  function transitionEnd() {
+    var el = document.createElement('bootstrap')
+
+    var transEndEventNames = {
+      WebkitTransition : 'webkitTransitionEnd',
+      MozTransition    : 'transitionend',
+      OTransition      : 'oTransitionEnd otransitionend',
+      transition       : 'transitionend'
+    }
+
+    for (var name in transEndEventNames) {
+      if (el.style[name] !== undefined) {
+        return { end: transEndEventNames[name] }
+      }
+    }
+
+    return false // explicit for ie8 (  ._.)
+  }
+
+  // http://blog.alexmaccaw.com/css-transitions
+  $.fn.emulateTransitionEnd = function (duration) {
+    var called = false
+    var $el = this
+    $(this).one('bsTransitionEnd', function () { called = true })
+    var callback = function () { if (!called) $($el).trigger($.support.transition.end) }
+    setTimeout(callback, duration)
+    return this
+  }
+
+  $(function () {
+    $.support.transition = transitionEnd()
+
+    if (!$.support.transition) return
+
+    $.event.special.bsTransitionEnd = {
+      bindType: $.support.transition.end,
+      delegateType: $.support.transition.end,
+      handle: function (e) {
+        if ($(e.target).is(this)) return e.handleObj.handler.apply(this, arguments)
+      }
+    }
+  })
+
+}(jQuery);
+</script>
+<script>
+/* ========================================================================
+ * Bootstrap: collapse.js v3.3.7
+ * http://getbootstrap.com/javascript/#collapse
+ * ========================================================================
+ * Copyright 2011-2016 Twitter, Inc.
+ * Licensed under MIT (https://github.com/twbs/bootstrap/blob/master/LICENSE)
+ * ======================================================================== */
+
+/* jshint latedef: false */
+
++function ($) {
+  'use strict';
+
+  // COLLAPSE PUBLIC CLASS DEFINITION
+  // ================================
+
+  var Collapse = function (element, options) {
+    this.$element      = $(element)
+    this.options       = $.extend({}, Collapse.DEFAULTS, options)
+    this.$trigger      = $('[data-toggle="collapse"][href="#' + element.id + '"],' +
+                           '[data-toggle="collapse"][data-target="#' + element.id + '"]')
+    this.transitioning = null
+
+    if (this.options.parent) {
+      this.$parent = this.getParent()
+    } else {
+      this.addAriaAndCollapsedClass(this.$element, this.$trigger)
+    }
+
+    if (this.options.toggle) this.toggle()
+  }
+
+  Collapse.VERSION  = '3.3.7'
+
+  Collapse.TRANSITION_DURATION = 350
+
+  Collapse.DEFAULTS = {
+    toggle: true
+  }
+
+  Collapse.prototype.dimension = function () {
+    var hasWidth = this.$element.hasClass('width')
+    return hasWidth ? 'width' : 'height'
+  }
+
+  Collapse.prototype.show = function () {
+    if (this.transitioning || this.$element.hasClass('in')) return
+
+    var activesData
+    var actives = this.$parent && this.$parent.children('.panel').children('.in, .collapsing')
+
+    if (actives && actives.length) {
+      activesData = actives.data('bs.collapse')
+      if (activesData && activesData.transitioning) return
+    }
+
+    var startEvent = $.Event('show.bs.collapse')
+    this.$element.trigger(startEvent)
+    if (startEvent.isDefaultPrevented()) return
+
+    if (actives && actives.length) {
+      Plugin.call(actives, 'hide')
+      activesData || actives.data('bs.collapse', null)
+    }
+
+    var dimension = this.dimension()
+
+    this.$element
+      .removeClass('collapse')
+      .addClass('collapsing')[dimension](0)
+      .attr('aria-expanded', true)
+
+    this.$trigger
+      .removeClass('collapsed')
+      .attr('aria-expanded', true)
+
+    this.transitioning = 1
+
+    var complete = function () {
+      this.$element
+        .removeClass('collapsing')
+        .addClass('collapse in')[dimension]('')
+      this.transitioning = 0
+      this.$element
+        .trigger('shown.bs.collapse')
+    }
+
+    if (!$.support.transition) return complete.call(this)
+
+    var scrollSize = $.camelCase(['scroll', dimension].join('-'))
+
+    this.$element
+      .one('bsTransitionEnd', $.proxy(complete, this))
+      .emulateTransitionEnd(Collapse.TRANSITION_DURATION)[dimension](this.$element[0][scrollSize])
+  }
+
+  Collapse.prototype.hide = function () {
+    if (this.transitioning || !this.$element.hasClass('in')) return
+
+    var startEvent = $.Event('hide.bs.collapse')
+    this.$element.trigger(startEvent)
+    if (startEvent.isDefaultPrevented()) return
+
+    var dimension = this.dimension()
+
+    this.$element[dimension](this.$element[dimension]())[0].offsetHeight
+
+    this.$element
+      .addClass('collapsing')
+      .removeClass('collapse in')
+      .attr('aria-expanded', false)
+
+    this.$trigger
+      .addClass('collapsed')
+      .attr('aria-expanded', false)
+
+    this.transitioning = 1
+
+    var complete = function () {
+      this.transitioning = 0
+      this.$element
+        .removeClass('collapsing')
+        .addClass('collapse')
+        .trigger('hidden.bs.collapse')
+    }
+
+    if (!$.support.transition) return complete.call(this)
+
+    this.$element
+      [dimension](0)
+      .one('bsTransitionEnd', $.proxy(complete, this))
+      .emulateTransitionEnd(Collapse.TRANSITION_DURATION)
+  }
+
+  Collapse.prototype.toggle = function () {
+    this[this.$element.hasClass('in') ? 'hide' : 'show']()
+  }
+
+  Collapse.prototype.getParent = function () {
+    return $(this.options.parent)
+      .find('[data-toggle="collapse"][data-parent="' + this.options.parent + '"]')
+      .each($.proxy(function (i, element) {
+        var $element = $(element)
+        this.addAriaAndCollapsedClass(getTargetFromTrigger($element), $element)
+      }, this))
+      .end()
+  }
+
+  Collapse.prototype.addAriaAndCollapsedClass = function ($element, $trigger) {
+    var isOpen = $element.hasClass('in')
+
+    $element.attr('aria-expanded', isOpen)
+    $trigger
+      .toggleClass('collapsed', !isOpen)
+      .attr('aria-expanded', isOpen)
+  }
+
+  function getTargetFromTrigger($trigger) {
+    var href
+    var target = $trigger.attr('data-target')
+      || (href = $trigger.attr('href')) && href.replace(/.*(?=#[^\s]+$)/, '') // strip for ie7
+
+    return $(target)
+  }
+
+
+  // COLLAPSE PLUGIN DEFINITION
+  // ==========================
+
+  function Plugin(option) {
+    return this.each(function () {
+      var $this   = $(this)
+      var data    = $this.data('bs.collapse')
+      var options = $.extend({}, Collapse.DEFAULTS, $this.data(), typeof option == 'object' && option)
+
+      if (!data && options.toggle && /show|hide/.test(option)) options.toggle = false
+      if (!data) $this.data('bs.collapse', (data = new Collapse(this, options)))
+      if (typeof option == 'string') data[option]()
+    })
+  }
+
+  var old = $.fn.collapse
+
+  $.fn.collapse             = Plugin
+  $.fn.collapse.Constructor = Collapse
+
+
+  // COLLAPSE NO CONFLICT
+  // ====================
+
+  $.fn.collapse.noConflict = function () {
+    $.fn.collapse = old
+    return this
+  }
+
+
+  // COLLAPSE DATA-API
+  // =================
+
+  $(document).on('click.bs.collapse.data-api', '[data-toggle="collapse"]', function (e) {
+    var $this   = $(this)
+
+    if (!$this.attr('data-target')) e.preventDefault()
+
+    var $target = getTargetFromTrigger($this)
+    var data    = $target.data('bs.collapse')
+    var option  = data ? 'toggle' : $this.data()
+
+    Plugin.call($target, option)
+  })
+
+}(jQuery);
+</script>
+<script>
+window.initializeCodeFolding = function(show) {
+
+  // handlers for show-all and hide all
+  $("#rmd-show-all-code").click(function() {
+    $('div.r-code-collapse').each(function() {
+      $(this).collapse('show');
+    });
+  });
+  $("#rmd-hide-all-code").click(function() {
+    $('div.r-code-collapse').each(function() {
+      $(this).collapse('hide');
+    });
+  });
+
+  // index for unique code element ids
+  var currentIndex = 1;
+
+  // select all R code blocks
+  var rCodeBlocks = $('pre.sourceCode, pre.r, pre.python, pre.bash, pre.sql, pre.cpp, pre.stan');
+  rCodeBlocks.each(function() {
+
+    // create a collapsable div to wrap the code in
+    var div = $('<div class="collapse r-code-collapse"></div>');
+    if (show)
+      div.addClass('in');
+    var id = 'rcode-643E0F36' + currentIndex++;
+    div.attr('id', id);
+    $(this).before(div);
+    $(this).detach().appendTo(div);
+
+    // add a show code button right above
+    var showCodeText = $('<span>' + (show ? 'Hide' : 'Code') + '</span>');
+    var showCodeButton = $('<button type="button" class="btn btn-default btn-xs code-folding-btn pull-right"></button>');
+    showCodeButton.append(showCodeText);
+    showCodeButton
+        .attr('data-toggle', 'collapse')
+        .attr('data-target', '#' + id)
+        .attr('aria-expanded', show)
+        .attr('aria-controls', id);
+
+    var buttonRow = $('<div class="row"></div>');
+    var buttonCol = $('<div class="col-md-12"></div>');
+
+    buttonCol.append(showCodeButton);
+    buttonRow.append(buttonCol);
+
+    div.before(buttonRow);
+
+    // update state of button on show/hide
+    div.on('hidden.bs.collapse', function () {
+      showCodeText.text('Code');
+    });
+    div.on('show.bs.collapse', function () {
+      showCodeText.text('Hide');
+    });
+  });
+
+}
+</script>
+<script>
+/* ========================================================================
+ * Bootstrap: dropdown.js v3.3.7
+ * http://getbootstrap.com/javascript/#dropdowns
+ * ========================================================================
+ * Copyright 2011-2016 Twitter, Inc.
+ * Licensed under MIT (https://github.com/twbs/bootstrap/blob/master/LICENSE)
+ * ======================================================================== */
+
+
++function ($) {
+  'use strict';
+
+  // DROPDOWN CLASS DEFINITION
+  // =========================
+
+  var backdrop = '.dropdown-backdrop'
+  var toggle   = '[data-toggle="dropdown"]'
+  var Dropdown = function (element) {
+    $(element).on('click.bs.dropdown', this.toggle)
+  }
+
+  Dropdown.VERSION = '3.3.7'
+
+  function getParent($this) {
+    var selector = $this.attr('data-target')
+
+    if (!selector) {
+      selector = $this.attr('href')
+      selector = selector && /#[A-Za-z]/.test(selector) && selector.replace(/.*(?=#[^\s]*$)/, '') // strip for ie7
+    }
+
+    var $parent = selector && $(selector)
+
+    return $parent && $parent.length ? $parent : $this.parent()
+  }
+
+  function clearMenus(e) {
+    if (e && e.which === 3) return
+    $(backdrop).remove()
+    $(toggle).each(function () {
+      var $this         = $(this)
+      var $parent       = getParent($this)
+      var relatedTarget = { relatedTarget: this }
+
+      if (!$parent.hasClass('open')) return
+
+      if (e && e.type == 'click' && /input|textarea/i.test(e.target.tagName) && $.contains($parent[0], e.target)) return
+
+      $parent.trigger(e = $.Event('hide.bs.dropdown', relatedTarget))
+
+      if (e.isDefaultPrevented()) return
+
+      $this.attr('aria-expanded', 'false')
+      $parent.removeClass('open').trigger($.Event('hidden.bs.dropdown', relatedTarget))
+    })
+  }
+
+  Dropdown.prototype.toggle = function (e) {
+    var $this = $(this)
+
+    if ($this.is('.disabled, :disabled')) return
+
+    var $parent  = getParent($this)
+    var isActive = $parent.hasClass('open')
+
+    clearMenus()
+
+    if (!isActive) {
+      if ('ontouchstart' in document.documentElement && !$parent.closest('.navbar-nav').length) {
+        // if mobile we use a backdrop because click events don't delegate
+        $(document.createElement('div'))
+          .addClass('dropdown-backdrop')
+          .insertAfter($(this))
+          .on('click', clearMenus)
+      }
+
+      var relatedTarget = { relatedTarget: this }
+      $parent.trigger(e = $.Event('show.bs.dropdown', relatedTarget))
+
+      if (e.isDefaultPrevented()) return
+
+      $this
+        .trigger('focus')
+        .attr('aria-expanded', 'true')
+
+      $parent
+        .toggleClass('open')
+        .trigger($.Event('shown.bs.dropdown', relatedTarget))
+    }
+
+    return false
+  }
+
+  Dropdown.prototype.keydown = function (e) {
+    if (!/(38|40|27|32)/.test(e.which) || /input|textarea/i.test(e.target.tagName)) return
+
+    var $this = $(this)
+
+    e.preventDefault()
+    e.stopPropagation()
+
+    if ($this.is('.disabled, :disabled')) return
+
+    var $parent  = getParent($this)
+    var isActive = $parent.hasClass('open')
+
+    if (!isActive && e.which != 27 || isActive && e.which == 27) {
+      if (e.which == 27) $parent.find(toggle).trigger('focus')
+      return $this.trigger('click')
+    }
+
+    var desc = ' li:not(.disabled):visible a'
+    var $items = $parent.find('.dropdown-menu' + desc)
+
+    if (!$items.length) return
+
+    var index = $items.index(e.target)
+
+    if (e.which == 38 && index > 0)                 index--         // up
+    if (e.which == 40 && index < $items.length - 1) index++         // down
+    if (!~index)                                    index = 0
+
+    $items.eq(index).trigger('focus')
+  }
+
+
+  // DROPDOWN PLUGIN DEFINITION
+  // ==========================
+
+  function Plugin(option) {
+    return this.each(function () {
+      var $this = $(this)
+      var data  = $this.data('bs.dropdown')
+
+      if (!data) $this.data('bs.dropdown', (data = new Dropdown(this)))
+      if (typeof option == 'string') data[option].call($this)
+    })
+  }
+
+  var old = $.fn.dropdown
+
+  $.fn.dropdown             = Plugin
+  $.fn.dropdown.Constructor = Dropdown
+
+
+  // DROPDOWN NO CONFLICT
+  // ====================
+
+  $.fn.dropdown.noConflict = function () {
+    $.fn.dropdown = old
+    return this
+  }
+
+
+  // APPLY TO STANDARD DROPDOWN ELEMENTS
+  // ===================================
+
+  $(document)
+    .on('click.bs.dropdown.data-api', clearMenus)
+    .on('click.bs.dropdown.data-api', '.dropdown form', function (e) { e.stopPropagation() })
+    .on('click.bs.dropdown.data-api', toggle, Dropdown.prototype.toggle)
+    .on('keydown.bs.dropdown.data-api', toggle, Dropdown.prototype.keydown)
+    .on('keydown.bs.dropdown.data-api', '.dropdown-menu', Dropdown.prototype.keydown)
+
+}(jQuery);
+</script>
+<style type="text/css">
+.code-folding-btn { margin-bottom: 4px; }
+.row { display: flex; }
+.collapse { display: none; }
+.in { display:block }
+.pull-right > .dropdown-menu {
+    right: 0;
+    left: auto;
+}
+.open > .dropdown-menu {
+    display: block;
+}
+.dropdown-menu {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    z-index: 1000;
+    display: none;
+    float: left;
+    min-width: 160px;
+    padding: 5px 0;
+    margin: 2px 0 0;
+    font-size: 14px;
+    text-align: left;
+    list-style: none;
+    background-color: #fff;
+    -webkit-background-clip: padding-box;
+    background-clip: padding-box;
+    border: 1px solid #ccc;
+    border: 1px solid rgba(0,0,0,.15);
+    border-radius: 4px;
+    -webkit-box-shadow: 0 6px 12px rgba(0,0,0,.175);
+    box-shadow: 0 6px 12px rgba(0,0,0,.175);
+}
+</style>
+<script>
+$(document).ready(function () {
+  window.initializeCodeFolding("show" === "show");
+});
+</script>
+
+
+<script>
+document.write('<div class="btn-group pull-right" style="position: absolute; top: 20%; right: 2%; z-index: 200"><button type="button" class="btn btn-default btn-xs dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="true" data-_extension-text-contrast=""><span>Code</span> <span class="caret"></span></button><ul class="dropdown-menu" style="min-width: 50px;"><li><a id="rmd-show-all-code" href="#">Show All Code</a></li><li><a id="rmd-hide-all-code" href="#">Hide All Code</a></li></ul></div>')
+</script>
 
 
 <style type="text/css">
@@ -139,7 +687,10 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 <li class="chapter" data-level="1.1.1" data-path="index.html"><a href="index.html#map"><i class="fa fa-check"></i><b>1.1.1</b> Map</a></li>
 <li class="chapter" data-level="1.1.2" data-path="index.html"><a href="index.html#water-masses"><i class="fa fa-check"></i><b>1.1.2</b> Water masses</a></li>
 <li class="chapter" data-level="1.1.3" data-path="index.html"><a href="index.html#sponges"><i class="fa fa-check"></i><b>1.1.3</b> Sponges</a></li>
-<li class="chapter" data-level="1.1.4" data-path="index.html"><a href="index.html#funding-disclaimer"><i class="fa fa-check"></i><b>1.1.4</b> Funding disclaimer</a></li>
+</ul></li>
+<li class="chapter" data-level="1.2" data-path="index.html"><a href="index.html#sample-metadata-analysis"><i class="fa fa-check"></i><b>1.2</b> Sample metadata analysis</a><ul>
+<li class="chapter" data-level="1.2.1" data-path="index.html"><a href="index.html#correlations-visual-inspection-and-variance-inflation-factors-vif-across-all-samples"><i class="fa fa-check"></i><b>1.2.1</b> Correlations, visual inspection and variance inflation factors (VIF) across all samples</a></li>
+<li class="chapter" data-level="1.2.2" data-path="index.html"><a href="index.html#correlations-visual-inspection-and-variance-inflation-factors-vif-across-g.-barretti-samples"><i class="fa fa-check"></i><b>1.2.2</b> Correlations, visual inspection and variance inflation factors (VIF) across <em>G. barretti</em> samples</a></li>
 </ul></li>
 </ul></li>
 <li class="chapter" data-level="2" data-path="metabolomics.html"><a href="metabolomics.html"><i class="fa fa-check"></i><b>2</b> Metabolomics</a><ul>
@@ -155,9 +706,10 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 <li class="chapter" data-level="2.2.8" data-path="metabolomics.html"><a href="metabolomics.html#summary-of-data-processing"><i class="fa fa-check"></i><b>2.2.8</b> Summary of data processing</a></li>
 </ul></li>
 <li class="chapter" data-level="2.3" data-path="metabolomics.html"><a href="metabolomics.html#multivariate-analyses"><i class="fa fa-check"></i><b>2.3</b> Multivariate analyses</a></li>
-<li class="chapter" data-level="2.4" data-path="metabolomics.html"><a href="metabolomics.html#vips"><i class="fa fa-check"></i><b>2.4</b> VIPS???</a></li>
+<li class="chapter" data-level="2.4" data-path="metabolomics.html"><a href="metabolomics.html#vips"><i class="fa fa-check"></i><b>2.4</b> VIPS</a></li>
 <li class="chapter" data-level="2.5" data-path="metabolomics.html"><a href="metabolomics.html#manual-annotation-identification-and-extraction-of-metabolic-feature-signals"><i class="fa fa-check"></i><b>2.5</b> Manual annotation, identification and extraction of metabolic feature signals</a></li>
-<li class="chapter" data-level="2.6" data-path="metabolomics.html"><a href="metabolomics.html#correlations"><i class="fa fa-check"></i><b>2.6</b> Correlations</a></li>
+<li class="chapter" data-level="2.6" data-path="metabolomics.html"><a href="metabolomics.html#chromatorgrams"><i class="fa fa-check"></i><b>2.6</b> Chromatorgrams</a></li>
+<li class="chapter" data-level="2.7" data-path="metabolomics.html"><a href="metabolomics.html#correlations"><i class="fa fa-check"></i><b>2.7</b> Correlations</a></li>
 </ul></li>
 <li class="chapter" data-level="3" data-path="microbiota.html"><a href="microbiota.html"><i class="fa fa-check"></i><b>3</b> Microbiota</a><ul>
 <li class="chapter" data-level="3.1" data-path="microbiota.html"><a href="microbiota.html#functions"><i class="fa fa-check"></i><b>3.1</b> Functions</a></li>
@@ -178,6 +730,8 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 <li class="chapter" data-level="4.2.2" data-path="inter-omics.html"><a href="inter-omics.html#consolidation-of-the-different-networks"><i class="fa fa-check"></i><b>4.2.2</b> Consolidation of the different networks</a></li>
 </ul></li>
 </ul></li>
+<li class="chapter" data-level="5" data-path="funding-disclaimer.html"><a href="funding-disclaimer.html"><i class="fa fa-check"></i><b>5</b> Funding disclaimer</a></li>
+<li class="chapter" data-level="" data-path="references.html"><a href="references.html"><i class="fa fa-check"></i>References</a></li>
 <li class="divider"></li>
 <li><a href="https://github.com/rstudio/bookdown" target="blank">Published with bookdown</a></li>
 
@@ -224,7 +778,7 @@ All study samples were analysed in both RP and HILIC, in positive and negative i
 <h2><span class="header-section-number">2.2</span> Data processing</h2>
 <div id="peak-picking-with-xcms-and-annotation-with-camera" class="section level3">
 <h3><span class="header-section-number">2.2.1</span> Peak picking with XCMS and annotation with CAMERA</h3>
-<p>We processed samples from all three sponnge species in random order with interspersed injection of a combined QC sample to monitor stability of the UPLC-HRMS run. The acquired signals/spectra were convered to netCDF format using the Program DataBridge, and thereafter sorted into four folders, three for the sponge species (Gb, Sf, Wb) and one for the QC samples (QC). Peak picking and combination of pseudospectra is performed with the R package xcms, the subsequent annotation of adducts and isotopes with the R package CAMERA.</p>
+<p>We processed samples from all three sponnge species in random order with interspersed injection of a combined QC sample to monitor stability of the UPLC-HRMS run. The acquired signals/spectra were converted to netCDF format using the Program DataBridge, and thereafter sorted into four folders, three for the sponge species (Gb, Sf, Wb) and one for the QC samples (QC). Peak picking and combination of pseudospectra is performed with the R package xcms, the subsequent annotation of adducts and isotopes with the R package CAMERA.</p>
 </div>
 <div id="hilic-hydrophilic-interaction-chromatography-column-with-positive-esi-electron-spray-ionisation" class="section level3">
 <h3><span class="header-section-number">2.2.2</span> HILIC (Hydrophilic interaction chromatography) column with positive ESI (electron spray ionisation)</h3>
@@ -587,12 +1141,18 @@ All study samples were analysed in both RP and HILIC, in positive and negative i
 <span id="cb6-64"><a href="metabolomics.html#cb6-64"></a><span class="st">    </span><span class="kw">ggtitle</span>(<span class="st">&quot;Signal intensity during UPLC-HRMS experiments&quot;</span>) <span class="op">+</span><span class="st"> </span><span class="kw">xlab</span>(<span class="st">&quot;sample injection order&quot;</span>) <span class="op">+</span><span class="st"> </span></span>
 <span id="cb6-65"><a href="metabolomics.html#cb6-65"></a><span class="st">    </span><span class="kw">ylab</span>(<span class="st">&quot;total signal intensity per sample&quot;</span>) <span class="op">+</span><span class="st"> </span><span class="kw">labs</span>(<span class="dt">colour =</span> <span class="st">&quot;Experiment&quot;</span>) <span class="op">+</span><span class="st"> </span><span class="kw">theme</span>(<span class="dt">legend.position =</span> <span class="st">&quot;bottom&quot;</span>) <span class="op">+</span><span class="st"> </span></span>
 <span id="cb6-66"><a href="metabolomics.html#cb6-66"></a><span class="st">    </span><span class="kw">geom_smooth</span>(<span class="dt">method =</span> <span class="st">&quot;lm&quot;</span>, <span class="dt">size =</span> <span class="fl">0.5</span>) <span class="op">+</span><span class="st"> </span><span class="kw">facet_grid</span>(experiment <span class="op">~</span><span class="st"> </span>., <span class="dt">scales =</span> <span class="st">&quot;free&quot;</span>)</span></code></pre></div>
-<p><img src="Oceanographic-setting-influences-the-prokaryote-community-and-metabolome-in-deep-sea-sponges_files/figure-html/ms_run_stability-1.png" width="672" /></p>
+<div class="figure"><span id="fig:ms-run-stability"></span>
+<img src="Oceanographic-setting-influences-the-prokaryote-community-and-metabolome-in-deep-sea-sponges_files/figure-html/ms-run-stability-1.png" alt="Cummulative signal intensity across all samples and chromatographic experiments shows only a minor effect of injection order." width="672" />
+<p class="caption">
+Figure 2.1: Cummulative signal intensity across all samples and chromatographic experiments shows only a minor effect of injection order.
+</p>
+</div>
 <div class="sourceCode" id="cb7"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb7-1"><a href="metabolomics.html#cb7-1"></a><span class="kw">rm</span>(hp, hp_df, hn, hn_df, rp, rp_df, rn, rn_df, stability)</span></code></pre></div>
+<p>We see that while signal intensity in all experimental data seems fairly stable, the HILIC positive data set has the highest intensity and virtually no changes at all throughout data acquisition. Therefore, we mostly rely on analyses of the HILIC pos data set.</p>
 </div>
 <div id="summary-of-data-processing" class="section level3">
 <h3><span class="header-section-number">2.2.8</span> Summary of data processing</h3>
-<p>Below we outline the number of features removed in every step as shown in the table and corresponding figure.</p>
+<p>Below we outline the number of features removed in every step as shown in the table and corresponding figure. ‘CV&gt;30%’ is the data set subsequently labelled “cleaned”, ‘repr. feat.’ are the PC-group data set and ‘ion’ are sometimes also labelled “MH”.</p>
 <div class="sourceCode" id="cb8"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb8-1"><a href="metabolomics.html#cb8-1"></a>initial_f &lt;-<span class="st"> </span><span class="kw">c</span>(hp_dim1, hn_dim1, rp_dim1, rn_dim1)</span>
 <span id="cb8-2"><a href="metabolomics.html#cb8-2"></a>rt_f &lt;-<span class="st"> </span><span class="kw">c</span>(hp_dim2, hn_dim2, rp_dim2, rn_dim2)</span>
 <span id="cb8-3"><a href="metabolomics.html#cb8-3"></a>cv_f &lt;-<span class="st"> </span><span class="kw">c</span>(hp_dim3, hn_dim3, rp_dim3, rn_dim3)</span>
@@ -610,14 +1170,16 @@ All study samples were analysed in both RP and HILIC, in positive and negative i
 <span id="cb8-15"><a href="metabolomics.html#cb8-15"></a><span class="kw">rownames</span>(df) &lt;-<span class="st"> </span><span class="kw">c</span>(<span class="st">&quot;HILIC pos&quot;</span>, <span class="st">&quot;HILIC neg&quot;</span>, <span class="st">&quot;RP pos&quot;</span>, <span class="st">&quot;RP neg&quot;</span>)</span>
 <span id="cb8-16"><a href="metabolomics.html#cb8-16"></a></span>
 <span id="cb8-17"><a href="metabolomics.html#cb8-17"></a><span class="kw">library</span>(kableExtra)</span>
-<span id="cb8-18"><a href="metabolomics.html#cb8-18"></a><span class="kw">kable</span>(df, <span class="dt">col.names =</span> <span class="kw">c</span>(<span class="st">&quot;initial&quot;</span>, <span class="st">&quot;RT &gt;45 s&quot;</span>, <span class="st">&quot;CV &lt;30%&quot;</span>, <span class="st">&quot;repr. feat.&quot;</span>, <span class="st">&quot;ion&quot;</span>, <span class="st">&quot;initial&quot;</span>, </span>
-<span id="cb8-19"><a href="metabolomics.html#cb8-19"></a>    <span class="st">&quot;RT &gt;45 s&quot;</span>, <span class="st">&quot;CV &lt;30%&quot;</span>, <span class="st">&quot;repr. feat.&quot;</span>, <span class="st">&quot;ion&quot;</span>), <span class="dt">longtable =</span> T, <span class="dt">booktabs =</span> T, <span class="dt">caption =</span> <span class="st">&quot;Number of features and pc groups </span></span>
-<span id="cb8-20"><a href="metabolomics.html#cb8-20"></a><span class="st">      remaining after each filtering step.&quot;</span>) <span class="op">%&gt;%</span><span class="st"> </span></span>
-<span id="cb8-21"><a href="metabolomics.html#cb8-21"></a><span class="st">    </span><span class="kw">add_header_above</span>(<span class="kw">c</span>(<span class="st">&quot;&quot;</span>, <span class="dt">features =</span> <span class="dv">5</span>, <span class="st">`</span><span class="dt">pc groups</span><span class="st">`</span> =<span class="st"> </span><span class="dv">5</span>)) <span class="op">%&gt;%</span><span class="st"> </span><span class="kw">kable_styling</span>(<span class="dt">bootstrap_options =</span> <span class="st">&quot;condensed&quot;</span>, </span>
-<span id="cb8-22"><a href="metabolomics.html#cb8-22"></a>    <span class="dt">full_width =</span> T)</span></code></pre></div>
-<table class="table table-condensed" style="margin-left: auto; margin-right: auto;">
+<span id="cb8-18"><a href="metabolomics.html#cb8-18"></a><span class="kw">options</span>(<span class="dt">kableExtra.html.bsTable =</span> T)</span>
+<span id="cb8-19"><a href="metabolomics.html#cb8-19"></a><span class="kw">kable</span>(df, <span class="dt">col.names =</span> <span class="kw">c</span>(<span class="st">&quot;initial&quot;</span>, <span class="st">&quot;RT &gt;45 s&quot;</span>, <span class="st">&quot;CV &lt;30%&quot;</span>, <span class="st">&quot;repr. feat.&quot;</span>, <span class="st">&quot;ion&quot;</span>, <span class="st">&quot;initial&quot;</span>, </span>
+<span id="cb8-20"><a href="metabolomics.html#cb8-20"></a>    <span class="st">&quot;RT &gt;45 s&quot;</span>, <span class="st">&quot;CV &lt;30%&quot;</span>, <span class="st">&quot;repr. feat.&quot;</span>, <span class="st">&quot;ion&quot;</span>), <span class="dt">longtable =</span> T, <span class="dt">booktabs =</span> T, <span class="dt">caption =</span> <span class="st">&quot;Number of features and pc groups </span></span>
+<span id="cb8-21"><a href="metabolomics.html#cb8-21"></a><span class="st">      remaining after each filtering step.&quot;</span>) <span class="op">%&gt;%</span><span class="st"> </span></span>
+<span id="cb8-22"><a href="metabolomics.html#cb8-22"></a><span class="st">    </span><span class="kw">add_header_above</span>(<span class="kw">c</span>(<span class="st">&quot;&quot;</span>, <span class="dt">features =</span> <span class="dv">5</span>, <span class="st">`</span><span class="dt">pc groups</span><span class="st">`</span> =<span class="st"> </span><span class="dv">5</span>)) <span class="op">%&gt;%</span><span class="st"> </span><span class="kw">kable_styling</span>(<span class="dt">bootstrap_options =</span> <span class="kw">c</span>(<span class="st">&quot;striped&quot;</span>, </span>
+<span id="cb8-23"><a href="metabolomics.html#cb8-23"></a>    <span class="st">&quot;hover&quot;</span>, <span class="st">&quot;bordered&quot;</span>, <span class="st">&quot;condensed&quot;</span>, <span class="st">&quot;responsive&quot;</span>), <span class="dt">full_width =</span> F, <span class="dt">latex_options =</span> <span class="kw">c</span>(<span class="st">&quot;striped&quot;</span>, </span>
+<span id="cb8-24"><a href="metabolomics.html#cb8-24"></a>    <span class="st">&quot;scale_down&quot;</span>))</span></code></pre></div>
+<table class="table table-striped table-hover table-bordered table-condensed table-responsive" style="width: auto !important; margin-left: auto; margin-right: auto;">
 <caption>
-(#tab:kable_table)Number of features and pc groups
+<span id="tab:QC-filtering-table">Table 2.1: </span>Number of features and pc groups
 remaining after each filtering step.
 </caption>
 <thead>
@@ -824,18 +1386,23 @@ RP neg
 <span id="cb9-9"><a href="metabolomics.html#cb9-9"></a><span class="kw">colnames</span>(df) &lt;-<span class="st"> </span><span class="kw">c</span>(<span class="st">&quot;acquisition&quot;</span>, <span class="st">&quot;value&quot;</span>, <span class="st">&quot;filter&quot;</span>, <span class="st">&quot;category&quot;</span>)</span>
 <span id="cb9-10"><a href="metabolomics.html#cb9-10"></a></span>
 <span id="cb9-11"><a href="metabolomics.html#cb9-11"></a><span class="kw">library</span>(ggplot2)</span>
-<span id="cb9-12"><a href="metabolomics.html#cb9-12"></a><span class="kw">ggplot</span>(df, <span class="kw">aes</span>(<span class="dt">fill =</span> df<span class="op">$</span>filter, <span class="dt">x =</span> df<span class="op">$</span>acquisition, <span class="dt">y =</span> df<span class="op">$</span>value)) <span class="op">+</span><span class="st"> </span><span class="kw">geom_bar</span>(<span class="dt">position =</span> <span class="st">&quot;dodge&quot;</span>, </span>
-<span id="cb9-13"><a href="metabolomics.html#cb9-13"></a>    <span class="dt">stat =</span> <span class="st">&quot;identity&quot;</span>) <span class="op">+</span><span class="st"> </span><span class="kw">facet_grid</span>(. <span class="op">~</span><span class="st"> </span>df<span class="op">$</span>category) <span class="op">+</span><span class="st"> </span><span class="kw">xlab</span>(<span class="st">&quot;Data acquisition mode&quot;</span>) <span class="op">+</span><span class="st"> </span></span>
+<span id="cb9-12"><a href="metabolomics.html#cb9-12"></a><span class="kw">ggplot</span>(df, <span class="kw">aes</span>(<span class="dt">fill =</span> filter, <span class="dt">x =</span> acquisition, <span class="dt">y =</span> value)) <span class="op">+</span><span class="st"> </span><span class="kw">geom_bar</span>(<span class="dt">position =</span> <span class="st">&quot;dodge&quot;</span>, </span>
+<span id="cb9-13"><a href="metabolomics.html#cb9-13"></a>    <span class="dt">stat =</span> <span class="st">&quot;identity&quot;</span>) <span class="op">+</span><span class="st"> </span><span class="kw">facet_grid</span>(. <span class="op">~</span><span class="st"> </span>category) <span class="op">+</span><span class="st"> </span><span class="kw">xlab</span>(<span class="st">&quot;Data acquisition mode&quot;</span>) <span class="op">+</span><span class="st"> </span></span>
 <span id="cb9-14"><a href="metabolomics.html#cb9-14"></a><span class="st">    </span><span class="kw">ylab</span>(<span class="st">&quot;Count&quot;</span>) <span class="op">+</span><span class="st"> </span><span class="kw">labs</span>(<span class="dt">fill =</span> <span class="st">&quot;Filtering step&quot;</span>) <span class="op">+</span><span class="st"> </span><span class="kw">theme_bw</span>() <span class="op">+</span><span class="st"> </span><span class="kw">scale_fill_grey</span>() <span class="op">+</span><span class="st"> </span></span>
 <span id="cb9-15"><a href="metabolomics.html#cb9-15"></a><span class="st">    </span><span class="kw">scale_y_continuous</span>(<span class="dt">breaks =</span> <span class="kw">seq</span>(<span class="dv">0</span>, <span class="dv">6000</span>, <span class="dv">1000</span>)) <span class="op">+</span><span class="st"> </span><span class="kw">theme</span>(<span class="dt">axis.text.x =</span> <span class="kw">element_text</span>(<span class="dt">angle =</span> <span class="dv">45</span>, </span>
 <span id="cb9-16"><a href="metabolomics.html#cb9-16"></a>    <span class="dt">vjust =</span> <span class="fl">0.5</span>, <span class="dt">hjust =</span> <span class="fl">0.5</span>), <span class="dt">legend.position =</span> <span class="st">&quot;bottom&quot;</span>)</span></code></pre></div>
-<p><img src="Oceanographic-setting-influences-the-prokaryote-community-and-metabolome-in-deep-sea-sponges_files/figure-html/kable_table-1.png" width="672" style="display: block; margin: auto;" /></p>
+<div class="figure"><span id="fig:QC-filtering-table"></span>
+<img src="Oceanographic-setting-influences-the-prokaryote-community-and-metabolome-in-deep-sea-sponges_files/figure-html/QC-filtering-table-1.png" alt="Effect of different filtering steps on the resulting metabolomes in numbers of features." width="672" />
+<p class="caption">
+Figure 2.2: Effect of different filtering steps on the resulting metabolomes in numbers of features.
+</p>
+</div>
 <p>After preliminary analyses of metabolomics data, a few outliers were re-identified by P. Cárdenas, and one specimen was removed from the data set as it originated from another species.</p>
 </div>
 </div>
 <div id="multivariate-analyses" class="section level2">
 <h2><span class="header-section-number">2.3</span> Multivariate analyses</h2>
-<p>I order to investigate whether depth has an effect on the overall metabolome, we use OPLS orthogonal projections of latent structures as multivariate analysis approach. This method allows to separate variations in the data based on e.g. depth and orthogonal, i.e. unrealted variation.</p>
+<p>We start by visualising all metabolomes with a PCA and a PERMANOVA to get a first impression of our data.</p>
 <div class="sourceCode" id="cb10"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb10-1"><a href="metabolomics.html#cb10-1"></a><span class="kw">library</span>(ropls)</span>
 <span id="cb10-2"><a href="metabolomics.html#cb10-2"></a><span class="kw">library</span>(dplyr)</span>
 <span id="cb10-3"><a href="metabolomics.html#cb10-3"></a><span class="kw">library</span>(ggplot2)</span>
@@ -897,42 +1464,14 @@ RP neg
 <span id="cb10-59"><a href="metabolomics.html#cb10-59"></a>rp_pca &lt;-<span class="st"> </span><span class="kw">pca_wrapper</span>(rp_pos, md, <span class="st">&quot;RP pos&quot;</span>)</span>
 <span id="cb10-60"><a href="metabolomics.html#cb10-60"></a>rn_pca &lt;-<span class="st"> </span><span class="kw">pca_wrapper</span>(rp_neg, md, <span class="st">&quot;RP pos&quot;</span>)</span>
 <span id="cb10-61"><a href="metabolomics.html#cb10-61"></a></span>
-<span id="cb10-62"><a href="metabolomics.html#cb10-62"></a><span class="co"># FUN multiplot # NOT MY OWN</span></span>
-<span id="cb10-63"><a href="metabolomics.html#cb10-63"></a>multiplot &lt;-<span class="st"> </span><span class="cf">function</span>(..., <span class="dt">plotlist =</span> <span class="ot">NULL</span>, file, <span class="dt">cols =</span> <span class="dv">1</span>, <span class="dt">layout =</span> <span class="ot">NULL</span>) {</span>
-<span id="cb10-64"><a href="metabolomics.html#cb10-64"></a>    <span class="kw">library</span>(grid)</span>
-<span id="cb10-65"><a href="metabolomics.html#cb10-65"></a>    </span>
-<span id="cb10-66"><a href="metabolomics.html#cb10-66"></a>    <span class="co"># Make a list from the ... arguments and plotlist</span></span>
-<span id="cb10-67"><a href="metabolomics.html#cb10-67"></a>    plots &lt;-<span class="st"> </span><span class="kw">c</span>(<span class="kw">list</span>(...), plotlist)</span>
-<span id="cb10-68"><a href="metabolomics.html#cb10-68"></a>    </span>
-<span id="cb10-69"><a href="metabolomics.html#cb10-69"></a>    numPlots =<span class="st"> </span><span class="kw">length</span>(plots)</span>
-<span id="cb10-70"><a href="metabolomics.html#cb10-70"></a>    </span>
-<span id="cb10-71"><a href="metabolomics.html#cb10-71"></a>    <span class="co"># If layout is NULL, then use &#39;cols&#39; to determine layout</span></span>
-<span id="cb10-72"><a href="metabolomics.html#cb10-72"></a>    <span class="cf">if</span> (<span class="kw">is.null</span>(layout)) {</span>
-<span id="cb10-73"><a href="metabolomics.html#cb10-73"></a>        <span class="co"># Make the panel ncol: Number of columns of plots nrow: Number of rows needed,</span></span>
-<span id="cb10-74"><a href="metabolomics.html#cb10-74"></a>        <span class="co"># calculated from # of cols</span></span>
-<span id="cb10-75"><a href="metabolomics.html#cb10-75"></a>        layout &lt;-<span class="st"> </span><span class="kw">matrix</span>(<span class="kw">seq</span>(<span class="dv">1</span>, cols <span class="op">*</span><span class="st"> </span><span class="kw">ceiling</span>(numPlots<span class="op">/</span>cols)), <span class="dt">ncol =</span> cols, <span class="dt">nrow =</span> <span class="kw">ceiling</span>(numPlots<span class="op">/</span>cols))</span>
-<span id="cb10-76"><a href="metabolomics.html#cb10-76"></a>    }</span>
-<span id="cb10-77"><a href="metabolomics.html#cb10-77"></a>    </span>
-<span id="cb10-78"><a href="metabolomics.html#cb10-78"></a>    <span class="cf">if</span> (numPlots <span class="op">==</span><span class="st"> </span><span class="dv">1</span>) {</span>
-<span id="cb10-79"><a href="metabolomics.html#cb10-79"></a>        <span class="kw">print</span>(plots[[<span class="dv">1</span>]])</span>
-<span id="cb10-80"><a href="metabolomics.html#cb10-80"></a>        </span>
-<span id="cb10-81"><a href="metabolomics.html#cb10-81"></a>    } <span class="cf">else</span> {</span>
-<span id="cb10-82"><a href="metabolomics.html#cb10-82"></a>        <span class="co"># Set up the page</span></span>
-<span id="cb10-83"><a href="metabolomics.html#cb10-83"></a>        <span class="kw">grid.newpage</span>()</span>
-<span id="cb10-84"><a href="metabolomics.html#cb10-84"></a>        <span class="kw">pushViewport</span>(<span class="kw">viewport</span>(<span class="dt">layout =</span> <span class="kw">grid.layout</span>(<span class="kw">nrow</span>(layout), <span class="kw">ncol</span>(layout))))</span>
-<span id="cb10-85"><a href="metabolomics.html#cb10-85"></a>        </span>
-<span id="cb10-86"><a href="metabolomics.html#cb10-86"></a>        <span class="co"># Make each plot, in the correct location</span></span>
-<span id="cb10-87"><a href="metabolomics.html#cb10-87"></a>        <span class="cf">for</span> (i <span class="cf">in</span> <span class="dv">1</span><span class="op">:</span>numPlots) {</span>
-<span id="cb10-88"><a href="metabolomics.html#cb10-88"></a>            <span class="co"># Get the i,j matrix positions of the regions that contain this subplot</span></span>
-<span id="cb10-89"><a href="metabolomics.html#cb10-89"></a>            matchidx &lt;-<span class="st"> </span><span class="kw">as.data.frame</span>(<span class="kw">which</span>(layout <span class="op">==</span><span class="st"> </span>i, <span class="dt">arr.ind =</span> <span class="ot">TRUE</span>))</span>
-<span id="cb10-90"><a href="metabolomics.html#cb10-90"></a>            </span>
-<span id="cb10-91"><a href="metabolomics.html#cb10-91"></a>            <span class="kw">print</span>(plots[[i]], <span class="dt">vp =</span> <span class="kw">viewport</span>(<span class="dt">layout.pos.row =</span> matchidx<span class="op">$</span>row, <span class="dt">layout.pos.col =</span> matchidx<span class="op">$</span>col))</span>
-<span id="cb10-92"><a href="metabolomics.html#cb10-92"></a>        }</span>
-<span id="cb10-93"><a href="metabolomics.html#cb10-93"></a>    }</span>
-<span id="cb10-94"><a href="metabolomics.html#cb10-94"></a>}</span>
-<span id="cb10-95"><a href="metabolomics.html#cb10-95"></a></span>
-<span id="cb10-96"><a href="metabolomics.html#cb10-96"></a><span class="kw">multiplot</span>(hp_pca, hn_pca, rp_pca, rn_pca, <span class="dt">cols =</span> <span class="dv">2</span>)</span></code></pre></div>
-<p><img src="Oceanographic-setting-influences-the-prokaryote-community-and-metabolome-in-deep-sea-sponges_files/figure-html/pca1-1.png" width="672" /></p>
+<span id="cb10-62"><a href="metabolomics.html#cb10-62"></a><span class="kw">library</span>(gridExtra)</span>
+<span id="cb10-63"><a href="metabolomics.html#cb10-63"></a><span class="kw">grid.arrange</span>(hp_pca, hn_pca, rp_pca, rn_pca, <span class="dt">nrow =</span> <span class="dv">2</span>)</span></code></pre></div>
+<div class="figure"><span id="fig:pca1"></span>
+<img src="Oceanographic-setting-influences-the-prokaryote-community-and-metabolome-in-deep-sea-sponges_files/figure-html/pca1-1.png" alt="PCA of the cleaned data sets. Dots are Gb samples, squares are Wb samples, traingles are Sf samples." width="672" />
+<p class="caption">
+Figure 2.3: PCA of the cleaned data sets. Dots are Gb samples, squares are Wb samples, traingles are Sf samples.
+</p>
+</div>
 <div class="sourceCode" id="cb11"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb11-1"><a href="metabolomics.html#cb11-1"></a><span class="kw">library</span>(vegan)</span>
 <span id="cb11-2"><a href="metabolomics.html#cb11-2"></a></span>
 <span id="cb11-3"><a href="metabolomics.html#cb11-3"></a>permanova &lt;-<span class="st"> </span><span class="cf">function</span>(metabolome, md) {</span>
@@ -1009,7 +1548,8 @@ RP neg
 ## Total     43   10.0712                 1.00000           
 ## ---
 ## Signif. codes:  0 &#39;***&#39; 0.001 &#39;**&#39; 0.01 &#39;*&#39; 0.05 &#39;.&#39; 0.1 &#39; &#39; 1</code></pre>
-<p>From the PCA and the PERMANOVA, we gather that the metabolomes regardless of how they were acquired are significatly different in the three sponge species. Therefore, we separate the metabolomes for investigating the effect of depth on them individually.</p>
+<p>From the PCA and the PERMANOVA (function <em>adonis</em>, Pr(&gt;F) is the <em>p-value</em>), we gather that the metabolomes regardless of how they were acquired are significatly different in the three sponge species. Therefore, we separate the metabolomes for investigating the effect of depth on them individually.</p>
+<p>In order to investigate whether depth has an effect on the metabolomes, we use OPLS orthogonal projections of latent structures as multivariate analysis approach. This method allows to separate variations in the data based on e.g. depth and orthogonal, i.e. unrelated variation.</p>
 <div class="sourceCode" id="cb19"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb19-1"><a href="metabolomics.html#cb19-1"></a><span class="co"># splitting df and adapting meta data</span></span>
 <span id="cb19-2"><a href="metabolomics.html#cb19-2"></a>spl_ada &lt;-<span class="st"> </span><span class="cf">function</span>(metabolome, md) {</span>
 <span id="cb19-3"><a href="metabolomics.html#cb19-3"></a>    metabolome_gb &lt;-<span class="st"> </span>metabolome[metabolome<span class="op">$</span>filter <span class="op">==</span><span class="st"> &quot;Gb&quot;</span>, ]</span>
@@ -1107,98 +1647,226 @@ RP neg
 <span id="cb20-18"><a href="metabolomics.html#cb20-18"></a>rp_pca &lt;-<span class="st"> </span><span class="kw">pca_wrapper</span>(rp_pos, md, <span class="st">&quot;RP pos&quot;</span>)</span>
 <span id="cb20-19"><a href="metabolomics.html#cb20-19"></a>rn_pca &lt;-<span class="st"> </span><span class="kw">pca_wrapper</span>(rp_neg, md, <span class="st">&quot;RP pos&quot;</span>)</span>
 <span id="cb20-20"><a href="metabolomics.html#cb20-20"></a></span>
-<span id="cb20-21"><a href="metabolomics.html#cb20-21"></a><span class="kw">multiplot</span>(hp_pca, hn_pca, rp_pca, rn_pca, <span class="dt">cols =</span> <span class="dv">2</span>)</span>
-<span id="cb20-22"><a href="metabolomics.html#cb20-22"></a></span>
-<span id="cb20-23"><a href="metabolomics.html#cb20-23"></a><span class="kw">permanova</span>(hilic_pos, md)</span>
-<span id="cb20-24"><a href="metabolomics.html#cb20-24"></a><span class="kw">permanova</span>(hilic_neg, md)</span>
-<span id="cb20-25"><a href="metabolomics.html#cb20-25"></a><span class="kw">permanova</span>(rp_pos, md)</span>
-<span id="cb20-26"><a href="metabolomics.html#cb20-26"></a><span class="kw">permanova</span>(rp_neg, md)</span>
-<span id="cb20-27"><a href="metabolomics.html#cb20-27"></a></span>
-<span id="cb20-28"><a href="metabolomics.html#cb20-28"></a></span>
-<span id="cb20-29"><a href="metabolomics.html#cb20-29"></a>hp_opls_df &lt;-<span class="st"> </span><span class="kw">spl_ada</span>(hilic_pos, md)</span>
-<span id="cb20-30"><a href="metabolomics.html#cb20-30"></a>hn_opls_df &lt;-<span class="st"> </span><span class="kw">spl_ada</span>(hilic_neg, md)</span>
-<span id="cb20-31"><a href="metabolomics.html#cb20-31"></a>rp_opls_df &lt;-<span class="st"> </span><span class="kw">spl_ada</span>(rp_pos, md)</span>
-<span id="cb20-32"><a href="metabolomics.html#cb20-32"></a>rn_opls_df &lt;-<span class="st"> </span><span class="kw">spl_ada</span>(rp_neg, md)</span>
-<span id="cb20-33"><a href="metabolomics.html#cb20-33"></a></span>
-<span id="cb20-34"><a href="metabolomics.html#cb20-34"></a>a &lt;-<span class="st"> </span><span class="kw">Sys.time</span>()</span>
-<span id="cb20-35"><a href="metabolomics.html#cb20-35"></a>hp_cleaned_opls &lt;-<span class="st"> </span><span class="kw">ropls_wrapper</span>(hp_opls_df, <span class="ot">NA</span>, <span class="dv">1</span>, <span class="ot">NA</span>)</span>
-<span id="cb20-36"><a href="metabolomics.html#cb20-36"></a>hn_cleaned_opls &lt;-<span class="st"> </span><span class="kw">ropls_wrapper</span>(hn_opls_df, <span class="ot">NA</span>, <span class="ot">NA</span>, <span class="ot">NA</span>)</span>
-<span id="cb20-37"><a href="metabolomics.html#cb20-37"></a>rp_cleaned_opls &lt;-<span class="st"> </span><span class="kw">ropls_wrapper</span>(rp_opls_df, <span class="ot">NA</span>, <span class="dv">1</span>, <span class="ot">NA</span>)</span>
-<span id="cb20-38"><a href="metabolomics.html#cb20-38"></a>rn_cleaned_opls &lt;-<span class="st"> </span><span class="kw">ropls_wrapper</span>(rn_opls_df, <span class="dv">1</span>, <span class="dv">1</span>, <span class="ot">NA</span>)</span>
-<span id="cb20-39"><a href="metabolomics.html#cb20-39"></a>b &lt;-<span class="st"> </span><span class="kw">Sys.time</span>()</span>
-<span id="cb20-40"><a href="metabolomics.html#cb20-40"></a>b <span class="op">-</span><span class="st"> </span>a</span>
-<span id="cb20-41"><a href="metabolomics.html#cb20-41"></a></span>
-<span id="cb20-42"><a href="metabolomics.html#cb20-42"></a>ion &lt;-<span class="st"> </span><span class="kw">rbind</span>(hp_cleaned_opls, hn_cleaned_opls, rp_cleaned_opls, rn_cleaned_opls)</span>
-<span id="cb20-43"><a href="metabolomics.html#cb20-43"></a>ion[<span class="st">&quot;Experiment&quot;</span>] &lt;-<span class="st"> </span><span class="kw">c</span>(<span class="kw">rep</span>(<span class="st">&quot;HILIC pos&quot;</span>, <span class="dv">3</span>), <span class="kw">rep</span>(<span class="st">&quot;HILIC neg&quot;</span>, <span class="dv">3</span>), <span class="kw">rep</span>(<span class="st">&quot;RP pos&quot;</span>, <span class="dv">3</span>), </span>
-<span id="cb20-44"><a href="metabolomics.html#cb20-44"></a>    <span class="kw">rep</span>(<span class="st">&quot;RP neg&quot;</span>, <span class="dv">3</span>))</span>
-<span id="cb20-45"><a href="metabolomics.html#cb20-45"></a><span class="kw">write.csv</span>(ion, <span class="st">&quot;data/cleaned_MH_opls_diagnostics.csv&quot;</span>, <span class="dt">row.names =</span> F)</span></code></pre></div>
-<div class="sourceCode" id="cb21"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb21-1"><a href="metabolomics.html#cb21-1"></a><span class="co"># load data PC_GROUP</span></span>
-<span id="cb21-2"><a href="metabolomics.html#cb21-2"></a>hilic_pos &lt;-<span class="st"> </span><span class="kw">read.csv</span>(<span class="st">&quot;data/HILIC_pos_20190417_cleaned_pcgroup.csv&quot;</span>, <span class="dt">header =</span> T, </span>
-<span id="cb21-3"><a href="metabolomics.html#cb21-3"></a>    <span class="dt">sep =</span> <span class="st">&quot;,&quot;</span>)</span>
-<span id="cb21-4"><a href="metabolomics.html#cb21-4"></a>hilic_neg &lt;-<span class="st"> </span><span class="kw">read.csv</span>(<span class="st">&quot;data/HILIC_neg_20190421_cleaned_pcgroup.csv&quot;</span>, <span class="dt">header =</span> T, </span>
-<span id="cb21-5"><a href="metabolomics.html#cb21-5"></a>    <span class="dt">sep =</span> <span class="st">&quot;,&quot;</span>)</span>
-<span id="cb21-6"><a href="metabolomics.html#cb21-6"></a>rp_pos &lt;-<span class="st"> </span><span class="kw">read.csv</span>(<span class="st">&quot;data/RP_pos_20190421_cleaned_pcgroup.csv&quot;</span>, <span class="dt">header =</span> T, <span class="dt">sep =</span> <span class="st">&quot;,&quot;</span>)</span>
-<span id="cb21-7"><a href="metabolomics.html#cb21-7"></a>rp_neg &lt;-<span class="st"> </span><span class="kw">read.csv</span>(<span class="st">&quot;data/RP_neg_20190422_cleaned_pcgroup.csv&quot;</span>, <span class="dt">header =</span> T, <span class="dt">sep =</span> <span class="st">&quot;,&quot;</span>)</span>
-<span id="cb21-8"><a href="metabolomics.html#cb21-8"></a>meta_data &lt;-<span class="st"> </span><span class="kw">read.csv</span>(<span class="st">&quot;data/Steffen_et_al_metadata_PANGAEA.csv&quot;</span>, <span class="dt">header =</span> T, <span class="dt">sep =</span> <span class="st">&quot;;&quot;</span>)</span>
-<span id="cb21-9"><a href="metabolomics.html#cb21-9"></a></span>
-<span id="cb21-10"><a href="metabolomics.html#cb21-10"></a>hilic_pos &lt;-<span class="st"> </span><span class="kw">formatting</span>(hilic_pos, meta_data, <span class="dv">8</span>, <span class="st">&quot;LC.MS.HILIC.positive&quot;</span>)</span>
-<span id="cb21-11"><a href="metabolomics.html#cb21-11"></a>hilic_neg &lt;-<span class="st"> </span><span class="kw">formatting</span>(hilic_neg, meta_data, <span class="dv">8</span>, <span class="st">&quot;LC.MS.HILIC.negative&quot;</span>)</span>
-<span id="cb21-12"><a href="metabolomics.html#cb21-12"></a>rp_pos &lt;-<span class="st"> </span><span class="kw">formatting</span>(rp_pos, meta_data, <span class="dv">8</span>, <span class="st">&quot;LC.MS.RP.positive&quot;</span>)</span>
-<span id="cb21-13"><a href="metabolomics.html#cb21-13"></a>rp_neg &lt;-<span class="st"> </span><span class="kw">formatting</span>(rp_neg, meta_data, <span class="dv">8</span>, <span class="st">&quot;LC.MS.RP.negative&quot;</span>)</span>
-<span id="cb21-14"><a href="metabolomics.html#cb21-14"></a></span>
-<span id="cb21-15"><a href="metabolomics.html#cb21-15"></a>md &lt;-<span class="st"> </span>meta_data[, <span class="kw">c</span>(<span class="st">&quot;Species&quot;</span>, <span class="st">&quot;Depth&quot;</span>, <span class="st">&quot;Latitude&quot;</span>, <span class="st">&quot;Longitude&quot;</span>, <span class="st">&quot;YEAR&quot;</span>, <span class="st">&quot;MeanBottomTemp_Cdeg&quot;</span>, </span>
-<span id="cb21-16"><a href="metabolomics.html#cb21-16"></a>    <span class="st">&quot;MeanBotSalinity_PSU&quot;</span>, <span class="st">&quot;unified_ID&quot;</span>)]</span>
-<span id="cb21-17"><a href="metabolomics.html#cb21-17"></a></span>
-<span id="cb21-18"><a href="metabolomics.html#cb21-18"></a>hp_pca &lt;-<span class="st"> </span><span class="kw">pca_wrapper</span>(hilic_pos, md, <span class="st">&quot;Hilic pos&quot;</span>)</span>
-<span id="cb21-19"><a href="metabolomics.html#cb21-19"></a>hn_pca &lt;-<span class="st"> </span><span class="kw">pca_wrapper</span>(hilic_neg, md, <span class="st">&quot;Hilic neg&quot;</span>)</span>
-<span id="cb21-20"><a href="metabolomics.html#cb21-20"></a>rp_pca &lt;-<span class="st"> </span><span class="kw">pca_wrapper</span>(rp_pos, md, <span class="st">&quot;RP pos&quot;</span>)</span>
-<span id="cb21-21"><a href="metabolomics.html#cb21-21"></a>rn_pca &lt;-<span class="st"> </span><span class="kw">pca_wrapper</span>(rp_neg, md, <span class="st">&quot;RP pos&quot;</span>)</span>
-<span id="cb21-22"><a href="metabolomics.html#cb21-22"></a></span>
-<span id="cb21-23"><a href="metabolomics.html#cb21-23"></a><span class="kw">multiplot</span>(hp_pca, hn_pca, rp_pca, rn_pca, <span class="dt">cols =</span> <span class="dv">2</span>)</span>
-<span id="cb21-24"><a href="metabolomics.html#cb21-24"></a></span>
-<span id="cb21-25"><a href="metabolomics.html#cb21-25"></a><span class="kw">permanova</span>(hilic_pos, md)</span>
-<span id="cb21-26"><a href="metabolomics.html#cb21-26"></a><span class="kw">permanova</span>(hilic_neg, md)</span>
-<span id="cb21-27"><a href="metabolomics.html#cb21-27"></a><span class="kw">permanova</span>(rp_pos, md)</span>
-<span id="cb21-28"><a href="metabolomics.html#cb21-28"></a><span class="kw">permanova</span>(rp_neg, md)</span>
-<span id="cb21-29"><a href="metabolomics.html#cb21-29"></a></span>
-<span id="cb21-30"><a href="metabolomics.html#cb21-30"></a>hp_opls_df &lt;-<span class="st"> </span><span class="kw">spl_ada</span>(hilic_pos, md)</span>
-<span id="cb21-31"><a href="metabolomics.html#cb21-31"></a>hn_opls_df &lt;-<span class="st"> </span><span class="kw">spl_ada</span>(hilic_neg, md)</span>
-<span id="cb21-32"><a href="metabolomics.html#cb21-32"></a>rp_opls_df &lt;-<span class="st"> </span><span class="kw">spl_ada</span>(rp_pos, md)</span>
-<span id="cb21-33"><a href="metabolomics.html#cb21-33"></a>rn_opls_df &lt;-<span class="st"> </span><span class="kw">spl_ada</span>(rp_neg, md)</span>
-<span id="cb21-34"><a href="metabolomics.html#cb21-34"></a></span>
-<span id="cb21-35"><a href="metabolomics.html#cb21-35"></a>a &lt;-<span class="st"> </span><span class="kw">Sys.time</span>()</span>
-<span id="cb21-36"><a href="metabolomics.html#cb21-36"></a>hp_cleaned_opls &lt;-<span class="st"> </span><span class="kw">ropls_wrapper</span>(hp_opls_df, <span class="ot">NA</span>, <span class="ot">NA</span>, <span class="ot">NA</span>)</span>
-<span id="cb21-37"><a href="metabolomics.html#cb21-37"></a>hn_cleaned_opls &lt;-<span class="st"> </span><span class="kw">ropls_wrapper</span>(hn_opls_df, <span class="ot">NA</span>, <span class="ot">NA</span>, <span class="ot">NA</span>)</span>
-<span id="cb21-38"><a href="metabolomics.html#cb21-38"></a>rp_cleaned_opls &lt;-<span class="st"> </span><span class="kw">ropls_wrapper</span>(rp_opls_df, <span class="ot">NA</span>, <span class="ot">NA</span>, <span class="ot">NA</span>)</span>
-<span id="cb21-39"><a href="metabolomics.html#cb21-39"></a>rn_cleaned_opls &lt;-<span class="st"> </span><span class="kw">ropls_wrapper</span>(rn_opls_df, <span class="ot">NA</span>, <span class="ot">NA</span>, <span class="ot">NA</span>)</span>
-<span id="cb21-40"><a href="metabolomics.html#cb21-40"></a>b &lt;-<span class="st"> </span><span class="kw">Sys.time</span>()</span>
-<span id="cb21-41"><a href="metabolomics.html#cb21-41"></a>b <span class="op">-</span><span class="st"> </span>a</span>
-<span id="cb21-42"><a href="metabolomics.html#cb21-42"></a></span>
-<span id="cb21-43"><a href="metabolomics.html#cb21-43"></a>pcg &lt;-<span class="st"> </span><span class="kw">rbind</span>(hp_cleaned_opls, hn_cleaned_opls, rp_cleaned_opls, rn_cleaned_opls)</span>
-<span id="cb21-44"><a href="metabolomics.html#cb21-44"></a>pcg[<span class="st">&quot;Experiment&quot;</span>] &lt;-<span class="st"> </span><span class="kw">c</span>(<span class="kw">rep</span>(<span class="st">&quot;HILIC pos&quot;</span>, <span class="dv">3</span>), <span class="kw">rep</span>(<span class="st">&quot;HILIC neg&quot;</span>, <span class="dv">3</span>), <span class="kw">rep</span>(<span class="st">&quot;RP pos&quot;</span>, <span class="dv">3</span>), </span>
-<span id="cb21-45"><a href="metabolomics.html#cb21-45"></a>    <span class="kw">rep</span>(<span class="st">&quot;RP neg&quot;</span>, <span class="dv">3</span>))</span>
-<span id="cb21-46"><a href="metabolomics.html#cb21-46"></a><span class="kw">write.csv</span>(pcg, <span class="st">&quot;data/cleaned_PC_opls_diagnostics.csv&quot;</span>, <span class="dt">row.names =</span> F)</span></code></pre></div>
-<p>The multivariate analyses were quite time consuming, requiring 1.4 hours for the “cleaned” data sets, 46.3 min for the “PC-group” data stes and 4 min for the “ion” data sets. The combined model diagnostics are summarised below.</p>
-<div class="sourceCode" id="cb22"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb22-1"><a href="metabolomics.html#cb22-1"></a><span class="kw">library</span>(kableExtra)</span>
-<span id="cb22-2"><a href="metabolomics.html#cb22-2"></a>cleaned &lt;-<span class="st"> </span><span class="kw">read.csv</span>(<span class="st">&quot;data/cleaned_opls_diagnostics.csv&quot;</span>, <span class="dt">header =</span> T)</span>
-<span id="cb22-3"><a href="metabolomics.html#cb22-3"></a>pcgrp &lt;-<span class="st"> </span><span class="kw">read.csv</span>(<span class="st">&quot;data/cleaned_PC_opls_diagnostics.csv&quot;</span>, <span class="dt">header =</span> T)</span>
-<span id="cb22-4"><a href="metabolomics.html#cb22-4"></a>ion &lt;-<span class="st"> </span><span class="kw">read.csv</span>(<span class="st">&quot;data/cleaned_MH_opls_diagnostics.csv&quot;</span>, <span class="dt">header =</span> T)</span>
-<span id="cb22-5"><a href="metabolomics.html#cb22-5"></a></span>
-<span id="cb22-6"><a href="metabolomics.html#cb22-6"></a>opls_diagnostics &lt;-<span class="st"> </span><span class="kw">rbind</span>(cleaned, pcgrp, ion)</span>
-<span id="cb22-7"><a href="metabolomics.html#cb22-7"></a>opls_diagnostics[<span class="st">&quot;filtering&quot;</span>] &lt;-<span class="st"> </span><span class="kw">c</span>(<span class="kw">rep</span>(<span class="st">&quot;cleaned&quot;</span>, <span class="dv">12</span>), <span class="kw">rep</span>(<span class="st">&quot;pc group&quot;</span>, <span class="dv">12</span>), <span class="kw">rep</span>(<span class="st">&quot;ion&quot;</span>, </span>
-<span id="cb22-8"><a href="metabolomics.html#cb22-8"></a>    <span class="dv">12</span>))</span>
-<span id="cb22-9"><a href="metabolomics.html#cb22-9"></a></span>
-<span id="cb22-10"><a href="metabolomics.html#cb22-10"></a><span class="kw">options</span>(<span class="dt">kableExtra.html.bsTable =</span> T)</span>
-<span id="cb22-11"><a href="metabolomics.html#cb22-11"></a><span class="kw">kable</span>(opls_diagnostics, <span class="dt">col.names =</span> <span class="kw">c</span>(<span class="st">&quot;R2X cum&quot;</span>, <span class="st">&quot;R2Y cum&quot;</span>, <span class="st">&quot;Q2 cum&quot;</span>, <span class="st">&quot;RMSEE&quot;</span>, <span class="st">&quot;pre&quot;</span>, </span>
-<span id="cb22-12"><a href="metabolomics.html#cb22-12"></a>    <span class="st">&quot;ort&quot;</span>, <span class="st">&quot;pR2Y&quot;</span>, <span class="st">&quot;pQ2&quot;</span>, <span class="st">&quot;Species&quot;</span>, <span class="st">&quot;Experiment&quot;</span>, <span class="st">&quot;data set&quot;</span>), <span class="dt">longtable =</span> T, <span class="dt">booktabs =</span> T, </span>
-<span id="cb22-13"><a href="metabolomics.html#cb22-13"></a>    <span class="dt">caption =</span> <span class="st">&quot;Model diagnostics of the metabolome variations modelled by depth&quot;</span>, </span>
-<span id="cb22-14"><a href="metabolomics.html#cb22-14"></a>    <span class="dt">row.names =</span> <span class="ot">FALSE</span>) <span class="op">%&gt;%</span><span class="st"> </span><span class="kw">add_header_above</span>(<span class="kw">c</span>(<span class="dt">Diagnostics =</span> <span class="dv">8</span>, <span class="st">`</span><span class="dt">Data set attribution</span><span class="st">`</span> =<span class="st"> </span><span class="dv">3</span>)) <span class="op">%&gt;%</span><span class="st"> </span></span>
-<span id="cb22-15"><a href="metabolomics.html#cb22-15"></a><span class="st">    </span><span class="kw">kable_styling</span>(<span class="dt">bootstrap_options =</span> <span class="kw">c</span>(<span class="st">&quot;striped&quot;</span>, <span class="st">&quot;hover&quot;</span>, <span class="st">&quot;bordered&quot;</span>, <span class="st">&quot;condensed&quot;</span>, </span>
-<span id="cb22-16"><a href="metabolomics.html#cb22-16"></a>        <span class="st">&quot;responsive&quot;</span>), <span class="dt">font_size =</span> <span class="dv">12</span>, <span class="dt">full_width =</span> F, <span class="dt">latex_options =</span> <span class="kw">c</span>(<span class="st">&quot;striped&quot;</span>, </span>
-<span id="cb22-17"><a href="metabolomics.html#cb22-17"></a>        <span class="st">&quot;scale_down&quot;</span>))</span></code></pre></div>
+<span id="cb20-21"><a href="metabolomics.html#cb20-21"></a><span class="kw">grid.arrange</span>(hp_pca, hn_pca, rp_pca, rn_pca, <span class="dt">nrow =</span> <span class="dv">2</span>)</span></code></pre></div>
+<div class="figure"><span id="fig:opls-2a"></span>
+<img src="Oceanographic-setting-influences-the-prokaryote-community-and-metabolome-in-deep-sea-sponges_files/figure-html/opls-2a-1.png" alt="PCA of the metabolome data setf filtered to retain only annotated ions. Dots are Gb samples, squares are Wb samples, traingles are Sf samples." width="672" />
+<p class="caption">
+Figure 2.4: PCA of the metabolome data setf filtered to retain only annotated ions. Dots are Gb samples, squares are Wb samples, traingles are Sf samples.
+</p>
+</div>
+<div class="sourceCode" id="cb21"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb21-1"><a href="metabolomics.html#cb21-1"></a><span class="kw">permanova</span>(hilic_pos, md)</span></code></pre></div>
+<pre><code>## 
+## Call:
+## adonis(formula = metabolome ~ Species, data = md) 
+## 
+## Permutation: free
+## Number of permutations: 999
+## 
+## Terms added sequentially (first to last)
+## 
+##           Df SumsOfSqs MeanSqs F.Model      R2 Pr(&gt;F)    
+## Species    2    7.9121  3.9560  48.131 0.69623  0.001 ***
+## Residuals 42    3.4521  0.0822         0.30377           
+## Total     44   11.3642                 1.00000           
+## ---
+## Signif. codes:  0 &#39;***&#39; 0.001 &#39;**&#39; 0.01 &#39;*&#39; 0.05 &#39;.&#39; 0.1 &#39; &#39; 1</code></pre>
+<div class="sourceCode" id="cb23"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb23-1"><a href="metabolomics.html#cb23-1"></a><span class="kw">permanova</span>(hilic_neg, md)</span></code></pre></div>
+<pre><code>## 
+## Call:
+## adonis(formula = metabolome ~ Species, data = md) 
+## 
+## Permutation: free
+## Number of permutations: 999
+## 
+## Terms added sequentially (first to last)
+## 
+##           Df SumsOfSqs MeanSqs F.Model      R2 Pr(&gt;F)    
+## Species    2   1.23799 0.61899  31.471 0.59978  0.001 ***
+## Residuals 42   0.82609 0.01967         0.40022           
+## Total     44   2.06408                 1.00000           
+## ---
+## Signif. codes:  0 &#39;***&#39; 0.001 &#39;**&#39; 0.01 &#39;*&#39; 0.05 &#39;.&#39; 0.1 &#39; &#39; 1</code></pre>
+<div class="sourceCode" id="cb25"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb25-1"><a href="metabolomics.html#cb25-1"></a><span class="kw">permanova</span>(rp_pos, md)</span></code></pre></div>
+<pre><code>## 
+## Call:
+## adonis(formula = metabolome ~ Species, data = md) 
+## 
+## Permutation: free
+## Number of permutations: 999
+## 
+## Terms added sequentially (first to last)
+## 
+##           Df SumsOfSqs MeanSqs F.Model      R2 Pr(&gt;F)    
+## Species    2    8.9172  4.4586  52.824 0.71554  0.001 ***
+## Residuals 42    3.5450  0.0844         0.28446           
+## Total     44   12.4621                 1.00000           
+## ---
+## Signif. codes:  0 &#39;***&#39; 0.001 &#39;**&#39; 0.01 &#39;*&#39; 0.05 &#39;.&#39; 0.1 &#39; &#39; 1</code></pre>
+<div class="sourceCode" id="cb27"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb27-1"><a href="metabolomics.html#cb27-1"></a><span class="kw">permanova</span>(rp_neg, md)</span></code></pre></div>
+<pre><code>## 
+## Call:
+## adonis(formula = metabolome ~ Species, data = md) 
+## 
+## Permutation: free
+## Number of permutations: 999
+## 
+## Terms added sequentially (first to last)
+## 
+##           Df SumsOfSqs MeanSqs F.Model      R2 Pr(&gt;F)    
+## Species    2    7.4863  3.7432  33.508 0.62043  0.001 ***
+## Residuals 41    4.5801  0.1117         0.37957           
+## Total     43   12.0665                 1.00000           
+## ---
+## Signif. codes:  0 &#39;***&#39; 0.001 &#39;**&#39; 0.01 &#39;*&#39; 0.05 &#39;.&#39; 0.1 &#39; &#39; 1</code></pre>
+<div class="sourceCode" id="cb29"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb29-1"><a href="metabolomics.html#cb29-1"></a>hp_opls_df &lt;-<span class="st"> </span><span class="kw">spl_ada</span>(hilic_pos, md)</span>
+<span id="cb29-2"><a href="metabolomics.html#cb29-2"></a>hn_opls_df &lt;-<span class="st"> </span><span class="kw">spl_ada</span>(hilic_neg, md)</span>
+<span id="cb29-3"><a href="metabolomics.html#cb29-3"></a>rp_opls_df &lt;-<span class="st"> </span><span class="kw">spl_ada</span>(rp_pos, md)</span>
+<span id="cb29-4"><a href="metabolomics.html#cb29-4"></a>rn_opls_df &lt;-<span class="st"> </span><span class="kw">spl_ada</span>(rp_neg, md)</span>
+<span id="cb29-5"><a href="metabolomics.html#cb29-5"></a></span>
+<span id="cb29-6"><a href="metabolomics.html#cb29-6"></a>a &lt;-<span class="st"> </span><span class="kw">Sys.time</span>()</span>
+<span id="cb29-7"><a href="metabolomics.html#cb29-7"></a>hp_cleaned_opls &lt;-<span class="st"> </span><span class="kw">ropls_wrapper</span>(hp_opls_df, <span class="ot">NA</span>, <span class="dv">1</span>, <span class="ot">NA</span>)</span>
+<span id="cb29-8"><a href="metabolomics.html#cb29-8"></a>hn_cleaned_opls &lt;-<span class="st"> </span><span class="kw">ropls_wrapper</span>(hn_opls_df, <span class="ot">NA</span>, <span class="ot">NA</span>, <span class="ot">NA</span>)</span>
+<span id="cb29-9"><a href="metabolomics.html#cb29-9"></a>rp_cleaned_opls &lt;-<span class="st"> </span><span class="kw">ropls_wrapper</span>(rp_opls_df, <span class="ot">NA</span>, <span class="dv">1</span>, <span class="ot">NA</span>)</span>
+<span id="cb29-10"><a href="metabolomics.html#cb29-10"></a>rn_cleaned_opls &lt;-<span class="st"> </span><span class="kw">ropls_wrapper</span>(rn_opls_df, <span class="dv">1</span>, <span class="dv">1</span>, <span class="ot">NA</span>)</span>
+<span id="cb29-11"><a href="metabolomics.html#cb29-11"></a>b &lt;-<span class="st"> </span><span class="kw">Sys.time</span>()</span>
+<span id="cb29-12"><a href="metabolomics.html#cb29-12"></a>b <span class="op">-</span><span class="st"> </span>a</span>
+<span id="cb29-13"><a href="metabolomics.html#cb29-13"></a></span>
+<span id="cb29-14"><a href="metabolomics.html#cb29-14"></a>ion &lt;-<span class="st"> </span><span class="kw">rbind</span>(hp_cleaned_opls, hn_cleaned_opls, rp_cleaned_opls, rn_cleaned_opls)</span>
+<span id="cb29-15"><a href="metabolomics.html#cb29-15"></a>ion[<span class="st">&quot;Experiment&quot;</span>] &lt;-<span class="st"> </span><span class="kw">c</span>(<span class="kw">rep</span>(<span class="st">&quot;HILIC pos&quot;</span>, <span class="dv">3</span>), <span class="kw">rep</span>(<span class="st">&quot;HILIC neg&quot;</span>, <span class="dv">3</span>), <span class="kw">rep</span>(<span class="st">&quot;RP pos&quot;</span>, <span class="dv">3</span>), </span>
+<span id="cb29-16"><a href="metabolomics.html#cb29-16"></a>    <span class="kw">rep</span>(<span class="st">&quot;RP neg&quot;</span>, <span class="dv">3</span>))</span>
+<span id="cb29-17"><a href="metabolomics.html#cb29-17"></a><span class="kw">write.csv</span>(ion, <span class="st">&quot;data/cleaned_MH_opls_diagnostics.csv&quot;</span>, <span class="dt">row.names =</span> F)</span></code></pre></div>
+<div class="sourceCode" id="cb30"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb30-1"><a href="metabolomics.html#cb30-1"></a><span class="co"># load data PC_GROUP</span></span>
+<span id="cb30-2"><a href="metabolomics.html#cb30-2"></a>hilic_pos &lt;-<span class="st"> </span><span class="kw">read.csv</span>(<span class="st">&quot;data/HILIC_pos_20190417_cleaned_pcgroup.csv&quot;</span>, <span class="dt">header =</span> T, </span>
+<span id="cb30-3"><a href="metabolomics.html#cb30-3"></a>    <span class="dt">sep =</span> <span class="st">&quot;,&quot;</span>)</span>
+<span id="cb30-4"><a href="metabolomics.html#cb30-4"></a>hilic_neg &lt;-<span class="st"> </span><span class="kw">read.csv</span>(<span class="st">&quot;data/HILIC_neg_20190421_cleaned_pcgroup.csv&quot;</span>, <span class="dt">header =</span> T, </span>
+<span id="cb30-5"><a href="metabolomics.html#cb30-5"></a>    <span class="dt">sep =</span> <span class="st">&quot;,&quot;</span>)</span>
+<span id="cb30-6"><a href="metabolomics.html#cb30-6"></a>rp_pos &lt;-<span class="st"> </span><span class="kw">read.csv</span>(<span class="st">&quot;data/RP_pos_20190421_cleaned_pcgroup.csv&quot;</span>, <span class="dt">header =</span> T, <span class="dt">sep =</span> <span class="st">&quot;,&quot;</span>)</span>
+<span id="cb30-7"><a href="metabolomics.html#cb30-7"></a>rp_neg &lt;-<span class="st"> </span><span class="kw">read.csv</span>(<span class="st">&quot;data/RP_neg_20190422_cleaned_pcgroup.csv&quot;</span>, <span class="dt">header =</span> T, <span class="dt">sep =</span> <span class="st">&quot;,&quot;</span>)</span>
+<span id="cb30-8"><a href="metabolomics.html#cb30-8"></a>meta_data &lt;-<span class="st"> </span><span class="kw">read.csv</span>(<span class="st">&quot;data/Steffen_et_al_metadata_PANGAEA.csv&quot;</span>, <span class="dt">header =</span> T, <span class="dt">sep =</span> <span class="st">&quot;;&quot;</span>)</span>
+<span id="cb30-9"><a href="metabolomics.html#cb30-9"></a></span>
+<span id="cb30-10"><a href="metabolomics.html#cb30-10"></a>hilic_pos &lt;-<span class="st"> </span><span class="kw">formatting</span>(hilic_pos, meta_data, <span class="dv">8</span>, <span class="st">&quot;LC.MS.HILIC.positive&quot;</span>)</span>
+<span id="cb30-11"><a href="metabolomics.html#cb30-11"></a>hilic_neg &lt;-<span class="st"> </span><span class="kw">formatting</span>(hilic_neg, meta_data, <span class="dv">8</span>, <span class="st">&quot;LC.MS.HILIC.negative&quot;</span>)</span>
+<span id="cb30-12"><a href="metabolomics.html#cb30-12"></a>rp_pos &lt;-<span class="st"> </span><span class="kw">formatting</span>(rp_pos, meta_data, <span class="dv">8</span>, <span class="st">&quot;LC.MS.RP.positive&quot;</span>)</span>
+<span id="cb30-13"><a href="metabolomics.html#cb30-13"></a>rp_neg &lt;-<span class="st"> </span><span class="kw">formatting</span>(rp_neg, meta_data, <span class="dv">8</span>, <span class="st">&quot;LC.MS.RP.negative&quot;</span>)</span>
+<span id="cb30-14"><a href="metabolomics.html#cb30-14"></a></span>
+<span id="cb30-15"><a href="metabolomics.html#cb30-15"></a>md &lt;-<span class="st"> </span>meta_data[, <span class="kw">c</span>(<span class="st">&quot;Species&quot;</span>, <span class="st">&quot;Depth&quot;</span>, <span class="st">&quot;Latitude&quot;</span>, <span class="st">&quot;Longitude&quot;</span>, <span class="st">&quot;YEAR&quot;</span>, <span class="st">&quot;MeanBottomTemp_Cdeg&quot;</span>, </span>
+<span id="cb30-16"><a href="metabolomics.html#cb30-16"></a>    <span class="st">&quot;MeanBotSalinity_PSU&quot;</span>, <span class="st">&quot;unified_ID&quot;</span>)]</span>
+<span id="cb30-17"><a href="metabolomics.html#cb30-17"></a></span>
+<span id="cb30-18"><a href="metabolomics.html#cb30-18"></a>hp_pca &lt;-<span class="st"> </span><span class="kw">pca_wrapper</span>(hilic_pos, md, <span class="st">&quot;Hilic pos&quot;</span>)</span>
+<span id="cb30-19"><a href="metabolomics.html#cb30-19"></a>hn_pca &lt;-<span class="st"> </span><span class="kw">pca_wrapper</span>(hilic_neg, md, <span class="st">&quot;Hilic neg&quot;</span>)</span>
+<span id="cb30-20"><a href="metabolomics.html#cb30-20"></a>rp_pca &lt;-<span class="st"> </span><span class="kw">pca_wrapper</span>(rp_pos, md, <span class="st">&quot;RP pos&quot;</span>)</span>
+<span id="cb30-21"><a href="metabolomics.html#cb30-21"></a>rn_pca &lt;-<span class="st"> </span><span class="kw">pca_wrapper</span>(rp_neg, md, <span class="st">&quot;RP pos&quot;</span>)</span>
+<span id="cb30-22"><a href="metabolomics.html#cb30-22"></a></span>
+<span id="cb30-23"><a href="metabolomics.html#cb30-23"></a><span class="kw">grid.arrange</span>(hp_pca, hn_pca, rp_pca, rn_pca, <span class="dt">nrow =</span> <span class="dv">2</span>)</span></code></pre></div>
+<div class="figure"><span id="fig:opls-3a"></span>
+<img src="Oceanographic-setting-influences-the-prokaryote-community-and-metabolome-in-deep-sea-sponges_files/figure-html/opls-3a-1.png" alt="PCA of the metabolome data setf filtered to retain the feature with the strongest signal per PC group. Dots are Gb samples, squares are Wb samples, traingles are Sf samples." width="672" />
+<p class="caption">
+Figure 2.5: PCA of the metabolome data setf filtered to retain the feature with the strongest signal per PC group. Dots are Gb samples, squares are Wb samples, traingles are Sf samples.
+</p>
+</div>
+<div class="sourceCode" id="cb31"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb31-1"><a href="metabolomics.html#cb31-1"></a><span class="kw">permanova</span>(hilic_pos, md)</span></code></pre></div>
+<pre><code>## 
+## Call:
+## adonis(formula = metabolome ~ Species, data = md) 
+## 
+## Permutation: free
+## Number of permutations: 999
+## 
+## Terms added sequentially (first to last)
+## 
+##           Df SumsOfSqs MeanSqs F.Model     R2 Pr(&gt;F)    
+## Species    2    6.0660 3.03302  33.376 0.6138  0.001 ***
+## Residuals 42    3.8167 0.09087         0.3862           
+## Total     44    9.8828                 1.0000           
+## ---
+## Signif. codes:  0 &#39;***&#39; 0.001 &#39;**&#39; 0.01 &#39;*&#39; 0.05 &#39;.&#39; 0.1 &#39; &#39; 1</code></pre>
+<div class="sourceCode" id="cb33"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb33-1"><a href="metabolomics.html#cb33-1"></a><span class="kw">permanova</span>(hilic_neg, md)</span></code></pre></div>
+<pre><code>## 
+## Call:
+## adonis(formula = metabolome ~ Species, data = md) 
+## 
+## Permutation: free
+## Number of permutations: 999
+## 
+## Terms added sequentially (first to last)
+## 
+##           Df SumsOfSqs MeanSqs F.Model     R2 Pr(&gt;F)    
+## Species    2    5.1323 2.56616  32.819 0.6098  0.001 ***
+## Residuals 42    3.2840 0.07819         0.3902           
+## Total     44    8.4163                 1.0000           
+## ---
+## Signif. codes:  0 &#39;***&#39; 0.001 &#39;**&#39; 0.01 &#39;*&#39; 0.05 &#39;.&#39; 0.1 &#39; &#39; 1</code></pre>
+<div class="sourceCode" id="cb35"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb35-1"><a href="metabolomics.html#cb35-1"></a><span class="kw">permanova</span>(rp_pos, md)</span></code></pre></div>
+<pre><code>## 
+## Call:
+## adonis(formula = metabolome ~ Species, data = md) 
+## 
+## Permutation: free
+## Number of permutations: 999
+## 
+## Terms added sequentially (first to last)
+## 
+##           Df SumsOfSqs MeanSqs F.Model      R2 Pr(&gt;F)    
+## Species    2    5.7191 2.85957  35.582 0.62886  0.001 ***
+## Residuals 42    3.3754 0.08037         0.37114           
+## Total     44    9.0945                 1.00000           
+## ---
+## Signif. codes:  0 &#39;***&#39; 0.001 &#39;**&#39; 0.01 &#39;*&#39; 0.05 &#39;.&#39; 0.1 &#39; &#39; 1</code></pre>
+<div class="sourceCode" id="cb37"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb37-1"><a href="metabolomics.html#cb37-1"></a><span class="kw">permanova</span>(rp_neg, md)</span></code></pre></div>
+<pre><code>## 
+## Call:
+## adonis(formula = metabolome ~ Species, data = md) 
+## 
+## Permutation: free
+## Number of permutations: 999
+## 
+## Terms added sequentially (first to last)
+## 
+##           Df SumsOfSqs MeanSqs F.Model      R2 Pr(&gt;F)    
+## Species    2    6.8700  3.4350  33.333 0.61919  0.001 ***
+## Residuals 41    4.2251  0.1031         0.38081           
+## Total     43   11.0952                 1.00000           
+## ---
+## Signif. codes:  0 &#39;***&#39; 0.001 &#39;**&#39; 0.01 &#39;*&#39; 0.05 &#39;.&#39; 0.1 &#39; &#39; 1</code></pre>
+<div class="sourceCode" id="cb39"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb39-1"><a href="metabolomics.html#cb39-1"></a>hp_opls_df &lt;-<span class="st"> </span><span class="kw">spl_ada</span>(hilic_pos, md)</span>
+<span id="cb39-2"><a href="metabolomics.html#cb39-2"></a>hn_opls_df &lt;-<span class="st"> </span><span class="kw">spl_ada</span>(hilic_neg, md)</span>
+<span id="cb39-3"><a href="metabolomics.html#cb39-3"></a>rp_opls_df &lt;-<span class="st"> </span><span class="kw">spl_ada</span>(rp_pos, md)</span>
+<span id="cb39-4"><a href="metabolomics.html#cb39-4"></a>rn_opls_df &lt;-<span class="st"> </span><span class="kw">spl_ada</span>(rp_neg, md)</span>
+<span id="cb39-5"><a href="metabolomics.html#cb39-5"></a></span>
+<span id="cb39-6"><a href="metabolomics.html#cb39-6"></a>a &lt;-<span class="st"> </span><span class="kw">Sys.time</span>()</span>
+<span id="cb39-7"><a href="metabolomics.html#cb39-7"></a>hp_cleaned_opls &lt;-<span class="st"> </span><span class="kw">ropls_wrapper</span>(hp_opls_df, <span class="ot">NA</span>, <span class="ot">NA</span>, <span class="ot">NA</span>)</span>
+<span id="cb39-8"><a href="metabolomics.html#cb39-8"></a>hn_cleaned_opls &lt;-<span class="st"> </span><span class="kw">ropls_wrapper</span>(hn_opls_df, <span class="ot">NA</span>, <span class="ot">NA</span>, <span class="ot">NA</span>)</span>
+<span id="cb39-9"><a href="metabolomics.html#cb39-9"></a>rp_cleaned_opls &lt;-<span class="st"> </span><span class="kw">ropls_wrapper</span>(rp_opls_df, <span class="ot">NA</span>, <span class="ot">NA</span>, <span class="ot">NA</span>)</span>
+<span id="cb39-10"><a href="metabolomics.html#cb39-10"></a>rn_cleaned_opls &lt;-<span class="st"> </span><span class="kw">ropls_wrapper</span>(rn_opls_df, <span class="ot">NA</span>, <span class="ot">NA</span>, <span class="ot">NA</span>)</span>
+<span id="cb39-11"><a href="metabolomics.html#cb39-11"></a>b &lt;-<span class="st"> </span><span class="kw">Sys.time</span>()</span>
+<span id="cb39-12"><a href="metabolomics.html#cb39-12"></a>b <span class="op">-</span><span class="st"> </span>a</span>
+<span id="cb39-13"><a href="metabolomics.html#cb39-13"></a></span>
+<span id="cb39-14"><a href="metabolomics.html#cb39-14"></a>pcg &lt;-<span class="st"> </span><span class="kw">rbind</span>(hp_cleaned_opls, hn_cleaned_opls, rp_cleaned_opls, rn_cleaned_opls)</span>
+<span id="cb39-15"><a href="metabolomics.html#cb39-15"></a>pcg[<span class="st">&quot;Experiment&quot;</span>] &lt;-<span class="st"> </span><span class="kw">c</span>(<span class="kw">rep</span>(<span class="st">&quot;HILIC pos&quot;</span>, <span class="dv">3</span>), <span class="kw">rep</span>(<span class="st">&quot;HILIC neg&quot;</span>, <span class="dv">3</span>), <span class="kw">rep</span>(<span class="st">&quot;RP pos&quot;</span>, <span class="dv">3</span>), </span>
+<span id="cb39-16"><a href="metabolomics.html#cb39-16"></a>    <span class="kw">rep</span>(<span class="st">&quot;RP neg&quot;</span>, <span class="dv">3</span>))</span>
+<span id="cb39-17"><a href="metabolomics.html#cb39-17"></a><span class="kw">write.csv</span>(pcg, <span class="st">&quot;data/cleaned_PC_opls_diagnostics.csv&quot;</span>, <span class="dt">row.names =</span> F)</span></code></pre></div>
+<p>In some cases, an OPLS model was not appropriate Typically, the model chooses the number of orthogonal components by itself (<code>orthI=NA</code>) and when the first component is not significant, the model building will stop. However, one can force any number of orthogonal components and run the model anyways. You can spot those cases when the <code>NA</code> was set to <code>1</code> in the <code>ropls_wrapper</code> function</p>
+<p>The multivariate analyses (OPLS) were quite time consuming, requiring 1.4 hours for the “cleaned” data sets, 46.3 min for the “PC-group” data stes and 4 min for the “ion” data sets on my system. Therefore, the combined model diagnostics are summarised in Tab <a href="metabolomics.html#tab:opls4">2.2</a>.</p>
+<div class="sourceCode" id="cb40"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb40-1"><a href="metabolomics.html#cb40-1"></a><span class="kw">library</span>(kableExtra)</span>
+<span id="cb40-2"><a href="metabolomics.html#cb40-2"></a>cleaned &lt;-<span class="st"> </span><span class="kw">read.csv</span>(<span class="st">&quot;data/cleaned_opls_diagnostics.csv&quot;</span>, <span class="dt">header =</span> T)</span>
+<span id="cb40-3"><a href="metabolomics.html#cb40-3"></a>pcgrp &lt;-<span class="st"> </span><span class="kw">read.csv</span>(<span class="st">&quot;data/cleaned_PC_opls_diagnostics.csv&quot;</span>, <span class="dt">header =</span> T)</span>
+<span id="cb40-4"><a href="metabolomics.html#cb40-4"></a>ion &lt;-<span class="st"> </span><span class="kw">read.csv</span>(<span class="st">&quot;data/cleaned_MH_opls_diagnostics.csv&quot;</span>, <span class="dt">header =</span> T)</span>
+<span id="cb40-5"><a href="metabolomics.html#cb40-5"></a></span>
+<span id="cb40-6"><a href="metabolomics.html#cb40-6"></a>opls_diagnostics &lt;-<span class="st"> </span><span class="kw">rbind</span>(cleaned, pcgrp, ion)</span>
+<span id="cb40-7"><a href="metabolomics.html#cb40-7"></a>opls_diagnostics[<span class="st">&quot;filtering&quot;</span>] &lt;-<span class="st"> </span><span class="kw">c</span>(<span class="kw">rep</span>(<span class="st">&quot;cleaned&quot;</span>, <span class="dv">12</span>), <span class="kw">rep</span>(<span class="st">&quot;pc group&quot;</span>, <span class="dv">12</span>), <span class="kw">rep</span>(<span class="st">&quot;ion&quot;</span>, </span>
+<span id="cb40-8"><a href="metabolomics.html#cb40-8"></a>    <span class="dv">12</span>))</span>
+<span id="cb40-9"><a href="metabolomics.html#cb40-9"></a></span>
+<span id="cb40-10"><a href="metabolomics.html#cb40-10"></a><span class="kw">options</span>(<span class="dt">kableExtra.html.bsTable =</span> T)</span>
+<span id="cb40-11"><a href="metabolomics.html#cb40-11"></a><span class="kw">kable</span>(opls_diagnostics, <span class="dt">col.names =</span> <span class="kw">c</span>(<span class="st">&quot;R2X cum&quot;</span>, <span class="st">&quot;R2Y cum&quot;</span>, <span class="st">&quot;Q2 cum&quot;</span>, <span class="st">&quot;RMSEE&quot;</span>, <span class="st">&quot;pre&quot;</span>, </span>
+<span id="cb40-12"><a href="metabolomics.html#cb40-12"></a>    <span class="st">&quot;ort&quot;</span>, <span class="st">&quot;pR2Y&quot;</span>, <span class="st">&quot;pQ2&quot;</span>, <span class="st">&quot;Species&quot;</span>, <span class="st">&quot;Experiment&quot;</span>, <span class="st">&quot;data set&quot;</span>), <span class="dt">longtable =</span> T, <span class="dt">booktabs =</span> T, </span>
+<span id="cb40-13"><a href="metabolomics.html#cb40-13"></a>    <span class="dt">caption =</span> <span class="st">&quot;Model diagnostics of the metabolome variations modelled by depth&quot;</span>, </span>
+<span id="cb40-14"><a href="metabolomics.html#cb40-14"></a>    <span class="dt">row.names =</span> <span class="ot">FALSE</span>) <span class="op">%&gt;%</span><span class="st"> </span><span class="kw">add_header_above</span>(<span class="kw">c</span>(<span class="dt">Diagnostics =</span> <span class="dv">8</span>, <span class="st">`</span><span class="dt">Data set attribution</span><span class="st">`</span> =<span class="st"> </span><span class="dv">3</span>)) <span class="op">%&gt;%</span><span class="st"> </span></span>
+<span id="cb40-15"><a href="metabolomics.html#cb40-15"></a><span class="st">    </span><span class="kw">kable_styling</span>(<span class="dt">bootstrap_options =</span> <span class="kw">c</span>(<span class="st">&quot;striped&quot;</span>, <span class="st">&quot;hover&quot;</span>, <span class="st">&quot;bordered&quot;</span>, <span class="st">&quot;condensed&quot;</span>, </span>
+<span id="cb40-16"><a href="metabolomics.html#cb40-16"></a>        <span class="st">&quot;responsive&quot;</span>), <span class="dt">font_size =</span> <span class="dv">12</span>, <span class="dt">full_width =</span> F, <span class="dt">latex_options =</span> <span class="kw">c</span>(<span class="st">&quot;striped&quot;</span>, </span>
+<span id="cb40-17"><a href="metabolomics.html#cb40-17"></a>        <span class="st">&quot;scale_down&quot;</span>))</span></code></pre></div>
 <table class="table table-striped table-hover table-bordered table-condensed table-responsive" style="font-size: 12px; width: auto !important; margin-left: auto; margin-right: auto;">
 <caption style="font-size: initial !important;">
-<span id="tab:opls4">Table 2.1: </span>Model diagnostics of the metabolome variations modelled by depth
+<span id="tab:opls4">Table 2.2: </span>Model diagnostics of the metabolome variations modelled by depth
 </caption>
 <thead>
 <tr>
@@ -2512,68 +3180,140 @@ ion
 </tr>
 </tbody>
 </table>
-<div class="sourceCode" id="cb23"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb23-1"><a href="metabolomics.html#cb23-1"></a><span class="kw">write.csv</span>(opls_diagnostics, <span class="st">&quot;data/opls_diagnostics.csv&quot;</span>, <span class="dt">row.names =</span> F)</span></code></pre></div>
+<div class="sourceCode" id="cb41"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb41-1"><a href="metabolomics.html#cb41-1"></a><span class="kw">write.csv</span>(opls_diagnostics, <span class="st">&quot;data/opls_diagnostics.csv&quot;</span>, <span class="dt">row.names =</span> F)</span></code></pre></div>
+<p>??? add at least one picture of an opls</p>
 </div>
 <div id="vips" class="section level2">
-<h2><span class="header-section-number">2.4</span> VIPS???</h2>
+<h2><span class="header-section-number">2.4</span> VIPS</h2>
+<p>From the multivariate model (OPLS) you can derive a vaiable importance in projection (VIF) score for every feature in this model. This is a approximation (but not a statistics test!) of features that support the model.
+A feature with a VIP score <span class="math inline">\(\geq\)</span> 1 is considered important and the higher the score, the greater the contribution to the model.</p>
 </div>
 <div id="manual-annotation-identification-and-extraction-of-metabolic-feature-signals" class="section level2">
 <h2><span class="header-section-number">2.5</span> Manual annotation, identification and extraction of metabolic feature signals</h2>
 <p>A manually curated data set of signal intensities was produced for analysis of identified known and novel compounds.</p>
-<div class="sourceCode" id="cb24"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb24-1"><a href="metabolomics.html#cb24-1"></a><span class="kw">library</span>(ggplot2)</span>
-<span id="cb24-2"><a href="metabolomics.html#cb24-2"></a><span class="kw">library</span>(ggrepel)</span>
-<span id="cb24-3"><a href="metabolomics.html#cb24-3"></a><span class="kw">library</span>(reshape)</span>
-<span id="cb24-4"><a href="metabolomics.html#cb24-4"></a><span class="kw">library</span>(tidyverse)</span>
-<span id="cb24-5"><a href="metabolomics.html#cb24-5"></a><span class="kw">library</span>(forcats)</span>
-<span id="cb24-6"><a href="metabolomics.html#cb24-6"></a></span>
-<span id="cb24-7"><a href="metabolomics.html#cb24-7"></a>cmp &lt;-<span class="st"> </span><span class="kw">read.csv</span>(<span class="st">&quot;data/metabolite_master_20190605.csv&quot;</span>, <span class="dt">header =</span> T, <span class="dt">sep =</span> <span class="st">&quot;,&quot;</span>)</span>
-<span id="cb24-8"><a href="metabolomics.html#cb24-8"></a>meta_data &lt;-<span class="st"> </span><span class="kw">read.csv</span>(<span class="st">&quot;data/Steffen_et_al_metadata_PANGAEA.csv&quot;</span>, <span class="dt">header =</span> T, <span class="dt">sep =</span> <span class="st">&quot;;&quot;</span>)</span>
-<span id="cb24-9"><a href="metabolomics.html#cb24-9"></a>md &lt;-<span class="st"> </span>md[<span class="kw">c</span>(<span class="st">&quot;Depth&quot;</span>, <span class="st">&quot;unified_ID&quot;</span>)]</span>
-<span id="cb24-10"><a href="metabolomics.html#cb24-10"></a></span>
-<span id="cb24-11"><a href="metabolomics.html#cb24-11"></a><span class="co"># FUN prep: remove, QC samples format depth and IDs</span></span>
-<span id="cb24-12"><a href="metabolomics.html#cb24-12"></a>prep &lt;-<span class="st"> </span><span class="cf">function</span>(metabolites, md) {</span>
-<span id="cb24-13"><a href="metabolomics.html#cb24-13"></a>    metabolites<span class="op">$</span>X &lt;-<span class="st"> </span><span class="ot">NULL</span></span>
-<span id="cb24-14"><a href="metabolomics.html#cb24-14"></a>    metabolites[<span class="st">&quot;spec&quot;</span>] &lt;-<span class="st"> </span><span class="kw">str_sub</span>(metabolites<span class="op">$</span>unified_ID, <span class="dv">1</span>, <span class="dv">2</span>)</span>
-<span id="cb24-15"><a href="metabolomics.html#cb24-15"></a>    metabolites &lt;-<span class="st"> </span>metabolites[<span class="op">!</span>metabolites<span class="op">$</span>spec <span class="op">==</span><span class="st"> &quot;QC&quot;</span>, ]</span>
-<span id="cb24-16"><a href="metabolomics.html#cb24-16"></a>    metabolites &lt;-<span class="st"> </span><span class="kw">left_join</span>(metabolites, md)</span>
-<span id="cb24-17"><a href="metabolomics.html#cb24-17"></a>    metabolites &lt;-<span class="st"> </span>metabolites[<span class="op">-</span><span class="kw">c</span>(<span class="dv">9</span>), ]  <span class="co">#removes Gb16 (Geodia atlantica)</span></span>
-<span id="cb24-18"><a href="metabolomics.html#cb24-18"></a>    metabolites<span class="op">$</span>Depth &lt;-<span class="st"> </span><span class="kw">as.numeric</span>(metabolites<span class="op">$</span>Depth)</span>
-<span id="cb24-19"><a href="metabolomics.html#cb24-19"></a>    metabolites &lt;-<span class="st"> </span>metabolites[<span class="kw">with</span>(metabolites, <span class="kw">order</span>(metabolites<span class="op">$</span>spec, metabolites<span class="op">$</span>Depth)), </span>
-<span id="cb24-20"><a href="metabolomics.html#cb24-20"></a>        ]</span>
-<span id="cb24-21"><a href="metabolomics.html#cb24-21"></a>    metabolites[] &lt;-<span class="st"> </span><span class="kw">lapply</span>(metabolites, <span class="cf">function</span>(x) <span class="cf">if</span> (<span class="kw">is.factor</span>(x)) </span>
-<span id="cb24-22"><a href="metabolomics.html#cb24-22"></a>        <span class="kw">factor</span>(x) <span class="cf">else</span> x)</span>
-<span id="cb24-23"><a href="metabolomics.html#cb24-23"></a>    metabolites<span class="op">$</span>unified_ID &lt;-<span class="st"> </span><span class="kw">factor</span>(metabolites<span class="op">$</span>unified_ID, <span class="dt">levels =</span> metabolites<span class="op">$</span>unified_ID)</span>
-<span id="cb24-24"><a href="metabolomics.html#cb24-24"></a>    <span class="kw">return</span>(metabolites)</span>
-<span id="cb24-25"><a href="metabolomics.html#cb24-25"></a>}</span>
-<span id="cb24-26"><a href="metabolomics.html#cb24-26"></a></span>
-<span id="cb24-27"><a href="metabolomics.html#cb24-27"></a>metabolites &lt;-<span class="st"> </span><span class="kw">prep</span>(cmp, md)</span></code></pre></div>
-<div class="sourceCode" id="cb25"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb25-1"><a href="metabolomics.html#cb25-1"></a><span class="kw">library</span>(reshape2)</span>
-<span id="cb25-2"><a href="metabolomics.html#cb25-2"></a>mets &lt;-<span class="st"> </span>metabolites[, <span class="kw">c</span>(<span class="st">&quot;asb&quot;</span>, <span class="st">&quot;his&quot;</span>, <span class="st">&quot;cre&quot;</span>, <span class="st">&quot;pch&quot;</span>, <span class="st">&quot;crn&quot;</span>, <span class="st">&quot;acl&quot;</span>, <span class="st">&quot;ser&quot;</span>, <span class="st">&quot;mbc&quot;</span>, <span class="st">&quot;chol_s&quot;</span>, </span>
-<span id="cb25-3"><a href="metabolomics.html#cb25-3"></a>    <span class="st">&quot;bet&quot;</span>, <span class="st">&quot;choline&quot;</span>, <span class="st">&quot;ura&quot;</span>, <span class="st">&quot;unified_ID&quot;</span>, <span class="st">&quot;spec&quot;</span>, <span class="st">&quot;Depth&quot;</span>)]</span>
-<span id="cb25-4"><a href="metabolomics.html#cb25-4"></a><span class="kw">colnames</span>(mets) &lt;-<span class="st"> </span><span class="kw">c</span>(<span class="st">&quot;arseno- betaine&quot;</span>, <span class="st">&quot;histamine&quot;</span>, <span class="st">&quot;creatine&quot;</span>, <span class="st">&quot;phospho- choline&quot;</span>, </span>
-<span id="cb25-5"><a href="metabolomics.html#cb25-5"></a>    <span class="st">&quot;carnitine&quot;</span>, <span class="st">&quot;acetyl- choline&quot;</span>, <span class="st">&quot;serotonin&quot;</span>, <span class="st">&quot;2-methyl- butyroyl- carnitine&quot;</span>, </span>
-<span id="cb25-6"><a href="metabolomics.html#cb25-6"></a>    <span class="st">&quot;choline sulfate&quot;</span>, <span class="st">&quot;betaine&quot;</span>, <span class="st">&quot;choline&quot;</span>, <span class="st">&quot;uranidine&quot;</span>, <span class="st">&quot;unified_ID&quot;</span>, <span class="st">&quot;spec&quot;</span>, <span class="st">&quot;Depth&quot;</span>)</span>
-<span id="cb25-7"><a href="metabolomics.html#cb25-7"></a></span>
-<span id="cb25-8"><a href="metabolomics.html#cb25-8"></a>mets &lt;-<span class="st"> </span><span class="kw">melt</span>(mets, <span class="dt">id.vars =</span> <span class="kw">c</span>(<span class="st">&quot;spec&quot;</span>, <span class="st">&quot;Depth&quot;</span>, <span class="st">&quot;unified_ID&quot;</span>))</span>
-<span id="cb25-9"><a href="metabolomics.html#cb25-9"></a>mets[<span class="st">&quot;Species&quot;</span>] &lt;-<span class="st"> </span><span class="ot">NA</span></span>
-<span id="cb25-10"><a href="metabolomics.html#cb25-10"></a>mets<span class="op">$</span>Species[mets<span class="op">$</span>spec <span class="op">==</span><span class="st"> &quot;Gb&quot;</span>] &lt;-<span class="st"> </span><span class="kw">c</span>(<span class="st">&quot;Geodia barretti&quot;</span>)</span>
-<span id="cb25-11"><a href="metabolomics.html#cb25-11"></a>mets<span class="op">$</span>Species[mets<span class="op">$</span>spec <span class="op">==</span><span class="st"> &quot;Sf&quot;</span>] &lt;-<span class="st"> </span><span class="kw">c</span>(<span class="st">&quot;Stryphnus fortis&quot;</span>)</span>
-<span id="cb25-12"><a href="metabolomics.html#cb25-12"></a>mets<span class="op">$</span>Species[mets<span class="op">$</span>spec <span class="op">==</span><span class="st"> &quot;Wb&quot;</span>] &lt;-<span class="st"> </span><span class="kw">c</span>(<span class="st">&quot;Weberella bursa&quot;</span>)</span>
-<span id="cb25-13"><a href="metabolomics.html#cb25-13"></a></span>
-<span id="cb25-14"><a href="metabolomics.html#cb25-14"></a><span class="co"># labeller needs formula interface</span></span>
-<span id="cb25-15"><a href="metabolomics.html#cb25-15"></a>all &lt;-<span class="st"> </span><span class="kw">ggplot</span>(mets, <span class="kw">aes</span>(<span class="dt">x =</span> Depth, <span class="dt">y =</span> value)) <span class="op">+</span><span class="st"> </span><span class="kw">geom_point</span>() <span class="op">+</span><span class="st"> </span><span class="kw">facet_grid</span>(variable <span class="op">~</span><span class="st"> </span></span>
-<span id="cb25-16"><a href="metabolomics.html#cb25-16"></a><span class="st">    </span>Species, <span class="dt">labeller =</span> <span class="kw">labeller</span>(<span class="dt">variable =</span> <span class="kw">label_wrap_gen</span>(<span class="dv">10</span>, <span class="dt">multi_line =</span> <span class="ot">TRUE</span>)), </span>
-<span id="cb25-17"><a href="metabolomics.html#cb25-17"></a>    <span class="dt">scales =</span> <span class="st">&quot;free&quot;</span>)</span>
-<span id="cb25-18"><a href="metabolomics.html#cb25-18"></a>all &lt;-<span class="st"> </span>all <span class="op">+</span><span class="st"> </span><span class="kw">ggtitle</span>(<span class="st">&quot;VIPs&quot;</span>) <span class="op">+</span><span class="st"> </span><span class="kw">ylab</span>(<span class="st">&quot;signal&quot;</span>) <span class="op">+</span><span class="st"> </span><span class="kw">xlab</span>(<span class="st">&quot;Depth&quot;</span>) <span class="op">+</span><span class="st"> </span><span class="kw">theme_bw</span>() <span class="op">+</span><span class="st"> </span><span class="kw">theme</span>(<span class="dt">strip.text.x =</span> <span class="kw">element_text</span>(<span class="dt">face =</span> <span class="st">&quot;italic&quot;</span>), </span>
-<span id="cb25-19"><a href="metabolomics.html#cb25-19"></a>    <span class="dt">panel.background =</span> <span class="kw">element_rect</span>(<span class="dt">fill =</span> <span class="st">&quot;white&quot;</span>, <span class="dt">colour =</span> <span class="st">&quot;black&quot;</span>), <span class="dt">panel.border =</span> <span class="kw">element_rect</span>(<span class="dt">colour =</span> <span class="st">&quot;black&quot;</span>, </span>
-<span id="cb25-20"><a href="metabolomics.html#cb25-20"></a>        <span class="dt">fill =</span> <span class="ot">NA</span>), <span class="dt">axis.text.x =</span> <span class="kw">element_text</span>(<span class="dt">angle =</span> <span class="dv">90</span>, <span class="dt">hjust =</span> <span class="dv">1</span>)) <span class="op">+</span><span class="st"> </span><span class="kw">scale_y_continuous</span>(<span class="dt">labels =</span> scales<span class="op">::</span>scientific) <span class="op">+</span><span class="st"> </span></span>
-<span id="cb25-21"><a href="metabolomics.html#cb25-21"></a><span class="st">    </span><span class="kw">scale_x_continuous</span>(<span class="dt">breaks =</span> scales<span class="op">::</span><span class="kw">pretty_breaks</span>(<span class="dt">n =</span> <span class="dv">12</span>))</span>
-<span id="cb25-22"><a href="metabolomics.html#cb25-22"></a>all</span></code></pre></div>
+<div class="sourceCode" id="cb42"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb42-1"><a href="metabolomics.html#cb42-1"></a><span class="kw">library</span>(ggplot2)</span>
+<span id="cb42-2"><a href="metabolomics.html#cb42-2"></a><span class="kw">library</span>(ggrepel)</span>
+<span id="cb42-3"><a href="metabolomics.html#cb42-3"></a><span class="kw">library</span>(reshape)</span>
+<span id="cb42-4"><a href="metabolomics.html#cb42-4"></a><span class="kw">library</span>(tidyverse)</span>
+<span id="cb42-5"><a href="metabolomics.html#cb42-5"></a><span class="kw">library</span>(forcats)</span>
+<span id="cb42-6"><a href="metabolomics.html#cb42-6"></a></span>
+<span id="cb42-7"><a href="metabolomics.html#cb42-7"></a>cmp &lt;-<span class="st"> </span><span class="kw">read.csv</span>(<span class="st">&quot;data/metabolite_master_20190605.csv&quot;</span>, <span class="dt">header =</span> T, <span class="dt">sep =</span> <span class="st">&quot;,&quot;</span>)</span>
+<span id="cb42-8"><a href="metabolomics.html#cb42-8"></a>meta_data &lt;-<span class="st"> </span><span class="kw">read.csv</span>(<span class="st">&quot;data/Steffen_et_al_metadata_PANGAEA.csv&quot;</span>, <span class="dt">header =</span> T, <span class="dt">sep =</span> <span class="st">&quot;;&quot;</span>)</span>
+<span id="cb42-9"><a href="metabolomics.html#cb42-9"></a>md &lt;-<span class="st"> </span>md[<span class="kw">c</span>(<span class="st">&quot;Depth&quot;</span>, <span class="st">&quot;unified_ID&quot;</span>)]</span>
+<span id="cb42-10"><a href="metabolomics.html#cb42-10"></a></span>
+<span id="cb42-11"><a href="metabolomics.html#cb42-11"></a><span class="co"># FUN prep: remove, QC samples format depth and IDs</span></span>
+<span id="cb42-12"><a href="metabolomics.html#cb42-12"></a>prep &lt;-<span class="st"> </span><span class="cf">function</span>(metabolites, md) {</span>
+<span id="cb42-13"><a href="metabolomics.html#cb42-13"></a>    metabolites<span class="op">$</span>X &lt;-<span class="st"> </span><span class="ot">NULL</span></span>
+<span id="cb42-14"><a href="metabolomics.html#cb42-14"></a>    metabolites[<span class="st">&quot;spec&quot;</span>] &lt;-<span class="st"> </span><span class="kw">str_sub</span>(metabolites<span class="op">$</span>unified_ID, <span class="dv">1</span>, <span class="dv">2</span>)</span>
+<span id="cb42-15"><a href="metabolomics.html#cb42-15"></a>    metabolites &lt;-<span class="st"> </span>metabolites[<span class="op">!</span>metabolites<span class="op">$</span>spec <span class="op">==</span><span class="st"> &quot;QC&quot;</span>, ]</span>
+<span id="cb42-16"><a href="metabolomics.html#cb42-16"></a>    metabolites &lt;-<span class="st"> </span><span class="kw">left_join</span>(metabolites, md)</span>
+<span id="cb42-17"><a href="metabolomics.html#cb42-17"></a>    metabolites &lt;-<span class="st"> </span>metabolites[<span class="op">-</span><span class="kw">c</span>(<span class="dv">9</span>), ]  <span class="co">#removes Gb16 (Geodia atlantica)</span></span>
+<span id="cb42-18"><a href="metabolomics.html#cb42-18"></a>    metabolites<span class="op">$</span>Depth &lt;-<span class="st"> </span><span class="kw">as.numeric</span>(metabolites<span class="op">$</span>Depth)</span>
+<span id="cb42-19"><a href="metabolomics.html#cb42-19"></a>    metabolites &lt;-<span class="st"> </span>metabolites[<span class="kw">with</span>(metabolites, <span class="kw">order</span>(metabolites<span class="op">$</span>spec, metabolites<span class="op">$</span>Depth)), </span>
+<span id="cb42-20"><a href="metabolomics.html#cb42-20"></a>        ]</span>
+<span id="cb42-21"><a href="metabolomics.html#cb42-21"></a>    metabolites[] &lt;-<span class="st"> </span><span class="kw">lapply</span>(metabolites, <span class="cf">function</span>(x) <span class="cf">if</span> (<span class="kw">is.factor</span>(x)) </span>
+<span id="cb42-22"><a href="metabolomics.html#cb42-22"></a>        <span class="kw">factor</span>(x) <span class="cf">else</span> x)</span>
+<span id="cb42-23"><a href="metabolomics.html#cb42-23"></a>    metabolites<span class="op">$</span>unified_ID &lt;-<span class="st"> </span><span class="kw">factor</span>(metabolites<span class="op">$</span>unified_ID, <span class="dt">levels =</span> metabolites<span class="op">$</span>unified_ID)</span>
+<span id="cb42-24"><a href="metabolomics.html#cb42-24"></a>    <span class="kw">return</span>(metabolites)</span>
+<span id="cb42-25"><a href="metabolomics.html#cb42-25"></a>}</span>
+<span id="cb42-26"><a href="metabolomics.html#cb42-26"></a></span>
+<span id="cb42-27"><a href="metabolomics.html#cb42-27"></a>metabolites &lt;-<span class="st"> </span><span class="kw">prep</span>(cmp, md)</span></code></pre></div>
+<div class="sourceCode" id="cb43"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb43-1"><a href="metabolomics.html#cb43-1"></a><span class="kw">library</span>(reshape2)</span>
+<span id="cb43-2"><a href="metabolomics.html#cb43-2"></a>mets &lt;-<span class="st"> </span>metabolites[, <span class="kw">c</span>(<span class="st">&quot;asb&quot;</span>, <span class="st">&quot;his&quot;</span>, <span class="st">&quot;cre&quot;</span>, <span class="st">&quot;pch&quot;</span>, <span class="st">&quot;crn&quot;</span>, <span class="st">&quot;acl&quot;</span>, <span class="st">&quot;ser&quot;</span>, <span class="st">&quot;mbc&quot;</span>, <span class="st">&quot;chol_s&quot;</span>, </span>
+<span id="cb43-3"><a href="metabolomics.html#cb43-3"></a>    <span class="st">&quot;bet&quot;</span>, <span class="st">&quot;choline&quot;</span>, <span class="st">&quot;ura&quot;</span>, <span class="st">&quot;unified_ID&quot;</span>, <span class="st">&quot;spec&quot;</span>, <span class="st">&quot;Depth&quot;</span>)]</span>
+<span id="cb43-4"><a href="metabolomics.html#cb43-4"></a><span class="kw">colnames</span>(mets) &lt;-<span class="st"> </span><span class="kw">c</span>(<span class="st">&quot;arseno- betaine&quot;</span>, <span class="st">&quot;histamine&quot;</span>, <span class="st">&quot;creatine&quot;</span>, <span class="st">&quot;phospho- choline&quot;</span>, </span>
+<span id="cb43-5"><a href="metabolomics.html#cb43-5"></a>    <span class="st">&quot;carnitine&quot;</span>, <span class="st">&quot;acetyl- choline&quot;</span>, <span class="st">&quot;serotonin&quot;</span>, <span class="st">&quot;2-methyl- butyroyl- carnitine&quot;</span>, </span>
+<span id="cb43-6"><a href="metabolomics.html#cb43-6"></a>    <span class="st">&quot;choline sulfate&quot;</span>, <span class="st">&quot;betaine&quot;</span>, <span class="st">&quot;choline&quot;</span>, <span class="st">&quot;uranidine&quot;</span>, <span class="st">&quot;unified_ID&quot;</span>, <span class="st">&quot;spec&quot;</span>, <span class="st">&quot;Depth&quot;</span>)</span>
+<span id="cb43-7"><a href="metabolomics.html#cb43-7"></a></span>
+<span id="cb43-8"><a href="metabolomics.html#cb43-8"></a>mets &lt;-<span class="st"> </span><span class="kw">melt</span>(mets, <span class="dt">id.vars =</span> <span class="kw">c</span>(<span class="st">&quot;spec&quot;</span>, <span class="st">&quot;Depth&quot;</span>, <span class="st">&quot;unified_ID&quot;</span>))</span>
+<span id="cb43-9"><a href="metabolomics.html#cb43-9"></a>mets[<span class="st">&quot;Species&quot;</span>] &lt;-<span class="st"> </span><span class="ot">NA</span></span>
+<span id="cb43-10"><a href="metabolomics.html#cb43-10"></a>mets<span class="op">$</span>Species[mets<span class="op">$</span>spec <span class="op">==</span><span class="st"> &quot;Gb&quot;</span>] &lt;-<span class="st"> </span><span class="kw">c</span>(<span class="st">&quot;Geodia barretti&quot;</span>)</span>
+<span id="cb43-11"><a href="metabolomics.html#cb43-11"></a>mets<span class="op">$</span>Species[mets<span class="op">$</span>spec <span class="op">==</span><span class="st"> &quot;Sf&quot;</span>] &lt;-<span class="st"> </span><span class="kw">c</span>(<span class="st">&quot;Stryphnus fortis&quot;</span>)</span>
+<span id="cb43-12"><a href="metabolomics.html#cb43-12"></a>mets<span class="op">$</span>Species[mets<span class="op">$</span>spec <span class="op">==</span><span class="st"> &quot;Wb&quot;</span>] &lt;-<span class="st"> </span><span class="kw">c</span>(<span class="st">&quot;Weberella bursa&quot;</span>)</span>
+<span id="cb43-13"><a href="metabolomics.html#cb43-13"></a></span>
+<span id="cb43-14"><a href="metabolomics.html#cb43-14"></a><span class="co"># labeller needs formula interface</span></span>
+<span id="cb43-15"><a href="metabolomics.html#cb43-15"></a>all &lt;-<span class="st"> </span><span class="kw">ggplot</span>(mets, <span class="kw">aes</span>(<span class="dt">x =</span> Depth, <span class="dt">y =</span> value)) <span class="op">+</span><span class="st"> </span><span class="kw">geom_point</span>() <span class="op">+</span><span class="st"> </span><span class="kw">facet_grid</span>(variable <span class="op">~</span><span class="st"> </span></span>
+<span id="cb43-16"><a href="metabolomics.html#cb43-16"></a><span class="st">    </span>Species, <span class="dt">labeller =</span> <span class="kw">labeller</span>(<span class="dt">variable =</span> <span class="kw">label_wrap_gen</span>(<span class="dv">10</span>, <span class="dt">multi_line =</span> <span class="ot">TRUE</span>)), </span>
+<span id="cb43-17"><a href="metabolomics.html#cb43-17"></a>    <span class="dt">scales =</span> <span class="st">&quot;free&quot;</span>)</span>
+<span id="cb43-18"><a href="metabolomics.html#cb43-18"></a>all &lt;-<span class="st"> </span>all <span class="op">+</span><span class="st"> </span><span class="kw">ggtitle</span>(<span class="st">&quot;VIPs&quot;</span>) <span class="op">+</span><span class="st"> </span><span class="kw">ylab</span>(<span class="st">&quot;signal&quot;</span>) <span class="op">+</span><span class="st"> </span><span class="kw">xlab</span>(<span class="st">&quot;Depth&quot;</span>) <span class="op">+</span><span class="st"> </span><span class="kw">theme_bw</span>() <span class="op">+</span><span class="st"> </span><span class="kw">theme</span>(<span class="dt">strip.text.x =</span> <span class="kw">element_text</span>(<span class="dt">face =</span> <span class="st">&quot;italic&quot;</span>), </span>
+<span id="cb43-19"><a href="metabolomics.html#cb43-19"></a>    <span class="dt">panel.background =</span> <span class="kw">element_rect</span>(<span class="dt">fill =</span> <span class="st">&quot;white&quot;</span>, <span class="dt">colour =</span> <span class="st">&quot;black&quot;</span>), <span class="dt">panel.border =</span> <span class="kw">element_rect</span>(<span class="dt">colour =</span> <span class="st">&quot;black&quot;</span>, </span>
+<span id="cb43-20"><a href="metabolomics.html#cb43-20"></a>        <span class="dt">fill =</span> <span class="ot">NA</span>), <span class="dt">axis.text.x =</span> <span class="kw">element_text</span>(<span class="dt">angle =</span> <span class="dv">90</span>, <span class="dt">hjust =</span> <span class="dv">1</span>)) <span class="op">+</span><span class="st"> </span><span class="kw">scale_y_continuous</span>(<span class="dt">labels =</span> scales<span class="op">::</span>scientific) <span class="op">+</span><span class="st"> </span></span>
+<span id="cb43-21"><a href="metabolomics.html#cb43-21"></a><span class="st">    </span><span class="kw">scale_x_continuous</span>(<span class="dt">breaks =</span> scales<span class="op">::</span><span class="kw">pretty_breaks</span>(<span class="dt">n =</span> <span class="dv">12</span>))</span>
+<span id="cb43-22"><a href="metabolomics.html#cb43-22"></a>all</span></code></pre></div>
 <p><img src="Oceanographic-setting-influences-the-prokaryote-community-and-metabolome-in-deep-sea-sponges_files/figure-html/compounds2-1.png" width="85%" /></p>
 </div>
+<div id="chromatorgrams" class="section level2">
+<h2><span class="header-section-number">2.6</span> Chromatorgrams</h2>
+<p>In <em>G. barretti</em> barettin and 8,9-dihydrobarettin are major compounds with distinct peaks in the chromatogram. We wanted to see whether <em>S. fortis</em> and <em>W. bursa</em> also had major compounds and whether differences in sample depth would be directly reflected in the chromatograms.</p>
+<div class="sourceCode" id="cb44"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb44-1"><a href="metabolomics.html#cb44-1"></a>gb_chrom &lt;-<span class="st"> </span><span class="kw">read.csv</span>(<span class="st">&quot;data/Gb_all_chromatograms.csv&quot;</span>, <span class="dt">header =</span> T, <span class="dt">sep =</span> <span class="st">&quot;;&quot;</span>)</span>
+<span id="cb44-2"><a href="metabolomics.html#cb44-2"></a><span class="co"># differences in RT negligible/insignificant between the different</span></span>
+<span id="cb44-3"><a href="metabolomics.html#cb44-3"></a><span class="co"># chromatograms/samples</span></span>
+<span id="cb44-4"><a href="metabolomics.html#cb44-4"></a></span>
+<span id="cb44-5"><a href="metabolomics.html#cb44-5"></a>gb_chrom[, <span class="kw">c</span>(<span class="st">&quot;Gb10_RT&quot;</span>, <span class="st">&quot;Gb12_RT&quot;</span>, <span class="st">&quot;Gb13_RT&quot;</span>, <span class="st">&quot;Gb14_RT&quot;</span>, <span class="st">&quot;Gb15_RT&quot;</span>, <span class="st">&quot;Gb16_RT&quot;</span>, <span class="st">&quot;Gb17_RT&quot;</span>, </span>
+<span id="cb44-6"><a href="metabolomics.html#cb44-6"></a>    <span class="st">&quot;Gb18_RT&quot;</span>, <span class="st">&quot;Gb19_RT&quot;</span>, <span class="st">&quot;Gb2_RT&quot;</span>, <span class="st">&quot;Gb20_RT&quot;</span>, <span class="st">&quot;Gb21_RT&quot;</span>, <span class="st">&quot;Gb3_RT&quot;</span>, <span class="st">&quot;Gb7_RT&quot;</span>, <span class="st">&quot;Gb8_RT&quot;</span>, </span>
+<span id="cb44-7"><a href="metabolomics.html#cb44-7"></a>    <span class="st">&quot;Gb9_RT&quot;</span>)] &lt;-<span class="st"> </span><span class="kw">list</span>(<span class="ot">NULL</span>)</span>
+<span id="cb44-8"><a href="metabolomics.html#cb44-8"></a><span class="kw">colnames</span>(gb_chrom)[<span class="kw">colnames</span>(gb_chrom) <span class="op">==</span><span class="st"> &quot;Gb1_RT&quot;</span>] &lt;-<span class="st"> &quot;RT&quot;</span></span>
+<span id="cb44-9"><a href="metabolomics.html#cb44-9"></a>gb_chrom &lt;-<span class="st"> </span>gb_chrom[gb_chrom<span class="op">$</span>RT <span class="op">&lt;=</span><span class="st"> </span><span class="dv">12</span>, ]  <span class="co"># removing tail w/o any signal, run ended at 12 min</span></span>
+<span id="cb44-10"><a href="metabolomics.html#cb44-10"></a></span>
+<span id="cb44-11"><a href="metabolomics.html#cb44-11"></a><span class="co"># ugly but works</span></span>
+<span id="cb44-12"><a href="metabolomics.html#cb44-12"></a>p_gb_chrom &lt;-<span class="st"> </span><span class="kw">ggplot</span>(gb_chrom, <span class="kw">aes</span>(<span class="dt">x =</span> RT, <span class="dt">y =</span> Gb1)) <span class="op">+</span><span class="st"> </span><span class="kw">geom_line</span>() <span class="op">+</span><span class="st"> </span><span class="kw">theme_classic</span>() <span class="op">+</span><span class="st"> </span></span>
+<span id="cb44-13"><a href="metabolomics.html#cb44-13"></a><span class="st">    </span><span class="kw">geom_rect</span>(<span class="dt">data =</span> <span class="ot">NULL</span>, <span class="kw">aes</span>(<span class="dt">xmin =</span> <span class="fl">6.3</span>, <span class="dt">xmax =</span> <span class="fl">6.5</span>, <span class="dt">ymin =</span> <span class="op">-</span><span class="ot">Inf</span>, <span class="dt">ymax =</span> <span class="ot">Inf</span>), </span>
+<span id="cb44-14"><a href="metabolomics.html#cb44-14"></a>        <span class="dt">fill =</span> <span class="st">&quot;lightgreen&quot;</span>, <span class="dt">alpha =</span> <span class="fl">0.5</span>) <span class="op">+</span><span class="st"> </span><span class="kw">geom_rect</span>(<span class="dt">data =</span> <span class="ot">NULL</span>, <span class="kw">aes</span>(<span class="dt">xmin =</span> <span class="fl">6.95</span>, </span>
+<span id="cb44-15"><a href="metabolomics.html#cb44-15"></a>    <span class="dt">xmax =</span> <span class="fl">7.15</span>, <span class="dt">ymin =</span> <span class="op">-</span><span class="ot">Inf</span>, <span class="dt">ymax =</span> <span class="ot">Inf</span>), <span class="dt">fill =</span> <span class="st">&quot;lightblue&quot;</span>, <span class="dt">alpha =</span> <span class="fl">0.5</span>) <span class="op">+</span><span class="st"> </span><span class="kw">geom_line</span>(<span class="kw">aes</span>(<span class="dt">x =</span> RT, </span>
+<span id="cb44-16"><a href="metabolomics.html#cb44-16"></a>    <span class="dt">y =</span> Gb2)) <span class="op">+</span><span class="st"> </span><span class="kw">geom_line</span>(<span class="kw">aes</span>(<span class="dt">x =</span> RT, <span class="dt">y =</span> Gb3)) <span class="op">+</span><span class="st"> </span><span class="kw">geom_line</span>(<span class="kw">aes</span>(<span class="dt">x =</span> RT, <span class="dt">y =</span> Gb7)) <span class="op">+</span><span class="st"> </span></span>
+<span id="cb44-17"><a href="metabolomics.html#cb44-17"></a><span class="st">    </span><span class="kw">geom_line</span>(<span class="kw">aes</span>(<span class="dt">x =</span> RT, <span class="dt">y =</span> Gb8)) <span class="op">+</span><span class="st"> </span><span class="kw">geom_line</span>(<span class="kw">aes</span>(<span class="dt">x =</span> RT, <span class="dt">y =</span> Gb9)) <span class="op">+</span><span class="st"> </span><span class="kw">geom_line</span>(<span class="kw">aes</span>(<span class="dt">x =</span> RT, </span>
+<span id="cb44-18"><a href="metabolomics.html#cb44-18"></a>    <span class="dt">y =</span> Gb10)) <span class="op">+</span><span class="st"> </span><span class="kw">geom_line</span>(<span class="kw">aes</span>(<span class="dt">x =</span> RT, <span class="dt">y =</span> Gb15)) <span class="op">+</span><span class="st"> </span><span class="kw">geom_line</span>(<span class="kw">aes</span>(<span class="dt">x =</span> RT, <span class="dt">y =</span> Gb16)) <span class="op">+</span><span class="st"> </span></span>
+<span id="cb44-19"><a href="metabolomics.html#cb44-19"></a><span class="st">    </span><span class="kw">geom_line</span>(<span class="kw">aes</span>(<span class="dt">x =</span> RT, <span class="dt">y =</span> Gb17)) <span class="op">+</span><span class="st"> </span><span class="kw">geom_line</span>(<span class="kw">aes</span>(<span class="dt">x =</span> RT, <span class="dt">y =</span> Gb19)) <span class="op">+</span><span class="st"> </span><span class="kw">geom_line</span>(<span class="kw">aes</span>(<span class="dt">x =</span> RT, </span>
+<span id="cb44-20"><a href="metabolomics.html#cb44-20"></a>    <span class="dt">y =</span> Gb21)) <span class="op">+</span><span class="st"> </span><span class="kw">geom_line</span>(<span class="kw">aes</span>(<span class="dt">x =</span> RT, <span class="dt">y =</span> Gb12, <span class="dt">color =</span> <span class="st">&quot;red&quot;</span>, <span class="dt">alpha =</span> <span class="fl">0.5</span>)) <span class="op">+</span><span class="st"> </span><span class="kw">geom_line</span>(<span class="kw">aes</span>(<span class="dt">x =</span> RT, </span>
+<span id="cb44-21"><a href="metabolomics.html#cb44-21"></a>    <span class="dt">y =</span> Gb13, <span class="dt">color =</span> <span class="st">&quot;red&quot;</span>, <span class="dt">alpha =</span> <span class="fl">0.5</span>)) <span class="op">+</span><span class="st"> </span><span class="kw">geom_line</span>(<span class="kw">aes</span>(<span class="dt">x =</span> RT, <span class="dt">y =</span> Gb14, <span class="dt">color =</span> <span class="st">&quot;red&quot;</span>, </span>
+<span id="cb44-22"><a href="metabolomics.html#cb44-22"></a>    <span class="dt">alpha =</span> <span class="fl">0.5</span>)) <span class="op">+</span><span class="st"> </span><span class="kw">geom_line</span>(<span class="kw">aes</span>(<span class="dt">x =</span> RT, <span class="dt">y =</span> Gb18, <span class="dt">color =</span> <span class="st">&quot;red&quot;</span>, <span class="dt">alpha =</span> <span class="fl">0.5</span>)) <span class="op">+</span><span class="st"> </span></span>
+<span id="cb44-23"><a href="metabolomics.html#cb44-23"></a><span class="st">    </span><span class="kw">geom_line</span>(<span class="kw">aes</span>(<span class="dt">x =</span> RT, <span class="dt">y =</span> Gb20, <span class="dt">color =</span> <span class="st">&quot;red&quot;</span>, <span class="dt">alpha =</span> <span class="fl">0.5</span>)) <span class="op">+</span><span class="st"> </span><span class="kw">xlab</span>(<span class="st">&quot;RT&quot;</span>) <span class="op">+</span><span class="st"> </span><span class="kw">ylab</span>(<span class="st">&quot;Signal intensity&quot;</span>) <span class="op">+</span><span class="st"> </span></span>
+<span id="cb44-24"><a href="metabolomics.html#cb44-24"></a><span class="st">    </span><span class="kw">ggtitle</span>(<span class="st">&quot;Overlay chromatograms from G. barretti HILIC positive&quot;</span>) <span class="op">+</span><span class="st"> </span><span class="kw">theme</span>(<span class="dt">legend.position =</span> <span class="st">&quot;none&quot;</span>)</span>
+<span id="cb44-25"><a href="metabolomics.html#cb44-25"></a></span>
+<span id="cb44-26"><a href="metabolomics.html#cb44-26"></a>sf_chrom &lt;-<span class="st"> </span><span class="kw">read.csv</span>(<span class="st">&quot;data/Sf_all_chromatograms.csv&quot;</span>, <span class="dt">header =</span> T, <span class="dt">sep =</span> <span class="st">&quot;;&quot;</span>)</span>
+<span id="cb44-27"><a href="metabolomics.html#cb44-27"></a>sf_chrom[, <span class="kw">c</span>(<span class="st">&quot;Sf10_RT&quot;</span>, <span class="st">&quot;Sf11_RT&quot;</span>, <span class="st">&quot;Sf12_RT&quot;</span>, <span class="st">&quot;Sf13_RT&quot;</span>, <span class="st">&quot;Sf14_RT&quot;</span>, <span class="st">&quot;Sf15_RT&quot;</span>, <span class="st">&quot;Sf2_RT&quot;</span>, </span>
+<span id="cb44-28"><a href="metabolomics.html#cb44-28"></a>    <span class="st">&quot;Sf3_RT&quot;</span>, <span class="st">&quot;Sf4_RT&quot;</span>, <span class="st">&quot;Sf5_RT&quot;</span>, <span class="st">&quot;Sf6_RT&quot;</span>, <span class="st">&quot;Sf7_RT&quot;</span>)] &lt;-<span class="st"> </span><span class="kw">list</span>(<span class="ot">NULL</span>)</span>
+<span id="cb44-29"><a href="metabolomics.html#cb44-29"></a><span class="kw">colnames</span>(sf_chrom)[<span class="kw">colnames</span>(sf_chrom) <span class="op">==</span><span class="st"> &quot;Sf1_RT&quot;</span>] &lt;-<span class="st"> &quot;RT&quot;</span></span>
+<span id="cb44-30"><a href="metabolomics.html#cb44-30"></a>sf_chrom &lt;-<span class="st"> </span>sf_chrom[sf_chrom<span class="op">$</span>RT <span class="op">&lt;=</span><span class="st"> </span><span class="dv">12</span>, ]</span>
+<span id="cb44-31"><a href="metabolomics.html#cb44-31"></a></span>
+<span id="cb44-32"><a href="metabolomics.html#cb44-32"></a></span>
+<span id="cb44-33"><a href="metabolomics.html#cb44-33"></a>p_sf_chrom &lt;-<span class="st"> </span><span class="kw">ggplot</span>(sf_chrom, <span class="kw">aes</span>(<span class="dt">x =</span> RT, <span class="dt">y =</span> Sf1)) <span class="op">+</span><span class="st"> </span><span class="kw">geom_line</span>() <span class="op">+</span><span class="st"> </span><span class="kw">geom_line</span>(<span class="kw">aes</span>(<span class="dt">x =</span> RT, </span>
+<span id="cb44-34"><a href="metabolomics.html#cb44-34"></a>    <span class="dt">y =</span> Sf2)) <span class="op">+</span><span class="st"> </span><span class="kw">geom_line</span>(<span class="kw">aes</span>(<span class="dt">x =</span> RT, <span class="dt">y =</span> Sf3)) <span class="op">+</span><span class="st"> </span><span class="kw">geom_line</span>(<span class="kw">aes</span>(<span class="dt">x =</span> RT, <span class="dt">y =</span> Sf4)) <span class="op">+</span><span class="st"> </span></span>
+<span id="cb44-35"><a href="metabolomics.html#cb44-35"></a><span class="st">    </span><span class="kw">geom_line</span>(<span class="kw">aes</span>(<span class="dt">x =</span> RT, <span class="dt">y =</span> Sf5)) <span class="op">+</span><span class="st"> </span><span class="kw">geom_line</span>(<span class="kw">aes</span>(<span class="dt">x =</span> RT, <span class="dt">y =</span> Sf6)) <span class="op">+</span><span class="st"> </span><span class="kw">geom_line</span>(<span class="kw">aes</span>(<span class="dt">x =</span> RT, </span>
+<span id="cb44-36"><a href="metabolomics.html#cb44-36"></a>    <span class="dt">y =</span> Sf7)) <span class="op">+</span><span class="st"> </span><span class="kw">geom_line</span>(<span class="kw">aes</span>(<span class="dt">x =</span> RT, <span class="dt">y =</span> Sf10, <span class="dt">color =</span> <span class="st">&quot;red&quot;</span>, <span class="dt">alpha =</span> <span class="fl">0.5</span>)) <span class="op">+</span><span class="st"> </span><span class="kw">geom_line</span>(<span class="kw">aes</span>(<span class="dt">x =</span> RT, </span>
+<span id="cb44-37"><a href="metabolomics.html#cb44-37"></a>    <span class="dt">y =</span> Sf11, <span class="dt">color =</span> <span class="st">&quot;red&quot;</span>, <span class="dt">alpha =</span> <span class="fl">0.5</span>)) <span class="op">+</span><span class="st"> </span><span class="kw">geom_line</span>(<span class="kw">aes</span>(<span class="dt">x =</span> RT, <span class="dt">y =</span> Sf12, <span class="dt">color =</span> <span class="st">&quot;red&quot;</span>, </span>
+<span id="cb44-38"><a href="metabolomics.html#cb44-38"></a>    <span class="dt">alpha =</span> <span class="fl">0.5</span>)) <span class="op">+</span><span class="st"> </span><span class="kw">geom_line</span>(<span class="kw">aes</span>(<span class="dt">x =</span> RT, <span class="dt">y =</span> Sf13, <span class="dt">color =</span> <span class="st">&quot;red&quot;</span>, <span class="dt">alpha =</span> <span class="fl">0.5</span>)) <span class="op">+</span><span class="st"> </span></span>
+<span id="cb44-39"><a href="metabolomics.html#cb44-39"></a><span class="st">    </span><span class="kw">geom_line</span>(<span class="kw">aes</span>(<span class="dt">x =</span> RT, <span class="dt">y =</span> Sf14, <span class="dt">color =</span> <span class="st">&quot;red&quot;</span>, <span class="dt">alpha =</span> <span class="fl">0.5</span>)) <span class="op">+</span><span class="st"> </span><span class="kw">geom_line</span>(<span class="kw">aes</span>(<span class="dt">x =</span> RT, </span>
+<span id="cb44-40"><a href="metabolomics.html#cb44-40"></a>    <span class="dt">y =</span> Sf15, <span class="dt">color =</span> <span class="st">&quot;red&quot;</span>, <span class="dt">alpha =</span> <span class="fl">0.5</span>)) <span class="op">+</span><span class="st"> </span><span class="kw">xlab</span>(<span class="st">&quot;RT&quot;</span>) <span class="op">+</span><span class="st"> </span><span class="kw">ylab</span>(<span class="st">&quot;Signal intensity&quot;</span>) <span class="op">+</span><span class="st"> </span></span>
+<span id="cb44-41"><a href="metabolomics.html#cb44-41"></a><span class="st">    </span><span class="kw">ggtitle</span>(<span class="st">&quot;Overlay chromatograms from S. fortis HILIC positive&quot;</span>) <span class="op">+</span><span class="st"> </span><span class="kw">theme_classic</span>() <span class="op">+</span><span class="st"> </span></span>
+<span id="cb44-42"><a href="metabolomics.html#cb44-42"></a><span class="st">    </span><span class="kw">theme</span>(<span class="dt">legend.position =</span> <span class="st">&quot;none&quot;</span>)</span>
+<span id="cb44-43"><a href="metabolomics.html#cb44-43"></a></span>
+<span id="cb44-44"><a href="metabolomics.html#cb44-44"></a>wb_chrom &lt;-<span class="st"> </span><span class="kw">read.csv</span>(<span class="st">&quot;data/Wb_all_chromatograms.csv&quot;</span>, <span class="dt">header =</span> T, <span class="dt">sep =</span> <span class="st">&quot;;&quot;</span>)</span>
+<span id="cb44-45"><a href="metabolomics.html#cb44-45"></a>wb_chrom[, <span class="kw">c</span>(<span class="st">&quot;Wb10_RT&quot;</span>, <span class="st">&quot;Wb11_RT&quot;</span>, <span class="st">&quot;Wb12_RT&quot;</span>, <span class="st">&quot;Wb13_RT&quot;</span>, <span class="st">&quot;Wb14_RT&quot;</span>, <span class="st">&quot;Wb15_RT&quot;</span>, <span class="st">&quot;Wb16_RT&quot;</span>, </span>
+<span id="cb44-46"><a href="metabolomics.html#cb44-46"></a>    <span class="st">&quot;Wb17_RT&quot;</span>, <span class="st">&quot;Wb2_RT&quot;</span>, <span class="st">&quot;Wb3_RT&quot;</span>, <span class="st">&quot;Wb4_RT&quot;</span>, <span class="st">&quot;Wb5_RT&quot;</span>, <span class="st">&quot;Wb6_RT&quot;</span>, <span class="st">&quot;Wb7_RT&quot;</span>, <span class="st">&quot;Wb8_RT&quot;</span>)] &lt;-<span class="st"> </span><span class="kw">list</span>(<span class="ot">NULL</span>)</span>
+<span id="cb44-47"><a href="metabolomics.html#cb44-47"></a><span class="kw">colnames</span>(wb_chrom)[<span class="kw">colnames</span>(wb_chrom) <span class="op">==</span><span class="st"> &quot;Wb1_RT&quot;</span>] &lt;-<span class="st"> &quot;RT&quot;</span></span>
+<span id="cb44-48"><a href="metabolomics.html#cb44-48"></a>wb_chrom &lt;-<span class="st"> </span>wb_chrom[wb_chrom<span class="op">$</span>RT <span class="op">&lt;=</span><span class="st"> </span><span class="dv">12</span>, ]</span>
+<span id="cb44-49"><a href="metabolomics.html#cb44-49"></a></span>
+<span id="cb44-50"><a href="metabolomics.html#cb44-50"></a>p_wb_chrom &lt;-<span class="st"> </span><span class="kw">ggplot</span>(wb_chrom, <span class="kw">aes</span>(<span class="dt">x =</span> RT, <span class="dt">y =</span> Wb1)) <span class="op">+</span><span class="st"> </span><span class="kw">geom_line</span>() <span class="op">+</span><span class="st"> </span><span class="kw">geom_line</span>(<span class="kw">aes</span>(<span class="dt">x =</span> RT, </span>
+<span id="cb44-51"><a href="metabolomics.html#cb44-51"></a>    <span class="dt">y =</span> Wb2)) <span class="op">+</span><span class="st"> </span><span class="kw">geom_line</span>(<span class="kw">aes</span>(<span class="dt">x =</span> RT, <span class="dt">y =</span> Wb3)) <span class="op">+</span><span class="st"> </span><span class="kw">geom_line</span>(<span class="kw">aes</span>(<span class="dt">x =</span> RT, <span class="dt">y =</span> Wb4)) <span class="op">+</span><span class="st"> </span></span>
+<span id="cb44-52"><a href="metabolomics.html#cb44-52"></a><span class="st">    </span><span class="kw">geom_line</span>(<span class="kw">aes</span>(<span class="dt">x =</span> RT, <span class="dt">y =</span> Wb5)) <span class="op">+</span><span class="st"> </span><span class="kw">geom_line</span>(<span class="kw">aes</span>(<span class="dt">x =</span> RT, <span class="dt">y =</span> Wb6)) <span class="op">+</span><span class="st"> </span><span class="kw">geom_line</span>(<span class="kw">aes</span>(<span class="dt">x =</span> RT, </span>
+<span id="cb44-53"><a href="metabolomics.html#cb44-53"></a>    <span class="dt">y =</span> Wb7)) <span class="op">+</span><span class="st"> </span><span class="kw">geom_line</span>(<span class="kw">aes</span>(<span class="dt">x =</span> RT, <span class="dt">y =</span> Wb8)) <span class="op">+</span><span class="st"> </span><span class="kw">geom_line</span>(<span class="kw">aes</span>(<span class="dt">x =</span> RT, <span class="dt">y =</span> Wb10)) <span class="op">+</span><span class="st"> </span></span>
+<span id="cb44-54"><a href="metabolomics.html#cb44-54"></a><span class="st">    </span><span class="kw">geom_line</span>(<span class="kw">aes</span>(<span class="dt">x =</span> RT, <span class="dt">y =</span> Wb11)) <span class="op">+</span><span class="st"> </span><span class="kw">geom_line</span>(<span class="kw">aes</span>(<span class="dt">x =</span> RT, <span class="dt">y =</span> Wb12)) <span class="op">+</span><span class="st"> </span><span class="kw">geom_line</span>(<span class="kw">aes</span>(<span class="dt">x =</span> RT, </span>
+<span id="cb44-55"><a href="metabolomics.html#cb44-55"></a>    <span class="dt">y =</span> Wb13, <span class="dt">color =</span> <span class="st">&quot;red&quot;</span>, <span class="dt">alpha =</span> <span class="fl">0.5</span>)) <span class="op">+</span><span class="st"> </span><span class="kw">geom_line</span>(<span class="kw">aes</span>(<span class="dt">x =</span> RT, <span class="dt">y =</span> Wb14, <span class="dt">color =</span> <span class="st">&quot;red&quot;</span>, </span>
+<span id="cb44-56"><a href="metabolomics.html#cb44-56"></a>    <span class="dt">alpha =</span> <span class="fl">0.5</span>)) <span class="op">+</span><span class="st"> </span><span class="kw">geom_line</span>(<span class="kw">aes</span>(<span class="dt">x =</span> RT, <span class="dt">y =</span> Wb15, <span class="dt">color =</span> <span class="st">&quot;red&quot;</span>, <span class="dt">alpha =</span> <span class="fl">0.5</span>)) <span class="op">+</span><span class="st"> </span></span>
+<span id="cb44-57"><a href="metabolomics.html#cb44-57"></a><span class="st">    </span><span class="kw">geom_line</span>(<span class="kw">aes</span>(<span class="dt">x =</span> RT, <span class="dt">y =</span> Wb16, <span class="dt">color =</span> <span class="st">&quot;red&quot;</span>, <span class="dt">alpha =</span> <span class="fl">0.5</span>)) <span class="op">+</span><span class="st"> </span><span class="kw">geom_line</span>(<span class="kw">aes</span>(<span class="dt">x =</span> RT, </span>
+<span id="cb44-58"><a href="metabolomics.html#cb44-58"></a>    <span class="dt">y =</span> Wb17, <span class="dt">color =</span> <span class="st">&quot;red&quot;</span>, <span class="dt">alpha =</span> <span class="fl">0.5</span>)) <span class="op">+</span><span class="st"> </span><span class="kw">xlab</span>(<span class="st">&quot;RT&quot;</span>) <span class="op">+</span><span class="st"> </span><span class="kw">ylab</span>(<span class="st">&quot;Signal intensity&quot;</span>) <span class="op">+</span><span class="st"> </span></span>
+<span id="cb44-59"><a href="metabolomics.html#cb44-59"></a><span class="st">    </span><span class="kw">ggtitle</span>(<span class="st">&quot;Overlay chromatograms from W. bursa HILIC positive&quot;</span>) <span class="op">+</span><span class="st"> </span><span class="kw">theme_classic</span>() <span class="op">+</span><span class="st"> </span></span>
+<span id="cb44-60"><a href="metabolomics.html#cb44-60"></a><span class="st">    </span><span class="kw">theme</span>(<span class="dt">legend.position =</span> <span class="st">&quot;none&quot;</span>)</span>
+<span id="cb44-61"><a href="metabolomics.html#cb44-61"></a></span>
+<span id="cb44-62"><a href="metabolomics.html#cb44-62"></a><span class="kw">library</span>(gridExtra)</span>
+<span id="cb44-63"><a href="metabolomics.html#cb44-63"></a><span class="kw">grid.arrange</span>(p_gb_chrom, p_sf_chrom, p_wb_chrom, <span class="dt">nrow =</span> <span class="dv">3</span>)</span></code></pre></div>
+<p><img src="Oceanographic-setting-influences-the-prokaryote-community-and-metabolome-in-deep-sea-sponges_files/figure-html/chromatorgrams-1-1.png" width="672" /></p>
+<div class="sourceCode" id="cb45"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb45-1"><a href="metabolomics.html#cb45-1"></a><span class="kw">rm</span>(p_gb_chrom, p_sf_chrom, p_wb_chrom, gb_chrom, sf_chrom, wb_chrom)</span></code></pre></div>
+</div>
 <div id="correlations" class="section level2">
-<h2><span class="header-section-number">2.6</span> Correlations</h2>
-<div class="sourceCode" id="cb26"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb26-1"><a href="metabolomics.html#cb26-1"></a><span class="kw">sessionInfo</span>()</span></code></pre></div>
+<h2><span class="header-section-number">2.7</span> Correlations</h2>
+<div class="sourceCode" id="cb46"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb46-1"><a href="metabolomics.html#cb46-1"></a><span class="kw">sessionInfo</span>()</span></code></pre></div>
 <pre><code>## R version 3.5.1 (2018-07-02)
 ## Platform: x86_64-apple-darwin15.6.0 (64-bit)
 ## Running under: macOS  10.14.6
@@ -2586,40 +3326,40 @@ ion
 ## [1] en_US.UTF-8/en_US.UTF-8/en_US.UTF-8/C/en_US.UTF-8/en_US.UTF-8
 ## 
 ## attached base packages:
-## [1] grid      stats     graphics  grDevices utils     datasets  methods  
-## [8] base     
+## [1] stats     graphics  grDevices utils     datasets  methods   base     
 ## 
 ## other attached packages:
-##  [1] reshape_0.8.8         ggrepel_0.8.2         vegan_2.5-6          
-##  [4] lattice_0.20-41       permute_0.9-5         forcats_0.5.0        
-##  [7] purrr_0.3.3           readr_1.3.1           tidyr_1.0.2          
-## [10] tibble_3.0.0          tidyverse_1.3.0       ropls_1.14.1         
-## [13] reshape2_1.4.3        kableExtra_1.1.0.9000 ggplot2_3.3.0        
-## [16] stringr_1.4.0         dplyr_0.8.5           knitr_1.28           
+##  [1] reshape_0.8.8         ggrepel_0.8.2         gridExtra_2.3        
+##  [4] vegan_2.5-6           lattice_0.20-41       permute_0.9-5        
+##  [7] forcats_0.5.0         purrr_0.3.3           readr_1.3.1          
+## [10] tidyr_1.0.2           tibble_3.0.0          tidyverse_1.3.0      
+## [13] ropls_1.14.1          reshape2_1.4.3        kableExtra_1.1.0.9000
+## [16] ggplot2_3.3.0         stringr_1.4.0         dplyr_0.8.5          
+## [19] knitr_1.28           
 ## 
 ## loaded via a namespace (and not attached):
-##  [1] Rcpp_1.0.4          lubridate_1.7.4     assertthat_0.2.1   
-##  [4] digest_0.6.25       cellranger_1.1.0    R6_2.4.1           
-##  [7] plyr_1.8.6          backports_1.1.5     reprex_0.3.0       
-## [10] evaluate_0.14       httr_1.4.1          highr_0.8          
-## [13] pillar_1.4.3        rlang_0.4.5         readxl_1.3.1       
-## [16] rstudioapi_0.11     Matrix_1.2-18       rmarkdown_2.1      
-## [19] labeling_0.3        splines_3.5.1       webshot_0.5.2      
-## [22] munsell_0.5.0       broom_0.5.5         compiler_3.5.1     
-## [25] modelr_0.1.6        xfun_0.12           pkgconfig_2.0.3    
-## [28] BiocGenerics_0.28.0 mgcv_1.8-31         htmltools_0.4.0    
-## [31] tidyselect_1.0.0    bookdown_0.18       fansi_0.4.1        
-## [34] viridisLite_0.3.0   crayon_1.3.4        dbplyr_1.4.2       
-## [37] withr_2.1.2         MASS_7.3-51.5       nlme_3.1-145       
-## [40] jsonlite_1.6.1      gtable_0.3.0        lifecycle_0.2.0    
-## [43] DBI_1.1.0           magrittr_1.5        formatR_1.7        
-## [46] scales_1.1.0        cli_2.0.2           stringi_1.4.6      
-## [49] farver_2.0.3        fs_1.4.0            xml2_1.3.0         
-## [52] ellipsis_0.3.0      vctrs_0.2.4         generics_0.0.2     
-## [55] tools_3.5.1         Biobase_2.42.0      glue_1.3.2         
-## [58] hms_0.5.3           parallel_3.5.1      yaml_2.2.1         
-## [61] colorspace_1.4-1    cluster_2.1.0       rvest_0.3.5        
-## [64] haven_2.2.0</code></pre>
+##  [1] Biobase_2.42.0      httr_1.4.1          jsonlite_1.6.1     
+##  [4] viridisLite_0.3.0   splines_3.5.1       modelr_0.1.6       
+##  [7] assertthat_0.2.1    highr_0.8           cellranger_1.1.0   
+## [10] yaml_2.2.1          pillar_1.4.3        backports_1.1.5    
+## [13] glue_1.3.2          digest_0.6.25       rvest_0.3.5        
+## [16] colorspace_1.4-1    htmltools_0.4.0     Matrix_1.2-18      
+## [19] plyr_1.8.6          pkgconfig_2.0.3     broom_0.5.5        
+## [22] haven_2.2.0         bookdown_0.18       scales_1.1.0       
+## [25] webshot_0.5.2       mgcv_1.8-31         generics_0.0.2     
+## [28] farver_2.0.3        ellipsis_0.3.0      withr_2.1.2        
+## [31] BiocGenerics_0.28.0 cli_2.0.2           magrittr_1.5       
+## [34] crayon_1.3.4        readxl_1.3.1        evaluate_0.14      
+## [37] fs_1.4.0            fansi_0.4.1         nlme_3.1-145       
+## [40] MASS_7.3-51.5       xml2_1.3.0          tools_3.5.1        
+## [43] hms_0.5.3           formatR_1.7         lifecycle_0.2.0    
+## [46] munsell_0.5.0       reprex_0.3.0        cluster_2.1.0      
+## [49] compiler_3.5.1      rlang_0.4.5         grid_3.5.1         
+## [52] rstudioapi_0.11     labeling_0.3        rmarkdown_2.1      
+## [55] gtable_0.3.0        DBI_1.1.0           R6_2.4.1           
+## [58] lubridate_1.7.4     stringi_1.4.6       parallel_3.5.1     
+## [61] Rcpp_1.0.4          vctrs_0.2.4         dbplyr_1.4.2       
+## [64] tidyselect_1.0.0    xfun_0.13.1</code></pre>
 
 </div>
 </div>
@@ -2679,6 +3419,20 @@ gitbook.start({
 });
 </script>
 
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+  (function () {
+    var script = document.createElement("script");
+    script.type = "text/javascript";
+    var src = "true";
+    if (src === "" || src === "true") src = "https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-MML-AM_CHTML";
+    if (location.protocol !== "file:")
+      if (/^https?:/.test(src))
+        src = src.replace(/^https?:/, '');
+    script.src = src;
+    document.getElementsByTagName("head")[0].appendChild(script);
+  })();
+</script>
 </body>
 
 </html>

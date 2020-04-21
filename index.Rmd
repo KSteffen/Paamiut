@@ -3,9 +3,16 @@ title: "Oceanographic setting influences the prokaryote community and metabolome
 author: ["Karin Steffen"]
 date: '`r format(Sys.Date(), "%B %d, %Y")`'
 site: bookdown::bookdown_site
+output:
+  bookdown::html_document2:
+    includes:
+      in_header: header.html
+  bookdown::gitbook:
+    includes:
+      in_header: header.html
 documentclass: book
-bibliography: [book.bib, packages.bib]
-biblio-style: apalike
+bibliography: ["book.bib", "packages.bib"]
+biblio-style: "apalike"
 link-citations: true
 ---
 ```{r setup, include=FALSE}
@@ -13,6 +20,76 @@ knitr::opts_chunk$set(echo = TRUE, tidy=TRUE, message = FALSE, warning = FALSE)
 library(knitr)
 ```
 
+```{r htmlTemp3, echo=FALSE, eval=F}
+codejs <- readr::read_lines("js/codefolding.js")
+collapsejs <- readr::read_lines("js/collapse.js")
+transitionjs <- readr::read_lines("js/transition.js")
+dropdownjs <- readr::read_lines("js/dropdown.js")
+
+htmlhead <- c(
+  paste('
+<script>',
+paste(transitionjs, collapse = "\n"),
+'</script>
+<script>',
+paste(collapsejs, collapse = "\n"),
+'</script>
+<script>',
+paste(codejs, collapse = "\n"),
+'</script>
+<script>',
+paste(dropdownjs, collapse = "\n"),
+'</script>
+<style type="text/css">
+.code-folding-btn { margin-bottom: 4px; }
+.row { display: flex; }
+.collapse { display: none; }
+.in { display:block }
+.pull-right > .dropdown-menu {
+    right: 0;
+    left: auto;
+}
+.open > .dropdown-menu {
+    display: block;
+}
+.dropdown-menu {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    z-index: 1000;
+    display: none;
+    float: left;
+    min-width: 160px;
+    padding: 5px 0;
+    margin: 2px 0 0;
+    font-size: 14px;
+    text-align: left;
+    list-style: none;
+    background-color: #fff;
+    -webkit-background-clip: padding-box;
+    background-clip: padding-box;
+    border: 1px solid #ccc;
+    border: 1px solid rgba(0,0,0,.15);
+    border-radius: 4px;
+    -webkit-box-shadow: 0 6px 12px rgba(0,0,0,.175);
+    box-shadow: 0 6px 12px rgba(0,0,0,.175);
+}
+</style>
+<script>
+$(document).ready(function () {
+  window.initializeCodeFolding("show" === "show");
+});
+</script>
+', sep = "\n"),
+  paste0('
+<script>
+document.write(\'<div class="btn-group pull-right" style="position: absolute; top: 20%; right: 2%; z-index: 200"><button type="button" class="btn btn-default btn-xs dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="true" data-_extension-text-contrast=""><span>Code</span> <span class="caret"></span></button><ul class="dropdown-menu" style="min-width: 50px;"><li><a id="rmd-show-all-code" href="#">Show All Code</a></li><li><a id="rmd-hide-all-code" href="#">Hide All Code</a></li></ul></div>\')
+</script>
+')
+)
+
+readr::write_lines(htmlhead, path = "header.html")
+```
 # Content
 
 This is a set of code and data sets to document and reproduce the computational analyses in Steffen _et al._, 2020.
@@ -91,23 +168,145 @@ knitr::include_graphics("data/Argo_Mean_on_Grid_Size_0dec25_2002_3-2018_6_Lamber
 ```{r igor2, fig.cap="Temperature and salinity (T-S) plot showing the different water masses in the Davis strait by depth: Shelf Water (ShW), Slope Water (SW), Irminger Current (IC), Labrador Sea Water (LSW), and Icelandic slope water (ISW). Analysis and figure contributed by Igor Yashayaev."}
 knitr::include_graphics("data/water_masses_2002-2015 T-S Profiles Selected in Topo-range 300-1900 m & Colored by Depth - Labeled.png")
 ```
+
 ### Sponges
 ```{r sponges, fig.cap="__A__ _G. barretti_ and __B__ _S. fortis_ from West Shetland Channel. Image Crown Copyright ©2006, all rights reserved. Image provided by K. Howell, Plymouth University, UK. __C__ _W. bursa_, picture taken by scuba diving at 40 m in Svalbard by Peter Leopold."}
 knitr::include_graphics("data/sponges.png")
 ```
 
+_G. barretti_ and _S. fortis_ are high microbial abundance sponges ofthen found living in proximity. _W. bursa_ is likely a low microbial abundance sponges (see diversity metrics, Nicole Boury-Esnault _per.comm._). While all songes originate from the same geographic region, _W. bursa_ typically does not occur in the same habitats as _G. barretti_ and _S. fortis_ [@murillo_sponge_2018].
+It is omportant to note that _S. fortis_ is whiteish in colour, and the yellow shown in the picture stems from _Hexadella dedritifera_ frequently found overgrowing it.
 
-### Sample metadata analysis
-correlation of lat = depth usw.
+## Sample metadata analysis
 
-### Funding disclaimer
-This study was financially supported by the SponGES project from the European Union’s Horizon 2020 research and innovation programme under grant agreement No 679849. This document reflects only the authors’ view and the Executive Agency for Small and Medium-sized Enterprises (EASME) is not responsible for any use that may be made of the information it contains.    
-For more information, please visit the [SponGES](www.deepseasponges.org) website.
+To investigate underlying data patterns, we assess correlation of our predictor variables, i.e. the meta data of our samples (depth, latitude, longitude, sampling year, salinity and temperature).
 
+### Correlations, visual inspection and variance inflation factors (VIF) across all samples
+```{r mda-1}
+md <- read.csv("data/Steffen_et_al_metadata_PANGAEA.csv", header=T, sep=";")
+md <- md[,c("Species", "Depth", "Latitude", "Longitude", "YEAR", "MeanBotSalinity_PSU", "MeanBottomTemp_Cdeg", "unified_ID")]
 
-```{r include=FALSE}
-# automatically create a bib database for R packages
-knitr::write_bib(c(
-  .packages(), 'bookdown', 'knitr', 'rmarkdown', 'kableExtra', 'ggplot2', 'ggmap', 'maps', 'mapdata', 'marmap', 'ggrepel', 'lattice', 'sf', 'rnaturalearth', 'rnaturalearthdata', 'vegan', 'xcms', 'ropls', 'tidyverse', 'stringr'
-), 'packages.bib')
+a <- cor.test(md$Depth, md$Latitude, method = "spearman")
+a <- paste("Rho =", round(a$estimate, digits=3)," p-value=", round(a$p.value, digits=3))
+b <- cor.test(md$Depth, md$Longitude, method = "spearman")
+b <- paste("Rho =", round(b$estimate, digits=3)," p-value=", round(b$p.value, digits=3))
+c <- cor.test(md$Depth, md$YEAR, method = "spearman")
+c <- paste("Rho =", round(c$estimate, digits=3)," p-value=", round(c$p.value, digits=3))
+d <- cor.test(md$Depth, md$MeanBotSalinity_PSU, method = "spearman")
+d <- paste("Rho =", round(d$estimate, digits=3)," p-value=", round(d$p.value, digits=3))
+e <- cor.test(md$Depth, md$MeanBottomTemp_Cdeg, method = "spearman")
+e <- paste("Rho =", round(e$estimate, digits=3)," p-value=", round(e$p.value, digits=3))
+f <- cor.test(md$MeanBotSalinity_PSU, md$MeanBottomTemp_Cdeg, method = "spearman")
+f <- paste("T-S plot: Rho =", round(f$estimate, digits=3)," p-value=", round(f$p.value, digits=3))
+
+k <- ggplot(md, aes(x=Latitude, y=Depth))+geom_point()+scale_y_continuous(trans = "reverse")+
+  xlab("Latitude")+ylab("Depth")+ggtitle(a)+theme(plot.title = element_text(size=10))
+l <- ggplot(md, aes(x=Longitude, y=Depth))+geom_point()+scale_y_continuous(trans = "reverse")+
+  xlab("Longitude")+ylab("Depth")+ggtitle(b)+theme(plot.title = element_text(size=10))
+m <- ggplot(md, aes(x=YEAR, y=Depth))+geom_point()+scale_y_continuous(trans = "reverse")+
+  xlab("Year")+ylab("Depth")+ggtitle(c)+theme(plot.title = element_text(size=10))
+n <- ggplot(md, aes(x=MeanBotSalinity_PSU, y=Depth))+geom_point()+scale_y_continuous(trans = "reverse")+  xlab("Salinity")+ylab("Depth")+ggtitle(d)+theme(plot.title = element_text(size=10))
+o <- ggplot(md, aes(x=MeanBottomTemp_Cdeg, y=Depth))+geom_point()+scale_y_continuous(trans = "reverse")+xlab("Temperature")+ylab("Depth")+ggtitle(e)+theme(plot.title = element_text(size=10))
+p <- ggplot(md, aes(x=MeanBotSalinity_PSU, y=MeanBottomTemp_Cdeg, colour=md$Depth))+geom_point(size=2)+scale_colour_gradient(guide=guide_colourbar(),high="#f4c430", low= "#3b3bc4", trans = 'reverse')+xlab("Salinity in psu")+ylab("Temperature in °C")+labs(colour="Depth")+ggtitle(f)+theme(plot.title = element_text(size=10), legend.key.size=unit(0.3, "cm"))+scale_x_continuous(limits = c(34.4,35.0))
+#The limits of the x-axis exclude two samples from water with comparably low salinity
 ```
+
+```{r mda-2, fig.cap="Correlation of depth with other envirnomental parameters/predictor variables across all samples."}
+library(gridExtra)
+grid.arrange(k, l, m, n, o, p, nrow=3,  top = "Spearman correlation of sample associated meta data")
+rm(a, b, c, d, e, f, k, l, m, n, o, p, df)
+```
+In the bottom right plot showing temperature versus salinity, two samples from lower salinity were excluded for visual clarity. From the plots above and their correlation tests, we find that longitude, salinity and temperature are significantly correltated with depth, and that salinity and temperature also correlate with each other. 
+
+This is further corroborated in the variance inflation factors. A VIF > 10 indicates redundancy/collinearity.
+This means that we have to be cautious to avoid including redundant constraints in ecological models.
+
+```{r vif-1}
+library(usdm)
+md$Species <- NULL
+md$unified_ID <- NULL
+vif_all <- vif(md)
+
+library(kableExtra)
+options(kableExtra.html.bsTable = T)
+kable(vif_all, 
+      longtable = T, booktabs = T, 
+      caption = "VIF for meta data from all samples",
+      row.names = F) %>%
+  kable_styling(bootstrap_options = c("striped","hover", "bordered", "condensed", "responsive"), full_width = F, latex_options = c("striped", "scale_down"))
+
+rm(md)
+```
+
+As we will be focussing on _Geodia barretti_, we repeat the same inspection procedure for the sample subset.
+
+### Correlations, visual inspection and variance inflation factors (VIF) across _G. barretti_ samples
+
+```{r mda-3}
+md <- read.csv("data/Steffen_et_al_metadata_PANGAEA.csv", header=T, sep=";")
+md <- md[,c("Species", "Depth", "Latitude", "Longitude", "YEAR", "MeanBotSalinity_PSU", "MeanBottomTemp_Cdeg", "unified_ID")]
+md <- md[md$Species=="Geodia barretti",]
+
+a <- cor.test(md$Depth, md$Latitude, method = "spearman")
+a <- paste("Rho =", round(a$estimate, digits=3)," p-value=", round(a$p.value, digits=3))
+b <- cor.test(md$Depth, md$Longitude, method = "spearman")
+b <- paste("Rho =", round(b$estimate, digits=3)," p-value=", round(b$p.value, digits=3))
+c <- cor.test(md$Depth, md$YEAR, method = "spearman")
+c <- paste("Rho =", round(c$estimate, digits=3)," p-value=", round(c$p.value, digits=3))
+d <- cor.test(md$Depth, md$MeanBotSalinity_PSU, method = "spearman")
+d <- paste("Rho =", round(d$estimate, digits=3)," p-value=", round(d$p.value, digits=3))
+e <- cor.test(md$Depth, md$MeanBottomTemp_Cdeg, method = "spearman")
+e <- paste("Rho =", round(e$estimate, digits=3)," p-value=", round(e$p.value, digits=3))
+f <- cor.test(md$MeanBotSalinity_PSU, md$MeanBottomTemp_Cdeg, method = "spearman")
+f <- paste("Rho =", round(f$estimate, digits=3)," p-value=", round(f$p.value, digits=3))
+
+k <- ggplot(md, aes(x=Latitude, y=Depth))+geom_point()+scale_y_continuous(trans = "reverse")+
+  xlab("Latitude")+ylab("Depth")+ggtitle(a)+theme(plot.title = element_text(size=10))
+l <- ggplot(md, aes(x=Longitude, y=Depth))+geom_point()+scale_y_continuous(trans = "reverse")+
+  xlab("Longitude")+ylab("Depth")+ggtitle(b)+theme(plot.title = element_text(size=10))
+m <- ggplot(md, aes(x=YEAR, y=Depth))+geom_point()+scale_y_continuous(trans = "reverse")+
+  xlab("Year")+ylab("Depth")+ggtitle(c)+theme(plot.title = element_text(size=10))
+n <- ggplot(md, aes(x=MeanBotSalinity_PSU, y=Depth))+geom_point()+scale_y_continuous(trans = "reverse")+  xlab("Salinity")+ylab("Depth")+ggtitle(d)+theme(plot.title = element_text(size=10))
+o <- ggplot(md, aes(x=MeanBottomTemp_Cdeg, y=Depth))+geom_point()+scale_y_continuous(trans = "reverse")+xlab("Temperature")+ylab("Depth")+ggtitle(e)+theme(plot.title = element_text(size=10))
+p <- ggplot(md, aes(x=MeanBotSalinity_PSU, y=MeanBottomTemp_Cdeg, colour=md$Depth))+geom_point(size=2)+scale_colour_gradient(guide=guide_colourbar(),high="#f4c430", low= "#3b3bc4", trans = 'reverse')+xlab("Salinity in psu")+ylab("Temperature in °C")+labs(colour="Depth")+ggtitle(f)+theme(plot.title = element_text(size=10), legend.key.size=unit(0.3, "cm"))
+```
+
+```{r mda-4, fig.cap="Correlation of depth with other envirnomental parameters/predictor variables across samples of _G. barretti_."}
+library(gridExtra)
+grid.arrange(k, l, m, n, o, p, nrow=3,  top = "Spearman correlation of Geodia barretti associated meta data")
+rm(a, b, c, d, e, f, k, l, m, n, o, p, df)
+```
+
+```{r vif-2}
+library(usdm)
+md$Species <- NULL
+md$unified_ID <- NULL
+vif1 <- vif(md)
+vif1$VIF <- round(vif1$VIF, digits=2)
+
+md$MeanBotSalinity_PSU <- NULL
+md$MeanBottomTemp_Cdeg <- NULL
+vif2 <- vif(md)
+vif2$VIF <- round(vif2$VIF, digits=2)
+
+library(dplyr)
+vifs <- full_join(vif1, vif2, by=c("Variables"="Variables"))
+colnames(vifs) <- c("Variables", "All predictors", "Subset")
+vifs[c(5,6),3] <- ""
+
+library(kableExtra)
+options(kableExtra.html.bsTable = T)
+
+cap <- paste("VIF for extensive and simplified models for", text_spec("G. barretti", italic = T))
+
+kable(vifs, 
+      longtable = T, booktabs = T, 
+      caption = cap, row.names = F) %>%
+  kable_styling(bootstrap_options = c("striped","hover", "bordered", "condensed", "responsive"), full_width = F, latex_options = c("striped", "scale_down"))
+
+rm(md)
+
+```
+
+With this subset, the collinearity becomes even more pronounced. Salinity, temperature and depth are strongly correlated and the VIFs indicated that they should not be included in a model together. This correlation is  due to physical properties of water. Density of water increases with increasing salinity and decreasing temperature. To a lesser extent, longitude and lattitude are collinear in our sampling. However, removing the predictor variables salinity and temperature mititgated/lowered the effect of collinearity.
+

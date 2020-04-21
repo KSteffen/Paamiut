@@ -1,0 +1,18 @@
+# Funding disclaimer
+This study was financially supported by the SponGES project from the European Union’s Horizon 2020 research and innovation programme under grant agreement No 679849. This document reflects only the authors’ view and the Executive Agency for Small and Medium-sized Enterprises (EASME) is not responsible for any use that may be made of the information it contains.    
+For more information, please visit the [SponGES](www.deepseasponges.org) website.
+
+```{r packages-bib}
+# automatically create a bib database for R packages
+knitr::write_bib(c(
+  .packages(), 'bookdown', 'knitr', 'rmarkdown', 'kableExtra', 'ggplot2', 'ggmap', 'maps', 'mapdata', 'marmap', 'ggrepel', 'lattice', 'sf', 'rnaturalearth', 'rnaturalearthdata', 'vegan', 'xcms', 'ropls', 'tidyverse', 'stringr'
+), 'packages.bib')
+```
+
+Maps were made with the pacakges marmap [@marmap2013], ggmap [@ggmap2013], maps [@R-maps], mapdata [@R-mapdata], sf [@sf2018], rnaturalearth [@R-rnaturalearth], rnaturalearthdata [@R-rnaturalearthdata], lattice [@lattice2008].
+Analyses used the packages usdm [@usdm2014] as well as functionalities from R [@R-base], tidyverse [@tidyverse2019], dplyr [@R-dplyr], stringr [@R-stringr], kableExtra [@R-kableExtra], GridExtra [@R-gridExtra], ggrepel [@R-ggrepel], reshape2 [@], knitr [@knitr2015], Rmarkadown [@rmarkdown2018] and bookdown [@R-bookdown].
+
+
+`r if (knitr::is_html_output()) '
+# References {-}
+'`

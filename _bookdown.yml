@@ -2,6 +2,7 @@ book_filename: "Oceanographic-setting-influences-the-prokaryote-community-and-me
 repo: https://github.com/KSteffen/Paamiut
 delete_merged_file: true
 output_dir: docs
+rmd_files: ["index.Rmd", "02-Metabolomics_methods.Rmd", "03-Microbiota.Rmd", "04-Inter-omics.Rmd", "99-references.Rmd"]
 bibliography: [book.bib, packages.bib]
 biblio-style: apalike
 link-citations: true

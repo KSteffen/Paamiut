@@ -1,6 +1,12 @@
 ---
 title: "04 - Inter-omics data analyses"
-output: html_document
+output:
+  bookdown::html_document2:
+    includes:
+      in_header: header.html
+  bookdown::gitbook:
+    includes:
+      in_header: header.html
 ---
 ```{r setup04, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE, tidy=TRUE, message = FALSE, warning = FALSE)
@@ -351,7 +357,7 @@ options(kableExtra.html.bsTable = T)
 kable(diagnostics, 
       col.names = c("Procrustes sum of squares", "correlation in symmetric rotation", "significance", "N microbiome samples", "N OTUs", "N metabolome samples", "N features", "Sponge species", "Experiment", "data set"), 
       longtable = T, booktabs = T, 
-      caption = "Protest diagnositcs comparing the microbiome and metabolome of the same sponge specimens", 
+      caption = "Protest diagnostics comparing the microbiome and metabolome of the same sponge specimens", 
       row.names=FALSE) %>%
   add_header_above(c("Diagnostics" = 7, "Data set attribution" = 3)) %>%
   kable_styling(bootstrap_options = c("striped","hover", "bordered", "condensed", "responsive"), font_size = 12, full_width = F, latex_options = c("striped", "scale_down"))
@@ -769,7 +775,7 @@ We selected all edges with at least 4 p-values $\leq$ 0.05 (n=`r sum(ms$NA_count
 
 
 
-```{r igraph1}
+```{r igraph1, eval=F}
 library(igraph)
 
 edges <- raw_nodes[,1:2]

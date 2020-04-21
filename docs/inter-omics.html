@@ -24,7 +24,7 @@
 <meta name="author" content="Karin Steffen" />
 
 
-<meta name="date" content="2020-04-16" />
+<meta name="date" content="2020-04-20" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <meta name="apple-mobile-web-app-capable" content="yes" />
@@ -32,7 +32,7 @@
   
   
 <link rel="prev" href="microbiota.html"/>
-
+<link rel="next" href="funding-disclaimer.html"/>
 <script src="libs/jquery-2.2.3/jquery.min.js"></script>
 <link href="libs/gitbook-2.6.7/css/style.css" rel="stylesheet" />
 <link href="libs/gitbook-2.6.7/css/plugin-bookdown.css" rel="stylesheet" />
@@ -51,6 +51,554 @@
 
 <script src="libs/kePrint-0.0.1/kePrint.js"></script>
 <link href="libs/bsTable-3.3.7/bootstrapTable.min.css" rel="stylesheet" />
+
+<script>
+/* ========================================================================
+ * Bootstrap: transition.js v3.3.7
+ * http://getbootstrap.com/javascript/#transitions
+ * ========================================================================
+ * Copyright 2011-2016 Twitter, Inc.
+ * Licensed under MIT (https://github.com/twbs/bootstrap/blob/master/LICENSE)
+ * ======================================================================== */
+
+
++function ($) {
+  'use strict';
+
+  // CSS TRANSITION SUPPORT (Shoutout: http://www.modernizr.com/)
+  // ============================================================
+
+  function transitionEnd() {
+    var el = document.createElement('bootstrap')
+
+    var transEndEventNames = {
+      WebkitTransition : 'webkitTransitionEnd',
+      MozTransition    : 'transitionend',
+      OTransition      : 'oTransitionEnd otransitionend',
+      transition       : 'transitionend'
+    }
+
+    for (var name in transEndEventNames) {
+      if (el.style[name] !== undefined) {
+        return { end: transEndEventNames[name] }
+      }
+    }
+
+    return false // explicit for ie8 (  ._.)
+  }
+
+  // http://blog.alexmaccaw.com/css-transitions
+  $.fn.emulateTransitionEnd = function (duration) {
+    var called = false
+    var $el = this
+    $(this).one('bsTransitionEnd', function () { called = true })
+    var callback = function () { if (!called) $($el).trigger($.support.transition.end) }
+    setTimeout(callback, duration)
+    return this
+  }
+
+  $(function () {
+    $.support.transition = transitionEnd()
+
+    if (!$.support.transition) return
+
+    $.event.special.bsTransitionEnd = {
+      bindType: $.support.transition.end,
+      delegateType: $.support.transition.end,
+      handle: function (e) {
+        if ($(e.target).is(this)) return e.handleObj.handler.apply(this, arguments)
+      }
+    }
+  })
+
+}(jQuery);
+</script>
+<script>
+/* ========================================================================
+ * Bootstrap: collapse.js v3.3.7
+ * http://getbootstrap.com/javascript/#collapse
+ * ========================================================================
+ * Copyright 2011-2016 Twitter, Inc.
+ * Licensed under MIT (https://github.com/twbs/bootstrap/blob/master/LICENSE)
+ * ======================================================================== */
+
+/* jshint latedef: false */
+
++function ($) {
+  'use strict';
+
+  // COLLAPSE PUBLIC CLASS DEFINITION
+  // ================================
+
+  var Collapse = function (element, options) {
+    this.$element      = $(element)
+    this.options       = $.extend({}, Collapse.DEFAULTS, options)
+    this.$trigger      = $('[data-toggle="collapse"][href="#' + element.id + '"],' +
+                           '[data-toggle="collapse"][data-target="#' + element.id + '"]')
+    this.transitioning = null
+
+    if (this.options.parent) {
+      this.$parent = this.getParent()
+    } else {
+      this.addAriaAndCollapsedClass(this.$element, this.$trigger)
+    }
+
+    if (this.options.toggle) this.toggle()
+  }
+
+  Collapse.VERSION  = '3.3.7'
+
+  Collapse.TRANSITION_DURATION = 350
+
+  Collapse.DEFAULTS = {
+    toggle: true
+  }
+
+  Collapse.prototype.dimension = function () {
+    var hasWidth = this.$element.hasClass('width')
+    return hasWidth ? 'width' : 'height'
+  }
+
+  Collapse.prototype.show = function () {
+    if (this.transitioning || this.$element.hasClass('in')) return
+
+    var activesData
+    var actives = this.$parent && this.$parent.children('.panel').children('.in, .collapsing')
+
+    if (actives && actives.length) {
+      activesData = actives.data('bs.collapse')
+      if (activesData && activesData.transitioning) return
+    }
+
+    var startEvent = $.Event('show.bs.collapse')
+    this.$element.trigger(startEvent)
+    if (startEvent.isDefaultPrevented()) return
+
+    if (actives && actives.length) {
+      Plugin.call(actives, 'hide')
+      activesData || actives.data('bs.collapse', null)
+    }
+
+    var dimension = this.dimension()
+
+    this.$element
+      .removeClass('collapse')
+      .addClass('collapsing')[dimension](0)
+      .attr('aria-expanded', true)
+
+    this.$trigger
+      .removeClass('collapsed')
+      .attr('aria-expanded', true)
+
+    this.transitioning = 1
+
+    var complete = function () {
+      this.$element
+        .removeClass('collapsing')
+        .addClass('collapse in')[dimension]('')
+      this.transitioning = 0
+      this.$element
+        .trigger('shown.bs.collapse')
+    }
+
+    if (!$.support.transition) return complete.call(this)
+
+    var scrollSize = $.camelCase(['scroll', dimension].join('-'))
+
+    this.$element
+      .one('bsTransitionEnd', $.proxy(complete, this))
+      .emulateTransitionEnd(Collapse.TRANSITION_DURATION)[dimension](this.$element[0][scrollSize])
+  }
+
+  Collapse.prototype.hide = function () {
+    if (this.transitioning || !this.$element.hasClass('in')) return
+
+    var startEvent = $.Event('hide.bs.collapse')
+    this.$element.trigger(startEvent)
+    if (startEvent.isDefaultPrevented()) return
+
+    var dimension = this.dimension()
+
+    this.$element[dimension](this.$element[dimension]())[0].offsetHeight
+
+    this.$element
+      .addClass('collapsing')
+      .removeClass('collapse in')
+      .attr('aria-expanded', false)
+
+    this.$trigger
+      .addClass('collapsed')
+      .attr('aria-expanded', false)
+
+    this.transitioning = 1
+
+    var complete = function () {
+      this.transitioning = 0
+      this.$element
+        .removeClass('collapsing')
+        .addClass('collapse')
+        .trigger('hidden.bs.collapse')
+    }
+
+    if (!$.support.transition) return complete.call(this)
+
+    this.$element
+      [dimension](0)
+      .one('bsTransitionEnd', $.proxy(complete, this))
+      .emulateTransitionEnd(Collapse.TRANSITION_DURATION)
+  }
+
+  Collapse.prototype.toggle = function () {
+    this[this.$element.hasClass('in') ? 'hide' : 'show']()
+  }
+
+  Collapse.prototype.getParent = function () {
+    return $(this.options.parent)
+      .find('[data-toggle="collapse"][data-parent="' + this.options.parent + '"]')
+      .each($.proxy(function (i, element) {
+        var $element = $(element)
+        this.addAriaAndCollapsedClass(getTargetFromTrigger($element), $element)
+      }, this))
+      .end()
+  }
+
+  Collapse.prototype.addAriaAndCollapsedClass = function ($element, $trigger) {
+    var isOpen = $element.hasClass('in')
+
+    $element.attr('aria-expanded', isOpen)
+    $trigger
+      .toggleClass('collapsed', !isOpen)
+      .attr('aria-expanded', isOpen)
+  }
+
+  function getTargetFromTrigger($trigger) {
+    var href
+    var target = $trigger.attr('data-target')
+      || (href = $trigger.attr('href')) && href.replace(/.*(?=#[^\s]+$)/, '') // strip for ie7
+
+    return $(target)
+  }
+
+
+  // COLLAPSE PLUGIN DEFINITION
+  // ==========================
+
+  function Plugin(option) {
+    return this.each(function () {
+      var $this   = $(this)
+      var data    = $this.data('bs.collapse')
+      var options = $.extend({}, Collapse.DEFAULTS, $this.data(), typeof option == 'object' && option)
+
+      if (!data && options.toggle && /show|hide/.test(option)) options.toggle = false
+      if (!data) $this.data('bs.collapse', (data = new Collapse(this, options)))
+      if (typeof option == 'string') data[option]()
+    })
+  }
+
+  var old = $.fn.collapse
+
+  $.fn.collapse             = Plugin
+  $.fn.collapse.Constructor = Collapse
+
+
+  // COLLAPSE NO CONFLICT
+  // ====================
+
+  $.fn.collapse.noConflict = function () {
+    $.fn.collapse = old
+    return this
+  }
+
+
+  // COLLAPSE DATA-API
+  // =================
+
+  $(document).on('click.bs.collapse.data-api', '[data-toggle="collapse"]', function (e) {
+    var $this   = $(this)
+
+    if (!$this.attr('data-target')) e.preventDefault()
+
+    var $target = getTargetFromTrigger($this)
+    var data    = $target.data('bs.collapse')
+    var option  = data ? 'toggle' : $this.data()
+
+    Plugin.call($target, option)
+  })
+
+}(jQuery);
+</script>
+<script>
+window.initializeCodeFolding = function(show) {
+
+  // handlers for show-all and hide all
+  $("#rmd-show-all-code").click(function() {
+    $('div.r-code-collapse').each(function() {
+      $(this).collapse('show');
+    });
+  });
+  $("#rmd-hide-all-code").click(function() {
+    $('div.r-code-collapse').each(function() {
+      $(this).collapse('hide');
+    });
+  });
+
+  // index for unique code element ids
+  var currentIndex = 1;
+
+  // select all R code blocks
+  var rCodeBlocks = $('pre.sourceCode, pre.r, pre.python, pre.bash, pre.sql, pre.cpp, pre.stan');
+  rCodeBlocks.each(function() {
+
+    // create a collapsable div to wrap the code in
+    var div = $('<div class="collapse r-code-collapse"></div>');
+    if (show)
+      div.addClass('in');
+    var id = 'rcode-643E0F36' + currentIndex++;
+    div.attr('id', id);
+    $(this).before(div);
+    $(this).detach().appendTo(div);
+
+    // add a show code button right above
+    var showCodeText = $('<span>' + (show ? 'Hide' : 'Code') + '</span>');
+    var showCodeButton = $('<button type="button" class="btn btn-default btn-xs code-folding-btn pull-right"></button>');
+    showCodeButton.append(showCodeText);
+    showCodeButton
+        .attr('data-toggle', 'collapse')
+        .attr('data-target', '#' + id)
+        .attr('aria-expanded', show)
+        .attr('aria-controls', id);
+
+    var buttonRow = $('<div class="row"></div>');
+    var buttonCol = $('<div class="col-md-12"></div>');
+
+    buttonCol.append(showCodeButton);
+    buttonRow.append(buttonCol);
+
+    div.before(buttonRow);
+
+    // update state of button on show/hide
+    div.on('hidden.bs.collapse', function () {
+      showCodeText.text('Code');
+    });
+    div.on('show.bs.collapse', function () {
+      showCodeText.text('Hide');
+    });
+  });
+
+}
+</script>
+<script>
+/* ========================================================================
+ * Bootstrap: dropdown.js v3.3.7
+ * http://getbootstrap.com/javascript/#dropdowns
+ * ========================================================================
+ * Copyright 2011-2016 Twitter, Inc.
+ * Licensed under MIT (https://github.com/twbs/bootstrap/blob/master/LICENSE)
+ * ======================================================================== */
+
+
++function ($) {
+  'use strict';
+
+  // DROPDOWN CLASS DEFINITION
+  // =========================
+
+  var backdrop = '.dropdown-backdrop'
+  var toggle   = '[data-toggle="dropdown"]'
+  var Dropdown = function (element) {
+    $(element).on('click.bs.dropdown', this.toggle)
+  }
+
+  Dropdown.VERSION = '3.3.7'
+
+  function getParent($this) {
+    var selector = $this.attr('data-target')
+
+    if (!selector) {
+      selector = $this.attr('href')
+      selector = selector && /#[A-Za-z]/.test(selector) && selector.replace(/.*(?=#[^\s]*$)/, '') // strip for ie7
+    }
+
+    var $parent = selector && $(selector)
+
+    return $parent && $parent.length ? $parent : $this.parent()
+  }
+
+  function clearMenus(e) {
+    if (e && e.which === 3) return
+    $(backdrop).remove()
+    $(toggle).each(function () {
+      var $this         = $(this)
+      var $parent       = getParent($this)
+      var relatedTarget = { relatedTarget: this }
+
+      if (!$parent.hasClass('open')) return
+
+      if (e && e.type == 'click' && /input|textarea/i.test(e.target.tagName) && $.contains($parent[0], e.target)) return
+
+      $parent.trigger(e = $.Event('hide.bs.dropdown', relatedTarget))
+
+      if (e.isDefaultPrevented()) return
+
+      $this.attr('aria-expanded', 'false')
+      $parent.removeClass('open').trigger($.Event('hidden.bs.dropdown', relatedTarget))
+    })
+  }
+
+  Dropdown.prototype.toggle = function (e) {
+    var $this = $(this)
+
+    if ($this.is('.disabled, :disabled')) return
+
+    var $parent  = getParent($this)
+    var isActive = $parent.hasClass('open')
+
+    clearMenus()
+
+    if (!isActive) {
+      if ('ontouchstart' in document.documentElement && !$parent.closest('.navbar-nav').length) {
+        // if mobile we use a backdrop because click events don't delegate
+        $(document.createElement('div'))
+          .addClass('dropdown-backdrop')
+          .insertAfter($(this))
+          .on('click', clearMenus)
+      }
+
+      var relatedTarget = { relatedTarget: this }
+      $parent.trigger(e = $.Event('show.bs.dropdown', relatedTarget))
+
+      if (e.isDefaultPrevented()) return
+
+      $this
+        .trigger('focus')
+        .attr('aria-expanded', 'true')
+
+      $parent
+        .toggleClass('open')
+        .trigger($.Event('shown.bs.dropdown', relatedTarget))
+    }
+
+    return false
+  }
+
+  Dropdown.prototype.keydown = function (e) {
+    if (!/(38|40|27|32)/.test(e.which) || /input|textarea/i.test(e.target.tagName)) return
+
+    var $this = $(this)
+
+    e.preventDefault()
+    e.stopPropagation()
+
+    if ($this.is('.disabled, :disabled')) return
+
+    var $parent  = getParent($this)
+    var isActive = $parent.hasClass('open')
+
+    if (!isActive && e.which != 27 || isActive && e.which == 27) {
+      if (e.which == 27) $parent.find(toggle).trigger('focus')
+      return $this.trigger('click')
+    }
+
+    var desc = ' li:not(.disabled):visible a'
+    var $items = $parent.find('.dropdown-menu' + desc)
+
+    if (!$items.length) return
+
+    var index = $items.index(e.target)
+
+    if (e.which == 38 && index > 0)                 index--         // up
+    if (e.which == 40 && index < $items.length - 1) index++         // down
+    if (!~index)                                    index = 0
+
+    $items.eq(index).trigger('focus')
+  }
+
+
+  // DROPDOWN PLUGIN DEFINITION
+  // ==========================
+
+  function Plugin(option) {
+    return this.each(function () {
+      var $this = $(this)
+      var data  = $this.data('bs.dropdown')
+
+      if (!data) $this.data('bs.dropdown', (data = new Dropdown(this)))
+      if (typeof option == 'string') data[option].call($this)
+    })
+  }
+
+  var old = $.fn.dropdown
+
+  $.fn.dropdown             = Plugin
+  $.fn.dropdown.Constructor = Dropdown
+
+
+  // DROPDOWN NO CONFLICT
+  // ====================
+
+  $.fn.dropdown.noConflict = function () {
+    $.fn.dropdown = old
+    return this
+  }
+
+
+  // APPLY TO STANDARD DROPDOWN ELEMENTS
+  // ===================================
+
+  $(document)
+    .on('click.bs.dropdown.data-api', clearMenus)
+    .on('click.bs.dropdown.data-api', '.dropdown form', function (e) { e.stopPropagation() })
+    .on('click.bs.dropdown.data-api', toggle, Dropdown.prototype.toggle)
+    .on('keydown.bs.dropdown.data-api', toggle, Dropdown.prototype.keydown)
+    .on('keydown.bs.dropdown.data-api', '.dropdown-menu', Dropdown.prototype.keydown)
+
+}(jQuery);
+</script>
+<style type="text/css">
+.code-folding-btn { margin-bottom: 4px; }
+.row { display: flex; }
+.collapse { display: none; }
+.in { display:block }
+.pull-right > .dropdown-menu {
+    right: 0;
+    left: auto;
+}
+.open > .dropdown-menu {
+    display: block;
+}
+.dropdown-menu {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    z-index: 1000;
+    display: none;
+    float: left;
+    min-width: 160px;
+    padding: 5px 0;
+    margin: 2px 0 0;
+    font-size: 14px;
+    text-align: left;
+    list-style: none;
+    background-color: #fff;
+    -webkit-background-clip: padding-box;
+    background-clip: padding-box;
+    border: 1px solid #ccc;
+    border: 1px solid rgba(0,0,0,.15);
+    border-radius: 4px;
+    -webkit-box-shadow: 0 6px 12px rgba(0,0,0,.175);
+    box-shadow: 0 6px 12px rgba(0,0,0,.175);
+}
+</style>
+<script>
+$(document).ready(function () {
+  window.initializeCodeFolding("show" === "show");
+});
+</script>
+
+
+<script>
+document.write('<div class="btn-group pull-right" style="position: absolute; top: 20%; right: 2%; z-index: 200"><button type="button" class="btn btn-default btn-xs dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="true" data-_extension-text-contrast=""><span>Code</span> <span class="caret"></span></button><ul class="dropdown-menu" style="min-width: 50px;"><li><a id="rmd-show-all-code" href="#">Show</a></li><li><a id="rmd-hide-all-code" href="#">Hide</a></li></ul></div>')
+</script>
 
 
 <style type="text/css">
@@ -139,7 +687,10 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 <li class="chapter" data-level="1.1.1" data-path="index.html"><a href="index.html#map"><i class="fa fa-check"></i><b>1.1.1</b> Map</a></li>
 <li class="chapter" data-level="1.1.2" data-path="index.html"><a href="index.html#water-masses"><i class="fa fa-check"></i><b>1.1.2</b> Water masses</a></li>
 <li class="chapter" data-level="1.1.3" data-path="index.html"><a href="index.html#sponges"><i class="fa fa-check"></i><b>1.1.3</b> Sponges</a></li>
-<li class="chapter" data-level="1.1.4" data-path="index.html"><a href="index.html#funding-disclaimer"><i class="fa fa-check"></i><b>1.1.4</b> Funding disclaimer</a></li>
+</ul></li>
+<li class="chapter" data-level="1.2" data-path="index.html"><a href="index.html#sample-metadata-analysis"><i class="fa fa-check"></i><b>1.2</b> Sample metadata analysis</a><ul>
+<li class="chapter" data-level="1.2.1" data-path="index.html"><a href="index.html#correlations-visual-inspection-and-variance-inflation-factors-vif-across-all-samples"><i class="fa fa-check"></i><b>1.2.1</b> Correlations, visual inspection and variance inflation factors (VIF) across all samples</a></li>
+<li class="chapter" data-level="1.2.2" data-path="index.html"><a href="index.html#correlations-visual-inspection-and-variance-inflation-factors-vif-across-g.-barretti-samples"><i class="fa fa-check"></i><b>1.2.2</b> Correlations, visual inspection and variance inflation factors (VIF) across <em>G. barretti</em> samples</a></li>
 </ul></li>
 </ul></li>
 <li class="chapter" data-level="2" data-path="metabolomics.html"><a href="metabolomics.html"><i class="fa fa-check"></i><b>2</b> Metabolomics</a><ul>
@@ -155,8 +706,9 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 <li class="chapter" data-level="2.2.8" data-path="metabolomics.html"><a href="metabolomics.html#summary-of-data-processing"><i class="fa fa-check"></i><b>2.2.8</b> Summary of data processing</a></li>
 </ul></li>
 <li class="chapter" data-level="2.3" data-path="metabolomics.html"><a href="metabolomics.html#multivariate-analyses"><i class="fa fa-check"></i><b>2.3</b> Multivariate analyses</a></li>
-<li class="chapter" data-level="2.4" data-path="metabolomics.html"><a href="metabolomics.html#manual-annotation-identification-and-extraction-of-metabolic-feature-signals"><i class="fa fa-check"></i><b>2.4</b> Manual annotation, identification and extraction of metabolic feature signals</a></li>
-<li class="chapter" data-level="2.5" data-path="metabolomics.html"><a href="metabolomics.html#correlations"><i class="fa fa-check"></i><b>2.5</b> Correlations</a></li>
+<li class="chapter" data-level="2.4" data-path="metabolomics.html"><a href="metabolomics.html#vips"><i class="fa fa-check"></i><b>2.4</b> VIPS???</a></li>
+<li class="chapter" data-level="2.5" data-path="metabolomics.html"><a href="metabolomics.html#manual-annotation-identification-and-extraction-of-metabolic-feature-signals"><i class="fa fa-check"></i><b>2.5</b> Manual annotation, identification and extraction of metabolic feature signals</a></li>
+<li class="chapter" data-level="2.6" data-path="metabolomics.html"><a href="metabolomics.html#correlations"><i class="fa fa-check"></i><b>2.6</b> Correlations</a></li>
 </ul></li>
 <li class="chapter" data-level="3" data-path="microbiota.html"><a href="microbiota.html"><i class="fa fa-check"></i><b>3</b> Microbiota</a><ul>
 <li class="chapter" data-level="3.1" data-path="microbiota.html"><a href="microbiota.html#functions"><i class="fa fa-check"></i><b>3.1</b> Functions</a></li>
@@ -177,6 +729,8 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 <li class="chapter" data-level="4.2.2" data-path="inter-omics.html"><a href="inter-omics.html#consolidation-of-the-different-networks"><i class="fa fa-check"></i><b>4.2.2</b> Consolidation of the different networks</a></li>
 </ul></li>
 </ul></li>
+<li class="chapter" data-level="5" data-path="funding-disclaimer.html"><a href="funding-disclaimer.html"><i class="fa fa-check"></i><b>5</b> Funding disclaimer</a></li>
+<li class="chapter" data-level="" data-path="references.html"><a href="references.html"><i class="fa fa-check"></i>References</a></li>
 <li class="divider"></li>
 <li><a href="https://github.com/rstudio/bookdown" target="blank">Published with bookdown</a></li>
 
@@ -1672,14 +2226,14 @@ ion
 <span id="cb13-7"><a href="inter-omics.html#cb13-7"></a><span class="kw">options</span>(<span class="dt">kableExtra.html.bsTable =</span> T)</span>
 <span id="cb13-8"><a href="inter-omics.html#cb13-8"></a><span class="kw">kable</span>(diagnostics, <span class="dt">col.names =</span> <span class="kw">c</span>(<span class="st">&quot;Procrustes sum of squares&quot;</span>, <span class="st">&quot;correlation in symmetric rotation&quot;</span>, </span>
 <span id="cb13-9"><a href="inter-omics.html#cb13-9"></a>    <span class="st">&quot;significance&quot;</span>, <span class="st">&quot;N microbiome samples&quot;</span>, <span class="st">&quot;N OTUs&quot;</span>, <span class="st">&quot;N metabolome samples&quot;</span>, <span class="st">&quot;N features&quot;</span>, </span>
-<span id="cb13-10"><a href="inter-omics.html#cb13-10"></a>    <span class="st">&quot;Sponge species&quot;</span>, <span class="st">&quot;Experiment&quot;</span>, <span class="st">&quot;data set&quot;</span>), <span class="dt">longtable =</span> T, <span class="dt">booktabs =</span> T, <span class="dt">caption =</span> <span class="st">&quot;Protest diagnositcs comparing the microbiome and metabolome of the same sponge specimens&quot;</span>, </span>
+<span id="cb13-10"><a href="inter-omics.html#cb13-10"></a>    <span class="st">&quot;Sponge species&quot;</span>, <span class="st">&quot;Experiment&quot;</span>, <span class="st">&quot;data set&quot;</span>), <span class="dt">longtable =</span> T, <span class="dt">booktabs =</span> T, <span class="dt">caption =</span> <span class="st">&quot;Protest diagnostics comparing the microbiome and metabolome of the same sponge specimens&quot;</span>, </span>
 <span id="cb13-11"><a href="inter-omics.html#cb13-11"></a>    <span class="dt">row.names =</span> <span class="ot">FALSE</span>) <span class="op">%&gt;%</span><span class="st"> </span><span class="kw">add_header_above</span>(<span class="kw">c</span>(<span class="dt">Diagnostics =</span> <span class="dv">7</span>, <span class="st">`</span><span class="dt">Data set attribution</span><span class="st">`</span> =<span class="st"> </span><span class="dv">3</span>)) <span class="op">%&gt;%</span><span class="st"> </span></span>
 <span id="cb13-12"><a href="inter-omics.html#cb13-12"></a><span class="st">    </span><span class="kw">kable_styling</span>(<span class="dt">bootstrap_options =</span> <span class="kw">c</span>(<span class="st">&quot;striped&quot;</span>, <span class="st">&quot;hover&quot;</span>, <span class="st">&quot;bordered&quot;</span>, <span class="st">&quot;condensed&quot;</span>, </span>
 <span id="cb13-13"><a href="inter-omics.html#cb13-13"></a>        <span class="st">&quot;responsive&quot;</span>), <span class="dt">font_size =</span> <span class="dv">12</span>, <span class="dt">full_width =</span> F, <span class="dt">latex_options =</span> <span class="kw">c</span>(<span class="st">&quot;striped&quot;</span>, </span>
 <span id="cb13-14"><a href="inter-omics.html#cb13-14"></a>        <span class="st">&quot;scale_down&quot;</span>))</span></code></pre></div>
 <table class="table table-striped table-hover table-bordered table-condensed table-responsive" style="font-size: 12px; width: auto !important; margin-left: auto; margin-right: auto;">
 <caption style="font-size: initial !important;">
-(#tab:io6_prt)Protest diagnositcs comparing the microbiome and metabolome of the same sponge specimens
+(#tab:io6_prt)Protest diagnostics comparing the microbiome and metabolome of the same sponge specimens
 </caption>
 <thead>
 <tr>
@@ -3299,138 +3853,84 @@ The resulting network contrained <code>length(unique(c(fastLSA$index1, fastLSA$i
 <span id="cb47-28"><a href="inter-omics.html#cb47-28"></a>l &lt;-<span class="st"> </span><span class="kw">layout_with_kk</span>(net)</span>
 <span id="cb47-29"><a href="inter-omics.html#cb47-29"></a><span class="kw">plot</span>(net, <span class="dt">edge.arrow.size =</span> <span class="fl">0.2</span>, <span class="dt">edge.color =</span> <span class="st">&quot;grey&quot;</span>, <span class="dt">vertex.color =</span> <span class="st">&quot;orange&quot;</span>, <span class="dt">vertex.frame.color =</span> <span class="st">&quot;#ffffff&quot;</span>, </span>
 <span id="cb47-30"><a href="inter-omics.html#cb47-30"></a>    <span class="dt">vertex.label =</span> <span class="ot">NA</span>, <span class="dt">vertex.label.color =</span> <span class="st">&quot;black&quot;</span>, <span class="dt">vertex.size =</span> <span class="kw">V</span>(net)<span class="op">$</span>bar_scale_rel <span class="op">*</span><span class="st"> </span></span>
-<span id="cb47-31"><a href="inter-omics.html#cb47-31"></a><span class="st">        </span><span class="dv">10</span>, <span class="dt">layout =</span> l)</span></code></pre></div>
-<p><img src="Oceanographic-setting-influences-the-prokaryote-community-and-metabolome-in-deep-sea-sponges_files/figure-html/igraph1-1.png" width="672" /></p>
-<div class="sourceCode" id="cb48"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb48-1"><a href="inter-omics.html#cb48-1"></a><span class="co"># node info and classification for all nodes correlated with barettin</span></span>
-<span id="cb48-2"><a href="inter-omics.html#cb48-2"></a>node_info &lt;-<span class="st"> </span>nodes[, <span class="kw">c</span>(<span class="st">&quot;OTU_otu&quot;</span>, <span class="st">&quot;phylum&quot;</span>, <span class="st">&quot;class&quot;</span>)][nodes<span class="op">$</span>bar_scale_abs <span class="op">==</span><span class="st"> </span><span class="dv">1</span>, ]</span>
-<span id="cb48-3"><a href="inter-omics.html#cb48-3"></a>node_info[<span class="st">&quot;counter&quot;</span>] &lt;-<span class="st"> </span><span class="dv">1</span>  <span class="co">#for quick grasp with aggregate</span></span>
-<span id="cb48-4"><a href="inter-omics.html#cb48-4"></a>node_info</span></code></pre></div>
-<pre><code>##          OTU_otu           phylum                    class counter
-## 46  OTU196900180   Proteobacteria                    JTB23       1
-## 62  OTU196900196   Proteobacteria                    JTB23       1
-## 73  OTU196900208    Acidobacteria               Subgroup_6       1
-## 76  OTU196900211      Chloroflexi             SAR202_clade       1
-## 94  OTU196900231      Chloroflexi             SAR202_clade       1
-## 111 OTU196900253    Acidobacteria              Subgroup_15       1
-## 154 OTU196900307             &lt;NA&gt;                     &lt;NA&gt;       1
-## 156 OTU196900310   Proteobacteria                    JTB23       1
-## 169 OTU196900329 Gemmatimonadetes BD2-11_terrestrial_group       1
-## 171 OTU196900331      Chloroflexi             Anaerolineae       1
-## 174 OTU196900336    Acidobacteria               Holophagae       1
-## 183 OTU196900349      Chloroflexi             JG30-KF-CM66       1
-## 184 OTU196900350      Chloroflexi             SAR202_clade       1
-## 215 OTU196900391   Proteobacteria      Alphaproteobacteria       1
-## 218 OTU196900398    Acidobacteria               Subgroup_6       1
-## 230 OTU196900418    Acidobacteria               Subgroup_6       1
-## 319 OTU196900589      Chloroflexi             SAR202_clade       1
-## 327 OTU196900597      Chloroflexi                     TK10       1</code></pre>
-<div class="sourceCode" id="cb50"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb50-1"><a href="inter-omics.html#cb50-1"></a><span class="kw">nrow</span>(node_info)  <span class="co">#18</span></span></code></pre></div>
-<pre><code>## [1] 18</code></pre>
-<div class="sourceCode" id="cb52"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb52-1"><a href="inter-omics.html#cb52-1"></a>node_info[] &lt;-<span class="st"> </span><span class="kw">lapply</span>(node_info, <span class="cf">function</span>(x) <span class="cf">if</span> (<span class="kw">is.factor</span>(x)) <span class="kw">factor</span>(x) <span class="cf">else</span> x)  <span class="co">#dropping factors from full data set for all columns</span></span>
-<span id="cb52-2"><a href="inter-omics.html#cb52-2"></a>node_info[<span class="kw">order</span>(node_info<span class="op">$</span>phylum, node_info<span class="op">$</span>class), ]</span></code></pre></div>
-<pre><code>##          OTU_otu           phylum                    class counter
-## 174 OTU196900336    Acidobacteria               Holophagae       1
-## 111 OTU196900253    Acidobacteria              Subgroup_15       1
-## 73  OTU196900208    Acidobacteria               Subgroup_6       1
-## 218 OTU196900398    Acidobacteria               Subgroup_6       1
-## 230 OTU196900418    Acidobacteria               Subgroup_6       1
-## 171 OTU196900331      Chloroflexi             Anaerolineae       1
-## 183 OTU196900349      Chloroflexi             JG30-KF-CM66       1
-## 76  OTU196900211      Chloroflexi             SAR202_clade       1
-## 94  OTU196900231      Chloroflexi             SAR202_clade       1
-## 184 OTU196900350      Chloroflexi             SAR202_clade       1
-## 319 OTU196900589      Chloroflexi             SAR202_clade       1
-## 327 OTU196900597      Chloroflexi                     TK10       1
-## 169 OTU196900329 Gemmatimonadetes BD2-11_terrestrial_group       1
-## 215 OTU196900391   Proteobacteria      Alphaproteobacteria       1
-## 46  OTU196900180   Proteobacteria                    JTB23       1
-## 62  OTU196900196   Proteobacteria                    JTB23       1
-## 156 OTU196900310   Proteobacteria                    JTB23       1
-## 154 OTU196900307             &lt;NA&gt;                     &lt;NA&gt;       1</code></pre>
-<div class="sourceCode" id="cb54"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb54-1"><a href="inter-omics.html#cb54-1"></a><span class="kw">aggregate</span>(. <span class="op">~</span><span class="st"> </span>phylum, <span class="dt">data =</span> node_info, sum)</span></code></pre></div>
-<pre><code>##             phylum OTU_otu class counter
-## 1    Acidobacteria      51    39       5
-## 2      Chloroflexi      79    45       7
-## 3 Gemmatimonadetes       9     3       1
-## 4   Proteobacteria      25    19       4</code></pre>
-<div class="sourceCode" id="cb56"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb56-1"><a href="inter-omics.html#cb56-1"></a><span class="kw">aggregate</span>(. <span class="op">~</span><span class="st"> </span>class, <span class="dt">data =</span> node_info, sum)</span></code></pre></div>
-<pre><code>##                       class OTU_otu phylum counter
-## 1       Alphaproteobacteria      14      4       1
-## 2              Anaerolineae      10      2       1
-## 3  BD2-11_terrestrial_group       9      3       1
-## 4                Holophagae      11      1       1
-## 5              JG30-KF-CM66      12      2       1
-## 6                     JTB23      11     12       3
-## 7              SAR202_clade      39      8       4
-## 8               Subgroup_15       6      1       1
-## 9                Subgroup_6      34      3       3
-## 10                     TK10      18      2       1</code></pre>
-<div class="sourceCode" id="cb58"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb58-1"><a href="inter-omics.html#cb58-1"></a><span class="co"># Taxonomy coloring &amp; barettin: Phylum</span></span>
-<span id="cb58-2"><a href="inter-omics.html#cb58-2"></a>ecol &lt;-<span class="st"> </span><span class="kw">rep</span>(<span class="st">&quot;gray80&quot;</span>, <span class="kw">ecount</span>(net))</span>
-<span id="cb58-3"><a href="inter-omics.html#cb58-3"></a>vcol &lt;-<span class="st"> </span><span class="kw">rep</span>(<span class="st">&quot;grey40&quot;</span>, <span class="kw">vcount</span>(net))</span>
-<span id="cb58-4"><a href="inter-omics.html#cb58-4"></a>vcol[<span class="kw">V</span>(net)<span class="op">$</span>phylum <span class="op">==</span><span class="st"> &quot;Proteobacteria&quot;</span>] &lt;-<span class="st"> &quot;yellow&quot;</span></span>
-<span id="cb58-5"><a href="inter-omics.html#cb58-5"></a>vcol[<span class="kw">V</span>(net)<span class="op">$</span>phylum <span class="op">==</span><span class="st"> &quot;Acidobacteria&quot;</span>] &lt;-<span class="st"> &quot;purple&quot;</span></span>
-<span id="cb58-6"><a href="inter-omics.html#cb58-6"></a>vcol[<span class="kw">V</span>(net)<span class="op">$</span>phylum <span class="op">==</span><span class="st"> &quot;Chloroflexi&quot;</span>] &lt;-<span class="st"> &quot;blue&quot;</span></span>
-<span id="cb58-7"><a href="inter-omics.html#cb58-7"></a>vcol[<span class="kw">V</span>(net)<span class="op">$</span>phylum <span class="op">==</span><span class="st"> &quot;Gemmatimonadetes&quot;</span>] &lt;-<span class="st"> &quot;red&quot;</span></span>
-<span id="cb58-8"><a href="inter-omics.html#cb58-8"></a><span class="co"># The unclassified OTU196900307 will be displayed in grey.</span></span>
-<span id="cb58-9"><a href="inter-omics.html#cb58-9"></a><span class="kw">plot</span>(net, <span class="dt">vertex.color =</span> vcol, <span class="dt">edge.color =</span> ecol, <span class="dt">vertex.size =</span> <span class="kw">V</span>(net)<span class="op">$</span>bar_scale_rel <span class="op">*</span><span class="st"> </span></span>
-<span id="cb58-10"><a href="inter-omics.html#cb58-10"></a><span class="st">    </span><span class="dv">10</span>, <span class="dt">edge.width =</span> <span class="kw">E</span>(net)<span class="op">$</span>value<span class="op">^</span><span class="dv">2</span>, <span class="dt">vertex.label =</span> <span class="ot">NA</span>, <span class="dt">layout =</span> l)</span></code></pre></div>
-<p><img src="Oceanographic-setting-influences-the-prokaryote-community-and-metabolome-in-deep-sea-sponges_files/figure-html/igraph1-2.png" width="672" /></p>
-<div class="sourceCode" id="cb59"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb59-1"><a href="inter-omics.html#cb59-1"></a><span class="co"># PUBLICATION FIGURE Taxonomy coloring &amp; barettin: Class</span></span>
-<span id="cb59-2"><a href="inter-omics.html#cb59-2"></a>ecol &lt;-<span class="st"> </span><span class="kw">rep</span>(<span class="st">&quot;gray80&quot;</span>, <span class="kw">ecount</span>(net))</span>
-<span id="cb59-3"><a href="inter-omics.html#cb59-3"></a>vcol &lt;-<span class="st"> </span><span class="kw">rep</span>(<span class="st">&quot;grey40&quot;</span>, <span class="kw">vcount</span>(net))</span>
-<span id="cb59-4"><a href="inter-omics.html#cb59-4"></a>vcol[<span class="kw">V</span>(net)<span class="op">$</span>class <span class="op">==</span><span class="st"> &quot;Holophagae&quot;</span>] &lt;-<span class="st"> &quot;#9e0142&quot;</span></span>
-<span id="cb59-5"><a href="inter-omics.html#cb59-5"></a>vcol[<span class="kw">V</span>(net)<span class="op">$</span>class <span class="op">==</span><span class="st"> &quot;Subgroup_15&quot;</span>] &lt;-<span class="st"> &quot;#d53e4f&quot;</span></span>
-<span id="cb59-6"><a href="inter-omics.html#cb59-6"></a>vcol[<span class="kw">V</span>(net)<span class="op">$</span>class <span class="op">==</span><span class="st"> &quot;Subgroup_6&quot;</span>] &lt;-<span class="st"> &quot;#f46d43&quot;</span></span>
-<span id="cb59-7"><a href="inter-omics.html#cb59-7"></a>vcol[<span class="kw">V</span>(net)<span class="op">$</span>class <span class="op">==</span><span class="st"> &quot;Anaerolineae&quot;</span>] &lt;-<span class="st"> &quot;#fdae61&quot;</span></span>
-<span id="cb59-8"><a href="inter-omics.html#cb59-8"></a>vcol[<span class="kw">V</span>(net)<span class="op">$</span>class <span class="op">==</span><span class="st"> &quot;JG30-KF-CM66&quot;</span>] &lt;-<span class="st"> &quot;#fee08b&quot;</span></span>
-<span id="cb59-9"><a href="inter-omics.html#cb59-9"></a>vcol[<span class="kw">V</span>(net)<span class="op">$</span>class <span class="op">==</span><span class="st"> &quot;SAR202_clade&quot;</span>] &lt;-<span class="st"> &quot;#e6f598&quot;</span></span>
-<span id="cb59-10"><a href="inter-omics.html#cb59-10"></a>vcol[<span class="kw">V</span>(net)<span class="op">$</span>class <span class="op">==</span><span class="st"> &quot;TK10&quot;</span>] &lt;-<span class="st"> &quot;#abdda4&quot;</span></span>
-<span id="cb59-11"><a href="inter-omics.html#cb59-11"></a>vcol[<span class="kw">V</span>(net)<span class="op">$</span>class <span class="op">==</span><span class="st"> &quot;BD2-11_terrestrial_group&quot;</span>] &lt;-<span class="st"> &quot;#66c2a5&quot;</span></span>
-<span id="cb59-12"><a href="inter-omics.html#cb59-12"></a>vcol[<span class="kw">V</span>(net)<span class="op">$</span>class <span class="op">==</span><span class="st"> &quot;Alphaproteobacteria&quot;</span>] &lt;-<span class="st"> &quot;#3288bd&quot;</span></span>
-<span id="cb59-13"><a href="inter-omics.html#cb59-13"></a>vcol[<span class="kw">V</span>(net)<span class="op">$</span>class <span class="op">==</span><span class="st"> &quot;JTB23&quot;</span>] &lt;-<span class="st"> &quot;#5e4fa2&quot;</span></span>
-<span id="cb59-14"><a href="inter-omics.html#cb59-14"></a></span>
-<span id="cb59-15"><a href="inter-omics.html#cb59-15"></a>colrs &lt;-<span class="st"> </span><span class="kw">c</span>(<span class="st">&quot;#9e0142&quot;</span>, <span class="st">&quot;#d53e4f&quot;</span>, <span class="st">&quot;#f46d43&quot;</span>, <span class="st">&quot;#fdae61&quot;</span>, <span class="st">&quot;#fee08b&quot;</span>, <span class="st">&quot;#e6f598&quot;</span>, <span class="st">&quot;#abdda4&quot;</span>, </span>
-<span id="cb59-16"><a href="inter-omics.html#cb59-16"></a>    <span class="st">&quot;#66c2a5&quot;</span>, <span class="st">&quot;#3288bd&quot;</span>, <span class="st">&quot;#5e4fa2&quot;</span>)</span>
-<span id="cb59-17"><a href="inter-omics.html#cb59-17"></a><span class="kw">V</span>(net)<span class="op">$</span>color &lt;-<span class="st"> </span>colrs[<span class="kw">V</span>(net)<span class="op">$</span>class]</span>
-<span id="cb59-18"><a href="inter-omics.html#cb59-18"></a></span>
-<span id="cb59-19"><a href="inter-omics.html#cb59-19"></a><span class="co"># PUBLICATION FIGURE</span></span>
-<span id="cb59-20"><a href="inter-omics.html#cb59-20"></a><span class="kw">plot</span>(net, <span class="dt">vertex.color =</span> vcol, <span class="dt">edge.color =</span> ecol, <span class="dt">vertex.size =</span> <span class="kw">V</span>(net)<span class="op">$</span>bar_scale_rel <span class="op">*</span><span class="st"> </span></span>
-<span id="cb59-21"><a href="inter-omics.html#cb59-21"></a><span class="st">    </span><span class="dv">10</span>, <span class="dt">edge.width =</span> <span class="kw">E</span>(net)<span class="op">$</span>value<span class="op">^</span><span class="dv">2</span>, <span class="dt">vertex.label =</span> <span class="ot">NA</span>, <span class="dt">layout =</span> l)</span>
-<span id="cb59-22"><a href="inter-omics.html#cb59-22"></a><span class="co"># legend(x=-2.1, y=0.5, c(&#39;Holophagae (Acidobacteria)&#39;,&#39;Subgroup_15</span></span>
-<span id="cb59-23"><a href="inter-omics.html#cb59-23"></a><span class="co"># (Acidobacteria)&#39;, &#39;Subgroup_6 (Acidobacteria)&#39;, &#39;Anaerolineae (Chloroflexi)&#39;,</span></span>
-<span id="cb59-24"><a href="inter-omics.html#cb59-24"></a><span class="co"># &#39;JG30-KF-CM66 (Chloroflexi)&#39;, &#39;SAR202_clade (Chloroflexi)&#39;, &#39;TK10</span></span>
-<span id="cb59-25"><a href="inter-omics.html#cb59-25"></a><span class="co"># (Chloroflexi)&#39;, &#39;BD2-11_terrestrial_group (Gemmatimonadetes)&#39;,</span></span>
-<span id="cb59-26"><a href="inter-omics.html#cb59-26"></a><span class="co"># &#39;Alphaproteobacteria (Proteobacteria)&#39;, &#39;JTB23 (Proteobacteria)&#39;), pt.bg=colrs,</span></span>
-<span id="cb59-27"><a href="inter-omics.html#cb59-27"></a><span class="co"># pch=21,col=&#39;#777777&#39;, pt.cex=2, cex=.8, bty=&#39;n&#39;, ncol=1)</span></span>
-<span id="cb59-28"><a href="inter-omics.html#cb59-28"></a><span class="kw">legend</span>(<span class="dt">x =</span> <span class="fl">-2.9</span>, <span class="dt">y =</span> <span class="fl">0.5</span>, <span class="kw">c</span>(<span class="st">&quot;Holophagae (Acidobacteria)&quot;</span>, <span class="st">&quot;Subgroup_15 (Acidobacteria)&quot;</span>, </span>
-<span id="cb59-29"><a href="inter-omics.html#cb59-29"></a>    <span class="st">&quot;Subgroup_6 (Acidobacteria)&quot;</span>, <span class="st">&quot;Anaerolineae (Chloroflexi)&quot;</span>, <span class="st">&quot;JG30-KF-CM66 (Chloroflexi)&quot;</span>, </span>
-<span id="cb59-30"><a href="inter-omics.html#cb59-30"></a>    <span class="st">&quot;SAR202_clade (Chloroflexi)&quot;</span>, <span class="st">&quot;TK10 (Chloroflexi)&quot;</span>, <span class="st">&quot;BD2-11_terrestrial_group (Gemmatimonadetes)&quot;</span>, </span>
-<span id="cb59-31"><a href="inter-omics.html#cb59-31"></a>    <span class="st">&quot;Alphaproteobacteria (Proteobacteria)&quot;</span>, <span class="st">&quot;JTB23 (Proteobacteria)&quot;</span>), <span class="dt">pt.bg =</span> colrs, </span>
-<span id="cb59-32"><a href="inter-omics.html#cb59-32"></a>    <span class="dt">pch =</span> <span class="dv">21</span>, <span class="dt">col =</span> <span class="st">&quot;#777777&quot;</span>, <span class="dt">pt.cex =</span> <span class="fl">1.5</span>, <span class="dt">cex =</span> <span class="fl">0.7</span>, <span class="dt">bty =</span> <span class="st">&quot;n&quot;</span>, <span class="dt">ncol =</span> <span class="dv">1</span>)</span></code></pre></div>
-<p><img src="Oceanographic-setting-influences-the-prokaryote-community-and-metabolome-in-deep-sea-sponges_files/figure-html/igraph1-3.png" width="672" /></p>
-<div class="sourceCode" id="cb60"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb60-1"><a href="inter-omics.html#cb60-1"></a><span class="co"># Labels, personal use</span></span>
-<span id="cb60-2"><a href="inter-omics.html#cb60-2"></a><span class="kw">plot</span>(net, <span class="dt">vertex.color =</span> vcol, <span class="dt">edge.color =</span> ecol, <span class="dt">vertex.size =</span> <span class="kw">V</span>(net)<span class="op">$</span>bar_scale_rel <span class="op">*</span><span class="st"> </span></span>
-<span id="cb60-3"><a href="inter-omics.html#cb60-3"></a><span class="st">    </span><span class="dv">10</span>, <span class="dt">edge.width =</span> <span class="kw">E</span>(net)<span class="op">$</span>value<span class="op">^</span><span class="dv">2</span>, <span class="dt">vertex.label =</span> <span class="kw">V</span>(net)<span class="op">$</span>labels, <span class="dt">layout =</span> l)</span>
-<span id="cb60-4"><a href="inter-omics.html#cb60-4"></a><span class="co"># legend(x=-2.1, y=0.5, c(&#39;Holophagae (Acidobacteria)&#39;,&#39;Subgroup_15</span></span>
-<span id="cb60-5"><a href="inter-omics.html#cb60-5"></a><span class="co"># (Acidobacteria)&#39;, &#39;Subgroup_6 (Acidobacteria)&#39;, &#39;Anaerolineae (Chloroflexi)&#39;,</span></span>
-<span id="cb60-6"><a href="inter-omics.html#cb60-6"></a><span class="co"># &#39;JG30-KF-CM66 (Chloroflexi)&#39;, &#39;SAR202_clade (Chloroflexi)&#39;, &#39;TK10</span></span>
-<span id="cb60-7"><a href="inter-omics.html#cb60-7"></a><span class="co"># (Chloroflexi)&#39;, &#39;BD2-11_terrestrial_group (Gemmatimonadetes)&#39;,</span></span>
-<span id="cb60-8"><a href="inter-omics.html#cb60-8"></a><span class="co"># &#39;Alphaproteobacteria (Proteobacteria)&#39;, &#39;JTB23 (Proteobacteria)&#39;), pt.bg=colrs,</span></span>
-<span id="cb60-9"><a href="inter-omics.html#cb60-9"></a><span class="co"># pch=21,col=&#39;#777777&#39;, pt.cex=2, cex=.8, bty=&#39;n&#39;, ncol=1)</span></span>
-<span id="cb60-10"><a href="inter-omics.html#cb60-10"></a><span class="kw">legend</span>(<span class="dt">x =</span> <span class="fl">-2.9</span>, <span class="dt">y =</span> <span class="fl">0.5</span>, <span class="kw">c</span>(<span class="st">&quot;Holophagae (Acidobacteria)&quot;</span>, <span class="st">&quot;Subgroup_15 (Acidobacteria)&quot;</span>, </span>
-<span id="cb60-11"><a href="inter-omics.html#cb60-11"></a>    <span class="st">&quot;Subgroup_6 (Acidobacteria)&quot;</span>, <span class="st">&quot;Anaerolineae (Chloroflexi)&quot;</span>, <span class="st">&quot;JG30-KF-CM66 (Chloroflexi)&quot;</span>, </span>
-<span id="cb60-12"><a href="inter-omics.html#cb60-12"></a>    <span class="st">&quot;SAR202_clade (Chloroflexi)&quot;</span>, <span class="st">&quot;TK10 (Chloroflexi)&quot;</span>, <span class="st">&quot;BD2-11_terrestrial_group (Gemmatimonadetes)&quot;</span>, </span>
-<span id="cb60-13"><a href="inter-omics.html#cb60-13"></a>    <span class="st">&quot;Alphaproteobacteria (Proteobacteria)&quot;</span>, <span class="st">&quot;JTB23 (Proteobacteria)&quot;</span>), <span class="dt">pt.bg =</span> colrs, </span>
-<span id="cb60-14"><a href="inter-omics.html#cb60-14"></a>    <span class="dt">pch =</span> <span class="dv">21</span>, <span class="dt">col =</span> <span class="st">&quot;#777777&quot;</span>, <span class="dt">pt.cex =</span> <span class="fl">1.5</span>, <span class="dt">cex =</span> <span class="fl">0.7</span>, <span class="dt">bty =</span> <span class="st">&quot;n&quot;</span>, <span class="dt">ncol =</span> <span class="dv">1</span>)</span></code></pre></div>
-<p><img src="Oceanographic-setting-influences-the-prokaryote-community-and-metabolome-in-deep-sea-sponges_files/figure-html/igraph1-4.png" width="672" /></p>
-<div class="sourceCode" id="cb61"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb61-1"><a href="inter-omics.html#cb61-1"></a><span class="co"># VIPs</span></span>
-<span id="cb61-2"><a href="inter-omics.html#cb61-2"></a>l &lt;-<span class="st"> </span><span class="kw">layout_with_kk</span>(net)</span>
-<span id="cb61-3"><a href="inter-omics.html#cb61-3"></a><span class="kw">plot</span>(net, <span class="dt">edge.arrow.size =</span> <span class="fl">0.2</span>, <span class="dt">edge.color =</span> <span class="st">&quot;grey&quot;</span>, <span class="dt">vertex.color =</span> <span class="st">&quot;orange&quot;</span>, <span class="dt">vertex.frame.color =</span> <span class="st">&quot;#ffffff&quot;</span>, </span>
-<span id="cb61-4"><a href="inter-omics.html#cb61-4"></a>    <span class="dt">vertex.label =</span> <span class="ot">NA</span>, <span class="dt">vertex.label.color =</span> <span class="st">&quot;black&quot;</span>, <span class="dt">vertex.size =</span> <span class="kw">V</span>(net)<span class="op">$</span>vip_scale_rel <span class="op">*</span><span class="st"> </span></span>
-<span id="cb61-5"><a href="inter-omics.html#cb61-5"></a><span class="st">        </span><span class="dv">5</span>, <span class="dt">layout =</span> l)</span></code></pre></div>
-<p><img src="Oceanographic-setting-influences-the-prokaryote-community-and-metabolome-in-deep-sea-sponges_files/figure-html/igraph1-5.png" width="672" /></p>
-<div class="sourceCode" id="cb62"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb62-1"><a href="inter-omics.html#cb62-1"></a><span class="kw">sessionInfo</span>()</span></code></pre></div>
+<span id="cb47-31"><a href="inter-omics.html#cb47-31"></a><span class="st">        </span><span class="dv">10</span>, <span class="dt">layout =</span> l)</span>
+<span id="cb47-32"><a href="inter-omics.html#cb47-32"></a></span>
+<span id="cb47-33"><a href="inter-omics.html#cb47-33"></a><span class="co"># node info and classification for all nodes correlated with barettin</span></span>
+<span id="cb47-34"><a href="inter-omics.html#cb47-34"></a>node_info &lt;-<span class="st"> </span>nodes[, <span class="kw">c</span>(<span class="st">&quot;OTU_otu&quot;</span>, <span class="st">&quot;phylum&quot;</span>, <span class="st">&quot;class&quot;</span>)][nodes<span class="op">$</span>bar_scale_abs <span class="op">==</span><span class="st"> </span><span class="dv">1</span>, ]</span>
+<span id="cb47-35"><a href="inter-omics.html#cb47-35"></a>node_info[<span class="st">&quot;counter&quot;</span>] &lt;-<span class="st"> </span><span class="dv">1</span>  <span class="co">#for quick grasp with aggregate</span></span>
+<span id="cb47-36"><a href="inter-omics.html#cb47-36"></a>node_info</span>
+<span id="cb47-37"><a href="inter-omics.html#cb47-37"></a><span class="kw">nrow</span>(node_info)  <span class="co">#18</span></span>
+<span id="cb47-38"><a href="inter-omics.html#cb47-38"></a>node_info[] &lt;-<span class="st"> </span><span class="kw">lapply</span>(node_info, <span class="cf">function</span>(x) <span class="cf">if</span> (<span class="kw">is.factor</span>(x)) <span class="kw">factor</span>(x) <span class="cf">else</span> x)  <span class="co">#dropping factors from full data set for all columns</span></span>
+<span id="cb47-39"><a href="inter-omics.html#cb47-39"></a>node_info[<span class="kw">order</span>(node_info<span class="op">$</span>phylum, node_info<span class="op">$</span>class), ]</span>
+<span id="cb47-40"><a href="inter-omics.html#cb47-40"></a><span class="kw">aggregate</span>(. <span class="op">~</span><span class="st"> </span>phylum, <span class="dt">data =</span> node_info, sum)</span>
+<span id="cb47-41"><a href="inter-omics.html#cb47-41"></a><span class="kw">aggregate</span>(. <span class="op">~</span><span class="st"> </span>class, <span class="dt">data =</span> node_info, sum)</span>
+<span id="cb47-42"><a href="inter-omics.html#cb47-42"></a></span>
+<span id="cb47-43"><a href="inter-omics.html#cb47-43"></a><span class="co"># Taxonomy coloring &amp; barettin: Phylum</span></span>
+<span id="cb47-44"><a href="inter-omics.html#cb47-44"></a>ecol &lt;-<span class="st"> </span><span class="kw">rep</span>(<span class="st">&quot;gray80&quot;</span>, <span class="kw">ecount</span>(net))</span>
+<span id="cb47-45"><a href="inter-omics.html#cb47-45"></a>vcol &lt;-<span class="st"> </span><span class="kw">rep</span>(<span class="st">&quot;grey40&quot;</span>, <span class="kw">vcount</span>(net))</span>
+<span id="cb47-46"><a href="inter-omics.html#cb47-46"></a>vcol[<span class="kw">V</span>(net)<span class="op">$</span>phylum <span class="op">==</span><span class="st"> &quot;Proteobacteria&quot;</span>] &lt;-<span class="st"> &quot;yellow&quot;</span></span>
+<span id="cb47-47"><a href="inter-omics.html#cb47-47"></a>vcol[<span class="kw">V</span>(net)<span class="op">$</span>phylum <span class="op">==</span><span class="st"> &quot;Acidobacteria&quot;</span>] &lt;-<span class="st"> &quot;purple&quot;</span></span>
+<span id="cb47-48"><a href="inter-omics.html#cb47-48"></a>vcol[<span class="kw">V</span>(net)<span class="op">$</span>phylum <span class="op">==</span><span class="st"> &quot;Chloroflexi&quot;</span>] &lt;-<span class="st"> &quot;blue&quot;</span></span>
+<span id="cb47-49"><a href="inter-omics.html#cb47-49"></a>vcol[<span class="kw">V</span>(net)<span class="op">$</span>phylum <span class="op">==</span><span class="st"> &quot;Gemmatimonadetes&quot;</span>] &lt;-<span class="st"> &quot;red&quot;</span></span>
+<span id="cb47-50"><a href="inter-omics.html#cb47-50"></a><span class="co"># The unclassified OTU196900307 will be displayed in grey.</span></span>
+<span id="cb47-51"><a href="inter-omics.html#cb47-51"></a><span class="kw">plot</span>(net, <span class="dt">vertex.color =</span> vcol, <span class="dt">edge.color =</span> ecol, <span class="dt">vertex.size =</span> <span class="kw">V</span>(net)<span class="op">$</span>bar_scale_rel <span class="op">*</span><span class="st"> </span></span>
+<span id="cb47-52"><a href="inter-omics.html#cb47-52"></a><span class="st">    </span><span class="dv">10</span>, <span class="dt">edge.width =</span> <span class="kw">E</span>(net)<span class="op">$</span>value<span class="op">^</span><span class="dv">2</span>, <span class="dt">vertex.label =</span> <span class="ot">NA</span>, <span class="dt">layout =</span> l)</span>
+<span id="cb47-53"><a href="inter-omics.html#cb47-53"></a></span>
+<span id="cb47-54"><a href="inter-omics.html#cb47-54"></a><span class="co"># PUBLICATION FIGURE Taxonomy coloring &amp; barettin: Class</span></span>
+<span id="cb47-55"><a href="inter-omics.html#cb47-55"></a>ecol &lt;-<span class="st"> </span><span class="kw">rep</span>(<span class="st">&quot;gray80&quot;</span>, <span class="kw">ecount</span>(net))</span>
+<span id="cb47-56"><a href="inter-omics.html#cb47-56"></a>vcol &lt;-<span class="st"> </span><span class="kw">rep</span>(<span class="st">&quot;grey40&quot;</span>, <span class="kw">vcount</span>(net))</span>
+<span id="cb47-57"><a href="inter-omics.html#cb47-57"></a>vcol[<span class="kw">V</span>(net)<span class="op">$</span>class <span class="op">==</span><span class="st"> &quot;Holophagae&quot;</span>] &lt;-<span class="st"> &quot;#9e0142&quot;</span></span>
+<span id="cb47-58"><a href="inter-omics.html#cb47-58"></a>vcol[<span class="kw">V</span>(net)<span class="op">$</span>class <span class="op">==</span><span class="st"> &quot;Subgroup_15&quot;</span>] &lt;-<span class="st"> &quot;#d53e4f&quot;</span></span>
+<span id="cb47-59"><a href="inter-omics.html#cb47-59"></a>vcol[<span class="kw">V</span>(net)<span class="op">$</span>class <span class="op">==</span><span class="st"> &quot;Subgroup_6&quot;</span>] &lt;-<span class="st"> &quot;#f46d43&quot;</span></span>
+<span id="cb47-60"><a href="inter-omics.html#cb47-60"></a>vcol[<span class="kw">V</span>(net)<span class="op">$</span>class <span class="op">==</span><span class="st"> &quot;Anaerolineae&quot;</span>] &lt;-<span class="st"> &quot;#fdae61&quot;</span></span>
+<span id="cb47-61"><a href="inter-omics.html#cb47-61"></a>vcol[<span class="kw">V</span>(net)<span class="op">$</span>class <span class="op">==</span><span class="st"> &quot;JG30-KF-CM66&quot;</span>] &lt;-<span class="st"> &quot;#fee08b&quot;</span></span>
+<span id="cb47-62"><a href="inter-omics.html#cb47-62"></a>vcol[<span class="kw">V</span>(net)<span class="op">$</span>class <span class="op">==</span><span class="st"> &quot;SAR202_clade&quot;</span>] &lt;-<span class="st"> &quot;#e6f598&quot;</span></span>
+<span id="cb47-63"><a href="inter-omics.html#cb47-63"></a>vcol[<span class="kw">V</span>(net)<span class="op">$</span>class <span class="op">==</span><span class="st"> &quot;TK10&quot;</span>] &lt;-<span class="st"> &quot;#abdda4&quot;</span></span>
+<span id="cb47-64"><a href="inter-omics.html#cb47-64"></a>vcol[<span class="kw">V</span>(net)<span class="op">$</span>class <span class="op">==</span><span class="st"> &quot;BD2-11_terrestrial_group&quot;</span>] &lt;-<span class="st"> &quot;#66c2a5&quot;</span></span>
+<span id="cb47-65"><a href="inter-omics.html#cb47-65"></a>vcol[<span class="kw">V</span>(net)<span class="op">$</span>class <span class="op">==</span><span class="st"> &quot;Alphaproteobacteria&quot;</span>] &lt;-<span class="st"> &quot;#3288bd&quot;</span></span>
+<span id="cb47-66"><a href="inter-omics.html#cb47-66"></a>vcol[<span class="kw">V</span>(net)<span class="op">$</span>class <span class="op">==</span><span class="st"> &quot;JTB23&quot;</span>] &lt;-<span class="st"> &quot;#5e4fa2&quot;</span></span>
+<span id="cb47-67"><a href="inter-omics.html#cb47-67"></a></span>
+<span id="cb47-68"><a href="inter-omics.html#cb47-68"></a>colrs &lt;-<span class="st"> </span><span class="kw">c</span>(<span class="st">&quot;#9e0142&quot;</span>, <span class="st">&quot;#d53e4f&quot;</span>, <span class="st">&quot;#f46d43&quot;</span>, <span class="st">&quot;#fdae61&quot;</span>, <span class="st">&quot;#fee08b&quot;</span>, <span class="st">&quot;#e6f598&quot;</span>, <span class="st">&quot;#abdda4&quot;</span>, </span>
+<span id="cb47-69"><a href="inter-omics.html#cb47-69"></a>    <span class="st">&quot;#66c2a5&quot;</span>, <span class="st">&quot;#3288bd&quot;</span>, <span class="st">&quot;#5e4fa2&quot;</span>)</span>
+<span id="cb47-70"><a href="inter-omics.html#cb47-70"></a><span class="kw">V</span>(net)<span class="op">$</span>color &lt;-<span class="st"> </span>colrs[<span class="kw">V</span>(net)<span class="op">$</span>class]</span>
+<span id="cb47-71"><a href="inter-omics.html#cb47-71"></a></span>
+<span id="cb47-72"><a href="inter-omics.html#cb47-72"></a><span class="co"># PUBLICATION FIGURE</span></span>
+<span id="cb47-73"><a href="inter-omics.html#cb47-73"></a><span class="kw">plot</span>(net, <span class="dt">vertex.color =</span> vcol, <span class="dt">edge.color =</span> ecol, <span class="dt">vertex.size =</span> <span class="kw">V</span>(net)<span class="op">$</span>bar_scale_rel <span class="op">*</span><span class="st"> </span></span>
+<span id="cb47-74"><a href="inter-omics.html#cb47-74"></a><span class="st">    </span><span class="dv">10</span>, <span class="dt">edge.width =</span> <span class="kw">E</span>(net)<span class="op">$</span>value<span class="op">^</span><span class="dv">2</span>, <span class="dt">vertex.label =</span> <span class="ot">NA</span>, <span class="dt">layout =</span> l)</span>
+<span id="cb47-75"><a href="inter-omics.html#cb47-75"></a><span class="co"># legend(x=-2.1, y=0.5, c(&#39;Holophagae (Acidobacteria)&#39;,&#39;Subgroup_15</span></span>
+<span id="cb47-76"><a href="inter-omics.html#cb47-76"></a><span class="co"># (Acidobacteria)&#39;, &#39;Subgroup_6 (Acidobacteria)&#39;, &#39;Anaerolineae (Chloroflexi)&#39;,</span></span>
+<span id="cb47-77"><a href="inter-omics.html#cb47-77"></a><span class="co"># &#39;JG30-KF-CM66 (Chloroflexi)&#39;, &#39;SAR202_clade (Chloroflexi)&#39;, &#39;TK10</span></span>
+<span id="cb47-78"><a href="inter-omics.html#cb47-78"></a><span class="co"># (Chloroflexi)&#39;, &#39;BD2-11_terrestrial_group (Gemmatimonadetes)&#39;,</span></span>
+<span id="cb47-79"><a href="inter-omics.html#cb47-79"></a><span class="co"># &#39;Alphaproteobacteria (Proteobacteria)&#39;, &#39;JTB23 (Proteobacteria)&#39;), pt.bg=colrs,</span></span>
+<span id="cb47-80"><a href="inter-omics.html#cb47-80"></a><span class="co"># pch=21,col=&#39;#777777&#39;, pt.cex=2, cex=.8, bty=&#39;n&#39;, ncol=1)</span></span>
+<span id="cb47-81"><a href="inter-omics.html#cb47-81"></a><span class="kw">legend</span>(<span class="dt">x =</span> <span class="fl">-2.9</span>, <span class="dt">y =</span> <span class="fl">0.5</span>, <span class="kw">c</span>(<span class="st">&quot;Holophagae (Acidobacteria)&quot;</span>, <span class="st">&quot;Subgroup_15 (Acidobacteria)&quot;</span>, </span>
+<span id="cb47-82"><a href="inter-omics.html#cb47-82"></a>    <span class="st">&quot;Subgroup_6 (Acidobacteria)&quot;</span>, <span class="st">&quot;Anaerolineae (Chloroflexi)&quot;</span>, <span class="st">&quot;JG30-KF-CM66 (Chloroflexi)&quot;</span>, </span>
+<span id="cb47-83"><a href="inter-omics.html#cb47-83"></a>    <span class="st">&quot;SAR202_clade (Chloroflexi)&quot;</span>, <span class="st">&quot;TK10 (Chloroflexi)&quot;</span>, <span class="st">&quot;BD2-11_terrestrial_group (Gemmatimonadetes)&quot;</span>, </span>
+<span id="cb47-84"><a href="inter-omics.html#cb47-84"></a>    <span class="st">&quot;Alphaproteobacteria (Proteobacteria)&quot;</span>, <span class="st">&quot;JTB23 (Proteobacteria)&quot;</span>), <span class="dt">pt.bg =</span> colrs, </span>
+<span id="cb47-85"><a href="inter-omics.html#cb47-85"></a>    <span class="dt">pch =</span> <span class="dv">21</span>, <span class="dt">col =</span> <span class="st">&quot;#777777&quot;</span>, <span class="dt">pt.cex =</span> <span class="fl">1.5</span>, <span class="dt">cex =</span> <span class="fl">0.7</span>, <span class="dt">bty =</span> <span class="st">&quot;n&quot;</span>, <span class="dt">ncol =</span> <span class="dv">1</span>)</span>
+<span id="cb47-86"><a href="inter-omics.html#cb47-86"></a></span>
+<span id="cb47-87"><a href="inter-omics.html#cb47-87"></a><span class="co"># Labels, personal use</span></span>
+<span id="cb47-88"><a href="inter-omics.html#cb47-88"></a><span class="kw">plot</span>(net, <span class="dt">vertex.color =</span> vcol, <span class="dt">edge.color =</span> ecol, <span class="dt">vertex.size =</span> <span class="kw">V</span>(net)<span class="op">$</span>bar_scale_rel <span class="op">*</span><span class="st"> </span></span>
+<span id="cb47-89"><a href="inter-omics.html#cb47-89"></a><span class="st">    </span><span class="dv">10</span>, <span class="dt">edge.width =</span> <span class="kw">E</span>(net)<span class="op">$</span>value<span class="op">^</span><span class="dv">2</span>, <span class="dt">vertex.label =</span> <span class="kw">V</span>(net)<span class="op">$</span>labels, <span class="dt">layout =</span> l)</span>
+<span id="cb47-90"><a href="inter-omics.html#cb47-90"></a><span class="co"># legend(x=-2.1, y=0.5, c(&#39;Holophagae (Acidobacteria)&#39;,&#39;Subgroup_15</span></span>
+<span id="cb47-91"><a href="inter-omics.html#cb47-91"></a><span class="co"># (Acidobacteria)&#39;, &#39;Subgroup_6 (Acidobacteria)&#39;, &#39;Anaerolineae (Chloroflexi)&#39;,</span></span>
+<span id="cb47-92"><a href="inter-omics.html#cb47-92"></a><span class="co"># &#39;JG30-KF-CM66 (Chloroflexi)&#39;, &#39;SAR202_clade (Chloroflexi)&#39;, &#39;TK10</span></span>
+<span id="cb47-93"><a href="inter-omics.html#cb47-93"></a><span class="co"># (Chloroflexi)&#39;, &#39;BD2-11_terrestrial_group (Gemmatimonadetes)&#39;,</span></span>
+<span id="cb47-94"><a href="inter-omics.html#cb47-94"></a><span class="co"># &#39;Alphaproteobacteria (Proteobacteria)&#39;, &#39;JTB23 (Proteobacteria)&#39;), pt.bg=colrs,</span></span>
+<span id="cb47-95"><a href="inter-omics.html#cb47-95"></a><span class="co"># pch=21,col=&#39;#777777&#39;, pt.cex=2, cex=.8, bty=&#39;n&#39;, ncol=1)</span></span>
+<span id="cb47-96"><a href="inter-omics.html#cb47-96"></a><span class="kw">legend</span>(<span class="dt">x =</span> <span class="fl">-2.9</span>, <span class="dt">y =</span> <span class="fl">0.5</span>, <span class="kw">c</span>(<span class="st">&quot;Holophagae (Acidobacteria)&quot;</span>, <span class="st">&quot;Subgroup_15 (Acidobacteria)&quot;</span>, </span>
+<span id="cb47-97"><a href="inter-omics.html#cb47-97"></a>    <span class="st">&quot;Subgroup_6 (Acidobacteria)&quot;</span>, <span class="st">&quot;Anaerolineae (Chloroflexi)&quot;</span>, <span class="st">&quot;JG30-KF-CM66 (Chloroflexi)&quot;</span>, </span>
+<span id="cb47-98"><a href="inter-omics.html#cb47-98"></a>    <span class="st">&quot;SAR202_clade (Chloroflexi)&quot;</span>, <span class="st">&quot;TK10 (Chloroflexi)&quot;</span>, <span class="st">&quot;BD2-11_terrestrial_group (Gemmatimonadetes)&quot;</span>, </span>
+<span id="cb47-99"><a href="inter-omics.html#cb47-99"></a>    <span class="st">&quot;Alphaproteobacteria (Proteobacteria)&quot;</span>, <span class="st">&quot;JTB23 (Proteobacteria)&quot;</span>), <span class="dt">pt.bg =</span> colrs, </span>
+<span id="cb47-100"><a href="inter-omics.html#cb47-100"></a>    <span class="dt">pch =</span> <span class="dv">21</span>, <span class="dt">col =</span> <span class="st">&quot;#777777&quot;</span>, <span class="dt">pt.cex =</span> <span class="fl">1.5</span>, <span class="dt">cex =</span> <span class="fl">0.7</span>, <span class="dt">bty =</span> <span class="st">&quot;n&quot;</span>, <span class="dt">ncol =</span> <span class="dv">1</span>)</span>
+<span id="cb47-101"><a href="inter-omics.html#cb47-101"></a></span>
+<span id="cb47-102"><a href="inter-omics.html#cb47-102"></a></span>
+<span id="cb47-103"><a href="inter-omics.html#cb47-103"></a><span class="co"># VIPs</span></span>
+<span id="cb47-104"><a href="inter-omics.html#cb47-104"></a>l &lt;-<span class="st"> </span><span class="kw">layout_with_kk</span>(net)</span>
+<span id="cb47-105"><a href="inter-omics.html#cb47-105"></a><span class="kw">plot</span>(net, <span class="dt">edge.arrow.size =</span> <span class="fl">0.2</span>, <span class="dt">edge.color =</span> <span class="st">&quot;grey&quot;</span>, <span class="dt">vertex.color =</span> <span class="st">&quot;orange&quot;</span>, <span class="dt">vertex.frame.color =</span> <span class="st">&quot;#ffffff&quot;</span>, </span>
+<span id="cb47-106"><a href="inter-omics.html#cb47-106"></a>    <span class="dt">vertex.label =</span> <span class="ot">NA</span>, <span class="dt">vertex.label.color =</span> <span class="st">&quot;black&quot;</span>, <span class="dt">vertex.size =</span> <span class="kw">V</span>(net)<span class="op">$</span>vip_scale_rel <span class="op">*</span><span class="st"> </span></span>
+<span id="cb47-107"><a href="inter-omics.html#cb47-107"></a><span class="st">        </span><span class="dv">5</span>, <span class="dt">layout =</span> l)</span></code></pre></div>
+<div class="sourceCode" id="cb48"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb48-1"><a href="inter-omics.html#cb48-1"></a><span class="kw">sessionInfo</span>()</span></code></pre></div>
 <pre><code>## R version 3.5.1 (2018-07-02)
 ## Platform: x86_64-apple-darwin15.6.0 (64-bit)
 ## Running under: macOS  10.14.6
@@ -3446,12 +3946,12 @@ The resulting network contrained <code>length(unique(c(fastLSA$index1, fastLSA$i
 ## [1] stats     graphics  grDevices utils     datasets  methods   base     
 ## 
 ## other attached packages:
-##  [1] igraph_1.2.5          metap_1.3             minerva_1.5.8        
-##  [4] kableExtra_1.1.0.9000 vegan_2.5-6           lattice_0.20-41      
-##  [7] permute_0.9-5         forcats_0.5.0         stringr_1.4.0        
-## [10] dplyr_0.8.5           purrr_0.3.3           readr_1.3.1          
-## [13] tidyr_1.0.2           tibble_3.0.0          ggplot2_3.3.0        
-## [16] tidyverse_1.3.0       knitr_1.28           
+##  [1] metap_1.3             minerva_1.5.8         kableExtra_1.1.0.9000
+##  [4] vegan_2.5-6           lattice_0.20-41       permute_0.9-5        
+##  [7] forcats_0.5.0         stringr_1.4.0         dplyr_0.8.5          
+## [10] purrr_0.3.3           readr_1.3.1           tidyr_1.0.2          
+## [13] tibble_3.0.0          ggplot2_3.3.0         tidyverse_1.3.0      
+## [16] knitr_1.28           
 ## 
 ## loaded via a namespace (and not attached):
 ##  [1] nlme_3.1-145        fs_1.4.0            lubridate_1.7.4    
@@ -3478,7 +3978,7 @@ The resulting network contrained <code>length(unique(c(fastLSA$index1, fastLSA$i
 ## [64] reprex_0.3.0        mutoss_0.1-12       glue_1.3.2         
 ## [67] evaluate_0.14       modelr_0.1.6        vctrs_0.2.4        
 ## [70] Rdpack_0.11-1       cellranger_1.1.0    gtable_0.3.0       
-## [73] assertthat_0.2.1    xfun_0.12           broom_0.5.5        
+## [73] assertthat_0.2.1    xfun_0.13.1         broom_0.5.5        
 ## [76] survival_3.1-11     viridisLite_0.3.0   cluster_2.1.0      
 ## [79] TH.data_1.0-10      ellipsis_0.3.0</code></pre>
 
@@ -3492,8 +3992,8 @@ The resulting network contrained <code>length(unique(c(fastLSA$index1, fastLSA$i
           </div>
         </div>
       </div>
-<a href="microbiota.html" class="navigation navigation-prev navigation-unique" aria-label="Previous page"><i class="fa fa-angle-left"></i></a>
-
+<a href="microbiota.html" class="navigation navigation-prev " aria-label="Previous page"><i class="fa fa-angle-left"></i></a>
+<a href="funding-disclaimer.html" class="navigation navigation-next " aria-label="Next page"><i class="fa fa-angle-right"></i></a>
     </div>
   </div>
 <script src="libs/gitbook-2.6.7/js/app.min.js"></script>

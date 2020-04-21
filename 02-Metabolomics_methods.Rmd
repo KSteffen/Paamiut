@@ -1,6 +1,12 @@
 ---
 title: "02 - Metabolomics experimental description and data acquisition"
-output: html_document
+output:
+  bookdown::html_document2:
+    includes:
+      in_header: header.html
+  bookdown::gitbook:
+    includes:
+      in_header: header.html
 ---
 ```{r setup02, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE, tidy=TRUE, message = FALSE, warning = FALSE)
@@ -48,7 +54,7 @@ An overview of the number of features and PC groups annotated by CAMERA, as well
 
 ### Peak picking with XCMS and annotation with CAMERA
 
-We processed samples from all three sponnge species in random order with interspersed injection of a combined QC sample to monitor stability of the UPLC-HRMS run. The acquired signals/spectra were convered to netCDF format using the Program DataBridge, and thereafter sorted into four folders, three for the sponge species (Gb, Sf, Wb) and one for the QC samples (QC). Peak picking and combination of pseudospectra is performed with the R package xcms, the subsequent annotation of adducts and isotopes with the R package CAMERA.
+We processed samples from all three sponnge species in random order with interspersed injection of a combined QC sample to monitor stability of the UPLC-HRMS run. The acquired signals/spectra were converted to netCDF format using the Program DataBridge, and thereafter sorted into four folders, three for the sponge species (Gb, Sf, Wb) and one for the QC samples (QC). Peak picking and combination of pseudospectra is performed with the R package xcms, the subsequent annotation of adducts and isotopes with the R package CAMERA.
 
 
 ### HILIC (Hydrophilic interaction chromatography) column with positive ESI (electron spray ionisation)
@@ -363,7 +369,7 @@ rm (f, l, raw_peaks, selected_peaks)
 
 To monitor the stability of the signal during the UPLC-HRMS run, we plot the total signal per sample by injection order.
 
-```{r ms_run_stability}
+```{r ms-run-stability, fig.cap="Cummulative signal intensity across all samples and chromatographic experiments shows only a minor effect of injection order."}
 hp <- read.csv("data/HILIC_pos_20190417.csv", header=T, sep=",")
 hn <- read.csv("data/HILIC_neg_20190421.csv", header=T, sep=",")
 rp <- read.csv("data/RP_pos_20190421.csv", header=T, sep=",")
@@ -435,10 +441,12 @@ ggplot(stability, aes(x=n, y=colsum, color=experiment))+
 rm(hp, hp_df, hn, hn_df, rp, rp_df, rn, rn_df, stability)
 ```
 
-### Summary of data processing
-Below we outline the number of features removed in every step as shown in the table and corresponding figure.
+We see that while signal intensity in all experimental data seems fairly stable, the HILIC positive data set has the highest intensity and virtually no changes at all throughout data acquisition. Therefore, we mostly rely on analyses of the HILIC pos data set.
 
-```{r kable_table, fig.align='center'}
+### Summary of data processing
+Below we outline the number of features removed in every step as shown in the table and corresponding figure. 'CV>30%' is the data set subsequently labelled "cleaned", 'repr. feat.' are the PC-group data set and 'ion' are sometimes also labelled "MH".
+
+```{r QC-filtering-table, fig.cap="Effect of different filtering steps on the resulting metabolomes in numbers of features."}
 
 initial_f <- c(hp_dim1, hn_dim1, rp_dim1, rn_dim1)
 rt_f <- c(hp_dim2, hn_dim2, rp_dim2, rn_dim2)
@@ -456,10 +464,11 @@ df <- cbind(initial_f, rt_f, cv_f, representative_f, ion_f, initial_p, rt_p, cv_
 rownames(df) <- c("HILIC pos", "HILIC neg", "RP pos", "RP neg")
 
 library(kableExtra)
+options(kableExtra.html.bsTable = T)
 kable(df, col.names = c("initial", "RT >45 s", "CV <30%", "repr. feat.", "ion", "initial", "RT >45 s", "CV <30%", "repr. feat.", "ion"), longtable = T, booktabs = T, caption = "Number of features and pc groups 
       remaining after each filtering step.") %>%
   add_header_above(c("","features" = 5, "pc groups" = 5)) %>%
-  kable_styling(bootstrap_options =  "condensed", full_width = T)
+  kable_styling(bootstrap_options = c("striped","hover", "bordered", "condensed", "responsive"), full_width = F,latex_options = c("striped", "scale_down"))
 
 library(reshape2)
 df <- melt(df)
@@ -470,9 +479,9 @@ df$Var2 <- NULL
 colnames(df) <- c("acquisition", "value", "filter", "category")
 
 library(ggplot2)
-ggplot(df, aes(fill=df$filter, x=df$acquisition, y=df$value))+
+ggplot(df, aes(fill=filter, x=acquisition, y=value))+
   geom_bar(position="dodge", stat = "identity")+
-  facet_grid(.~df$category)+
+  facet_grid(.~category)+
   xlab("Data acquisition mode")+ylab("Count")+labs(fill="Filtering step")+
   theme_bw()+ scale_fill_grey()+ scale_y_continuous(breaks=seq(0,6000,1000))+
   theme(axis.text.x = element_text(angle = 45, vjust = 0.5, hjust = 0.5), legend.position="bottom")
@@ -481,9 +490,9 @@ ggplot(df, aes(fill=df$filter, x=df$acquisition, y=df$value))+
 After preliminary analyses of metabolomics data, a few outliers were re-identified by P. Cárdenas, and one specimen was removed from the data set as it originated from another species.
 
 ## Multivariate analyses
-I order to investigate whether depth has an effect on the overall metabolome, we use OPLS orthogonal projections of latent structures as multivariate analysis approach. This method allows to separate variations in the data based on e.g. depth and orthogonal, i.e. unrealted variation.
+We start by visualising all metabolomes with a PCA and a PERMANOVA to get a first impression of our data.
 
-```{r pca1}
+```{r pca1, fig.cap="PCA of the cleaned data sets. Dots are Gb samples, squares are Wb samples, traingles are Sf samples."}
 library(ropls)
 library(dplyr)
 library(ggplot2)
@@ -541,44 +550,8 @@ hn_pca <- pca_wrapper(hilic_neg, md, "Hilic neg")
 rp_pca <- pca_wrapper(rp_pos, md, "RP pos")
 rn_pca <- pca_wrapper(rp_neg, md, "RP pos")
 
-#FUN multiplot # NOT MY OWN
-multiplot <- function(..., plotlist=NULL, file, cols=1, layout=NULL) {
-  library(grid)
-  
-  # Make a list from the ... arguments and plotlist
-  plots <- c(list(...), plotlist)
-  
-  numPlots = length(plots)
-  
-  # If layout is NULL, then use 'cols' to determine layout
-  if (is.null(layout)) {
-    # Make the panel
-    # ncol: Number of columns of plots
-    # nrow: Number of rows needed, calculated from # of cols
-    layout <- matrix(seq(1, cols * ceiling(numPlots/cols)),
-                     ncol = cols, nrow = ceiling(numPlots/cols))
-  }
-  
-  if (numPlots==1) {
-    print(plots[[1]])
-    
-  } else {
-    # Set up the page
-    grid.newpage()
-    pushViewport(viewport(layout = grid.layout(nrow(layout), ncol(layout))))
-    
-    # Make each plot, in the correct location
-    for (i in 1:numPlots) {
-      # Get the i,j matrix positions of the regions that contain this subplot
-      matchidx <- as.data.frame(which(layout == i, arr.ind = TRUE))
-      
-      print(plots[[i]], vp = viewport(layout.pos.row = matchidx$row,
-                                      layout.pos.col = matchidx$col))
-    }
-  }
-}
-
-multiplot(hp_pca, hn_pca, rp_pca, rn_pca, cols=2)
+library(gridExtra)
+grid.arrange(hp_pca, hn_pca, rp_pca, rn_pca, nrow=2)
 
 library(vegan)
 
@@ -597,7 +570,9 @@ permanova(hilic_neg, md)
 permanova(rp_pos, md)
 permanova(rp_neg, md)
 ```
-From the PCA and the PERMANOVA, we gather that the metabolomes regardless of how they were acquired are significatly different in the three sponge species. Therefore, we separate the metabolomes for investigating the effect of depth on them individually.
+From the PCA and the PERMANOVA (function _adonis_, Pr(>F) is the _p-value_), we gather that the metabolomes regardless of how they were acquired are significatly different in the three sponge species. Therefore, we separate the metabolomes for investigating the effect of depth on them individually.
+
+In order to investigate whether depth has an effect on the metabolomes, we use OPLS orthogonal projections of latent structures as multivariate analysis approach. This method allows to separate variations in the data based on e.g. depth and orthogonal, i.e. unrelated variation.
 
 ```{r opls1, eval=F}
 #splitting df and adapting meta data
@@ -675,7 +650,7 @@ write.csv(cleaned,"data/cleaned_opls_diagnostics.csv", row.names = F)
 
 In the same manner, we can analyse the two remaining sets produced by different filtering options.
 
-```{r opls2, eval=F}
+```{r opls-2a, fig.cap="PCA of the metabolome data setf filtered to retain only annotated ions. Dots are Gb samples, squares are Wb samples, traingles are Sf samples."}
 # load data ION
 hilic_pos <- read.csv("data/HILIC_pos_20190417_cleaned_MH.csv", header=T, sep = ",")
 hilic_neg <- read.csv("data/HILIC_neg_20190421_cleaned_MH.csv", header=T, sep=",")
@@ -695,14 +670,15 @@ hn_pca <- pca_wrapper(hilic_neg, md, "Hilic neg")
 rp_pca <- pca_wrapper(rp_pos, md, "RP pos")
 rn_pca <- pca_wrapper(rp_neg, md, "RP pos")
 
-multiplot(hp_pca, hn_pca, rp_pca, rn_pca, cols=2)
+grid.arrange(hp_pca, hn_pca, rp_pca, rn_pca, nrow=2)
 
 permanova(hilic_pos, md)
 permanova(hilic_neg, md)
 permanova(rp_pos, md)
 permanova(rp_neg, md)
+```
 
-
+```{r opls-2b, eval=F}
 hp_opls_df <- spl_ada(hilic_pos, md)
 hn_opls_df <- spl_ada(hilic_neg, md)
 rp_opls_df <- spl_ada(rp_pos, md)
@@ -722,7 +698,7 @@ write.csv(ion,"data/cleaned_MH_opls_diagnostics.csv", row.names = F)
 ```
 
 
-```{r opls3, eval=F}
+```{r opls-3a, fig.cap="PCA of the metabolome data setf filtered to retain the feature with the strongest signal per PC group. Dots are Gb samples, squares are Wb samples, traingles are Sf samples."}
 # load data PC_GROUP
 hilic_pos <- read.csv("data/HILIC_pos_20190417_cleaned_pcgroup.csv", header=T, sep = ",")
 hilic_neg <- read.csv("data/HILIC_neg_20190421_cleaned_pcgroup.csv", header=T, sep=",")
@@ -742,13 +718,15 @@ hn_pca <- pca_wrapper(hilic_neg, md, "Hilic neg")
 rp_pca <- pca_wrapper(rp_pos, md, "RP pos")
 rn_pca <- pca_wrapper(rp_neg, md, "RP pos")
 
-multiplot(hp_pca, hn_pca, rp_pca, rn_pca, cols=2)
+grid.arrange(hp_pca, hn_pca, rp_pca, rn_pca, nrow=2)
 
 permanova(hilic_pos, md)
 permanova(hilic_neg, md)
 permanova(rp_pos, md)
 permanova(rp_neg, md)
+```
 
+```{r opls-3b, eval=F}
 hp_opls_df <- spl_ada(hilic_pos, md)
 hn_opls_df <- spl_ada(hilic_neg, md)
 rp_opls_df <- spl_ada(rp_pos, md)
@@ -767,7 +745,9 @@ pcg["Experiment"] <- c(rep("HILIC pos", 3), rep("HILIC neg", 3), rep("RP pos", 3
 write.csv(pcg,"data/cleaned_PC_opls_diagnostics.csv", row.names = F)
 ```
 
-The multivariate analyses were quite time consuming, requiring 1.4 hours for the "cleaned" data sets, 46.3 min for the "PC-group" data stes and 4 min for the "ion" data sets. The combined model diagnostics are summarised below.
+In some cases, an OPLS model was not appropriate Typically, the model chooses the number of orthogonal components by itself (`orthI=NA`) and when the first component is not significant, the model building will stop. However, one can force any number of orthogonal components and run the model anyways. You can spot those cases when the `NA` was set to `1` in the `ropls_wrapper` function
+
+The multivariate analyses (OPLS) were quite time consuming, requiring 1.4 hours for the "cleaned" data sets, 46.3 min for the "PC-group" data stes and 4 min for the "ion" data sets on my system. Therefore, the combined model diagnostics are summarised in Tab \@ref(tab:opls4).
 
 ```{r opls4}
 library(kableExtra)
@@ -789,7 +769,13 @@ kable(opls_diagnostics,
 
 write.csv(opls_diagnostics, "data/opls_diagnostics.csv", row.names = F)
 ```
-## VIPS???
+
+??? add at least one picture of an opls
+
+## VIPS
+From the multivariate model (OPLS) you can derive a vaiable importance in projection (VIF) score for every feature in this model. This is a approximation (but not a statistics test!) of features that support the model.
+A feature with a VIP score $\geq$ 1 is considered important and the higher the score, the greater the contribution to the model.
+
 
 ## Manual annotation, identification and extraction of metabolic feature signals
 
@@ -838,6 +824,94 @@ all <- ggplot(mets, aes(x=Depth, y=value))+geom_point()+facet_grid(variable~Spec
 all <- all+ggtitle("VIPs")+ylab("signal")+xlab("Depth")+theme_bw()+theme(strip.text.x = element_text(face = "italic"), panel.background = element_rect(fill = "white", colour = "black"), panel.border = element_rect(colour = "black", fill=NA), axis.text.x = element_text(angle = 90, hjust = 1))+scale_y_continuous(labels = scales::scientific)+scale_x_continuous(breaks = scales::pretty_breaks(n = 12))
 all
 ```
+
+## Chromatorgrams
+
+In _G. barretti_ barettin and 8,9-dihydrobarettin are major compounds with distinct peaks in the chromatogram. We wanted to see whether _S. fortis_ and _W. bursa_ also had major compounds and whether differences in sample depth would be directly reflected in the chromatograms.
+
+```{r chromatorgrams-1}
+gb_chrom <- read.csv("data/Gb_all_chromatograms.csv", header=T, sep=";")
+# differences in RT negligible/insignificant between the different chromatograms/samples
+
+gb_chrom[, c("Gb10_RT", "Gb12_RT","Gb13_RT", "Gb14_RT", "Gb15_RT", "Gb16_RT", "Gb17_RT", "Gb18_RT", "Gb19_RT", "Gb2_RT", "Gb20_RT", "Gb21_RT", "Gb3_RT", "Gb7_RT", "Gb8_RT", "Gb9_RT")]<- list(NULL)
+colnames(gb_chrom)[colnames(gb_chrom) == "Gb1_RT"] <- "RT"
+gb_chrom <- gb_chrom[gb_chrom$RT<=12,] # removing tail w/o any signal, run ended at 12 min
+
+#ugly but works
+p_gb_chrom <- ggplot(gb_chrom, aes(x=RT, y=Gb1))+geom_line()+
+theme_classic()+
+geom_rect(data=NULL,aes(xmin=6.3,xmax=6.5,ymin=-Inf,ymax=Inf),fill="lightgreen", alpha=0.5)+
+geom_rect(data=NULL,aes(xmin=6.95,xmax=7.15,ymin=-Inf,ymax=Inf),fill="lightblue", alpha=0.5)+
+geom_line(aes(x=RT, y=Gb2))+
+geom_line(aes(x=RT, y=Gb3))+
+geom_line(aes(x=RT, y=Gb7))+
+geom_line(aes(x=RT, y=Gb8))+
+geom_line(aes(x=RT, y=Gb9))+
+geom_line(aes(x=RT, y=Gb10))+
+geom_line(aes(x=RT, y=Gb15))+
+geom_line(aes(x=RT, y=Gb16))+
+geom_line(aes(x=RT, y=Gb17))+
+geom_line(aes(x=RT, y=Gb19))+
+geom_line(aes(x=RT, y=Gb21))+
+geom_line(aes(x=RT, y=Gb12, color="red", alpha=0.5))+
+geom_line(aes(x=RT, y=Gb13, color="red", alpha=0.5))+
+geom_line(aes(x=RT, y=Gb14, color="red", alpha=0.5))+
+geom_line(aes(x=RT, y=Gb18, color="red", alpha=0.5))+
+geom_line(aes(x=RT, y=Gb20, color="red", alpha=0.5))+
+xlab("RT")+ylab("Signal intensity")+ggtitle("Overlay chromatograms from G. barretti HILIC positive")+theme(legend.position = "none")
+
+sf_chrom <- read.csv("data/Sf_all_chromatograms.csv", header=T, sep=";")
+sf_chrom[, c("Sf10_RT", "Sf11_RT","Sf12_RT","Sf13_RT","Sf14_RT","Sf15_RT","Sf2_RT","Sf3_RT","Sf4_RT","Sf5_RT","Sf6_RT","Sf7_RT")]<- list(NULL)
+colnames(sf_chrom)[colnames(sf_chrom) == "Sf1_RT"] <- "RT"
+sf_chrom <- sf_chrom[sf_chrom$RT<=12,]
+
+
+p_sf_chrom <- ggplot(sf_chrom, aes(x=RT, y=Sf1))+geom_line()+
+geom_line(aes(x=RT, y=Sf2))+
+geom_line(aes(x=RT, y=Sf3))+
+geom_line(aes(x=RT, y=Sf4))+
+geom_line(aes(x=RT, y=Sf5))+
+geom_line(aes(x=RT, y=Sf6))+
+geom_line(aes(x=RT, y=Sf7))+
+geom_line(aes(x=RT, y=Sf10, color="red", alpha=0.5))+
+geom_line(aes(x=RT, y=Sf11, color="red", alpha=0.5))+
+geom_line(aes(x=RT, y=Sf12, color="red", alpha=0.5))+
+geom_line(aes(x=RT, y=Sf13, color="red", alpha=0.5))+
+geom_line(aes(x=RT, y=Sf14, color="red", alpha=0.5))+
+geom_line(aes(x=RT, y=Sf15, color="red", alpha=0.5))+
+xlab("RT")+ylab("Signal intensity")+ggtitle("Overlay chromatograms from S. fortis HILIC positive")+
+theme_classic()+theme(legend.position = "none")
+
+wb_chrom <- read.csv("data/Wb_all_chromatograms.csv", header=T, sep=";")
+wb_chrom[, c("Wb10_RT","Wb11_RT","Wb12_RT","Wb13_RT","Wb14_RT","Wb15_RT","Wb16_RT", "Wb17_RT","Wb2_RT","Wb3_RT","Wb4_RT","Wb5_RT","Wb6_RT","Wb7_RT","Wb8_RT")]<- list(NULL)
+colnames(wb_chrom)[colnames(wb_chrom) == "Wb1_RT"] <- "RT"
+wb_chrom <- wb_chrom[wb_chrom$RT<=12,]
+
+p_wb_chrom <- ggplot(wb_chrom, aes(x=RT, y=Wb1))+geom_line()+
+geom_line(aes(x=RT, y=Wb2))+
+geom_line(aes(x=RT, y=Wb3))+
+geom_line(aes(x=RT, y=Wb4))+
+geom_line(aes(x=RT, y=Wb5))+
+geom_line(aes(x=RT, y=Wb6))+
+geom_line(aes(x=RT, y=Wb7))+
+geom_line(aes(x=RT, y=Wb8))+
+geom_line(aes(x=RT, y=Wb10))+
+geom_line(aes(x=RT, y=Wb11))+
+geom_line(aes(x=RT, y=Wb12))+
+geom_line(aes(x=RT, y=Wb13, color="red", alpha=0.5))+
+geom_line(aes(x=RT, y=Wb14, color="red", alpha=0.5))+
+geom_line(aes(x=RT, y=Wb15, color="red", alpha=0.5))+
+geom_line(aes(x=RT, y=Wb16, color="red", alpha=0.5))+
+geom_line(aes(x=RT, y=Wb17, color="red", alpha=0.5))+
+xlab("RT")+ylab("Signal intensity")+ggtitle("Overlay chromatograms from W. bursa HILIC positive")+
+theme_classic()+theme(legend.position = "none")
+
+library(gridExtra)
+grid.arrange(p_gb_chrom, p_sf_chrom, p_wb_chrom, nrow=3)
+rm(p_gb_chrom, p_sf_chrom, p_wb_chrom, gb_chrom, sf_chrom, wb_chrom)
+```
+
+
 
 
 ## Correlations
