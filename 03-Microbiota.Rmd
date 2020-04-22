@@ -250,7 +250,7 @@ meta_data <- read.csv("data/Steffen_et_al_metadata_PANGAEA.csv", header=T, sep="
 taxonomy <- read.csv("data/microbiome_taxonomy.csv", header = T, sep = ";")
 ```
 ## Relative abundance
-```{r rel_abdc}
+```{r rel-abdc}
 # For figures (OTU relative abdc heatmaps), and inc-dec correlations. Requires OTU_prep_sqrt.
 meta_data <- meta_data_prep(meta_data)
 micro_ds <- OTU_prep_sqrt(micro)
@@ -435,25 +435,6 @@ multiplot(stacked, perc, cols=2)
 
 ```
 
-## Shortlist
-
-We believe the producer of barettin (and related compounds) to have the following properties:
-
- - common (average relative abundance > 0.25%)
- - specific to _G. barretti_
- - positively correlated with barettin
-
-```{r shortlist}
-
-head(rabdc_gb)
-head(rabdc_sf)
-setdiff(rownames(rabdc_gb), rownames(rabdc_sf)) #Setdiff finds rows that appear in first table but not in second
-gb_unique <- data.frame(setdiff(rownames(rabdc_gb), rownames(rabdc_sf)))
-colnames(gb_unique) <- c("XOTU")
-
-
-
-```
 
 
 ```{r wip, eval=F}

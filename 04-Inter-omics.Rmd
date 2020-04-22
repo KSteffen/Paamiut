@@ -870,6 +870,25 @@ plot(net, edge.arrow.size=.2, edge.color="grey",
 ```
 
 
+## Shortlist
+
+We believe the producer of barettin (and related compounds) to have the following properties:
+
+ - common (average relative abundance > 0.25%)
+ - specific to _G. barretti_
+ - positively correlated with barettin
+
+```{r shortlist, eval=F}
+
+head(rabdc_gb)
+head(rabdc_sf)
+setdiff(rownames(rabdc_gb), rownames(rabdc_sf)) #Setdiff finds rows that appear in first table but not in second
+gb_unique <- data.frame(setdiff(rownames(rabdc_gb), rownames(rabdc_sf)))
+colnames(gb_unique) <- c("XOTU")
+
+
+
+```
 
 
 

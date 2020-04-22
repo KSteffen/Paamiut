@@ -570,9 +570,9 @@ permanova(hilic_neg, md)
 permanova(rp_pos, md)
 permanova(rp_neg, md)
 ```
-From the PCA and the PERMANOVA (function _adonis_, Pr(>F) is the _p-value_), we gather that the metabolomes regardless of how they were acquired are significatly different in the three sponge species. Therefore, we separate the metabolomes for investigating the effect of depth on them individually.
+From the PCA and the PERMANOVA (function `adonis`, Pr(>F) is the _p-value_), we gather that the metabolomes regardless of how they were acquired are significatly different in the three sponge species. Therefore, we separate the metabolomes for investigating the effect of depth on them individually.
 
-In order to investigate whether depth has an effect on the metabolomes, we use OPLS orthogonal projections of latent structures as multivariate analysis approach. This method allows to separate variations in the data based on e.g. depth and orthogonal, i.e. unrelated variation.
+In order to investigate whether depth has an effect on the species-specific metabolomes, we use OPLS orthogonal projections of latent structures as multivariate analysis approach. This method allows to separate variations in the data based on e.g. depth and orthogonal, i.e. unrelated variation.
 
 ```{r opls1, eval=F}
 #splitting df and adapting meta data
@@ -745,7 +745,7 @@ pcg["Experiment"] <- c(rep("HILIC pos", 3), rep("HILIC neg", 3), rep("RP pos", 3
 write.csv(pcg,"data/cleaned_PC_opls_diagnostics.csv", row.names = F)
 ```
 
-In some cases, an OPLS model was not appropriate Typically, the model chooses the number of orthogonal components by itself (`orthI=NA`) and when the first component is not significant, the model building will stop. However, one can force any number of orthogonal components and run the model anyways. You can spot those cases when the `NA` was set to `1` in the `ropls_wrapper` function
+In some cases, an OPLS model was not appropriate. Typically, the model chooses the number of orthogonal components by itself (`orthI=NA`) and when the first component is not significant, the model building will stop. However, one can force any number of orthogonal components and run the OPLS model anyway. You can spot those cases when the `NA` was set to `1` in the `ropls_wrapper` function
 
 The multivariate analyses (OPLS) were quite time consuming, requiring 1.4 hours for the "cleaned" data sets, 46.3 min for the "PC-group" data stes and 4 min for the "ion" data sets on my system. Therefore, the combined model diagnostics are summarised in Tab \@ref(tab:opls4).
 

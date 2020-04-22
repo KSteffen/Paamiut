@@ -174,12 +174,12 @@ knitr::include_graphics("data/water_masses_2002-2015 T-S Profiles Selected in To
 knitr::include_graphics("data/sponges.png")
 ```
 
-_G. barretti_ and _S. fortis_ are high microbial abundance sponges ofthen found living in proximity. _W. bursa_ is likely a low microbial abundance sponges (see diversity metrics, Nicole Boury-Esnault _per.comm._). While all songes originate from the same geographic region, _W. bursa_ typically does not occur in the same habitats as _G. barretti_ and _S. fortis_ [@murillo_sponge_2018].
-It is omportant to note that _S. fortis_ is whiteish in colour, and the yellow shown in the picture stems from _Hexadella dedritifera_ frequently found overgrowing it.
+_G. barretti_ and _S. fortis_ are high microbial abundance sponges often found living in proximity. _W. bursa_ is likely a low microbial abundance sponges (see diversity metrics, Nicole Boury-Esnault _per.comm._). While all songes originate from the same geographic region, _W. bursa_ typically does not occur in the same habitats as _G. barretti_ and _S. fortis_ [@murillo_sponge_2018].
+It is important to note that _S. fortis_ is whiteish in colour, and the yellow shown in the picture stems from _Hexadella dedritifera_ frequently found overgrowing it.
 
 ## Sample metadata analysis
 
-To investigate underlying data patterns, we assess correlation of our predictor variables, i.e. the meta data of our samples (depth, latitude, longitude, sampling year, salinity and temperature).
+To investigate underlying data patterns, we assessed correlation of our predictor variables, i.e. the meta data of our samples (depth, latitude, longitude, sampling year, salinity and temperature).
 
 ### Correlations, visual inspection and variance inflation factors (VIF) across all samples
 ```{r mda-1}
@@ -211,15 +211,15 @@ p <- ggplot(md, aes(x=MeanBotSalinity_PSU, y=MeanBottomTemp_Cdeg, colour=md$Dept
 #The limits of the x-axis exclude two samples from water with comparably low salinity
 ```
 
-```{r mda-2, fig.cap="Correlation of depth with other envirnomental parameters/predictor variables across all samples."}
+```{r mda-2, fig.cap="Correlation of depth with other environmental parameters/predictor variables across all samples."}
 library(gridExtra)
 grid.arrange(k, l, m, n, o, p, nrow=3,  top = "Spearman correlation of sample associated meta data")
 rm(a, b, c, d, e, f, k, l, m, n, o, p, df)
 ```
-In the bottom right plot showing temperature versus salinity, two samples from lower salinity were excluded for visual clarity. From the plots above and their correlation tests, we find that longitude, salinity and temperature are significantly correltated with depth, and that salinity and temperature also correlate with each other. 
+In the bottom right plot showing temperature versus salinity, two samples from lower salinity were excluded for visual clarity. From the plots above and their correlation tests, we find that longitude, salinity and temperature are significantly correlated with depth, and that salinity and temperature also correlate with each other. 
 
 This is further corroborated in the variance inflation factors. A VIF > 10 indicates redundancy/collinearity.
-This means that we have to be cautious to avoid including redundant constraints in ecological models.
+This means that we have to be cautious and avoid including redundant constraints in ecological models.
 
 ```{r vif-1}
 library(usdm)
@@ -271,7 +271,7 @@ o <- ggplot(md, aes(x=MeanBottomTemp_Cdeg, y=Depth))+geom_point()+scale_y_contin
 p <- ggplot(md, aes(x=MeanBotSalinity_PSU, y=MeanBottomTemp_Cdeg, colour=md$Depth))+geom_point(size=2)+scale_colour_gradient(guide=guide_colourbar(),high="#f4c430", low= "#3b3bc4", trans = 'reverse')+xlab("Salinity in psu")+ylab("Temperature in °C")+labs(colour="Depth")+ggtitle(f)+theme(plot.title = element_text(size=10), legend.key.size=unit(0.3, "cm"))
 ```
 
-```{r mda-4, fig.cap="Correlation of depth with other envirnomental parameters/predictor variables across samples of _G. barretti_."}
+```{r mda-4, fig.cap="Correlation of depth with other environmental parameters/predictor variables across samples of _G. barretti_."}
 library(gridExtra)
 grid.arrange(k, l, m, n, o, p, nrow=3,  top = "Spearman correlation of Geodia barretti associated meta data")
 rm(a, b, c, d, e, f, k, l, m, n, o, p, df)
@@ -308,5 +308,5 @@ rm(md)
 
 ```
 
-With this subset, the collinearity becomes even more pronounced. Salinity, temperature and depth are strongly correlated and the VIFs indicated that they should not be included in a model together. This correlation is  due to physical properties of water. Density of water increases with increasing salinity and decreasing temperature. To a lesser extent, longitude and lattitude are collinear in our sampling. However, removing the predictor variables salinity and temperature mititgated/lowered the effect of collinearity.
+With this subset, the collinearity becomes even more pronounced. Salinity, temperature and depth are strongly correlated and the VIFs indicated that they should not be included in a model together. This correlation is partly due to physical properties of water. Density of water increases with increasing salinity and decreasing temperature. To a lesser extent, longitude and lattitude are collinear in our sampling. However, removing the predictor variables salinity and temperature mititgated/lowered the effect of collinearity.
 
