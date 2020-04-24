@@ -24,7 +24,7 @@
 <meta name="author" content="Karin Steffen" />
 
 
-<meta name="date" content="2020-04-22" />
+<meta name="date" content="2020-04-23" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <meta name="apple-mobile-web-app-capable" content="yes" />
@@ -689,7 +689,7 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 <li class="chapter" data-level="1.1.3" data-path="index.html"><a href="index.html#sponges"><i class="fa fa-check"></i><b>1.1.3</b> Sponges</a></li>
 </ul></li>
 <li class="chapter" data-level="1.2" data-path="index.html"><a href="index.html#sample-metadata-analysis"><i class="fa fa-check"></i><b>1.2</b> Sample metadata analysis</a><ul>
-<li class="chapter" data-level="1.2.1" data-path="index.html"><a href="index.html#correlations-visual-inspection-and-variance-inflation-factors-vif-across-all-samples"><i class="fa fa-check"></i><b>1.2.1</b> Correlations, visual inspection and variance inflation factors (VIF) across all samples</a></li>
+<li class="chapter" data-level="1.2.1" data-path="index.html"><a href="index.html#index_cor_vif"><i class="fa fa-check"></i><b>1.2.1</b> Correlations, visual inspection and variance inflation factors (VIF) across all samples</a></li>
 <li class="chapter" data-level="1.2.2" data-path="index.html"><a href="index.html#correlations-visual-inspection-and-variance-inflation-factors-vif-across-g.-barretti-samples"><i class="fa fa-check"></i><b>1.2.2</b> Correlations, visual inspection and variance inflation factors (VIF) across <em>G. barretti</em> samples</a></li>
 </ul></li>
 </ul></li>
@@ -712,11 +712,17 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 <li class="chapter" data-level="2.7" data-path="metabolomics.html"><a href="metabolomics.html#correlations"><i class="fa fa-check"></i><b>2.7</b> Correlations</a></li>
 </ul></li>
 <li class="chapter" data-level="3" data-path="microbiota.html"><a href="microbiota.html"><i class="fa fa-check"></i><b>3</b> Microbiota</a><ul>
-<li class="chapter" data-level="3.1" data-path="microbiota.html"><a href="microbiota.html#functions"><i class="fa fa-check"></i><b>3.1</b> Functions</a></li>
-<li class="chapter" data-level="3.2" data-path="microbiota.html"><a href="microbiota.html#relative-abundance"><i class="fa fa-check"></i><b>3.2</b> Relative abundance</a></li>
-<li class="chapter" data-level="3.3" data-path="microbiota.html"><a href="microbiota.html#data-set-description"><i class="fa fa-check"></i><b>3.3</b> Data set description</a></li>
-<li class="chapter" data-level="3.4" data-path="microbiota.html"><a href="microbiota.html#depth-response"><i class="fa fa-check"></i><b>3.4</b> Depth response</a></li>
-<li class="chapter" data-level="3.5" data-path="microbiota.html"><a href="microbiota.html#shortlist"><i class="fa fa-check"></i><b>3.5</b> Shortlist</a></li>
+<li class="chapter" data-level="3.1" data-path="microbiota.html"><a href="microbiota.html#otu-table-overview"><i class="fa fa-check"></i><b>3.1</b> OTU table overview</a></li>
+<li class="chapter" data-level="3.2" data-path="microbiota.html"><a href="microbiota.html#beta-diversity"><i class="fa fa-check"></i><b>3.2</b> Beta diversity</a></li>
+<li class="chapter" data-level="3.3" data-path="microbiota.html"><a href="microbiota.html#environmental-modelling"><i class="fa fa-check"></i><b>3.3</b> Environmental modelling</a><ul>
+<li class="chapter" data-level="3.3.1" data-path="microbiota.html"><a href="microbiota.html#environmentalexplanatory-variables-with-maximum-rank-correlation-with-community-dissimilarities"><i class="fa fa-check"></i><b>3.3.1</b> Environmental/explanatory variables with maximum (Rank) correlation with community dissimilarities</a></li>
+<li class="chapter" data-level="3.3.2" data-path="microbiota.html"><a href="microbiota.html#automatic-stepwise-model-building"><i class="fa fa-check"></i><b>3.3.2</b> Automatic stepwise model building</a></li>
+</ul></li>
+<li class="chapter" data-level="3.4" data-path="microbiota.html"><a href="microbiota.html#relative-abundance-bar-plots"><i class="fa fa-check"></i><b>3.4</b> Relative abundance bar plots</a></li>
+<li class="chapter" data-level="3.5" data-path="microbiota.html"><a href="microbiota.html#functions"><i class="fa fa-check"></i><b>3.5</b> Functions</a></li>
+<li class="chapter" data-level="3.6" data-path="microbiota.html"><a href="microbiota.html#relative-abundance"><i class="fa fa-check"></i><b>3.6</b> Relative abundance</a></li>
+<li class="chapter" data-level="3.7" data-path="microbiota.html"><a href="microbiota.html#data-set-description"><i class="fa fa-check"></i><b>3.7</b> Data set description</a></li>
+<li class="chapter" data-level="3.8" data-path="microbiota.html"><a href="microbiota.html#depth-response"><i class="fa fa-check"></i><b>3.8</b> Depth response</a></li>
 </ul></li>
 <li class="chapter" data-level="4" data-path="inter-omics.html"><a href="inter-omics.html"><i class="fa fa-check"></i><b>4</b> Inter-omics</a><ul>
 <li class="chapter" data-level="4.1" data-path="inter-omics.html"><a href="inter-omics.html#mantel-test-and-procrustes-rotations"><i class="fa fa-check"></i><b>4.1</b> Mantel test and procrustes rotations</a><ul>
@@ -729,7 +735,7 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 <li class="chapter" data-level="4.2.1" data-path="inter-omics.html"><a href="inter-omics.html#generating-network-based-on-different-algorithms"><i class="fa fa-check"></i><b>4.2.1</b> Generating network based on different algorithms</a></li>
 <li class="chapter" data-level="4.2.2" data-path="inter-omics.html"><a href="inter-omics.html#consolidation-of-the-different-networks"><i class="fa fa-check"></i><b>4.2.2</b> Consolidation of the different networks</a></li>
 </ul></li>
-<li class="chapter" data-level="4.3" data-path="inter-omics.html"><a href="inter-omics.html#shortlist-1"><i class="fa fa-check"></i><b>4.3</b> Shortlist</a></li>
+<li class="chapter" data-level="4.3" data-path="inter-omics.html"><a href="inter-omics.html#shortlist"><i class="fa fa-check"></i><b>4.3</b> Shortlist</a></li>
 </ul></li>
 <li class="chapter" data-level="5" data-path="funding-disclaimer.html"><a href="funding-disclaimer.html"><i class="fa fa-check"></i><b>5</b> Funding disclaimer</a></li>
 <li class="chapter" data-level="" data-path="references.html"><a href="references.html"><i class="fa fa-check"></i>References</a></li>
@@ -756,7 +762,7 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 <div id="header">
 <h1 class="title">Oceanographic setting influences the prokaryote community and metabolome in deep-sea sponges</h1>
 <p class="author"><em>Karin Steffen</em></p>
-<p class="date"><em>April 22, 2020</em></p>
+<p class="date"><em>April 23, 2020</em></p>
 </div>
 <div id="content" class="section level1">
 <h1><span class="header-section-number">1</span> Content</h1>
@@ -864,7 +870,7 @@ It is important to note that <em>S. fortis</em> is whiteish in colour, and the y
 <div id="sample-metadata-analysis" class="section level2">
 <h2><span class="header-section-number">1.2</span> Sample metadata analysis</h2>
 <p>To investigate underlying data patterns, we assessed correlation of our predictor variables, i.e. the meta data of our samples (depth, latitude, longitude, sampling year, salinity and temperature).</p>
-<div id="correlations-visual-inspection-and-variance-inflation-factors-vif-across-all-samples" class="section level3">
+<div id="index_cor_vif" class="section level3">
 <h3><span class="header-section-number">1.2.1</span> Correlations, visual inspection and variance inflation factors (VIF) across all samples</h3>
 <div class="sourceCode" id="cb10"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb10-1"><a href="index.html#cb10-1"></a>md &lt;-<span class="st"> </span><span class="kw">read.csv</span>(<span class="st">&quot;data/Steffen_et_al_metadata_PANGAEA.csv&quot;</span>, <span class="dt">header =</span> T, <span class="dt">sep =</span> <span class="st">&quot;;&quot;</span>)</span>
 <span id="cb10-2"><a href="index.html#cb10-2"></a>md &lt;-<span class="st"> </span>md[, <span class="kw">c</span>(<span class="st">&quot;Species&quot;</span>, <span class="st">&quot;Depth&quot;</span>, <span class="st">&quot;Latitude&quot;</span>, <span class="st">&quot;Longitude&quot;</span>, <span class="st">&quot;YEAR&quot;</span>, <span class="st">&quot;MeanBotSalinity_PSU&quot;</span>, </span>

@@ -181,7 +181,7 @@ It is important to note that _S. fortis_ is whiteish in colour, and the yellow s
 
 To investigate underlying data patterns, we assessed correlation of our predictor variables, i.e. the meta data of our samples (depth, latitude, longitude, sampling year, salinity and temperature).
 
-### Correlations, visual inspection and variance inflation factors (VIF) across all samples
+### Correlations, visual inspection and variance inflation factors (VIF) across all samples {#index_cor_vif}
 ```{r mda-1}
 md <- read.csv("data/Steffen_et_al_metadata_PANGAEA.csv", header=T, sep=";")
 md <- md[,c("Species", "Depth", "Latitude", "Longitude", "YEAR", "MeanBotSalinity_PSU", "MeanBottomTemp_Cdeg", "unified_ID")]

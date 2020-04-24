@@ -132,13 +132,13 @@ grid.arrange(untransformed, sqrt_transformed, sqrt_wisc_transformed, nrow=1, top
 
 It seems that we don't lose any relevant information and the normalisations in fact increase the discriminatory power.
 
-## Beta diversity
+## Alpha diversity
 
-The microbiota are composed of  420 OTUs in _G. barretti_, 461 OTUs in _S. fortis_ and 135 OTUs in _W. bursa_. While _G. barretti_ and _S. fortis_ share 316,respectively they each only share 2 and 8 OTUs with _W. bursa_. 
+The microbiota are composed of  420 OTUs in _G. barretti_, 461 OTUs in _S. fortis_ and 135 OTUs in _W. bursa_. While _G. barretti_ and _S. fortis_ share 316, respectively they each only share 2 and 8 OTUs with _W. bursa_. 
 
-How does that reflect in their diversities? Below we show Shannon diversity, species richness (SR) and Faith's phylogenetic distance (PD). Low abundance OTUs (average relative abundacne <0.25%) were removed prior to analyses. 
+How does that reflect in their diversities? Below we show Shannon diversity, species richness (SR) and Faith's phylogenetic distance (PD). 
 
-```{r diversities, fig.cap="Microbiota diversity indices grouped by sponge species and ordered by sample depth. Low abundance OTUs (average relative abundacne <0.25%) were removed prior to analyses."}
+```{r diversities, fig.cap="Microbiota diversity indices grouped by sponge species and ordered by sample depth."}
 library(vegan)
 library(reshape2)
 library(phyloseq)
@@ -162,7 +162,7 @@ taxonomy$OTU_ID <- NULL
 otumat<-apply(otumat, 2, function(i) i/sum(i))
 OTU <- otu_table(otumat, taxa_are_rows = TRUE)
 # remove low abundance taxa
-OTU <- filter_taxa(OTU, function(x) mean(x) > 0.0025, TRUE)  #SHOULD WE FILTER THEM OUT OR NOT?
+#OTU <- filter_taxa(OTU, function(x) mean(x) > 0.0025, TRUE)
 taxmat<-as.matrix(taxonomy)
 TAX <- tax_table(taxmat)
 biom_data <- phyloseq(OTU, TAX)
@@ -187,7 +187,7 @@ div_indices <- reshape2::melt(div_indices, id.vars=c("spec", "unified_ID", "Dept
 ggplot(div_indices, aes(x=Depth, y=value))+geom_point()+facet_grid(vars(variable), vars(spec), scales="free")+ theme(axis.text.x = element_text(angle = -90, vjust = 0.5, hjust = 1), legend.position = "none")+ylab("Diversity metrics")+xlab("Sample depth")+theme_bw()
 ```
 
-To be clear, thats inplies drastically modifying the origial numbers of OTUs per sponge as outlined below.
+In some of the downstream analyses, we distinguish between  common/abundant OTUs and rare OTUs. We use a cutoff of 0.25% average relative abundance per OTU for the classification. That implies drastically modifying the origial numbers of OTUs per sponge as outlined below.
 
 ```{r filtering-low-abdc-1}
 micro <- read.csv("~/Documents/Metabolomics/Depth_Gradient_study/R_depth_study/microbiome/OTU_all_R.csv", header = T, sep = ";")
@@ -255,7 +255,7 @@ colnames(aggr) <- c("OTU classification", "count Gb", "count Sf", "count Wb")
 
 options(kableExtra.html.bsTable = T)
 kable(aggr, col.names = c("OTU classification", "count (Gb)", "count (Sf)", "count (Wb)" ), booktabs = T, 
-    caption = "Number of OTUs being excluded and retained in the three sponges' microbiota.", 
+    caption = "Number of OTUs being excluded and retained in the three sponges' microbiota when filtering for average relative abundance > 0.25%.", 
     row.names = FALSE) %>%
     kable_styling(bootstrap_options = c("hover", "bordered", "condensed", 
         "responsive"), full_width = F, latex_options = c("scale_down"))
@@ -286,15 +286,242 @@ kable(aggr, col.names = c("OTU classification", "count (Gb)", "count (Sf)", "cou
 
 
 ## Environmental modelling
-envfit
 
-ordistep
-```{r env-mod1, eval=F}
+In order to investigate whether and which of the environmental parameter might "explain"/correlate with variation the the microbiota, we apply [constrained](#constrained) and [unconstrained](#unconstrained) ecological data analysis methods.
+
+### Constrained modelling approach Automatic stepwise model building {#constrained}
+
+We use canonical correspondence analysis as method for ordination. According to the manual for the R package vegan, "a good dissimilarity index for multidimensional scaling should have a high rank-order similarity with gradient separation" [@R-vegan]. Thus interpreting the results of Tab \@ref(tab:rankindex), we find that square root transformation and wisconsin standardisation increase the rank correlation between the microbial community dissimilarity matrix and the environmental gradient separation in all three sponge microbiota for a number of ecological dissimilarity indices. 
+
+```{r rankindex}
+library(vegan)
+
+microbiome<-read.csv("data/OTU_all_R.csv", header=T, sep=";") 
+meta_data <- read.csv("data/Steffen_et_al_metadata_PANGAEA.csv", header=T, sep=";")
+meta_data <- meta_data[meta_data$unified_ID %in% microbiome$Sample_ID,]
+
+# Gb12 has no salinity and temperature: impute from Gb11 & Gb13: Salinity:34.92; Temp:3.59
+row <- which(meta_data$unified_ID=="Gb12")
+temp <- which(colnames(meta_data)=="MeanBottomTemp_Cdeg")
+sal <- which(colnames(meta_data)=="MeanBotSalinity_PSU")
+meta_data[row, temp] <- 3.59
+meta_data[row, sal] <- 34.92
+rm(row, temp, sal)
+
+OTU_prep_sqrt <- function(micro){
+  rownames(micro) <- micro$Sample_ID
+  micro$Sample_ID <- NULL
+  micro <- sqrt(micro)
+  
+  micro_gb <- micro[(str_sub(rownames(micro), 1,2)=="Gb"),]
+  micro_sf <- micro[(str_sub(rownames(micro), 1,2)=="Sf"),]
+  micro_wb <- micro[(str_sub(rownames(micro), 1,2)=="Wb"),]
+  
+  micro_gb <- micro_gb[,colSums(micro_gb!=0)>0]
+  micro_sf <- micro_sf[,colSums(micro_sf!=0)>0]
+  micro_wb <- micro_wb[,colSums(micro_wb!=0)>0]
+  micros <- list(gb=micro_gb, sf=micro_sf, wb=micro_wb)
+  return(micros)  
+}
+
+microbiomes <- OTU_prep_sqrt(microbiome)
+
+md_prep <- function(microbiomes, meta_data){
+  meta_data <- meta_data[, c("unified_ID", "Depth", "Latitude",  "Longitude", "MeanBottomTemp_Cdeg", "MeanBotSalinity_PSU", "YEAR")]
+  
+  gb <- microbiomes$gb
+  sf <- microbiomes$sf
+  wb <- microbiomes$wb
+  
+  gb_md <- meta_data[meta_data$unified_ID %in% rownames(gb),]
+  rownames(gb_md) <- gb_md$unified_ID
+  gb_md <- gb_md[order(gb_md$unified_ID),]
+  all(rownames(microbiomes$gb)==rownames(gb_md))
+  gb_md <- gb_md[,c("Depth","Latitude","Longitude", "MeanBottomTemp_Cdeg", "MeanBotSalinity_PSU", "YEAR")]
+  
+  sf_md <- meta_data[meta_data$unified_ID %in% rownames(sf),]
+  rownames(sf_md) <- sf_md$unified_ID
+  sf_md <- sf_md[order(sf_md$unified_ID),]
+  sf_md$unified_ID <- NULL
+  wb_md <- meta_data[meta_data$unified_ID %in% rownames(wb),]
+  rownames(wb_md) <- wb_md$unified_ID
+  wb_md <- wb_md[order(wb_md$unified_ID),]
+  wb_md$unified_ID <- NULL
+  
+  mds <- list(gb_md=gb_md, sf_md=sf_md, wb_md=wb_md)
+  return(mds)
+}
+
+mds <- md_prep(microbiomes, meta_data) 
+
+#Standardization
+#If there is a large difference between smallest non-zero abundance and largest abundance, we want to reduce this difference. Usually square root transformation is sufficient to balance the data. Wisconsin double standardization often improves the gradient detection ability of dissimilarity indices.
+
+# Which dissimilarity index is best?
+gb_ri1 <- rankindex(scale(mds$gb_md), (microbiomes$gb)^2, c("euc","man","bray","jac","kul")) #unstandardized
+gb_ri2 <- rankindex(scale(mds$gb_md), microbiomes$gb, c("euc","man","bray","jac","kul")) #sqrt
+gb_ri3 <- rankindex(scale(mds$gb_md), wisconsin(microbiomes$gb), c("euc","man","bray","jac","kul")) #sqrt and wisconsin
+
+sf_ri1 <- rankindex(scale(mds$sf_md), (microbiomes$sf)^2, c("euc","man","bray","jac","kul"))
+sf_ri2 <- rankindex(scale(mds$sf_md), microbiomes$sf, c("euc","man","bray","jac","kul"))
+sf_ri3 <- rankindex(scale(mds$sf_md), wisconsin(microbiomes$sf), c("euc","man","bray","jac","kul"))
+
+wb_ri1 <- rankindex(scale(mds$wb_md), (microbiomes$wb)^2, c("euc","man","bray","jac","kul"))
+wb_ri2 <- rankindex(scale(mds$wb_md), microbiomes$wb, c("euc","man","bray","jac","kul"))
+wb_ri3 <- rankindex(scale(mds$wb_md), wisconsin(microbiomes$wb), c("euc","man","bray","jac","kul"))
+
+rankindices <- rbind(gb_ri1, gb_ri2, gb_ri3, sf_ri1, sf_ri2, sf_ri3, wb_ri1, wb_ri2, wb_ri3)
+rankindices <- as.data.frame(rankindices)
+rankindices["Sponge species"] <- c(rep("G. barretti", 3), rep("S. fortis", 3), rep("W. bursa", 3))
+rankindices["Normalisation"] <- c(rep(c("none", "sqrt", "sqrt & wisconsin"), 3))
+
+options(kableExtra.html.bsTable = T)
+kable(rankindices, col.names = c("Euclidean", "Manhattan", "Bray–Curtis", "Jaccard", "Kulczynski", "Sponge species", "Normalisation"), booktabs = T, 
+    caption = "Rank correlation between dissimilarity indices and gradient separation.", 
+    row.names = FALSE) %>% 
+    kable_styling(bootstrap_options = c("striped", "hover", "bordered", "condensed", 
+        "responsive"), full_width = F, latex_options = c("striped", 
+        "scale_down"))
+```
+
+We adapt the microbial data sets accordingly pllying square root transformation and wisconsin standardisation of the microbiota in all subsequent ecological analyses. Then, we build a model (null model) without any environmental parameters, and one (full model) with the maximum number of environmental parameters (terms) possible so that none of them have a VIF > 10. Finally, we use the stepwise model building function `ordistep` to determine, which of the environmental parameters is a significant constraint for the microbiomes. The function compares the null model and adds and removes terms from the full model to find (combinations of) significant contraints. The significance of the paramters is then tested in an ANOVA.
+
+**_G. barretti_**: first the VIFs of all terms included in the full model, second the result of the stepwise model building, third the anova of the suggested model.
+
+```{r cca-ordistep-1}
+# mod0 has no terms, intercept only
+# mod1 includes all terms possible with a VIF < 10. Available: "Depth", "Latitude", "Longitude", "MeanBottomTemp_Cdeg", "MeanBotSalinity_PSU", "YEAR" 
+
+## Gb
+mod0 <- cca(wisconsin(microbiomes$gb) ~ 1, mds$gb_md)
+mod1 <- cca(wisconsin(microbiomes$gb) ~ Depth + Latitude + MeanBottomTemp_Cdeg + YEAR, mds$gb_md)
+vif.cca(mod1)
+mod <- ordistep(mod0, scope = formula(mod1), trace=F) #0
+mod$anova
+anova(mod)
+```
+
+**_S. fortis_**: first the VIFs of all terms included in the full model, second the result of the stepwise model building, third the anova of the suggested model.
+```{r cca-ordistep-2}
+## Sf
+mod0 <- cca(wisconsin(microbiomes$sf) ~ 1, mds$sf_md)
+mod1 <- cca(wisconsin(microbiomes$sf) ~ Depth + Latitude + YEAR + MeanBotSalinity_PSU + Longitude, mds$sf_md)
+vif.cca(mod1)
+mod <- ordistep(mod0, scope = formula(mod1), trace=F)
+mod$anova
+anova(mod)
+```
+
+**_W. bursa_**: first the VIFs of all terms included in the full model, second the result of the stepwise model building, third the anova of the suggested model.
+```{r cca-ordistep-3}
+## Wb
+mod0 <- cca(wisconsin(microbiomes$wb) ~ 1, mds$wb_md)
+mod1 <- cca(wisconsin(microbiomes$wb) ~ Depth + Latitude + MeanBottomTemp_Cdeg + YEAR, mds$wb_md)
+vif.cca(mod1)
+mod <- ordistep(mod0, scope = formula(mod1), trace=F)
+mod$anova
+anova(mod)
+```
+
+For all _G. barretti_ and _S. fortis_ depth is a significant constraint of the microbial community. For _W. bursa_ we find temperature to be a significant constraint.
+
+### Unconstrained modelling approach {#unconstrained}
+
+In an alternative approach, we fit environmental vectors onto an ordination of the microbiota. This method allows to include all environmental parameters (regardless of collinearity). Length of the arrow indicates strength of the predictor (environmental parameter).
+
+```{r envfit-1, fig.cap="Fitting significant (p<0.05) environmental vectors onto ordination of G. barretti microbiome."}
+microbiome<-read.csv("data/OTU_all_R.csv", header=T, sep=";") 
+meta_data <- read.csv("data/Steffen_et_al_metadata_PANGAEA.csv", header=T, sep=";")
+
+meta_data <- meta_data[meta_data$unified_ID %in% microbiome$Sample_ID,]
+row <- which(meta_data$unified_ID=="Gb12")
+temp <- which(colnames(meta_data)=="MeanBottomTemp_Cdeg")
+sal <- which(colnames(meta_data)=="MeanBotSalinity_PSU")
+meta_data[row, temp] <- 3.59
+meta_data[row, sal] <- 34.92
+rm(row, temp, sal)
+
+microbiomes <- OTU_prep_sqrt(microbiome)
+mds <- md_prep(microbiomes, meta_data) 
+
+colnames(mds$gb_md) <- c("Depth","Lat","Lon","Temp", "Sal", "Year")  
+colnames(mds$sf_md) <- c("Depth","Lat","Lon","Temp", "Sal", "Year")  
+colnames(mds$wb_md) <- c("Depth","Lat","Lon","Temp", "Sal", "Year")  
+
+dist_micro <- vegdist(wisconsin(microbiomes$gb)) #distance matrix
+ordi_micro <- metaMDS(dist_micro, trace = F)# ordination
+ef <- envfit(ordi_micro, mds$gb_md, permutations = 999) # fitting arrows; STRATA?
+plot(ordi_micro, display="sites") #plot
+plot(ef, p.max = 0.05) #arrows
+```
+
+```{r envfit-2, fig.cap="Fitting significant (p<0.05) environmental vectors onto ordination of S. fortis microbiome."}
+dist_micro <- vegdist(wisconsin(microbiomes$sf)) # distance matrix
+ordi_micro <- metaMDS(dist_micro, trace=F) # ordination
+ef <- envfit(ordi_micro, mds$sf_md, permutations = 999) # fitting arrows
+plot(ordi_micro, display="sites") # plot
+plot(ef, p.max = 0.05) # arrows
+```
+
+```{r envfit-3, fig.cap="Fitting significant (p<0.05) environmental vectors onto ordination of W. bursa microbiome."}
+dist_micro <- vegdist(wisconsin(microbiomes$wb)) # distance matrix
+ordi_micro <- metaMDS(dist_micro, trace = F) # ordination
+ef <- envfit(ordi_micro, mds$wb_md, permutations = 999) # fitting arrows
+plot(ordi_micro, display="sites") # plot
+plot(ef, p.max = 0.05) # arrows
+```
+
+Hierarchical clustering 
+```{r hclust, fig.cap="Hclust"}
+## Clustering
+par(mfrow=c(1,3))
+dist_micro <- vegdist(wisconsin(microbiomes$gb)) #distance matrix
+clua <- hclust(dist_micro, "average") #average= UPGMA
+plot(clua, sub="Gb", xlab="UPGMA")
+rect.hclust(clua, 2)
+grp1 <- cutree(clua, 2)
+
+dist_micro <- vegdist(wisconsin(microbiomes$sf)) #distance matrix
+clua <- hclust(dist_micro, "average") #average= UPGMA
+plot(clua, sub="Sf", xlab="UPGMA")
+grp2 <- cutree(clua, 2)
+
+dist_micro <- vegdist(wisconsin(microbiomes$wb)) #distance matrix
+clua <- hclust(dist_micro, "average") #average= UPGMA
+plot(clua, sub="Wb", xlab="UPGMA")
+grp3 <- cutree(clua, 2)
+par(mfrow=c(1,1))
+
+#ord <- cca(wisconsin(microbiomes$gb))
+#plot(ord, display = "sites")
+#ordihull(ord, grp1, lty = 2, col = "red")
+
+#ord <- cca(wisconsin(microbiomes$sf))
+#plot(ord, display = "sites")
+#ordihull(ord, grp2, lty = 2, col = "red")
+
+#ord <- cca(wisconsin(microbiomes$wb))
+#plot(ord, display = "sites")
+#ordihull(ord, grp3, lty = 2, col = "red")
+```
+
+```{r bioenv, eval=F, echo=F}
+### Environmental/explanatory variables with maximum (Rank) correlation with community dissimilarities
+# I deem this redundant to the other methods and will skip it.
+
 library(vegan)
 microbiome<-read.csv("data/OTU_all_R.csv", header=T, sep=";") 
 meta_data <- read.csv("data/Steffen_et_al_metadata_PANGAEA.csv", header=T, sep=";")
 meta_data <- meta_data[meta_data$unified_ID %in% microbiome$Sample_ID,]
 
+# Gb12 has no salinity and temperature: impute from Gb11 & Gb13: Salinity:34.92; Temp:3.59
+row <- which(meta_data$unified_ID=="Gb12")
+temp <- which(colnames(meta_data)=="MeanBottomTemp_Cdeg")
+sal <- which(colnames(meta_data)=="MeanBotSalinity_PSU")
+meta_data[row, temp] <- 3.59
+meta_data[row, sal] <- 34.92
+rm(row, temp, sal)
+
 OTU_prep_sqrt <- function(micro){
   rownames(micro) <- micro$Sample_ID
   micro$Sample_ID <- NULL
@@ -313,201 +540,77 @@ OTU_prep_sqrt <- function(micro){
 
 microbiomes <- OTU_prep_sqrt(microbiome)
 
-gb_md <- meta_data[meta_data$unified_ID %in% rownames(microbiomes$gb),]
-gb_md <- gb_md[order(gb_md$unified_ID),]
-# Gb12 has no salinity and temperature: impute from Gb11 & Gb13: Salinity:34.92; Temp:3.59
-
-
-microbiomes$gb[1:10,1:10] #oki
-meta_data #all
-gb_meta <- meta_data_micro[meta_data_micro$unified_ID %in% rownames(gb_microbiome),]
-rownames(gb_meta) <- gb_meta$unified_ID
-gb_meta <- gb_meta[,c("Depth","Latitude","Longitude", "MeanBottomTemp_Cdeg", "MeanBotSalinity_PSU", "Year")]
-
-gb_meta[4,4] <- 3.59
-gb_meta[4,5] <- 34.92
-
-
-
-library(usdm)
-vif(gb_meta) #looks terrible
-vif(gb_meta[,c(1,2,6)])
-
-
-bioenv(gb_microbiome, gb_meta)
-# Call: bioenv(comm = gb_microbiome, env = gb_meta) 
-# Subset of environmental variables with best correlation to community data.
-# Correlations:    spearman 
-# Dissimilarities: bray 
-# Metric:          euclidean 
-# Best model has 2 parameters (max. 6 allowed):
-# Depth Longitude
-# with correlation  0.7586081 
-
-mod1 <- bioenv(gb_microbiome, gb_meta)
-summary(mod1)
-#                                                                       size correlation
-# Depth                                                                    1      0.7313
-# Depth Longitude                                                          2      0.7586
-# Depth Longitude Year                                                     3      0.6274
-# Depth Latitude Longitude MeanBotSalinity_PSU                             4      0.5515
-# Depth Latitude Longitude MeanBotSalinity_PSU Year                        5      0.5042
-# Depth Latitude Longitude MeanBottomTemp_Cdeg MeanBotSalinity_PSU Year    6      0.3967
-
-gb_mic_dist <- vegdist(gb_microbiome)
-gb_meta_dist <- vegdist(gb_meta$Depth)
-mantel(gb_mic_dist, gb_meta_dist)
-#Mantel statistic based on Pearson's product-moment correlation 
-#Call: mantel(xdis = gb_mic_dist, ydis = gb_meta_dist) 
-#Mantel statistic r: 0.7272 
-#      Significance: 0.001 
-
-
-#ordisurf() #kühl
-gb_mic_dist <- vegdist(gb_microbiome)
-gb_mic_mds <- monoMDS(gb_mic_dist)
-ordisurf(gb_mic_mds ~Depth, gb_meta, bubble=5)
-mod2 <- ordisurf(gb_mic_mds ~Depth, gb_meta, bubble=T, main="Fitted smooth surface for MDS ordination of G.barretti microbiome")
-#mod2$fitted.values #seems to be some kind of depth-derivative
-
-
-# ordistep
-gb_mod0 <- rda(gb_microbiome~1, gb_meta) # intercept only; alt. na.action=na.exclude, na.action=na.omit
-gb_mod1 <- rda(gb_microbiome~., gb_meta) # all predicitive variables; alt. na.action=na.exclude
-gb_mod <- ordistep(gb_mod0, scope = formula(gb_mod1))
-summary(gb_mod)
-gb_mod_aov <- gb_mod$anova
-
-# cca 
-gb_mod2 <- cca(gb_microbiome, gb_meta[,c(1,2,3,6)]) #constrained depth, lat, lon, year
-gb_mod2
-gb_mod3 <- cca(gb_microbiome) #unconstrained
-gb_mod3
-gb_mod4 <- cca(gb_microbiome, gb_meta[,c(2,3,5,6)]) #constrained salinity, lat, lon, year
-gb_mod4
-gb_mod5 <- cca(gb_microbiome, gb_meta[,c(2,3,4,6)]) #constrained temperature, lat, lon, year
-gb_mod5
-gb_mod6 <- cca(gb_microbiome, gb_meta[,c(2,3,4,5,6)]) #constrained salinity, temperature, lat, lon, year
-gb_mod6
-#procrustes
-procrustes(gb_mod3, gb_mod2)
-plot(procrustes(gb_mod3, gb_mod2), type="text")
-
-par(mfrow=c(2,3))
-plot(procrustes(gb_mod2, gb_mod4), type="text", main="Depth vs. Salinity et al")
-plot(procrustes(gb_mod2, gb_mod5), type="text", main="Depth vs. Temp. et al")
-plot(procrustes(gb_mod2, gb_mod6), type="text", main="Depth vs. Salinity & Temp. et al")
-plot(procrustes(gb_mod2, gb_mod4), type="text", kind=2)
-plot(procrustes(gb_mod2, gb_mod5), type="text", kind=2)
-plot(procrustes(gb_mod2, gb_mod6), type="text", kind=2)
-par(mfrow=c(1,1))
-
-#colnames(gb_meta): "Depth" "Latitude" "Longitude" "MeanBottomTemp_Cdeg" "MeanBotSalinity_PSU" "Year"               
-gb_cca_unc <- cca(gb_microbiome)
-gb_cca_depth <- cca(gb_microbiome ~ Depth+Latitude+Longitude+Year, data=gb_meta)
-gb_cca_sal <- cca(gb_microbiome ~ MeanBotSalinity_PSU+Latitude+Longitude+Year, data=gb_meta)
-gb_cca_temp <- cca(gb_microbiome ~ MeanBottomTemp_Cdeg+Latitude+Longitude+Year, data=gb_meta)
-gb_cca_sal_temp <- cca(gb_microbiome ~ MeanBottomTemp_Cdeg+MeanBotSalinity_PSU+Latitude+Longitude+Year, data=gb_meta)
-gb_cca_sal_temp2 <- cca(gb_microbiome ~ MeanBottomTemp_Cdeg*MeanBotSalinity_PSU+Latitude+Longitude+Year, data=gb_meta)
-
-gb_cca_waters <- 
-
-par(mfrow=c(2,2))
-plot(procrustes(gb_cca_depth, gb_cca_sal), type="text", main="Depth vs. Salinity et al")
-plot(procrustes(gb_cca_depth, gb_cca_temp), type="text", main="Depth vs. Temp. et al")
-plot(procrustes(gb_cca_depth, gb_cca_sal_temp), type="text", main="Depth vs. Salinity & Temp. et al")
-plot(procrustes(gb_cca_depth, gb_cca_sal_temp2), type="text", main="Depth vs. Salinity & Temp. et al 2")
-par(mfrow=c(1,1))
-plot(procrustes(gb_cca_sal_temp, gb_cca_sal_temp2), type="text", main="Salinity & Temp. et al 1 vs 2")  
+md_prep <- function(microbiomes, meta_data){
+  meta_data <- meta_data[, c("unified_ID", "Depth", "Latitude",  "Longitude", "MeanBottomTemp_Cdeg", "MeanBotSalinity_PSU", "YEAR")]
   
+  gb <- microbiomes$gb
+  sf <- microbiomes$sf
+  wb <- microbiomes$wb
   
-# ordispider
-plot(gb_mod2, dis=c("wa","lc")) #constrained
-plot(gb_mod3, dis=c("wa","lc")) #unconstrained
+  gb_md <- meta_data[meta_data$unified_ID %in% rownames(gb),]
+  rownames(gb_md) <- gb_md$unified_ID
+  gb_md <- gb_md[order(gb_md$unified_ID),]
+  all(rownames(microbiomes$gb)==rownames(gb_md))
+  gb_md <- gb_md[,c("Depth","Latitude","Longitude", "MeanBottomTemp_Cdeg", "MeanBotSalinity_PSU", "YEAR")]
+  
+  sf_md <- meta_data[meta_data$unified_ID %in% rownames(sf),]
+  rownames(sf_md) <- sf_md$unified_ID
+  sf_md$unified_ID <- NULL
+  wb_md <- meta_data[meta_data$unified_ID %in% rownames(wb),]
+  rownames(wb_md) <- wb_md$unified_ID
+  wb_md$unified_ID <- NULL
+  mds <- list(gb_md=gb_md, sf_md=sf_md, wb_md=wb_md)
+  return(mds)
+}
 
+mds <- md_prep(microbiomes, meta_data) 
+
+bioenv(wisconsin(microbiomes$gb)~ Depth + Latitude + Longitude + MeanBottomTemp_Cdeg + MeanBotSalinity_PSU + YEAR, mds$gb_md)
+bioenv(wisconsin(microbiomes$sf)~ Depth + Latitude + Longitude + MeanBottomTemp_Cdeg + MeanBotSalinity_PSU + YEAR, mds$sf_md)
+bioenv(wisconsin(microbiomes$wb)~ Depth + Latitude + Longitude + MeanBottomTemp_Cdeg + MeanBotSalinity_PSU + YEAR, mds$wb_md)
+
+# Significante of the correlation shoud be tested with Mantel, see help for vegan::bioenv
+# vegdist(mod$x, "euclid") #same as: vegdist(scale(mds$gb_md), "euclid")
 ```
 
+## Relative abundance bar plots
 
+Enough of the anonymous modelling and data fitting, let's take a look at the taxonomy to see who is there.
 
-```{r ordistep, eval=FALSE}
-#NO
+```{r relative-abundance, fig.cap="Rel ABDC Phylum"}
+library(vegan)
+library(reshape2)
+library(phyloseq)
+library(picante)
+
 microbiome<-read.csv("data/OTU_all_R.csv", header=T, sep=";") 
 meta_data <- read.csv("data/Steffen_et_al_metadata_PANGAEA.csv", header=T, sep=";")
-meta_data <- meta_data[meta_data$unified_ID %in% microbiome$Sample_ID,]
+taxonomy <- read.csv("data/microbiome_taxonomy.csv", header = T, sep = ";")
+tree <- read.nexus("data/infile.nex.con.X.tre")
 
-OTU_prep_sqrt <- function(micro){
-  rownames(micro) <- micro$Sample_ID
-  micro$Sample_ID <- NULL
-  micro <- sqrt(micro)
-  
-  micro_gb <- micro[(str_sub(rownames(micro), 1,2)=="Gb"),]
-  micro_sf <- micro[(str_sub(rownames(micro), 1,2)=="Sf"),]
-  micro_wb <- micro[(str_sub(rownames(micro), 1,2)=="Wb"),]
-  
-  micro_gb <- micro_gb[,colSums(micro_gb!=0)>0]
-  micro_sf <- micro_sf[,colSums(micro_sf!=0)>0]
-  micro_wb <- micro_wb[,colSums(micro_wb!=0)>0]
-  micros <- list(gb=micro_gb, sf=micro_sf, wb=micro_wb)
-  return(micros)  
-}
+rownames(microbiome) <- microbiome$Sample_ID
+microbiome$Sample_ID <- NULL
+otumat <- t(microbiome)
+otumat <- wisconsin(sqrt(otumat))
+colnames(otumat) <- rownames(microbiome)
+rownames(taxonomy) <- paste0("X",taxonomy$OTU_ID)
+taxonomy$OTU_ID <- NULL
+#all(rownames(taxonomy)==rownames(otumat))
 
-microbiomes <- OTU_prep_sqrt(microbiome)
+# relative abundance
+otumat<-apply(otumat, 2, function(i) i/sum(i))
+OTU <- otu_table(otumat, taxa_are_rows = TRUE)
+# remove low abundance taxa
+#OTU <- filter_taxa(OTU, function(x) mean(x) > 0.0025, TRUE)
+taxmat<-as.matrix(taxonomy)
+TAX <- tax_table(taxmat)
+biom_data <- phyloseq(OTU, TAX)
 
-modelbuilding_wrapper <- function(microbiome, meta_data){
-  meta_data$MeanBottomTemp_Cdeg <- NULL
-  meta_data$MeanBotSalinity_PSU <- NULL
-  meta_data$unified_ID <- NULL
-  meta_data$Species <- NULL
-  gb_mod0 <- rda(gb_hp~1, meta_data) # intercept only; alt. na.action=na.exclude, na.action=na.omit
-  gb_mod1 <- rda(gb_hp~., meta_data) # all predicitive variables; alt. na.action=na.exclude
-  gb_mod <- ordistep(gb_mod0, scope = formula(gb_mod1))
-  gb_mod_aov <- gb_mod$anova
-  gb_mod_aov["mod"] <- "gb_hilic_pos"
-  
-}
-
-md_gb$MeanBottomTemp_Cdeg <- NULL
-md_gb$MeanBotSalinity_PSU <- NULL
-md_gb$unified_ID <- NULL
-md_gb$Species <- NULL
-gb_mod0 <- rda(gb_hp~1, md_gb) # intercept only; alt. na.action=na.exclude, na.action=na.omit
-gb_mod1 <- rda(gb_hp~., md_gb) # all predicitive variables; alt. na.action=na.exclude
-gb_mod <- ordistep(gb_mod0, scope = formula(gb_mod1))
-gb_mod_aov <- gb_mod$anova
-gb_mod_aov["mod"] <- "gb_hilic_pos"
-
-md_sf$MeanBottomTemp_Cdeg <- NULL
-md_sf$MeanBotSalinity_PSU <- NULL
-md_sf$unified_ID <- NULL
-md_sf$Species <- NULL
-sf_mod0 <- rda(sf_hp~1, md_sf) # intercept only; alt. na.action=na.exclude, na.action=na.omit
-sf_mod1 <- rda(sf_hp~., md_sf) # all predicitive variables; alt. na.action=na.exclude
-sf_mod <- ordistep(sf_mod0, scope = formula(sf_mod1))
-sf_mod_aov <- sf_mod$anova
-sf_mod_aov["mod"] <- "sf_hilic_pos"
-
-md_wb$MeanBottomTemp_Cdeg <- NULL
-md_wb$MeanBotSalinity_PSU <- NULL
-md_wb$unified_ID <- NULL
-md_wb$Species <- NULL
-wb_mod0 <- rda(wb_hp~1, md_wb) # intercept only; alt. na.action=na.exclude, na.action=na.omit
-wb_mod1 <- rda(wb_hp~., md_wb) # all predicitive variables; alt. na.action=na.exclude
-wb_mod <- ordistep(wb_mod0, scope = formula(wb_mod1))
-wb_mod_aov <- wb_mod$anova
-wb_mod_aov["mod"] <- "wb_hilic_pos"
-
-cleaned_ordistep_aov_hp <- rbind(gb_mod_aov, sf_mod_aov, wb_mod_aov)
-cleaned_ordistep_aov_hp
+#plot_bar(biom_data, fill="Phylum")+scale_fill_brewer(palette = "Set1")
+#plot_bar(biom_data, fill="Class")
 ```
 
-
-
-
-## Reliative abundance bar plots
-phylum level
-
-
-```{r functions}
+```{r functions, echo=F}
 # FUN SET UP: preparing meta data set
 meta_data_prep <- function(meta_data){
   meta_data <- meta_data[, c("unified_ID", "Depth", "Latitude", "Longitude", "MeanBottomTemp_Cdeg", "MeanBotSalinity_PSU", "YEAR")]
@@ -692,41 +795,6 @@ cleaning <- function(taxes) {
   return(taxes)
 }
 
-#FUN multiplot # NOT MY OWN
-multiplot <- function(..., plotlist=NULL, file, cols=1, layout=NULL) {
-  library(grid)
-  
-  # Make a list from the ... arguments and plotlist
-  plots <- c(list(...), plotlist)
-  numPlots = length(plots)
-  
-  # If layout is NULL, then use 'cols' to determine layout
-  if (is.null(layout)) {
-    # Make the panel
-    # ncol: Number of columns of plots
-    # nrow: Number of rows needed, calculated from # of cols
-    layout <- matrix(seq(1, cols * ceiling(numPlots/cols)),
-                     ncol = cols, nrow = ceiling(numPlots/cols))
-  }
-  
-  if (numPlots==1) {
-    print(plots[[1]])
-    
-  } else {
-    # Set up the page
-    grid.newpage()
-    pushViewport(viewport(layout = grid.layout(nrow(layout), ncol(layout))))
-    
-    # Make each plot, in the correct location
-    for (i in 1:numPlots) {
-      # Get the i,j matrix positions of the regions that contain this subplot
-      matchidx <- as.data.frame(which(layout == i, arr.ind = TRUE))
-      
-      print(plots[[i]], vp = viewport(layout.pos.row = matchidx$row,
-                                      layout.pos.col = matchidx$col))
-    }
-  }
-}
 
 ```
 
@@ -763,43 +831,6 @@ kable(rabdc_wb, escape = F, align = "c", booktabs = T, caption = "Abbreviated re
 OTU1969004 is the only one present in all thre sponge species.
 
 ## Data set description
-PCA, beta diversity, Neff?
-```{r pca_diversity}
-#(micro_ds$gb[1:5,1:5])
-#(micro_ds$sf[1:5,1:5])
-#(micro_ds$wb[1:5,1:5])
-micro_ds$gb["unified_ID"] <- rownames(micro_ds$gb)
-micro_ds$sf["unified_ID"] <- rownames(micro_ds$sf)
-micro_ds$wb["unified_ID"] <- rownames(micro_ds$wb)
-microbiota <- full_join(micro_ds$gb, micro_ds$sf)
-microbiota <- full_join(microbiota, micro_ds$wb)
-dim(microbiota) #ok
-rownames(microbiota) <- microbiota$unified_ID
-microbiota$unified_ID <- NULL
-microbiota[is.na(microbiota)] <- 0
-
-#run PCA
-#run bray curtis based PCA
-
-pca.microbiota<-prcomp(microbiota, scale=T) # PCA
-summary(pca.microbiota) #components
-axes.microbiota<-data.frame(predict(pca.microbiota, newdata=microbiota)) # Extracting the scores of the components
-p1 <- ggplot(axes.microbiota, aes(x=axes.microbiota$PC1, y=axes.microbiota$PC2))+geom_point()+ggtitle("prcomp")
-
-library(ropls)
-pca.microbiota2 <- opls(microbiota)
-
-
-
-
-
-# generating data set for the linear model
-#lmds.micro.otu<-cbind(micro_otu, axes.micro.otu, meta_data)
-
-#check rankindex()
-```
-
-
 
 ## Depth response
 Evaluate OTU response to depth: standardised correlating OTU relative abundance with sample depth 
