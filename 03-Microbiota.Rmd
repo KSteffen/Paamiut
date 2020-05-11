@@ -15,16 +15,24 @@ library(knitr)
 Let's start by taking a look at the OTU table and get an overall impression of our data.
 
 ```{r libraries}
-library(vegan)
 library(tidyverse)
+
 library(reshape2)
+library(stringr)
+
+library(ggplot2)
+library(RColorBrewer)
+library(forcats)
+
 library(kableExtra)
 options(kableExtra.html.bsTable = T)
-library(stringr)
-library(ggplot2)
-library(forcats)
-library(gtools)
 library(gridExtra)
+
+library(vegan)
+library(phyloseq)
+library(picante)
+
+library(gtools)
 ```
 
 ```{r filtering-pca, fig.cap="Read count overview of the OTU table before and after the normalisation applied in the data analysis for this study."}
@@ -187,17 +195,27 @@ div_indices <- reshape2::melt(div_indices, id.vars=c("spec", "unified_ID", "Dept
 ggplot(div_indices, aes(x=Depth, y=value))+geom_point()+facet_grid(vars(variable), vars(spec), scales="free")+ theme(axis.text.x = element_text(angle = -90, vjust = 0.5, hjust = 1), legend.position = "none")+ylab("Diversity metrics")+xlab("Sample depth")+theme_bw()
 ```
 
-In some of the downstream analyses, we distinguish between  common/abundant OTUs and rare OTUs. We use a cutoff of 0.25% average relative abundance per OTU for the classification. That implies drastically modifying the origial numbers of OTUs per sponge as outlined below.
+In some of the downstream analyses, we distinguish between common/abundant OTUs and rare OTUs. We use a cutoff of 0.25% average relative abundance per OTU for the classification. That implies drastically modifying the origial numbers of OTUs per sponge as outlined below.
 
 ```{r filtering-low-abdc-1}
-micro <- read.csv("~/Documents/Metabolomics/Depth_Gradient_study/R_depth_study/microbiome/OTU_all_R.csv", header = T, sep = ";")
-emp <- read.csv("~/Documents/Metabolomics/Depth_Gradient_study/R_depth_study/xcms_publication/SpongeEMP_enrichment.csv", header=T, sep=";")
-emp$num <- NULL
+micro <- read.csv("data/OTU_all_R.csv", header = T, sep = ";")
+emp <- read.csv("data/SpongeEMP.csv", header=T, sep=";")
+
+emp["XOTU_id"] <- str_replace(emp$OTU_ID,"OTU","X196900")
+# The full data set had the entries listed by sponge host, so there are 62 duplicates in the OTU list
+#length(emp$XOTU_id) # 207
+#length(unique(emp$XOTU_id)) # 145
+emp["num"] <- as.numeric(str_replace(emp$OTU_ID,"OTU",""))
+emp <- emp[order(emp$num),]
+emp["dup"] <- duplicated(emp$num)
+#dim(emp[emp$dup=="TRUE",]) #62
+emp <- emp[emp$dup=="FALSE",]
+emp[, c("sponge", "num", "dup")] <- list(NULL)
 
 OTU_prep_sqrt <- function(micro){
   rownames(micro) <- micro$Sample_ID
   micro$Sample_ID <- NULL
-  micro <- sqrt(micro)
+  #micro <- sqrt(micro)
   
   micro_gb <- micro[(str_sub(rownames(micro), 1,2)=="Gb"),]
   micro_sf <- micro[(str_sub(rownames(micro), 1,2)=="Sf"),]
@@ -268,9 +286,9 @@ gb_common <- gb_occ_emp[gb_occ_emp$occurrence=="common",]
 sf_common <- sf_occ_emp[sf_occ_emp$occurrence=="common",]
 wb_common <- wb_occ_emp[wb_occ_emp$occurrence=="common",]
 
-gb_aggr <- aggregate(gb_common$avg_rel_abdc, by=list(gb_common$SpongeEMP), FUN="length")
-sf_aggr <- aggregate(sf_common$avg_rel_abdc, by=list(sf_common$SpongeEMP), FUN="length")
-wb_aggr <- aggregate(wb_common$avg_rel_abdc, by=list(wb_common$SpongeEMP), FUN="length")
+gb_aggr <- aggregate(gb_common$avg_rel_abdc, by=list(gb_common$spongeEMP_enriched), FUN="length")
+sf_aggr <- aggregate(sf_common$avg_rel_abdc, by=list(sf_common$spongeEMP_enriched), FUN="length")
+wb_aggr <- aggregate(wb_common$avg_rel_abdc, by=list(wb_common$spongeEMP_enriched), FUN="length")
 
 aggr <- cbind(gb_aggr, sf_aggr$x)
 aggr <- left_join(aggr, wb_aggr, by="Group.1")
@@ -283,7 +301,6 @@ kable(aggr, col.names = c("OTU classification", "count (Gb)", "count (Sf)", "cou
     kable_styling(bootstrap_options = c("hover", "bordered", "condensed", 
         "responsive"), full_width = F, latex_options = c("scale_down"))
 ```
-
 
 ## Environmental modelling
 
@@ -377,14 +394,14 @@ rankindices["Normalisation"] <- c(rep(c("none", "sqrt", "sqrt & wisconsin"), 3))
 
 options(kableExtra.html.bsTable = T)
 kable(rankindices, col.names = c("Euclidean", "Manhattan", "Bray–Curtis", "Jaccard", "Kulczynski", "Sponge species", "Normalisation"), booktabs = T, 
-    caption = "Rank correlation between dissimilarity indices and gradient separation.", 
+    caption = "Rank correlation between dissimilarity indices and gradient separation. The higher the number the stronger the correlation, i.e. the better the fit.", 
     row.names = FALSE) %>% 
     kable_styling(bootstrap_options = c("striped", "hover", "bordered", "condensed", 
         "responsive"), full_width = F, latex_options = c("striped", 
         "scale_down"))
 ```
 
-We adapt the microbial data sets accordingly pllying square root transformation and wisconsin standardisation of the microbiota in all subsequent ecological analyses. Then, we build a model (null model) without any environmental parameters, and one (full model) with the maximum number of environmental parameters (terms) possible so that none of them have a VIF > 10. Finally, we use the stepwise model building function `ordistep` to determine, which of the environmental parameters is a significant constraint for the microbiomes. The function compares the null model and adds and removes terms from the full model to find (combinations of) significant contraints. The significance of the paramters is then tested in an ANOVA.
+We adapt the microbial data sets accordingly applying square root transformation and wisconsin standardisation of the microbiota in all subsequent ecological analyses. Then, we build a model (null model) without any environmental parameters, and one (full model) with the maximum number of environmental parameters (terms) possible so that none of them have a VIF > 10. Finally, we use the stepwise model building function `ordistep` to determine, which of the environmental parameters is a significant constraint for the microbiomes. The function compares the null model and adds and removes terms from the full model to find (combinations of) significant contraints. The significance of the paramters is then tested in an ANOVA.
 
 **_G. barretti_**: first the VIFs of all terms included in the full model, second the result of the stepwise model building, third the anova of the suggested model.
 
@@ -577,7 +594,171 @@ bioenv(wisconsin(microbiomes$wb)~ Depth + Latitude + Longitude + MeanBottomTemp_
 
 Enough of the anonymous modelling and data fitting, let's take a look at the taxonomy to see who is there.
 
-```{r relative-abundance, fig.cap="Rel ABDC Phylum"}
+```{r rel-abdc-plot, fig.cap="Relative abundance of prokaryotic phyla per sponge sample."}
+
+micro <- read.csv("data/OTU_all_R.csv", header = T, sep = ";")
+meta_data <- read.csv("data/PANGAEA_Final.csv", header = T, sep = ";")
+taxonomy <- read.csv("data/microbiome_taxonomy.csv", header = T, sep = ";")
+
+OTU_prep_sqrt <- function(micro){
+  rownames(micro) <- micro$Sample_ID
+  micro$Sample_ID <- NULL
+  micro <- sqrt(micro)
+  
+  micro_gb <- micro[(str_sub(rownames(micro), 1,2)=="Gb"),]
+  micro_sf <- micro[(str_sub(rownames(micro), 1,2)=="Sf"),]
+  micro_wb <- micro[(str_sub(rownames(micro), 1,2)=="Wb"),]
+  
+  micro_gb <- micro_gb[,colSums(micro_gb!=0)>0]
+  micro_sf <- micro_sf[,colSums(micro_sf!=0)>0]
+  micro_wb <- micro_wb[,colSums(micro_wb!=0)>0]
+  micros <- list(gb=micro_gb, sf=micro_sf, wb=micro_wb)
+  return(micros)  
+}
+
+micro_ds <- OTU_prep_sqrt(micro)
+
+overall_rabdc <- function(micros){
+  mic <- micros
+  n <- 0
+  k <- dim(mic)[1]
+  mic["rowsum"] <- apply(mic, 1, sum)
+  
+  while (n<k) {
+    n <- n+1
+    mic[n,] <- mic[n,]/(mic$rowsum[n])
+  }
+  
+  mic$rowsum <- NULL
+  mic <- data.frame(t(mic))
+  mic["avg_rel_abdc"] <- apply(mic, 1, mean)
+  mic["occurrence"] <- ifelse(mic$avg>0.0025, "common", "rare")
+  return(mic)
+}
+
+occurrence <- lapply(micro_ds, overall_rabdc)
+
+# PHYLUM
+adonis_prep <- function(taxonomy, occurrence){
+  occurrence$gb["XOTU"] <-rownames(occurrence$gb) 
+  occurrence$sf["XOTU"] <-rownames(occurrence$sf) 
+  occurrence$wb["XOTU"] <-rownames(occurrence$wb)
+  
+  tax <- taxonomy[, c("OTU_ID", "Phylum", "Class")]
+  n <- 0
+  k <- dim(tax)[1]
+  tax["XOTU"] <- NA
+  while (n<k) {
+    n <- n+1
+    tax$XOTU[n] <- paste0("X",tax$OTU_ID[n])
+  }
+  
+  tax_gb <- inner_join(tax, occurrence$gb)
+  tax_sf <- inner_join(tax, occurrence$sf)
+  tax_wb <- inner_join(tax, occurrence$wb)
+  
+  taxes <- list(gb=tax_gb, sf=tax_sf, wb=tax_wb)
+  return(taxes)
+}
+
+taxes <- adonis_prep(taxonomy, occurrence)
+
+cleaning <- function(taxes) {
+  gb <- taxes$gb
+  sf <- taxes$sf
+  wb <- taxes$wb
+  #Renaming & removing whitespaces
+  gb$Phylum <- as.character(str_trim(as.character(gb$Phylum)))
+  sf$Phylum <- as.character(str_trim(as.character(sf$Phylum)))
+  wb$Phylum <- as.character(str_trim(as.character(wb$Phylum)))
+  gb$Class <- as.character(str_trim(as.character(gb$Class)))
+  sf$Class <- as.character(str_trim(as.character(sf$Class)))
+  wb$Class <- as.character(str_trim(as.character(wb$Class)))
+  ## GB
+  gb$Class[(gb$Phylum=="PAUC34f")] <- "PAUC34f_unclassified"
+  gb$Class[(gb$Phylum=="")] <- "unclassified"
+  gb$Phylum[(gb$Phylum=="")] <- "unclassified"
+  gb$Class[(gb$Phylum=="Tectomicrobia")] <- "Tectomicrobia_unclassified"
+  gb$Class[(gb$Phylum=="SBR1093")] <- "SBR1093_unclassified"
+  gb$Class[(gb$Phylum=="Poribacteria")] <- "Poribacteria_unclassified"
+  gb$Class[gb$Phylum=="Chloroflexi" & gb$Class==""] <- "Chloroflexi_unclassified"
+  ## SF
+  sf$Class[(sf$Phylum=="")] <- "unclassified"
+  sf$Phylum[(sf$Phylum=="")] <- "unclassified"
+  sf$Class[(sf$Phylum=="PAUC34f")] <- "PAUC34f_unclassified"
+  sf$Class[(sf$Phylum=="Proteobacteria" & sf$Class=="")] <- "Proteobacteria_unclassified"
+  sf$Class[(sf$Phylum=="Tectomicrobia")] <- "Tectomicrobia_unclassified"
+  sf$Class[(sf$Phylum=="SBR1093")] <- "SBR1093_unclassified"
+  sf$Class[(sf$Phylum=="Poribacteria")] <- "Poribacteria_unclassified"
+  ## WB
+  wb$Class[(wb$Phylum=="")] <- "unclassified"
+  wb$Phylum[(wb$Phylum=="")] <- "unclassified"
+  # merge back
+  taxes <- list(gb=gb, sf=sf, wb=wb)
+  return(taxes)
+}
+
+taxes <- cleaning(taxes)
+
+taxes <- lapply(taxes, function(x) {rownames(x) <- x$XOTU;x})
+taxes <- lapply(taxes, function(x) {x[c("avg_rel_abdc", "occurrence", "OTU_ID", "XOTU")] <- NULL; x})
+taxes <- lapply(taxes, function(x) {x["Class"] <- NULL; x})
+
+
+# aggregate sum of relative abundance per phylum in each sponge sample
+gb <- aggregate(taxes$gb[,2:dim(taxes$gb)[2]], list(taxes$gb[,"Phylum"]), sum) #works
+sf <- aggregate(taxes$sf[,2:dim(taxes$sf)[2]], list(taxes$sf[,"Phylum"]), sum) #works
+wb <- aggregate(taxes$wb[,2:dim(taxes$wb)[2]], list(taxes$wb[,"Phylum"]), sum) #works
+
+taxes_phy <- full_join(gb, sf)
+taxes_phy <- full_join(taxes_phy, wb)
+taxes_phy[is.na(taxes_phy)] <- 0
+
+# check there are no weird names
+#aggregate(.~ Group.1, data=taxes_phy, sum)
+
+rownames(taxes_phy) <- taxes_phy$Group.1
+taxes_phy$Group.1 <- NULL
+df_phylum <- data.frame(t(taxes_phy)) #taxes_phy_t <- df_phylum
+df_phylum["Sample_ID"] <- rownames(df_phylum)
+df_phylum <- melt(df_phylum, id.vars=c("Sample_ID"))
+colnames(df_phylum) <- c("Sample_ID", "Phylum", "variable")
+
+ggplot(df_phylum, aes(x=Sample_ID, y=variable, fill=Phylum))+
+  geom_bar(stat="identity")+
+  theme_classic()+theme(axis.text.x = element_text(angle = 90, hjust = 1), legend.position = "bottom")+xlab("Samples ordered by depth")+ylab("Relative abundance")+
+  scale_x_discrete(limits=c("Gb1","Gb2","Gb3", "Gb4", "Gb5", "Gb6", "Gb7", "Gb8", "Gb9", "Gb10", "Gb11", "Gb12", "Gb13", "Gb14", "Sf1", "Sf2", "Sf3", "Sf4", "Sf5", "Sf6", "Sf7", "Sf8", "Sf9", "Sf10", "Sf11", "Sf12", "Sf13", "Sf14", "Sf15", "Wb1", "Wb2", "Wb3", "Wb4", "Wb5", "Wb6", "Wb7", "Wb8", "Wb9", "Wb10", "Wb11", "Wb12", "Wb13", "Wb14", "Wb15", "Wb16"))+
+  scale_fill_manual("",
+                  breaks = c("Acidobacteria", "Actinobacteria", "Bacteroidetes", "Chlamydiae", "Chloroflexi", "Cyanobacteria", "Deferribacteres", "Deinococcus.Thermus", "Firmicutes", "Gemmatimonadetes", "Nitrospinae", "Nitrospirae", 
+"PAUC34f", "Planctomycetes", "Poribacteria", "Proteobacteria", "SBR1093", "Spirochaetae", "Tectomicrobia", "Thaumarchaeota", 
+"unclassified", "Verrucomicrobia"),
+                  values = c("#b8c4f6","#ffaaaf","#3d1349","#ffffff","#01559d","#ffffff","#ffffff","#ffffff","#ffffff","#019c51","#b10060","#49ca00","#dd8e00","#f282ff","#ffffff","#ff633f","#ec0040","#010b92","#cf00aa","#aba900","#ffffff","#fce300"),
+                  labels = c("Acidobacteria", "Actinobacteria", "Bacteroidetes", "Chlamydiae", "Chloroflexi", "Cyanobacteria", "Deferribacteres", "Deinococcus.Thermus", "Firmicutes", "Gemmatimonadetes", "Nitrospinae", "Nitrospirae", 
+                             "PAUC34f", "Planctomycetes", "Poribacteria", "Proteobacteria", "SBR1093", "Spirochaetae", "Tectomicrobia", "Thaumarchaeota", 
+                             "unclassified", "Verrucomicrobia")
+                  )
+
+
+#df_phylum["spec"] <- str_sub(df_phylum$Sample_ID,1,2)
+#md <- meta_data[,c("unified_ID", "Depth")]
+#colnames(md) <- c("Sample_ID", "Depth")
+#df_phylum <- left_join(df_phylum, md)
+
+#ggplot(df_phylum, aes(x=as.factor(Depth), y=variable, fill=Phylum))+
+#  geom_bar(stat="identity")+facet_wrap(.~spec, scales="free")+
+#  theme_classic()+theme(axis.text.x = element_text(angle = 90, hjust = 1),legend.position = "bottom")+xlab("Samples ordered by depth")+ylab("Relative abundance")+
+#  scale_fill_manual("",
+#                  breaks = c("Acidobacteria", "Actinobacteria", "Bacteroidetes", "Chlamydiae", "Chloroflexi", "Cyanobacteria", "Deferribacteres", "Deinococcus.Thermus", "Firmicutes", "Gemmatimonadetes", "Nitrospinae", "Nitrospirae", "PAUC34f", "Planctomycetes", "Poribacteria", "Proteobacteria", "SBR1093", "Spirochaetae", "Tectomicrobia", "Thaumarchaeota", "unclassified", "Verrucomicrobia"),
+#                  values = c("#b8c4f6","#ffaaaf","#3d1349","#ffffff","#01559d","#ffffff","#ffffff","#ffffff","#ffffff","#019c51","#b10060","#49ca00","#dd8e00","#f282ff","#ffffff","#ff633f","#ec0040","#010b92","#cf00aa","#aba900","#ffffff","#fce300"),
+ #                 labels = c("Acidobacteria", "Actinobacteria", "Bacteroidetes", "Chlamydiae", "Chloroflexi", "Cyanobacteria", "Deferribacteres", "Deinococcus.Thermus", "Firmicutes", "Gemmatimonadetes", "Nitrospinae", "Nitrospirae", "PAUC34f", "Planctomycetes", "Poribacteria", "Proteobacteria", "SBR1093", "Spirochaetae", "Tectomicrobia", "Thaumarchaeota", "unclassified", "Verrucomicrobia")
+#                  )
+
+```
+
+We see in this bar plot that the relative abundance of phyla remains fairly stable across the different depths. The composition of the prokaryotic communities in the HMA sponges _G. barretti_ and _S. fortis_ is similar, while the composition in the LMA sponge _W. bursa_ is different to them. 
+The phyla left white/blank are present at very low abundance and we thought the figure might be visually easier without too many colours.
+
+```{r rel-abdc-phyloseq, fig.cap="Rel ABDC Phylum", echo=F, eval=F}
 library(vegan)
 library(reshape2)
 library(phyloseq)
@@ -606,9 +787,376 @@ taxmat<-as.matrix(taxonomy)
 TAX <- tax_table(taxmat)
 biom_data <- phyloseq(OTU, TAX)
 
+plot_bar(biom_data, fill = "Phylum")
+
 #plot_bar(biom_data, fill="Phylum")+scale_fill_brewer(palette = "Set1")
 #plot_bar(biom_data, fill="Class")
 ```
+
+If you prefer numbers, this is what it breaks down to:
+
+
+
+```{r class-phylum-stats}
+microbiome<-read.csv("data/OTU_all_R.csv", header=T, sep=";") 
+
+OTU_prep_sqrt <- function(micro){
+  rownames(micro) <- micro$Sample_ID
+  micro$Sample_ID <- NULL
+  micro <- sqrt(micro)
+  
+  micro_gb <- micro[(str_sub(rownames(micro), 1,2)=="Gb"),]
+  micro_sf <- micro[(str_sub(rownames(micro), 1,2)=="Sf"),]
+  micro_wb <- micro[(str_sub(rownames(micro), 1,2)=="Wb"),]
+  
+  micro_gb <- micro_gb[,colSums(micro_gb!=0)>0]
+  micro_sf <- micro_sf[,colSums(micro_sf!=0)>0]
+  micro_wb <- micro_wb[,colSums(micro_wb!=0)>0]
+  micros <- list(gb=micro_gb, sf=micro_sf, wb=micro_wb)
+  return(micros)  
+}
+
+micro_ds <- OTU_prep_sqrt(microbiome)
+
+# calculate relative abundance of OTU across sponge samples
+
+overall_rabdc <- function(micros){
+  mic <- micros
+  n <- 0
+  k <- dim(mic)[1]
+  mic["rowsum"] <- apply(mic, 1, sum)
+  
+  while (n<k) {
+    n <- n+1
+    mic[n,] <- mic[n,]/(mic$rowsum[n])
+  }
+  
+  mic$rowsum <- NULL
+  mic <- data.frame(t(mic))
+  mic["avg_rel_abdc"] <- apply(mic, 1, mean)
+  mic["occurrence"] <- ifelse(mic$avg>0.0025, "common", "rare")
+  return(mic)
+}
+
+#gb_occurrence <- overall_rabdc(micro_ds$gb)
+#sf_occurrence <- overall_rabdc(micro_ds$sf)
+#wb_occurrence <- overall_rabdc(micro_ds$wb)
+#occurrence <- list(gb=gb_occurrence, sf=sf_occurrence, wb=wb_occurrence)
+
+occurrence <- lapply(micro_ds, overall_rabdc)
+
+aggregations <- function(taxonomy, occurrence){
+  occurrence$gb["XOTU"] <-rownames(occurrence$gb) 
+  occurrence$sf["XOTU"] <-rownames(occurrence$sf) 
+  occurrence$wb["XOTU"] <-rownames(occurrence$wb)
+  
+  tax <- taxonomy[, c("OTU_ID", "Phylum", "Class")]
+  n <- 0
+  k <- dim(tax)[1]
+  tax["XOTU"] <- NA
+  while (n<k) {
+    n <- n+1
+    tax$XOTU[n] <- paste0("X",tax$OTU_ID[n])
+  }
+  
+  tax_gb <- inner_join(tax, occurrence$gb[,c("XOTU", "avg_rel_abdc")])
+  tax_sf <- inner_join(tax, occurrence$sf[,c("XOTU", "avg_rel_abdc")])
+  tax_wb <- inner_join(tax, occurrence$wb[,c("XOTU", "avg_rel_abdc")])
+  
+  taxes <- list(gb=tax_gb, sf=tax_sf, wb=tax_wb)
+  
+  gb1 <- aggregate(tax_gb$Phylum, by=list(tax_gb$Phylum), FUN="length")
+  gb2 <- aggregate(tax_gb$avg_rel_abdc, by=list(tax_gb$Phylum), FUN="sum")
+  gb_p <- full_join(gb1, gb2, by=("Group.1"="Group.1"))
+  colnames(gb_p) <- c("Phylum", "OTU_number", "avg_rel_abdc")
+  
+  gb1 <- aggregate(tax_gb$Class, by=list(tax_gb$Class), FUN="length")
+  gb2 <- aggregate(tax_gb$avg_rel_abdc, by=list(tax_gb$Class), FUN="sum")
+  gb_c <- full_join(gb1, gb2, by=("Group.1"="Group.1"))
+  colnames(gb_c) <- c("Class", "OTU_number", "avg_rel_abdc")
+  
+  test1  <- lapply(taxes, function(x) aggregate(avg_rel_abdc ~ Phylum, data = x, FUN = "length"))
+  lapply(taxes, function(x) aggregate(avg_rel_abdc ~ Phylum, data = x, FUN = "sum"))
+  
+  return(taxes)
+}
+
+taxes <- aggregations(taxonomy, occurrence)
+
+cleaning <- function(taxes) {
+  gb <- taxes$gb
+  sf <- taxes$sf
+  wb <- taxes$wb
+  #Renaming & removing whitespaces
+  gb$Phylum <- as.character(str_trim(as.character(gb$Phylum)))
+  sf$Phylum <- as.character(str_trim(as.character(sf$Phylum)))
+  wb$Phylum <- as.character(str_trim(as.character(wb$Phylum)))
+  gb$Class <- as.character(str_trim(as.character(gb$Class)))
+  sf$Class <- as.character(str_trim(as.character(sf$Class)))
+  wb$Class <- as.character(str_trim(as.character(wb$Class)))
+  ## GB
+  gb$Class[(gb$Phylum=="PAUC34f")] <- "PAUC34f_unclassified"
+  gb$Class[(gb$Phylum=="")] <- "unclassified"
+  gb$Phylum[(gb$Phylum=="")] <- "unclassified"
+  gb$Class[(gb$Phylum=="Tectomicrobia")] <- "Tectomicrobia_unclassified"
+  gb$Class[(gb$Phylum=="SBR1093")] <- "SBR1093_unclassified"
+  gb$Class[(gb$Phylum=="Poribacteria")] <- "Poribacteria_unclassified"
+  gb$Class[gb$Phylum=="Chloroflexi" & gb$Class==""] <- "Chloroflexi_unclassified"
+  ## SF
+  sf$Class[(sf$Phylum=="")] <- "unclassified"
+  sf$Phylum[(sf$Phylum=="")] <- "unclassified"
+  sf$Class[(sf$Phylum=="PAUC34f")] <- "PAUC34f_unclassified"
+  sf$Class[(sf$Phylum=="Proteobacteria" & sf$Class=="")] <- "Proteobacteria_unclassified"
+  sf$Class[(sf$Phylum=="Tectomicrobia")] <- "Tectomicrobia_unclassified"
+  sf$Class[(sf$Phylum=="SBR1093")] <- "SBR1093_unclassified"
+  sf$Class[(sf$Phylum=="Poribacteria")] <- "Poribacteria_unclassified"
+  ## WB
+  wb$Class[(wb$Phylum=="")] <- "unclassified"
+  wb$Phylum[(wb$Phylum=="")] <- "unclassified"
+  # merge back
+  taxes <- list(gb=gb, sf=sf, wb=wb)
+  return(taxes)
+}
+
+taxes <- cleaning(taxes)
+
+phy_OTU <- lapply(taxes, function(x) aggregate(avg_rel_abdc ~ Phylum, data = x, FUN = "length")) #OTU count
+phy_rabdc <- lapply(taxes, function(x) aggregate(avg_rel_abdc ~ Phylum, data = x, FUN = "sum")) #sums relative abundance
+
+class_OTU <- lapply(taxes, function(x) aggregate(avg_rel_abdc ~ Class, data = x, FUN = "length"))
+class_rabdc <- lapply(taxes, function(x) aggregate(avg_rel_abdc ~ Class, data = x, FUN = "sum"))
+
+gb_P <- cbind(phy_OTU$gb, phy_rabdc$gb[,("avg_rel_abdc")])
+colnames(gb_P) <- c("Phylum", "OTU count", "cum. avg. abundance")
+options(kableExtra.html.bsTable = T)
+kable(gb_P, col.names = c("Phylum", "OTU count", "cum. avg. abundance"), longtable = T, booktabs = T, 
+    caption = "Phylum level composition of the G. barretti prokaryotic community", 
+    row.names = FALSE) %>% 
+    kable_styling(bootstrap_options = c("striped", "hover", "bordered", "condensed", 
+        "responsive"), font_size = 12, full_width = F, latex_options = c("striped", 
+        "scale_down"), position = "float_left")
+gb_C <- cbind(class_OTU$gb, class_rabdc$gb[,("avg_rel_abdc")])
+colnames(gb_C) <- c("Class", "OTU count", "cummulative average abundance")
+options(kableExtra.html.bsTable = T)
+kable(gb_C, col.names = c("Class", "OTU count", "cum. avg. abundance"), longtable = T, booktabs = T, 
+    caption = "Class level composition of the G. barretti prokaryotic community", 
+    row.names = FALSE) %>% 
+    kable_styling(bootstrap_options = c("striped", "hover", "bordered", "condensed", 
+        "responsive"), font_size = 12, full_width = F, latex_options = c("striped", 
+        "scale_down"), position = "left")
+
+sf_P <- cbind(phy_OTU$sf, phy_rabdc$sf[,("avg_rel_abdc")])
+colnames(sf_P) <- c("Phylum", "OTU count", "cum. avg. abundance")
+kable(sf_P, col.names = c("Phylum", "OTU count", "cum. avg. abundance"), longtable = T, booktabs = T, 
+    caption = "Phylum level composition of the S. fortis prokaryotic community", 
+    row.names = FALSE) %>% 
+    kable_styling(bootstrap_options = c("striped", "hover", "bordered", "condensed", 
+        "responsive"), font_size = 12, full_width = F, latex_options = c("striped", 
+        "scale_down"), position = "float_left")
+sf_C <- cbind(class_OTU$sf, class_rabdc$sf[,("avg_rel_abdc")])
+colnames(sf_C) <- c("Class", "OTU count", "cummulative average abundance")
+kable(sf_C, col.names = c("Class", "OTU count", "cum. avg. abundance"), longtable = T, booktabs = T, 
+    caption = "Class level composition of the S. fortis prokaryotic community", 
+    row.names = FALSE) %>% 
+    kable_styling(bootstrap_options = c("striped", "hover", "bordered", "condensed", 
+        "responsive"), font_size = 12, full_width = F, latex_options = c("striped", 
+        "scale_down"), position = "left")
+
+wb_P <- cbind(phy_OTU$wb, phy_rabdc$wb[,("avg_rel_abdc")])
+colnames(wb_P) <- c("Phylum", "OTU count", "cummulative average abundance")
+kable(wb_P, col.names = c("Phylum", "OTU count", "cum. avg. abundance"), longtable = T, booktabs = T, 
+    caption = "Phylum level composition of the W. bursa prokaryotic community", 
+    row.names = FALSE) %>% 
+    kable_styling(bootstrap_options = c("striped", "hover", "bordered", "condensed", 
+        "responsive"), font_size = 12, full_width = F, latex_options = c("striped", 
+        "scale_down"), position = "float_left")
+wb_C <- cbind(class_OTU$wb, class_rabdc$wb[,("avg_rel_abdc")])
+colnames(wb_C) <- c("Class", "OTU count", "cummulative average abundance")
+kable(wb_C, col.names = c("Class", "OTU count", "cum. avg. abundance"), longtable = T, booktabs = T, 
+    caption = "Class level composition of the W. bursa prokaryotic community", 
+    row.names = FALSE) %>% 
+    kable_styling(bootstrap_options = c("striped", "hover", "bordered", "condensed", 
+        "responsive"), font_size = 12, full_width = F, latex_options = c("striped", 
+        "scale_down"), position = "left")
+
+rm(gb_P, sf_P, wb_P, gb_C, sf_C, wb_C)
+```
+
+## Depth response
+
+Summarising the OTU diversity by phylum or class only show what was previously known. The composition of the sponges' prokaryotic community is stable. However, summarising doesn't do the data justice. We therefore correlate the average realitve abundance of every OTU with depth
+
+```{r increade-decrease}
+#====================== INC-DEC CORRELATION ==================
+# Categorises the OTUs by their response to depth. Requires meta_data_prep, OTU_prep_sqrt, rel_abdc.
+micro <- read.csv("data/OTU_all_R.csv", header = T, sep = ";")
+meta_data <- read.csv("data/Steffen_et_al_metadata_PANGAEA.csv", header=T, sep=";")
+
+meta_data_prep <- function(meta_data){
+  meta_data <- meta_data[, c("unified_ID", "Depth", "Latitude", "Longitude", "MeanBottomTemp_Cdeg", "MeanBotSalinity_PSU", "YEAR")]
+  colnames(meta_data) <- c("unified_ID", "Depth", "Latitude", "Longitude", "Temperature", "Salinity", "Year")
+  meta_data <- meta_data[!(str_sub(meta_data$unified_ID, 1,2)=="QC"),]
+  meta_data[] <- lapply(meta_data, function(x) if(is.factor(x)) factor(x) else x)
+  # Gb12, Gb20 and Gb21 are missing temperature and salinity. Imputing data from closeby samples:
+  meta_data$Salinity[meta_data$unified_ID=="Gb12"] <- 34.92
+  meta_data$Salinity[meta_data$unified_ID=="Gb20"] <- 34.92
+  meta_data$Salinity[meta_data$unified_ID=="Gb21"] <- 34.56
+  meta_data$Temperature[meta_data$unified_ID=="Gb12"] <- 3.71
+  meta_data$Temperature[meta_data$unified_ID=="Gb20"] <- 3.65
+  meta_data$Temperature[meta_data$unified_ID=="Gb21"] <- 2.32
+  meta_data["spec"] <- str_sub(meta_data$unified_ID,1,2)
+  meta_data <- meta_data[order(meta_data$unified_ID),]
+  return(meta_data)  
+}
+
+meta_data <- meta_data_prep(meta_data)
+
+micro_ds <- OTU_prep_sqrt(micro)
+
+rel_abdc <- function(micro){
+  mic <- micro
+  mic <- data.frame(t(mic))
+  mic["max"] <- apply(mic, 1, max)
+  
+  n <- 0
+  k <- dim(mic)[1] 
+  while (n<k) {
+    n <- n+1
+    mic[n,] <- mic[n,]/(mic$max[n])
+  }
+  mic$max <- NULL
+  return(mic)
+}
+
+rabdc_gb <- rel_abdc(micro_ds$gb)
+rabdc_sf <- rel_abdc(micro_ds$sf)
+rabdc_wb <- rel_abdc(micro_ds$wb)
+
+inc_dec <- function(rabdc_df, meta_data){
+  
+  md <- meta_data[meta_data$unified_ID %in% colnames(rabdc_df),]
+  inc_dec <- data.frame(rownames(rabdc_df))
+  colnames(inc_dec) <- "XOTU"
+  inc_dec["inc_dec_estimate"] <- NA
+  inc_dec["inc_dec_p_val"] <- NA
+  
+  n <- 0
+  k <- dim(inc_dec)[1]
+  while (n<k) {
+    n <- n+1
+    inc_dec$inc_dec_estimate[n] <- cor.test(as.numeric(rabdc_df[n,]), md$Depth)$estimate
+    inc_dec$inc_dec_p_val[n] <- cor.test(as.numeric(rabdc_df[n,]), md$Depth)$p.value
+  }
+  
+  inc_dec["classification"] <- NA
+  inc_dec$classification[inc_dec$inc_dec_estimate<0] <- "dec.trend"
+  inc_dec$classification[inc_dec$inc_dec_estimate>0] <- "inc.trend"
+  inc_dec$classification[inc_dec$inc_dec_estimate<0 & inc_dec$inc_dec_p<=0.05] <- "decreasing"
+  inc_dec$classification[inc_dec$inc_dec_estimate>0 & inc_dec$inc_dec_p<=0.05] <- "increasing"
+  return(inc_dec)
+}
+
+gb_response <- inc_dec(rabdc_gb, meta_data)
+sf_response <- inc_dec(rabdc_sf, meta_data)
+wb_response <- inc_dec(rabdc_wb, meta_data)
+
+#For heatmaps
+#gb
+rabdc_gb["XOTU"] <- rownames(rabdc_gb)
+gb_heatmap <- full_join(rabdc_gb, gb_response)
+gb_heatmap <- melt(gb_heatmap, id.vars=c("XOTU", "inc_dec_estimate", "inc_dec_p_val", "classification"))
+md <- meta_data[,c("unified_ID", "Depth")]
+colnames(md) <- c("variable", "Depth")
+gb_heatmap <- left_join(gb_heatmap, md)
+gb_heatmap["name"] <- str_sub(gb_heatmap$XOTU, -3)
+gb_heatmap_i <- gb_heatmap[gb_heatmap$classification=="increasing",]
+gb_heatmap_d <- gb_heatmap[gb_heatmap$classification=="decreasing",]
+
+#gb_i <- ggplot(gb_heatmap_i, aes(x=as.factor(gb_heatmap_i$Depth), y=gb_heatmap_i$name, fill=gb_heatmap_i$value))+geom_tile()+ theme(axis.text.x = element_text(angle = 90, hjust = 1))+xlab("Depth")+ylab("OTUs")+ggtitle("GB OTUs increasing")+scale_fill_viridis_c(option = "plasma")+coord_equal()+theme(plot.background=element_blank(), panel.border=element_blank(), legend.title=element_blank(),legend.position="bottom")
+
+#gb_d <- ggplot(gb_heatmap_d, aes(x=as.factor(gb_heatmap_d$Depth), y=gb_heatmap_d$name, fill=gb_heatmap_d$value))+geom_tile()+ theme(axis.text.x = element_text(angle = 90, hjust = 1))+xlab("Depth")+ylab("OTUs")+ggtitle("GB OTUs decreasing")+scale_fill_viridis_c(option = "plasma")+coord_equal()+theme(plot.background=element_blank(), panel.border=element_blank(), legend.title=element_blank(),legend.position="bottom")
+
+#sf
+rabdc_sf["XOTU"] <- rownames(rabdc_sf)
+sf_heatmap <- full_join(rabdc_sf, sf_response)
+sf_heatmap <- melt(sf_heatmap, id.vars=c("XOTU", "inc_dec_estimate", "inc_dec_p_val", "classification"))
+md <- meta_data[,c("unified_ID", "Depth")]
+colnames(md) <- c("variable", "Depth")
+sf_heatmap <- left_join(sf_heatmap, md)
+sf_heatmap["name"] <- str_sub(sf_heatmap$XOTU, -3)
+sf_heatmap_i <- sf_heatmap[sf_heatmap$classification=="increasing",]
+sf_heatmap_d <- sf_heatmap[sf_heatmap$classification=="decreasing",]
+
+#sf_i <- ggplot(sf_heatmap_i, aes(x=as.factor(sf_heatmap_i$Depth), y=sf_heatmap_i$name, fill=sf_heatmap_i$value))+geom_tile()+ theme(axis.text.x = element_text(angle = 90, hjust = 1))+xlab("Depth")+ylab("OTUs")+ggtitle("SF OTUs increasing")+scale_fill_viridis_c(option = "plasma")+coord_equal()+theme(plot.background=element_blank(), panel.border=element_blank(), legend.title=element_blank(),legend.position="bottom")
+
+#sf_d <- ggplot(sf_heatmap_d, aes(x=as.factor(sf_heatmap_d$Depth), y=sf_heatmap_d$name, fill=sf_heatmap_d$value))+geom_tile()+ theme(axis.text.x = element_text(angle = 90, hjust = 1))+xlab("Depth")+ylab("OTUs")+ggtitle("SF OTUs decreasing")+scale_fill_viridis_c(option = "plasma")+coord_equal()+theme(plot.background=element_blank(), panel.border=element_blank(), legend.title=element_blank(),legend.position="bottom")
+
+#wb
+rabdc_wb["XOTU"] <- rownames(rabdc_wb)
+wb_heatmap <- full_join(rabdc_wb, wb_response)
+wb_heatmap <- melt(wb_heatmap, id.vars=c("XOTU", "inc_dec_estimate", "inc_dec_p_val", "classification"))
+md <- meta_data[,c("unified_ID", "Depth")]
+colnames(md) <- c("variable", "Depth")
+wb_heatmap <- left_join(wb_heatmap, md)
+wb_heatmap["name"] <- str_sub(wb_heatmap$XOTU, -3)
+wb_heatmap_i <- wb_heatmap[wb_heatmap$classification=="increasing",]
+wb_heatmap_d <- wb_heatmap[wb_heatmap$classification=="decreasing",]
+
+#wb_i <- ggplot(wb_heatmap_i, aes(x=as.factor(wb_heatmap_i$Depth), y=wb_heatmap_i$name, fill=wb_heatmap_i$value))+geom_tile()+ theme(axis.text.x = element_text(angle = 90, hjust = 1))+xlab("Depth")+ylab("OTUs")+ggtitle("WB OTUs increasing")+scale_fill_viridis_c(option = "plasma")+coord_equal()+theme(plot.background=element_blank(), panel.border=element_blank(), legend.title=element_blank(),legend.position="bottom")
+
+#wb_d <- ggplot(wb_heatmap_d, aes(x=as.factor(wb_heatmap_d$Depth), y=wb_heatmap_d$name, fill=wb_heatmap_d$value))+geom_tile()+ theme(axis.text.x = element_text(angle = 90, hjust = 1))+xlab("Depth")+ylab("OTUs")+ggtitle("WB OTUs decreasing")+scale_fill_viridis_c(option = "plasma")+coord_equal()+theme(plot.background=element_blank(), panel.border=element_blank(), legend.title=element_blank(),legend.position="bottom")
+
+#Facetting for the figure in the publication
+gb_heatmap_i["spec"] <-c("Geodia barretti")
+sf_heatmap_i["spec"] <-c("Stryphnus fortis")
+wb_heatmap_i["spec"] <-c("Weberella bursa")
+increase <- rbind(gb_heatmap_i, sf_heatmap_i, wb_heatmap_i)
+inc <- ggplot(increase, aes(x=as.factor(Depth), y=name, fill=value))+facet_grid(.~spec, space = "free", scales="free")+geom_tile()+theme_classic()+theme(axis.text.x = element_text(angle = 90, hjust = 1))+xlab("Depth")+ylab("OTUs")+ggtitle("OTUs increasing")+scale_fill_viridis_c(option = "plasma")+theme(plot.background=element_blank(), panel.border=element_blank(), legend.title=element_blank(),legend.position="bottom")
+
+gb_heatmap_d["spec"] <-c("Geodia barretti")
+sf_heatmap_d["spec"] <-c("Stryphnus fortis")
+wb_heatmap_d["spec"] <-c("Weberella bursa")
+decrease <- rbind(gb_heatmap_d, sf_heatmap_d, wb_heatmap_d)
+dec <- ggplot(decrease, aes(x=as.factor(Depth), y=name, fill=value))+facet_grid(.~spec, space = "free", scales="free", drop=T)+geom_tile()+theme_classic()+theme(axis.text.x = element_text(angle = 90, hjust = 1))+xlab("Depth")+ylab("OTUs")+ggtitle("OTUs decreasing")+scale_fill_viridis_c(option = "plasma")+theme(plot.background=element_blank(), panel.border=element_blank(), legend.title=element_blank(),legend.position="bottom")
+
+library(gridExtra)
+grid.arrange(inc, dec, nrow=1)
+
+gb_nums <- c(length(unique(gb_heatmap$name)), length(unique(gb_heatmap_i$name)), length(unique(gb_heatmap_d$name)))
+sf_nums <- c(length(unique(sf_heatmap$name)), length(unique(sf_heatmap_i$name)), length(unique(sf_heatmap_d$name)))
+wb_nums <- c(length(unique(wb_heatmap$name)), length(unique(wb_heatmap_i$name)), length(unique(wb_heatmap_d$name)))
+
+overview <- rbind(gb_nums, sf_nums, wb_nums)
+colnames(overview) <- c("Total", "increasing", "decreasing")
+rownames(overview) <- c("G. barretti microbiota", "S. fortis microbiota", "W. bursa microbiota")
+overview <- data.frame(overview)
+overview["unaffected"] <- overview$Total-(overview$increasing + overview$decreasing)
+
+kable(overview, escape = F, align = "c", booktabs = T, caption = "Microbiota response to depth", "html") %>%
+   kable_styling(bootstrap_options = c("striped", "hover", "condensed", "responsive", latex_options = "striped", full_width = F))
+
+#overview <- overview[,c(2:4)]
+#overview["response"] <- rownames(overview)
+#plot <- melt(overview)
+
+#stacked <- ggplot(plot, aes(x=response, y=value, fill=variable)) + 
+#  geom_bar(position="stack", stat="identity")+
+#  theme_minimal()+ggtitle("Stacked counts")+xlab("Sponge species")+ylab("OTU count")+ 
+#  theme(axis.text.x = element_text(angle = 90, hjust = 1))
+
+#perc <- ggplot(plot, aes(x=response, y=value, fill=variable)) + 
+#  geom_bar(position="fill", stat="identity")+
+#  theme_minimal()+ggtitle("Percentages")+xlab("Sponge species")+ylab("relative OTU count")+ 
+#  theme(axis.text.x = element_text(angle = 90, hjust = 1))
+
+#grid.arrange(stacked, perc, nrow=2)
+#write.csv(gb_response, "gb_response.csv")    
+#write.csv(sf_response, "sf_response.csv")    
+#write.csv(wb_response, "wb_response.csv")    
+
+```
+
+
 
 ```{r functions, echo=F}
 # FUN SET UP: preparing meta data set
@@ -795,162 +1343,6 @@ cleaning <- function(taxes) {
   return(taxes)
 }
 
-
-```
-
-## Functions
-```{r data}
-#load data
-micro <- read.csv("data/OTU_all_R.csv", header = T, sep = ";")
-meta_data <- read.csv("data/Steffen_et_al_metadata_PANGAEA.csv", header=T, sep=";")
-taxonomy <- read.csv("data/microbiome_taxonomy.csv", header = T, sep = ";")
-```
-## Relative abundance
-```{r rel-abdc}
-# For figures (OTU relative abdc heatmaps), and inc-dec correlations. Requires OTU_prep_sqrt.
-meta_data <- meta_data_prep(meta_data)
-micro_ds <- OTU_prep_sqrt(micro)
-
-# RUN calculate relative abundance of OTU across sponge samples
-rabdc_gb <- rel_abdc(micro_ds$gb)
-rabdc_sf <- rel_abdc(micro_ds$sf)
-rabdc_wb <- rel_abdc(micro_ds$wb)
-
-kable(rabdc_gb, escape = F, align = "c", booktabs = T, caption = "Abbreviated relative abundance table for _G. barretti_", "html") %>%
-   kable_styling(bootstrap_options = c("striped", "hover", "condensed", "responsive", latex_options = "striped", full_width = T))%>%
-  scroll_box(width = "100%", height = "200px")
-
-kable(rabdc_sf, escape = F, align = "c", booktabs = T, caption = "Abbreviated relative abundance table for _S. fortis_", "html") %>%
-   kable_styling(bootstrap_options = c("striped", "hover", "condensed", "responsive", latex_options = "striped", full_width = F))%>%
-  scroll_box(width = "100%", height = "200px")
-
-kable(rabdc_wb, escape = F, align = "c", booktabs = T, caption = "Abbreviated relative abundance table for _W. bursa_", "html") %>%
-   kable_styling(bootstrap_options = c("striped", "hover", "condensed", "responsive", latex_options = "striped", full_width = F))%>%
-  scroll_box(width = "100%", height = "200px")
-```
-OTU1969004 is the only one present in all thre sponge species.
-
-## Data set description
-
-## Depth response
-Evaluate OTU response to depth: standardised correlating OTU relative abundance with sample depth 
-```{r increade-decrease}
-#====================== INC-DEC CORRELATION ==================
-# Categorises the OTUs by their response to depth. Requires meta_data_prep, OTU_prep_sqrt, rel_abdc.
-micro <- read.csv("data/OTU_all_R.csv", header = T, sep = ";")
-meta_data <- read.csv("data/Steffen_et_al_metadata_PANGAEA.csv", header=T, sep=";")
-
-meta_data <- meta_data_prep(meta_data)
-micro_ds <- OTU_prep_sqrt(micro)
-rabdc_gb <- rel_abdc(micro_ds$gb)
-rabdc_sf <- rel_abdc(micro_ds$sf)
-rabdc_wb <- rel_abdc(micro_ds$wb)
-
-# RUN response of OTUs to depth 
-gb_response <- inc_dec(rabdc_gb, meta_data)
-sf_response <- inc_dec(rabdc_sf, meta_data)
-wb_response <- inc_dec(rabdc_wb, meta_data)
-
-#For heatmaps
-#gb
-rabdc_gb["XOTU"] <- rownames(rabdc_gb)
-gb_heatmap <- full_join(rabdc_gb, gb_response)
-gb_heatmap <- melt(gb_heatmap, id.vars=c("XOTU", "inc_dec_estimate", "inc_dec_p_val", "classification"))
-md <- meta_data[,c("unified_ID", "Depth")]
-colnames(md) <- c("variable", "Depth")
-gb_heatmap <- left_join(gb_heatmap, md)
-gb_heatmap["name"] <- str_sub(gb_heatmap$XOTU, -3)
-head(gb_heatmap)
-gb_heatmap_i <- gb_heatmap[gb_heatmap$classification=="increasing",]
-gb_heatmap_d <- gb_heatmap[gb_heatmap$classification=="decreasing",]
-
-#gb_i <- ggplot(gb_heatmap_i, aes(x=as.factor(gb_heatmap_i$Depth), y=gb_heatmap_i$name, fill=gb_heatmap_i$value))+geom_tile()+ theme(axis.text.x = element_text(angle = 90, hjust = 1))+xlab("Depth")+ylab("OTUs")+ggtitle("GB OTUs increasing")+scale_fill_viridis_c(option = "plasma")+coord_equal()+theme(plot.background=element_blank(), panel.border=element_blank(), legend.title=element_blank(),legend.position="bottom")
-
-#gb_d <- ggplot(gb_heatmap_d, aes(x=as.factor(gb_heatmap_d$Depth), y=gb_heatmap_d$name, fill=gb_heatmap_d$value))+geom_tile()+ theme(axis.text.x = element_text(angle = 90, hjust = 1))+xlab("Depth")+ylab("OTUs")+ggtitle("GB OTUs decreasing")+scale_fill_viridis_c(option = "plasma")+coord_equal()+theme(plot.background=element_blank(), panel.border=element_blank(), legend.title=element_blank(),legend.position="bottom")
-
-#multiplot(gb_i, gb_d, cols=2) #gb_inc-dec_heatmap.pdf
-
-#sf
-rabdc_sf["XOTU"] <- rownames(rabdc_sf)
-sf_heatmap <- full_join(rabdc_sf, sf_response)
-sf_heatmap <- melt(sf_heatmap, id.vars=c("XOTU", "inc_dec_estimate", "inc_dec_p_val", "classification"))
-md <- meta_data[,c("unified_ID", "Depth")]
-colnames(md) <- c("variable", "Depth")
-sf_heatmap <- left_join(sf_heatmap, md)
-sf_heatmap["name"] <- str_sub(sf_heatmap$XOTU, -3)
-sf_heatmap_i <- sf_heatmap[sf_heatmap$classification=="increasing",]
-sf_heatmap_d <- sf_heatmap[sf_heatmap$classification=="decreasing",]
-
-#sf_i <- ggplot(sf_heatmap_i, aes(x=as.factor(sf_heatmap_i$Depth), y=sf_heatmap_i$name, fill=sf_heatmap_i$value))+geom_tile()+ theme(axis.text.x = element_text(angle = 90, hjust = 1))+xlab("Depth")+ylab("OTUs")+ggtitle("SF OTUs increasing")+scale_fill_viridis_c(option = "plasma")+coord_equal()+theme(plot.background=element_blank(), panel.border=element_blank(), legend.title=element_blank(),legend.position="bottom")
-
-#sf_d <- ggplot(sf_heatmap_d, aes(x=as.factor(sf_heatmap_d$Depth), y=sf_heatmap_d$name, fill=sf_heatmap_d$value))+geom_tile()+ theme(axis.text.x = element_text(angle = 90, hjust = 1))+xlab("Depth")+ylab("OTUs")+ggtitle("SF OTUs decreasing")+scale_fill_viridis_c(option = "plasma")+coord_equal()+theme(plot.background=element_blank(), panel.border=element_blank(), legend.title=element_blank(),legend.position="bottom")
-
-#multiplot(sf_i, sf_d, cols=2) #sf_inc-dec_heatmap.pdf
-
-#wb
-rabdc_wb["XOTU"] <- rownames(rabdc_wb)
-wb_heatmap <- full_join(rabdc_wb, wb_response)
-wb_heatmap <- melt(wb_heatmap, id.vars=c("XOTU", "inc_dec_estimate", "inc_dec_p_val", "classification"))
-md <- meta_data[,c("unified_ID", "Depth")]
-colnames(md) <- c("variable", "Depth")
-wb_heatmap <- left_join(wb_heatmap, md)
-wb_heatmap["name"] <- str_sub(wb_heatmap$XOTU, -3)
-wb_heatmap_i <- wb_heatmap[wb_heatmap$classification=="increasing",]
-wb_heatmap_d <- wb_heatmap[wb_heatmap$classification=="decreasing",]
-
-#wb_i <- ggplot(wb_heatmap_i, aes(x=as.factor(wb_heatmap_i$Depth), y=wb_heatmap_i$name, fill=wb_heatmap_i$value))+geom_tile()+ theme(axis.text.x = element_text(angle = 90, hjust = 1))+xlab("Depth")+ylab("OTUs")+ggtitle("WB OTUs increasing")+scale_fill_viridis_c(option = "plasma")+coord_equal()+theme(plot.background=element_blank(), panel.border=element_blank(), legend.title=element_blank(),legend.position="bottom")
-
-#wb_d <- ggplot(wb_heatmap_d, aes(x=as.factor(wb_heatmap_d$Depth), y=wb_heatmap_d$name, fill=wb_heatmap_d$value))+geom_tile()+ theme(axis.text.x = element_text(angle = 90, hjust = 1))+xlab("Depth")+ylab("OTUs")+ggtitle("WB OTUs decreasing")+scale_fill_viridis_c(option = "plasma")+coord_equal()+theme(plot.background=element_blank(), panel.border=element_blank(), legend.title=element_blank(),legend.position="bottom")
-
-#multiplot(wb_i, wb_d, cols=2) #wb_inc-dec_heatmap.pdf
-
-
-#Facetting for the figure in the publication
-gb_heatmap_i["spec"] <-c("Geodia barretti")
-sf_heatmap_i["spec"] <-c("Stryphnus fortis")
-wb_heatmap_i["spec"] <-c("Weberella bursa")
-increase <- rbind(gb_heatmap_i, sf_heatmap_i, wb_heatmap_i)
-inc <- ggplot(increase, aes(x=as.factor(increase$Depth), y=increase$name, fill=increase$value))+facet_grid(.~increase$spec, space = "free", scales="free")+geom_tile()+theme_classic()+theme(axis.text.x = element_text(angle = 90, hjust = 1))+xlab("Depth")+ylab("OTUs")+ggtitle("OTUs increasing")+scale_fill_viridis_c(option = "plasma")+theme(plot.background=element_blank(), panel.border=element_blank(), legend.title=element_blank(),legend.position="bottom")
-
-gb_heatmap_d["spec"] <-c("Geodia barretti")
-sf_heatmap_d["spec"] <-c("Stryphnus fortis")
-wb_heatmap_d["spec"] <-c("Weberella bursa")
-decrease <- rbind(gb_heatmap_d, sf_heatmap_d, wb_heatmap_d)
-dec <- ggplot(decrease, aes(x=as.factor(decrease$Depth), y=decrease$name, fill=decrease$value))+facet_grid(.~decrease$spec, space = "free", scales="free", drop=T)+geom_tile()+theme_classic()+theme(axis.text.x = element_text(angle = 90, hjust = 1))+xlab("Depth")+ylab("OTUs")+ggtitle("OTUs decreasing")+scale_fill_viridis_c(option = "plasma")+theme(plot.background=element_blank(), panel.border=element_blank(), legend.title=element_blank(),legend.position="bottom")
-multiplot(inc, dec, cols=2)
-
-gb_nums <- c(length(unique(gb_heatmap$name)), length(unique(gb_heatmap_i$name)), length(unique(gb_heatmap_d$name)))
-sf_nums <- c(length(unique(sf_heatmap$name)), length(unique(sf_heatmap_i$name)), length(unique(sf_heatmap_d$name)))
-wb_nums <- c(length(unique(wb_heatmap$name)), length(unique(wb_heatmap_i$name)), length(unique(wb_heatmap_d$name)))
-
-overview <- rbind(gb_nums, sf_nums, wb_nums)
-colnames(overview) <- c("Total", "increasing", "decreasing")
-rownames(overview) <- c("G. barretti microbiota", "S. fortis microbiota", "W. bursa microbiota")
-overview <- data.frame(overview)
-overview["unaffected"] <- overview$Total-(overview$increasing + overview$decreasing)
-
-kable(overview, escape = F, align = "c", booktabs = T, caption = "Microbiota response to depth", "html") %>%
-   kable_styling(bootstrap_options = c("striped", "hover", "condensed", "responsive", latex_options = "striped", full_width = F))
-
-overview <- overview[,c(2:4)]
-overview["response"] <- rownames(overview)
-plot <- melt(overview)
-
-stacked <- ggplot(plot, aes(x=response, y=value, fill=variable)) + 
-  geom_bar(position="stack", stat="identity")+
-  theme_minimal()+ggtitle("Stacked counts")+xlab("Sponge species")+ylab("OTU count")+ 
-  theme(axis.text.x = element_text(angle = 90, hjust = 1))
-
-perc <- ggplot(plot, aes(x=response, y=value, fill=variable)) + 
-  geom_bar(position="fill", stat="identity")+
-  theme_minimal()+ggtitle("Percentages")+xlab("Sponge species")+ylab("relative OTU count")+ 
-  theme(axis.text.x = element_text(angle = 90, hjust = 1))
-
-multiplot(stacked, perc, cols=2)
-
-#write.csv(gb_response, "gb_response.csv")    
-#write.csv(sf_response, "sf_response.csv")    
-#write.csv(wb_response, "wb_response.csv")    
 
 ```
 
@@ -1204,6 +1596,8 @@ apply(gbsf_cla, 2, function(x) {wilcox.test(x~gbsf_spec$species)})
 apply(gbsf_cla, 2, function(x) {(wilcox.test(x~gbsf_spec$species))["p.value"]})
 
 ###=========================================== For plotting ================================
+
+#YAS!
 taxes_phy_m <- taxes_phy_t
 taxes_phy_m["Sample_ID"] <- rownames(taxes_phy_m)
 taxes_phy_m <- melt(taxes_phy_m, id.vars=c("Sample_ID"))
@@ -1268,6 +1662,216 @@ sf1 <- aggregate(tax_sf$Class, by=list(tax_sf$Class), FUN="length")
 sf2 <- aggregate(tax_sf$avg_rel_abdc, by=list(tax_sf$Class), FUN="sum")
 sf_c <- full_join(sf1, sf2, by=("Group.1"="Group.1"))
 colnames(sf_c) <- c("Class", "OTU_number", "avg_rel_abdc")
+
+```
+
+```{r sequence-similarity, echo=F, eval=F}
+library(seqinr)
+library(tidyverse)
+#library(dplyr)
+
+setwd("~/Documents/Metabolomics/Depth_Gradient_study/R_depth_study/seqs/")
+
+### FASTA FILE GENERATION
+
+# load data
+fastas <- read.csv("~/Documents/Metabolomics/Depth_Gradient_study/R_depth_study/xcms_publication/OTUs_reads_fasta_column.csv", header=F, sep=";")
+head(fastas)
+
+#OTU_annotation <- read.csv("~/Documents/Metabolomics/Depth_Gradient_study/R_depth_study/xcms_publication/heatmap_figure_gb.csv", header=T, sep=",") # for Gb
+OTU_all <- read.csv("~/Documents/Metabolomics/Depth_Gradient_study/R_depth_study/Microbiome/OTU_all_R.csv", header = T, sep = ";")
+
+# format fasta header column to match "XOTU" format
+colnames(fastas) <- c("header", "seq")
+fastas["OTU"] <- str_sub(fastas$header, 2, 13)
+fastas["dummy"] <- "X"
+fastas["XOTU"] <- paste0(fastas$dummy, fastas$OTU)
+fastas$dummy <- NULL
+fastas$OTU <- NULL
+head(fastas)
+
+# prepare data sets of OTUs for the three sponge hosts
+
+OTU_all["spec"] <- str_sub(OTU_all$Sample_ID, 1,2)
+OTU_gb <- OTU_all[OTU_all$spec=="Gb",]
+OTU_sf <- OTU_all[OTU_all$spec=="Sf",]
+OTU_wb <- OTU_all[OTU_all$spec=="Wb",]
+
+#dim(OTU_gb) # 14 693, 693= 691 +sample_ID +spec
+#dim(OTU_sf) # 15 693, 693= 691 +sample_ID +spec
+#dim(OTU_wb) # 16 693, 693= 691 +sample_ID +spec
+
+    # remove cols with all 0
+OTU_gb <- OTU_gb[, colSums(OTU_gb != 0) > 0]
+OTU_sf <- OTU_sf[, colSums(OTU_sf != 0) > 0]
+OTU_wb <- OTU_wb[, colSums(OTU_wb != 0) > 0]
+
+#dim(OTU_gb) # 14 422, 422= 420 +sample_ID +spec
+#dim(OTU_sf) # 15 463, 463= 461 +sample_ID +spec
+#dim(OTU_wb) # 16 137, 137= 135 +sample_ID +spec
+
+OTU_gb[, c("spec", "Sample_ID")]<- list(NULL)
+OTU_sf[, c("spec", "Sample_ID")]<- list(NULL)
+OTU_wb[, c("spec", "Sample_ID")]<- list(NULL)
+
+# BREAK
+# RUN ONE AT A TIME
+XOTU <- data.frame(colnames(OTU_gb))
+#XOTU <- data.frame(colnames(OTU_sf))
+#XOTU <- data.frame(colnames(OTU_wb))
+
+colnames(XOTU) <- c("XOTU")
+fastas <- fastas[fastas$XOTU %in% XOTU$XOTU,]
+dim(fastas)[1]==dim(XOTU)[1]
+head(fastas)
+
+#fastas <- left_join(fastas, OTU_annotation[,c("XOTU", "inc_dec", "Phylum", "Class")])
+fastas["dummy"] <- ">"
+fastas["OTU"] <- str_sub(fastas$header, -3)
+fastas["concat1"] <- paste0(fastas$dummy, fastas$OTU)
+fastas["concat"] <- paste(fastas$concat1, fastas$inc_dec, fastas$Phylum, fastas$Class, sep="_")
+fastas["concat"] <- paste(fastas$concat1, fastas$inc_dec, fastas$Phylum, fastas$Class, sep=" ")
+fastas[, c("Phylum","Class","inc_dec", "XOTU", "header")]<- list(NULL)
+fastas["newline"] <- "\n"
+
+#======================= produce fasta fortmatted output file 
+# CHANGE NAME for the different data set
+
+sink("gb_seqs.txt")
+n <- 0
+k <- dim(fastas)[1]
+while(n<=k){
+  cat(paste(fastas$concat[n], fastas$newline[n], fastas$seq[n], fastas$newline[n]))
+  n <- n+1
+}
+sink()
+
+#================================================
+fastas
+
+
+
+sf <- fastas
+wb <- fastas
+gb <- fastas
+
+#Split fasta subsets here in terminal, like so:
+# $ cd to wd()
+# $ grep ">" wb_seqs.txt > wb_seqs_header.txt
+# $ grep -v ">" wb_seqs.txt > wb_seqs_fasta.txt
+
+
+#======================= Labelled fasta files for phylogenetics =====
+# FUN combining data sets
+fasta_headers <- function(seqs_header, seqs, taxonomy, response){
+  colnames(seqs) <- c("seqs")
+  fasta_phylogeny <- bind_cols(seqs_header, seqs)
+  fasta_phylogeny["num"] <- as.numeric(str_sub(fasta_phylogeny$V1,2,5))
+  response["num"] <- as.numeric(str_sub(response$XOTU, -3))
+  fasta_phylogeny <- left_join(fasta_phylogeny, response[, c("classification", "num")])
+  taxonomy["num"] <- as.numeric(str_sub(taxonomy$OTU_ID, -3))
+  tax <- taxonomy[taxonomy$num %in% fasta_phylogeny$num,]
+  fasta_phylogeny <- left_join(fasta_phylogeny, tax[, c("Phylum", "Class", "num")])  
+  fasta_phylogeny["header"] <- paste(fasta_phylogeny$V1, fasta_phylogeny$classification, fasta_phylogeny$Phylum, fasta_phylogeny$Class, sep="_")
+  fasta_phylogeny[, c("V1","Class","classification", "num", "Phylum")]<- list(NULL)
+  fasta_phylogeny["newline"] <- "\n"
+  return(fasta_phylogeny)  
+}
+
+# load one set at a time
+seqs_header <- read.csv("gb_seqs_header.txt", header=F)
+seqs <- read.csv("gb_seqs_fasta.txt", header=F)
+response <- read.csv("~/Documents/Metabolomics/Depth_Gradient_study/R_depth_study/Microbiome/gb_response.csv")
+
+seqs_header <- read.csv("sf_seqs_header.txt", header=F)
+seqs <- read.csv("sf_seqs_fasta.txt", header=F)
+response <- read.csv("~/Documents/Metabolomics/Depth_Gradient_study/R_depth_study/Microbiome/sf_response.csv")
+
+seqs_header <- read.csv("wb_seqs_header.txt", header=F)
+seqs <- read.csv("wb_seqs_fasta.txt", header=F)
+response <- read.csv("~/Documents/Metabolomics/Depth_Gradient_study/R_depth_study/Microbiome/wb_response.csv")
+
+# load
+taxonomy <- read.csv("~/Documents/Metabolomics/Depth_Gradient_study/R_depth_study/xcms_publication/microbiome_taxonomy.csv", header = T, sep = ";")
+
+# RUN  combining data sets
+fasta_phylogeny <- fasta_headers(seqs_header, seqs, taxonomy, response)
+
+# save to file
+
+sink("~/Documents/Metabolomics/Depth_Gradient_study/R_depth_study/seqs/gb_reads_for_phylogeny.fasta")
+sink("~/Documents/Metabolomics/Depth_Gradient_study/R_depth_study/seqs/sf_reads_for_phylogeny.fasta")
+sink("~/Documents/Metabolomics/Depth_Gradient_study/R_depth_study/seqs/wb_reads_for_phylogeny.fasta")
+
+n <- 0
+k <- dim(fasta_phylogeny)[1]
+while(n<=k){
+  cat(paste(fasta_phylogeny$header[n], fasta_phylogeny$newline[n], fasta_phylogeny$seqs[n], fasta_phylogeny$newline[n]))
+  n <- n+1
+}
+sink()
+
+# The files have excess [spaces] that can be removed by hand in any text processing programme.
+
+
+
+#======================= SIMILARITY CALCULATIONS ==========
+# For similarity calculations, the fasta files need to be ALIGNED. This can be done manually in e.g. with MAFFT (https://mafft.cbrc.jp/alignment/server/). KS 20190829: MAFFT (v7.452)
+# load data
+#gb <- read.alignment("GB_reads_annotated.fasta", "fasta")
+#gb <- read.alignment("gb_127.fasta", "fasta")
+#gb
+
+ali <- read.alignment("gb_reads_for_phylogeny_MAFFT.fasta", "fasta")
+ali <- read.alignment("sf_reads_for_phylogeny_MAFFT.fasta", "fasta")
+ali <- read.alignment("wb_reads_for_phylogeny_MAFFT.fasta", "fasta")
+
+# FUN calculate pairwise distance, melt, kepps only entries with >97% and <1 similarity with significant opposing trends in both partners.
+pw_dist <- function(ali){
+  dist <- as.matrix(dist.alignment(ali, matrix = "similarity" ))  #https://www.researchgate.net/post/Homology_similarity_and_identity-can_anyone_help_with_these_terms
+  # dist.alignment: matrix contains the squared root of the pairwise distances. For example, if identity between 2 sequences is 80 the squared root of (1.0 - 0.8) i.e. 0.4472136.
+  dist <- dist**2
+  dist <- 1-dist
+  #dist is now "%" identity, 1=100 % 
+  dist <- melt(dist)
+  # Remove irrelevant entries, i.e. self-comparison and similarities below the threshold, this step now speeds up later steps, but not mandatory
+  dist <- dist[dist$value>=0.97,]
+  dist <- dist[!dist$value==1,]
+  # This removes AB - BA duplicates but still contains self comprisons, AA, BB,CC etc.
+  cols <- c("Var1", "Var2")
+  newdf <- dist [,cols]
+  for (i in 1:nrow(newdf)){
+    newdf[i, ] = sort(newdf[i,cols])
+  }
+  newdf <- newdf[!duplicated(newdf),]
+  # add back similarity values to the remaining comparisons/pairs
+  dist <- left_join(newdf, dist, by=c("Var1"="Var1", "Var2"="Var2"))
+  dist["Var1_response"] <- str_sub(dist$Var1, 5,10)
+  dist["Var2_response"] <- str_sub(dist$Var2, 5,10)
+  #remove not significant comparisons
+  #dist <- dist[!dist$Var1_response=="dec.tr",]
+  #dist <- dist[!dist$Var1_response=="inc.tr",]
+  #dist <- dist[!dist$Var2_response=="dec.tr",]
+  #dist <- dist[!dist$Var2_response=="inc.tr",]
+  dist <- dist[!dist$Var2_response==dist$Var1_response,]
+    # order
+  dist <- dist[order(dist$Var1_response, dist$Var2_response),]
+  return(dist)
+}
+
+dist <- pw_dist(ali)
+dist
+
+# create csv file
+write.csv(dist, "~/Documents/Metabolomics/Depth_Gradient_study/R_depth_study/Phylogeny/gb_similarity.csv") # GB
+write.csv(dist, "~/Documents/Metabolomics/Depth_Gradient_study/R_depth_study/Phylogeny/sf_similarity.csv") # SF
+write.csv(dist, "~/Documents/Metabolomics/Depth_Gradient_study/R_depth_study/Phylogeny/wb_similarity.csv") # WB
+
+# overview
+dist
+dim(dist)[1]
+aggregate(dist, by=list(dist$X1_response, dist$X2_response), length)
+
 
 ```
 
