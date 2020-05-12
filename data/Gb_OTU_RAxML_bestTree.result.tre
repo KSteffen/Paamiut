@@ -1,0 +1,521 @@
+#NEXUS
+begin taxa;
+	dimensions ntax=419;
+	taxlabels
+	'196900135_dec.trend_SBR1093_uncultured_bacterium'
+	'196900136_dec.trend_Chloroflexi_Caldilineae'
+	'196900137_dec.trend_Acidobacteria_Subgroup_9'
+	196900138_increasing_Thaumarchaeota_Marine_Group_I
+	'196900139_dec.trend_Chloroflexi_SAR202_clade'
+	'196900140_dec.trend_Acidobacteria_Subgroup_6'
+	196900141_increasing_Proteobacteria_Alphaproteobacteria
+	196900142_decreasing_Tectomicrobia_
+	'196900143_inc.trend_Acidobacteria_Subgroup_11'
+	196900144_decreasing_Acidobacteria_Subgroup_9
+	'196900145_dec.trend_Actinobacteria_Acidimicrobiia'
+	'196900146_dec.trend_Thaumarchaeota_Marine_Group_I'
+	'196900147_dec.trend_Chloroflexi_SAR202_clade'
+	196900148_increasing_Nitrospirae_Nitrospira
+	'196900149_inc.trend_Spirochaetae_Spirochaetes'
+	'196900150_inc.trend_Bacteroidetes_Bacteroidetes_Incertae_Sedis'
+	'196900151_dec.trend_Chloroflexi_Caldilineae'
+	'196900152_dec.trend_Nitrospirae_Nitrospira'
+	'196900153_inc.trend_Chloroflexi_SAR202_clade'
+	'196900154_dec.trend_Chloroflexi_SAR202_clade'
+	'196900155_dec.trend_Chloroflexi_SAR202_clade'
+	196900156_increasing_Acidobacteria_Holophagae
+	'196900157_inc.trend_Acidobacteria_Subgroup_9'
+	'196900158_dec.trend_Proteobacteria_Alphaproteobacteria'
+	'196900159_dec.trend_Chloroflexi_SAR202_clade'
+	'196900160_inc.trend_Actinobacteria_Acidimicrobiia'
+	196900161_decreasing_Gemmatimonadetes_BD2-11_terrestrial_group
+	'196900162_dec.trend_PAUC34f_uncultured_bacterium'
+	'196900163_inc.trend_Chloroflexi_SAR202_clade'
+	196900164_increasing_Proteobacteria_Gammaproteobacteria
+	'196900166_dec.trend_Chloroflexi_SAR202_clade'
+	'196900167_inc.trend_Chloroflexi_TK10'
+	'196900168_inc.trend_Chloroflexi_Anaerolineae'
+	'196900169_inc.trend_Acidobacteria_Subgroup_6'
+	'196900170_dec.trend_Chloroflexi_SAR202_clade'
+	'196900171_dec.trend_Actinobacteria_Acidimicrobiia'
+	'196900172_inc.trend_Proteobacteria_Deltaproteobacteria'
+	'196900174_dec.trend_Spirochaetae_Spirochaetes'
+	'196900175_dec.trend_Chloroflexi_TK10'
+	196900176_decreasing_Actinobacteria_Acidimicrobiia
+	'196900177_dec.trend_Spirochaetae_Spirochaetes'
+	'196900178_inc.trend_Proteobacteria_Gammaproteobacteria'
+	'196900179_dec.trend_Acidobacteria_Subgroup_6'
+	196900180_decreasing_Proteobacteria_JTB23
+	'196900181_dec.trend_Chloroflexi_TK10'
+	'196900182_dec.trend_Chloroflexi_SAR202_clade'
+	196900183_decreasing_PAUC34f_uncultured_bacterium
+	'196900184_inc.trend_Gemmatimonadetes_BD2-11_terrestrial_group'
+	'196900185_dec.trend_Acidobacteria_Subgroup_6'
+	'196900186_dec.trend_Thaumarchaeota_Marine_Group_I'
+	196900187_increasing_Proteobacteria_Gammaproteobacteria
+	'196900188_dec.trend_Proteobacteria_Gammaproteobacteria'
+	'196900189_dec.trend_PAUC34f_uncultured_bacterium'
+	'196900190_dec.trend_Chloroflexi_SAR202_clade'
+	'196900191_dec.trend_PAUC34f_'
+	196900192_decreasing_Chloroflexi_TK10
+	'196900193_dec.trend_Chloroflexi_SAR202_clade'
+	'196900194_dec.trend_Chloroflexi_SAR202_clade'
+	'196900195_dec.trend_Chloroflexi_SAR202_clade'
+	196900196_decreasing_Proteobacteria_JTB23
+	'196900198_dec.trend_Acidobacteria_Subgroup_21'
+	196900199_increasing_Gemmatimonadetes_BD2-11_terrestrial_group
+	'196900201_dec.trend_Gemmatimonadetes_BD2-11_terrestrial_group'
+	'196900202_dec.trend_Acidobacteria_Subgroup_21'
+	'196900203_inc.trend_Chloroflexi_SAR202_clade'
+	'196900204_dec.trend_Proteobacteria_Deltaproteobacteria'
+	'196900205_dec.trend_Poribacteria_uncultured_Planctomycetales_bacterium'
+	'196900206_dec.trend_Acidobacteria_Subgroup_6'
+	'196900207_dec.trend_Chloroflexi_SAR202_clade'
+	'196900208_dec.trend_Acidobacteria_Subgroup_6'
+	'196900209_dec.trend_Actinobacteria_Acidimicrobiia'
+	'196900210_inc.trend_Chloroflexi_SAR202_clade'
+	196900211_decreasing_Chloroflexi_SAR202_clade
+	'196900212_inc.trend_PAUC34f_uncultured_gamma_proteobacterium'
+	196900213_decreasing_Gemmatimonadetes_BD2-11_terrestrial_group
+	'196900214_dec.trend_Chloroflexi_JG30-KF-CM66'
+	196900215_decreasing_Actinobacteria_Acidimicrobiia
+	'196900217_inc.trend_Acidobacteria_Subgroup_9'
+	'196900218_inc.trend_Chloroflexi_SAR202_clade'
+	'196900219_dec.trend_Acidobacteria_Subgroup_5'
+	'196900221_dec.trend_Chloroflexi_JG30-KF-CM66'
+	'196900222_dec.trend_Chloroflexi_SAR202_clade'
+	'196900223_dec.trend_Gemmatimonadetes_PAUC43f_marine_benthic_group'
+	'196900224_dec.trend_Chloroflexi_TK10'
+	196900225_decreasing_Chloroflexi_Caldilineae
+	'196900226_dec.trend_Chloroflexi_SAR202_clade'
+	'196900227_inc.trend_Acidobacteria_Subgroup_21'
+	196900228_decreasing_Acidobacteria_Subgroup_6
+	'196900229_inc.trend_Acidobacteria_Solibacteres'
+	'196900230_dec.trend_Actinobacteria_Thermoleophilia'
+	'196900231_dec.trend_Chloroflexi_SAR202_clade'
+	'196900232_dec.trend_Acidobacteria_Subgroup_21'
+	'196900233_dec.trend_Chloroflexi_SAR202_clade'
+	'196900234_dec.trend_Chloroflexi_SAR202_clade'
+	'196900235_dec.trend_Chloroflexi_SAR202_clade'
+	196900236_increasing_Proteobacteria_JTB23
+	'196900237_inc.trend_Acidobacteria_Subgroup_6'
+	'196900238_dec.trend_Poribacteria_uncultured_bacterium'
+	'196900239_dec.trend_Chloroflexi_SAR202_clade'
+	'196900241_inc.trend_Nitrospinae_MD2898-B26'
+	196900242_increasing_Gemmatimonadetes_BD2-11_terrestrial_group
+	196900246_increasing_Chloroflexi_S085
+	196900248_decreasing_Acidobacteria_Solibacteres
+	'196900249_inc.trend_Chloroflexi_SAR202_clade'
+	'196900250_dec.trend_Proteobacteria_Alphaproteobacteria'
+	'196900251_inc.trend_Chloroflexi_SAR202_clade'
+	'196900252_dec.trend_Actinobacteria_Thermoleophilia'
+	196900253_decreasing_Acidobacteria_Subgroup_15
+	'196900254_dec.trend_Chloroflexi_SAR202_clade'
+	'196900255_dec.trend_Gemmatimonadetes_BD2-11_terrestrial_group'
+	'196900256_inc.trend_Proteobacteria_Alphaproteobacteria'
+	'196900260_dec.trend_Proteobacteria_Gammaproteobacteria'
+	196900262_decreasing_Chloroflexi_SAR202_clade
+	196900263_decreasing_Chloroflexi_SAR202_clade
+	196900264_decreasing_Acidobacteria_Subgroup_6
+	196900265_decreasing_Acidobacteria_Subgroup_6
+	'196900266_inc.trend_Chloroflexi_SAR202_clade'
+	'196900268_dec.trend_Gemmatimonadetes_BD2-11_terrestrial_group'
+	'196900269_inc.trend_Actinobacteria_Acidimicrobiia'
+	'196900271_dec.trend_Proteobacteria_Gammaproteobacteria'
+	196900272_increasing_Acidobacteria_Subgroup_6
+	'196900274_dec.trend_Proteobacteria_Gammaproteobacteria'
+	'196900275_inc.trend_Verrucomicrobia_Opitutae'
+	'196900276_dec.trend_Chloroflexi_SAR202_clade'
+	196900277_decreasing_Chloroflexi_TK10
+	'196900278_dec.trend_Gemmatimonadetes_BD2-11_terrestrial_group'
+	'196900279_inc.trend_Acidobacteria_Subgroup_6'
+	196900280_increasing_Gemmatimonadetes_BD2-11_terrestrial_group
+	'196900281_dec.trend_Chloroflexi_TK10'
+	196900283_decreasing_Acidobacteria_Subgroup_6
+	'196900284_dec.trend_Acidobacteria_Subgroup_26'
+	'196900286_dec.trend_Chloroflexi_SAR202_clade'
+	'196900287_inc.trend_Chloroflexi_TK10'
+	'196900288_inc.trend_Proteobacteria_Gammaproteobacteria'
+	196900289_decreasing_Chloroflexi_JG30-KF-CM66
+	'196900291_dec.trend_Actinobacteria_Acidimicrobiia'
+	'196900292_inc.trend_Acidobacteria_Subgroup_9'
+	196900293_decreasing_Chloroflexi_JG30-KF-CM66
+	'196900294_dec.trend_Spirochaetae_Spirochaetes'
+	'196900295_inc.trend_Chloroflexi_SAR202_clade'
+	'196900296_dec.trend_Gemmatimonadetes_BD2-11_terrestrial_group'
+	'196900297_inc.trend_Chloroflexi_Anaerolineae'
+	'196900299_dec.trend_Chloroflexi_SAR202_clade'
+	'196900300_dec.trend_Chloroflexi_SAR202_clade'
+	196900301_increasing_Proteobacteria_Alphaproteobacteria
+	'196900302_dec.trend_Chloroflexi_S085'
+	'196900303_dec.trend_Chloroflexi_SAR202_clade'
+	'196900304_dec.trend_Acidobacteria_Subgroup_9'
+	'196900305_inc.trend_Acidobacteria_Subgroup_9'
+	'196900306_dec.trend_Proteobacteria_Gammaproteobacteria'
+	196900307_decreasing__
+	196900308_increasing_Proteobacteria_Alphaproteobacteria
+	196900310_decreasing_Proteobacteria_JTB23
+	196900312_increasing_Acidobacteria_Subgroup_21
+	196900314_increasing_Acidobacteria_Subgroup_13
+	'196900315_dec.trend_Chloroflexi_SAR202_clade'
+	196900316_increasing_Acidobacteria_Solibacteres
+	'196900317_dec.trend_Actinobacteria_Thermoleophilia'
+	'196900318_inc.trend_Chloroflexi_S085'
+	196900319_increasing_Proteobacteria_SPOTSOCT00m83
+	196900320_decreasing_Proteobacteria_Gammaproteobacteria
+	'196900322_dec.trend_Chloroflexi_SAR202_clade'
+	196900323_increasing_Acidobacteria_Subgroup_6
+	'196900326_dec.trend_Proteobacteria_Gammaproteobacteria'
+	'196900327_inc.trend_Chloroflexi_SAR202_clade'
+	'196900329_dec.trend_Gemmatimonadetes_BD2-11_terrestrial_group'
+	'196900330_dec.trend_Chloroflexi_Anaerolineae'
+	196900331_decreasing_Chloroflexi_Anaerolineae
+	196900332_increasing_Acidobacteria_Subgroup_6
+	196900335_decreasing_Gemmatimonadetes_PAUC43f_marine_benthic_group
+	196900336_decreasing_Acidobacteria_Holophagae
+	196900337_increasing_Acidobacteria_Subgroup_9
+	'196900338_inc.trend_Actinobacteria_Acidimicrobiia'
+	196900339_increasing_Gemmatimonadetes_BD2-11_terrestrial_group
+	'196900340_dec.trend_Chloroflexi_Anaerolineae'
+	'196900341_inc.trend_Acidobacteria_Subgroup_6'
+	'196900344_inc.trend_Proteobacteria_Gammaproteobacteria'
+	'196900347_dec.trend_Chloroflexi_Anaerolineae'
+	'196900348_inc.trend_Proteobacteria_JTB23'
+	196900349_decreasing_Chloroflexi_JG30-KF-CM66
+	196900350_decreasing_Chloroflexi_SAR202_clade
+	'196900351_inc.trend_Actinobacteria_Acidimicrobiia'
+	'196900352_inc.trend_Acidobacteria_Subgroup_9'
+	196900353_increasing_Chloroflexi_SAR202_clade
+	'196900354_inc.trend_Chloroflexi_SAR202_clade'
+	'196900355_dec.trend_Acidobacteria_Subgroup_6'
+	'196900356_inc.trend_Acidobacteria_Subgroup_6'
+	196900357_decreasing_Chloroflexi_JG30-KF-CM66
+	'196900358_dec.trend_Gemmatimonadetes_BD2-11_terrestrial_group'
+	'196900359_dec.trend_Thaumarchaeota_Marine_Group_I'
+	'196900361_dec.trend_Proteobacteria_Alphaproteobacteria'
+	'196900362_dec.trend_Chloroflexi_SAR202_clade'
+	'196900363_dec.trend_Gemmatimonadetes_BD2-11_terrestrial_group'
+	196900365_increasing_Acidobacteria_Subgroup_9
+	196900366_increasing_Gemmatimonadetes_BD2-11_terrestrial_group
+	196900367_increasing_Chloroflexi_SAR202_clade
+	'196900369_inc.trend_PAUC34f_uncultured_bacterium'
+	196900370_increasing_Acidobacteria_Subgroup_21
+	'196900373_inc.trend_Chloroflexi_SAR202_clade'
+	'196900374_dec.trend_Proteobacteria_Alphaproteobacteria'
+	'196900375_inc.trend_Proteobacteria_Alphaproteobacteria'
+	'196900376_dec.trend_Chloroflexi_TK10'
+	'196900377_inc.trend_Acidobacteria_Subgroup_6'
+	'196900381_inc.trend_Actinobacteria_Thermoleophilia'
+	'196900382_inc.trend_Chloroflexi_SAR202_clade'
+	196900383_increasing_Chloroflexi_SAR202_clade
+	196900384_increasing_Gemmatimonadetes_BD2-11_terrestrial_group
+	'196900386_dec.trend_Chloroflexi_SAR202_clade'
+	196900387_increasing_Chloroflexi_Anaerolineae
+	'196900388_inc.trend_Proteobacteria_Gammaproteobacteria'
+	'196900390_inc.trend_Chloroflexi_JG30-KF-CM66'
+	196900391_decreasing_Proteobacteria_Alphaproteobacteria
+	'196900392_inc.trend_Chloroflexi_TK10'
+	'196900393_dec.trend_Actinobacteria_Acidimicrobiia'
+	196900398_decreasing_Acidobacteria_Subgroup_6
+	'196900400_dec.trend_Acidobacteria_Subgroup_26'
+	'196900401_dec.trend_Deinococcus-Thermus_Deinococci'
+	'196900402_dec.trend_Chloroflexi_SAR202_clade'
+	'196900404_inc.trend_Gemmatimonadetes_BD2-11_terrestrial_group'
+	'196900406_inc.trend_Acidobacteria_Solibacteres'
+	'196900408_dec.trend_Chloroflexi_JG30-KF-CM66'
+	196900409_increasing_Chloroflexi_JG30-KF-CM66
+	196900410_increasing_Chloroflexi_TK10
+	'196900411_inc.trend_Proteobacteria_Alphaproteobacteria'
+	'196900414_dec.trend_Actinobacteria_Acidimicrobiia'
+	'196900415_inc.trend_Proteobacteria_Gammaproteobacteria'
+	'196900418_dec.trend_Acidobacteria_Subgroup_6'
+	'196900420_inc.trend_Chloroflexi_Caldilineae'
+	196900421_increasing_Proteobacteria_Alphaproteobacteria
+	'196900424_dec.trend_Chloroflexi_TK10'
+	196900425_increasing_Acidobacteria_Subgroup_13
+	'196900426_inc.trend_Acidobacteria_Subgroup_21'
+	'196900429_inc.trend_Proteobacteria_Alphaproteobacteria'
+	'196900431_inc.trend_Proteobacteria_Gammaproteobacteria'
+	'196900434_inc.trend_Proteobacteria_Gammaproteobacteria'
+	'196900438_inc.trend_Gemmatimonadetes_BD2-11_terrestrial_group'
+	'196900441_inc.trend_Gemmatimonadetes_BD2-11_terrestrial_group'
+	196900442_increasing_Proteobacteria_Alphaproteobacteria
+	'196900444_dec.trend_Acidobacteria_Subgroup_17'
+	196900445_increasing_Acidobacteria_Subgroup_15
+	'196900446_dec.trend_Chloroflexi_SAR202_clade'
+	'196900449_inc.trend_Actinobacteria_Acidimicrobiia'
+	'196900450_inc.trend_Acidobacteria_Solibacteres'
+	'196900452_inc.trend_Proteobacteria_Gammaproteobacteria'
+	196900454_increasing_Thaumarchaeota_Marine_Group_I
+	196900458_increasing_Acidobacteria_Solibacteres
+	'196900461_dec.trend_Proteobacteria_Deltaproteobacteria'
+	'196900462_inc.trend_Proteobacteria_Deltaproteobacteria'
+	196900464_increasing_Acidobacteria_Subgroup_2
+	196900465_increasing_Tectomicrobia_uncultured_bacterium
+	'196900469_inc.trend_Acidobacteria_Solibacteres'
+	'196900473_dec.trend_Acidobacteria_Subgroup_21'
+	'196900475_inc.trend_Gemmatimonadetes_BD2-11_terrestrial_group'
+	'196900476_dec.trend_Actinobacteria_Acidimicrobiia'
+	196900481_decreasing_Proteobacteria_Gammaproteobacteria
+	'196900488_inc.trend_Acidobacteria_Subgroup_6'
+	'196900492_inc.trend_Acidobacteria_Subgroup_6'
+	196900494_increasing_Chloroflexi_SAR202_clade
+	196900495_increasing_Bacteroidetes_Bacteroidetes_Incertae_Sedis
+	196900496_increasing_Acidobacteria_Subgroup_6
+	196900499_increasing_Acidobacteria_Subgroup_6
+	'1969004_dec.trend_Thaumarchaeota_Marine_Group_I'
+	'196900500_dec.trend_Chloroflexi_SAR202_clade'
+	'196900505_inc.trend_Acidobacteria_Subgroup_9'
+	'196900506_inc.trend_Chloroflexi_SAR202_clade'
+	196900507_increasing_Acidobacteria_Subgroup_13
+	'196900508_dec.trend_Chloroflexi_SAR202_clade'
+	196900509_increasing_Acidobacteria_Solibacteres
+	'196900511_inc.trend_Acidobacteria_Subgroup_12'
+	'196900513_inc.trend_Acidobacteria_Subgroup_21'
+	'196900514_dec.trend_Acidobacteria_Subgroup_9'
+	'196900515_inc.trend_Chloroflexi_Anaerolineae'
+	196900517_increasing_Acidobacteria_Subgroup_6
+	196900518_increasing_Chloroflexi_Anaerolineae
+	'196900519_dec.trend_Acidobacteria_Subgroup_6'
+	'196900520_dec.trend_Acidobacteria_Subgroup_21'
+	'196900521_inc.trend_Acidobacteria_Subgroup_6'
+	196900522_increasing_Acidobacteria_Subgroup_6
+	'196900524_inc.trend_Acidobacteria_Subgroup_2'
+	196900526_increasing_Acidobacteria_Subgroup_13
+	196900527_increasing_Chloroflexi_TK10
+	196900528_increasing_Chloroflexi_Anaerolineae
+	196900529_increasing_Acidobacteria_Subgroup_21
+	196900531_increasing_Chloroflexi_SAR202_clade
+	196900532_increasing_Chloroflexi_Anaerolineae
+	196900533_increasing_Acidobacteria_Subgroup_21
+	'196900534_dec.trend_Chloroflexi_TK10'
+	196900535_increasing_Proteobacteria_Gammaproteobacteria
+	'196900536_inc.trend_Chloroflexi_SAR202_clade'
+	196900537_increasing__
+	196900538_increasing_Acidobacteria_Subgroup_21
+	196900539_increasing_Acidobacteria_Subgroup_21
+	'196900540_inc.trend_Chloroflexi_JG30-KF-CM66'
+	'196900542_inc.trend_Acidobacteria_Subgroup_13'
+	'196900543_inc.trend_Gemmatimonadetes_BD2-11_terrestrial_group'
+	196900546_increasing_Acidobacteria_Subgroup_6
+	196900547_increasing_Chloroflexi_SAR202_clade
+	'196900550_inc.trend_Chloroflexi_SAR202_clade'
+	'196900551_inc.trend_Chloroflexi_SAR202_clade'
+	'196900552_inc.trend_Nitrospinae_MD2896-B214'
+	196900554_increasing_Acidobacteria_Subgroup_9
+	196900558_increasing_Chloroflexi_Anaerolineae
+	'196900559_dec.trend_Acidobacteria_Subgroup_6'
+	'196900561_inc.trend_Chloroflexi_JG30-KF-CM66'
+	196900563_increasing_Chloroflexi_SAR202_clade
+	'196900564_inc.trend_Chloroflexi_SAR202_clade'
+	196900565_increasing_Acidobacteria_Subgroup_6
+	'196900568_inc.trend_Chloroflexi_SAR202_clade'
+	'196900569_inc.trend_Acidobacteria_Subgroup_6'
+	'196900571_dec.trend_Acidobacteria_Subgroup_17'
+	196900573_increasing_Acidobacteria_Subgroup_21
+	196900578_increasing_Acidobacteria_Subgroup_9
+	196900580_increasing_Proteobacteria_Alphaproteobacteria
+	'196900581_dec.trend_Acidobacteria_Subgroup_6'
+	'196900582_inc.trend_Acidobacteria_Subgroup_6'
+	196900588_decreasing_Acidobacteria_Subgroup_9
+	196900589_decreasing_Chloroflexi_SAR202_clade
+	196900590_decreasing_Acidobacteria_Solibacteres
+	'196900591_inc.trend_Proteobacteria_Gammaproteobacteria'
+	196900592_decreasing_Proteobacteria_Alphaproteobacteria
+	'196900593_dec.trend_Bacteroidetes_Bacteroidetes_Incertae_Sedis'
+	'196900594_dec.trend_Chloroflexi_Anaerolineae'
+	'196900595_dec.trend_Acidobacteria_Subgroup_11'
+	196900596_increasing_Chloroflexi_SAR202_clade
+	196900597_decreasing_Chloroflexi_TK10
+	'196900598_dec.trend_Acidobacteria_Subgroup_6'
+	'196900599_inc.trend_Acidobacteria_Solibacteres'
+	196900600_decreasing_Acidobacteria_Subgroup_6
+	'196900601_dec.trend_Proteobacteria_Gammaproteobacteria'
+	'196900602_dec.trend_Proteobacteria_Gammaproteobacteria'
+	'196900603_inc.trend_Acidobacteria_Subgroup_26'
+	196900604_decreasing_Acidobacteria_Subgroup_6
+	'196900605_inc.trend_Proteobacteria_Gammaproteobacteria'
+	'196900606_inc.trend_Proteobacteria_Gammaproteobacteria'
+	'196900607_dec.trend_Proteobacteria_Alphaproteobacteria'
+	'196900608_dec.trend_Proteobacteria_Gammaproteobacteria'
+	'196900609_dec.trend_Acidobacteria_Subgroup_15'
+	'196900610_dec.trend_Proteobacteria_Deltaproteobacteria'
+	'196900611_dec.trend_Actinobacteria_Acidimicrobiia'
+	'196900612_dec.trend_Chloroflexi_S085'
+	'196900613_dec.trend_Proteobacteria_Deltaproteobacteria'
+	'196900614_dec.trend_Gemmatimonadetes_BD2-11_terrestrial_group'
+	'196900615_dec.trend_Chloroflexi_JG30-KF-CM66'
+	'196900616_dec.trend_Chloroflexi_TK10'
+	'196900617_dec.trend_Gemmatimonadetes_BD2-11_terrestrial_group'
+	'196900618_dec.trend_Actinobacteria_Acidimicrobiia'
+	'196900619_dec.trend_Gemmatimonadetes_BD2-11_terrestrial_group'
+	'196900620_inc.trend_Proteobacteria_Alphaproteobacteria'
+	'196900621_dec.trend_Chloroflexi_Anaerolineae'
+	'196900622_dec.trend_Proteobacteria_Gammaproteobacteria'
+	'196900623_dec.trend__'
+	'196900624_dec.trend_Chloroflexi_Anaerolineae'
+	'196900625_dec.trend_Thaumarchaeota_Marine_Group_I'
+	'196900626_dec.trend_Thaumarchaeota_Marine_Group_I'
+	'196900627_dec.trend_Chloroflexi_Anaerolineae'
+	'196900628_dec.trend_Acidobacteria_Subgroup_6'
+	'196900629_dec.trend_Actinobacteria_Acidimicrobiia'
+	'196900630_dec.trend__'
+	'196900631_dec.trend_Acidobacteria_Subgroup_6'
+	'196900632_dec.trend_Proteobacteria_Gammaproteobacteria'
+	'196900633_dec.trend_Actinobacteria_Acidimicrobiia'
+	'196900634_dec.trend__'
+	'196900635_inc.trend__'
+	'196900636_inc.trend_Acidobacteria_Subgroup_6'
+	'196900637_dec.trend_Chloroflexi_Anaerolineae'
+	'196900638_dec.trend_Proteobacteria_Deltaproteobacteria'
+	'196900639_dec.trend_Acidobacteria_Subgroup_6'
+	'196900640_dec.trend_Chloroflexi_TK10'
+	'196900641_dec.trend_Gemmatimonadetes_BD2-11_terrestrial_group'
+	'196900642_dec.trend_Actinobacteria_Acidimicrobiia'
+	'196900643_dec.trend_Actinobacteria_Acidimicrobiia'
+	'196900644_inc.trend_Actinobacteria_Acidimicrobiia'
+	'196900645_dec.trend_Acidobacteria_Subgroup_6'
+	'196900646_dec.trend_Chloroflexi_TK10'
+	'196900647_dec.trend_Proteobacteria_Gammaproteobacteria'
+	196900648_increasing_Chloroflexi_JG30-KF-CM66
+	'196900649_dec.trend_Acidobacteria_Subgroup_6'
+	'196900652_dec.trend_Actinobacteria_Acidimicrobiia'
+	'196900653_dec.trend_Acidobacteria_Subgroup_6'
+	'196900654_inc.trend_Acidobacteria_Subgroup_5'
+	196900655_increasing_Proteobacteria_Alphaproteobacteria
+	196900656_increasing_Gemmatimonadetes_BD2-11_terrestrial_group
+	196900657_increasing_Chloroflexi_
+	196900658_increasing_Acidobacteria_Subgroup_26
+	'196900659_inc.trend_Actinobacteria_Acidimicrobiia'
+	'196900660_inc.trend_Gemmatimonadetes_BD2-11_terrestrial_group'
+	196900661_increasing_Chloroflexi_S085
+	196900662_increasing_Chloroflexi_SAR202_clade
+	196900663_increasing_Proteobacteria_Alphaproteobacteria
+	'196900664_inc.trend_Gemmatimonadetes_Gemmatimonadetes'
+	'196900665_inc.trend_Proteobacteria_Alphaproteobacteria'
+	'196900666_inc.trend_Chloroflexi_JG30-KF-CM66'
+	196900667_increasing_Chloroflexi_SAR202_clade
+	196900668_increasing_Acidobacteria_Solibacteres
+	'196900669_inc.trend_Proteobacteria_Deltaproteobacteria'
+	'196900670_inc.trend_Gemmatimonadetes_BD2-11_terrestrial_group'
+	196900671_increasing_Proteobacteria_Gammaproteobacteria
+	196900672_increasing_Proteobacteria_Alphaproteobacteria
+	'196900673_inc.trend__'
+	196900674_increasing_Acidobacteria_Subgroup_6
+	'196900675_inc.trend_Chloroflexi_SAR202_clade'
+	'196900676_inc.trend_Chloroflexi_JG30-KF-CM66'
+	196900677_increasing_Chloroflexi_SAR202_clade
+	'196900678_inc.trend_Proteobacteria_Alphaproteobacteria'
+	'196900679_inc.trend_Proteobacteria_Alphaproteobacteria'
+	'196900680_inc.trend_Chloroflexi_SAR202_clade'
+	'196900681_inc.trend_Chloroflexi_SAR202_clade'
+	'196900682_inc.trend_Chloroflexi_S085'
+	'196900683_inc.trend_Chloroflexi_SAR202_clade'
+	'196900684_inc.trend_Chloroflexi_SAR202_clade'
+	'196900685_inc.trend_Chloroflexi_SAR202_clade'
+	'196900686_inc.trend_Chloroflexi_Anaerolineae'
+	'196900687_inc.trend_Chloroflexi_Anaerolineae'
+	'196900688_inc.trend_Actinobacteria_Acidimicrobiia'
+	'196900689_inc.trend_Proteobacteria_Alphaproteobacteria'
+	'196900690_inc.trend_Nitrospinae_MD2896-B214'
+	'196900691_inc.trend_Actinobacteria_Thermoleophilia'
+	'196900692_inc.trend_Chloroflexi_cD4-96'
+	19690097_increasing_Thaumarchaeota_Marine_Group_I
+;
+end;
+
+begin trees;
+	tree tree_1 = [&R] ((((('196900676_inc.trend_Chloroflexi_JG30-KF-CM66':0.117056,((('196900635_inc.trend__':1.0E-6,'196900630_dec.trend__':0.013068):0.164148,((((('196900327_inc.trend_Chloroflexi_SAR202_clade':0.121099,((('196900218_inc.trend_Chloroflexi_SAR202_clade':0.013521,(196900596_increasing_Chloroflexi_SAR202_clade:1.0E-6,196900589_decreasing_Chloroflexi_SAR202_clade:0.013072):1.0E-6):0.013714,'196900153_inc.trend_Chloroflexi_SAR202_clade':0.072244):0.117856,((196900677_increasing_Chloroflexi_SAR202_clade:0.041391,196900383_increasing_Chloroflexi_SAR202_clade:0.07722):0.063437,'196900675_inc.trend_Chloroflexi_SAR202_clade':0.039658):0.03858):0.029077):0.028997,(('196900303_dec.trend_Chloroflexi_SAR202_clade':0.116427,(196900547_increasing_Chloroflexi_SAR202_clade:0.081489,(196900531_increasing_Chloroflexi_SAR202_clade:0.070019,('196900239_dec.trend_Chloroflexi_SAR202_clade':1.0E-6,('196900322_dec.trend_Chloroflexi_SAR202_clade':0.036375,('196900235_dec.trend_Chloroflexi_SAR202_clade':1.0E-6,'196900500_dec.trend_Chloroflexi_SAR202_clade':0.05346):0.023887):0.068114):0.129068):0.035605):0.123355):0.057928,196900563_increasing_Chloroflexi_SAR202_clade:0.098257):0.041419):0.036174,((196900211_decreasing_Chloroflexi_SAR202_clade:0.209137,((((('196900266_inc.trend_Chloroflexi_SAR202_clade':0.012058,'196900170_dec.trend_Chloroflexi_SAR202_clade':1.0E-6):0.036758,('196900147_dec.trend_Chloroflexi_SAR202_clade':0.009502,(('196900139_dec.trend_Chloroflexi_SAR202_clade':1.0E-6,('196900354_inc.trend_Chloroflexi_SAR202_clade':0.011438,'196900166_dec.trend_Chloroflexi_SAR202_clade':1.0E-6):0.011772):0.097908,(('196900203_inc.trend_Chloroflexi_SAR202_clade':0.012482,'196900300_dec.trend_Chloroflexi_SAR202_clade':0.012121):0.008059,196900350_decreasing_Chloroflexi_SAR202_clade:0.023098):0.020678):0.029067):0.030262):0.013961,('196900251_inc.trend_Chloroflexi_SAR202_clade':0.08209,'196900159_dec.trend_Chloroflexi_SAR202_clade':0.019204):0.008409):0.039533,(((196900307_decreasing__:0.018048,196900537_increasing__:0.02524):0.29263,('196900295_inc.trend_Chloroflexi_SAR202_clade':0.217521,(196900262_decreasing_Chloroflexi_SAR202_clade:0.012703,'196900286_dec.trend_Chloroflexi_SAR202_clade':1.0E-6):0.174252):0.004748):0.162103,(('196900175_dec.trend_Chloroflexi_TK10':0.186397,('196900287_inc.trend_Chloroflexi_TK10':0.013207,'196900646_dec.trend_Chloroflexi_TK10':1.0E-6):0.038941):0.21249,'196900181_dec.trend_Chloroflexi_TK10':1.0E-6):0.354242):1.0E-6):0.043171,(((('196900231_dec.trend_Chloroflexi_SAR202_clade':1.0E-6,196900367_increasing_Chloroflexi_SAR202_clade:0.011985):0.039909,'196900193_dec.trend_Chloroflexi_SAR202_clade':0.011867):0.077915,('196900194_dec.trend_Chloroflexi_SAR202_clade':1.0E-6,('196900382_inc.trend_Chloroflexi_SAR202_clade':0.02548,(('196900684_inc.trend_Chloroflexi_SAR202_clade':0.108791,196900263_decreasing_Chloroflexi_SAR202_clade:1.0E-6):0.023613,('196900551_inc.trend_Chloroflexi_SAR202_clade':0.048034,('196900683_inc.trend_Chloroflexi_SAR202_clade':0.051962,((('196900550_inc.trend_Chloroflexi_SAR202_clade':0.052152,('196900680_inc.trend_Chloroflexi_SAR202_clade':1.0E-6,196900667_increasing_Chloroflexi_SAR202_clade:0.025455):0.011746):0.012512,(196900353_increasing_Chloroflexi_SAR202_clade:0.111601,'196900681_inc.trend_Chloroflexi_SAR202_clade':0.022561):0.014214):0.012248,('196900386_dec.trend_Chloroflexi_SAR202_clade':0.023639,('196900234_dec.trend_Chloroflexi_SAR202_clade':0.051316,('196900564_inc.trend_Chloroflexi_SAR202_clade':0.070085,'196900446_dec.trend_Chloroflexi_SAR202_clade':0.01161):0.01241):0.02633):0.012562):0.011778):1.0E-6):0.024099):1.0E-6):0.091851):0.01264):0.031242,'196900163_inc.trend_Chloroflexi_SAR202_clade':0.090251):0.035937):0.031526):0.014833,('196900536_inc.trend_Chloroflexi_SAR202_clade':0.094191,((196900246_increasing_Chloroflexi_S085:1.0E-6,'196900302_dec.trend_Chloroflexi_S085':0.024681):0.155115,(((('196900623_dec.trend__':0.063787,'196900634_dec.trend__':1.0E-6):0.855374,(((('196900359_dec.trend_Thaumarchaeota_Marine_Group_I':0.011557,('1969004_dec.trend_Thaumarchaeota_Marine_Group_I':1.0E-6,19690097_increasing_Thaumarchaeota_Marine_Group_I:0.011514):1.0E-6):0.011545,(('196900625_dec.trend_Thaumarchaeota_Marine_Group_I':0.011528,'196900626_dec.trend_Thaumarchaeota_Marine_Group_I':0.011509):1.0E-6,'196900186_dec.trend_Thaumarchaeota_Marine_Group_I':1.0E-6):1.0E-6):0.064426,196900454_increasing_Thaumarchaeota_Marine_Group_I:1.0E-6):1.0E-6,('196900146_dec.trend_Thaumarchaeota_Marine_Group_I':0.011886,196900138_increasing_Thaumarchaeota_Marine_Group_I:1.0E-6):0.011961):0.747786):1.189537,'196900182_dec.trend_Chloroflexi_SAR202_clade':1.0E-6):0.06001,'196900233_dec.trend_Chloroflexi_SAR202_clade':0.099689):0.13037):0.086211):0.043397):1.0E-6):0.01651,('196900276_dec.trend_Chloroflexi_SAR202_clade':0.079311,('196900195_dec.trend_Chloroflexi_SAR202_clade':0.032896,('196900568_inc.trend_Chloroflexi_SAR202_clade':0.043839,((((('196900506_inc.trend_Chloroflexi_SAR202_clade':0.052616,('196900190_dec.trend_Chloroflexi_SAR202_clade':1.0E-6,(196900494_increasing_Chloroflexi_SAR202_clade:0.017611,('196900402_dec.trend_Chloroflexi_SAR202_clade':0.012671,'196900222_dec.trend_Chloroflexi_SAR202_clade':1.0E-6):0.009398):0.088798):0.045702):0.040722,'196900508_dec.trend_Chloroflexi_SAR202_clade':0.014959):1.0E-6,((196900662_increasing_Chloroflexi_SAR202_clade:0.016256,(('196900362_dec.trend_Chloroflexi_SAR202_clade':0.052057,(('196900207_dec.trend_Chloroflexi_SAR202_clade':0.052319,'196900210_inc.trend_Chloroflexi_SAR202_clade':0.02955):0.099205,('196900254_dec.trend_Chloroflexi_SAR202_clade':0.012167,'196900373_inc.trend_Chloroflexi_SAR202_clade':1.0E-6):0.03963):0.031648):1.0E-6,'196900685_inc.trend_Chloroflexi_SAR202_clade':0.099509):0.05028):0.020379,('196900249_inc.trend_Chloroflexi_SAR202_clade':0.065921,('196900226_dec.trend_Chloroflexi_SAR202_clade':0.097912,'196900299_dec.trend_Chloroflexi_SAR202_clade':1.0E-6):0.025427):0.015585):0.038628):0.026936,('196900155_dec.trend_Chloroflexi_SAR202_clade':0.114041,'196900154_dec.trend_Chloroflexi_SAR202_clade':0.044693):0.01404):0.022943,'196900315_dec.trend_Chloroflexi_SAR202_clade':0.030154):0.024623):0.03939):0.021937):0.046103):0.026849,((('196900691_inc.trend_Actinobacteria_Thermoleophilia':1.0E-6,(('196900317_dec.trend_Actinobacteria_Thermoleophilia':0.013043,'196900230_dec.trend_Actinobacteria_Thermoleophilia':0.013456):1.0E-6,('196900381_inc.trend_Actinobacteria_Thermoleophilia':0.040704,'196900252_dec.trend_Actinobacteria_Thermoleophilia':1.0E-6):0.025115):0.055689):0.215858,((((('196900291_dec.trend_Actinobacteria_Acidimicrobiia':1.0E-6,('196900160_inc.trend_Actinobacteria_Acidimicrobiia':1.0E-6,('196900476_dec.trend_Actinobacteria_Acidimicrobiia':0.013328,(('196900171_dec.trend_Actinobacteria_Acidimicrobiia':0.013358,'196900269_inc.trend_Actinobacteria_Acidimicrobiia':0.013433):1.0E-6,('196900145_dec.trend_Actinobacteria_Acidimicrobiia':0.100716,'196900633_dec.trend_Actinobacteria_Acidimicrobiia':1.0E-6):0.041406):0.013316):1.0E-6):0.013257):0.079716,('196900611_dec.trend_Actinobacteria_Acidimicrobiia':1.0E-6,('196900209_dec.trend_Actinobacteria_Acidimicrobiia':1.0E-6,'196900618_dec.trend_Actinobacteria_Acidimicrobiia':0.013505):0.026905):0.093175):0.03025,('196900688_inc.trend_Actinobacteria_Acidimicrobiia':0.012901,196900176_decreasing_Actinobacteria_Acidimicrobiia:1.0E-6):0.282289):0.018238,(('196900338_inc.trend_Actinobacteria_Acidimicrobiia':0.013179,'196900643_dec.trend_Actinobacteria_Acidimicrobiia':1.0E-6):0.108261,('196900644_inc.trend_Actinobacteria_Acidimicrobiia':1.0E-6,('196900642_dec.trend_Actinobacteria_Acidimicrobiia':0.044507,(('196900351_inc.trend_Actinobacteria_Acidimicrobiia':1.0E-6,'196900652_dec.trend_Actinobacteria_Acidimicrobiia':0.056495):0.014758,((('196900449_inc.trend_Actinobacteria_Acidimicrobiia':0.152561,'196900659_inc.trend_Actinobacteria_Acidimicrobiia':0.01192):0.014232,('196900393_dec.trend_Actinobacteria_Acidimicrobiia':0.012848,'196900414_dec.trend_Actinobacteria_Acidimicrobiia':0.013113):1.0E-6):0.042209,'196900629_dec.trend_Actinobacteria_Acidimicrobiia':0.029363):0.058233):0.028337):0.011518):0.042273):0.050557):1.0E-6,196900215_decreasing_Actinobacteria_Acidimicrobiia:0.133366):0.072697):0.042226,((('196900152_dec.trend_Nitrospirae_Nitrospira':0.012214,196900148_increasing_Nitrospirae_Nitrospira:1.0E-6):0.39855,(((((('196900593_dec.trend_Bacteroidetes_Bacteroidetes_Incertae_Sedis':0.091232,('196900150_inc.trend_Bacteroidetes_Bacteroidetes_Incertae_Sedis':1.0E-6,196900495_increasing_Bacteroidetes_Bacteroidetes_Incertae_Sedis:0.014252):0.074714):0.296782,('196900275_inc.trend_Verrucomicrobia_Opitutae':0.433818,'196900204_dec.trend_Proteobacteria_Deltaproteobacteria':0.283426):0.006377):0.029111,('196900135_dec.trend_SBR1093_uncultured_bacterium':0.505982,('196900400_dec.trend_Acidobacteria_Subgroup_26':0.057433,(('196900284_dec.trend_Acidobacteria_Subgroup_26':1.0E-6,196900658_increasing_Acidobacteria_Subgroup_26:0.014):0.084285,'196900603_inc.trend_Acidobacteria_Subgroup_26':0.174051):0.077629):0.167542):0.147625):0.05176,((('196900669_inc.trend_Proteobacteria_Deltaproteobacteria':0.635554,((((196900458_increasing_Acidobacteria_Solibacteres:1.0E-6,196900316_increasing_Acidobacteria_Solibacteres:0.11774):1.0E-6,(('196900599_inc.trend_Acidobacteria_Solibacteres':0.026978,(196900590_decreasing_Acidobacteria_Solibacteres:0.181058,(196900248_decreasing_Acidobacteria_Solibacteres:0.011896,'196900469_inc.trend_Acidobacteria_Solibacteres':1.0E-6):0.046832):0.048243):0.09382,'196900229_inc.trend_Acidobacteria_Solibacteres':0.014788):0.023013):1.0E-6,((196900509_increasing_Acidobacteria_Solibacteres:0.024805,(196900668_increasing_Acidobacteria_Solibacteres:1.0E-6,'196900406_inc.trend_Acidobacteria_Solibacteres':0.012212):1.0E-6):0.051159,'196900450_inc.trend_Acidobacteria_Solibacteres':0.011891):0.012799):0.294955,('196900462_inc.trend_Proteobacteria_Deltaproteobacteria':0.204322,((('196900610_dec.trend_Proteobacteria_Deltaproteobacteria':1.0E-6,('196900613_dec.trend_Proteobacteria_Deltaproteobacteria':0.012101,'196900638_dec.trend_Proteobacteria_Deltaproteobacteria':0.185491):0.025609):0.459351,'196900461_dec.trend_Proteobacteria_Deltaproteobacteria':1.0E-6):0.170825,'196900172_inc.trend_Proteobacteria_Deltaproteobacteria':0.008325):0.185331):0.022972):1.0E-6):0.048669,('196900664_inc.trend_Gemmatimonadetes_Gemmatimonadetes':0.161742,('196900401_dec.trend_Deinococcus-Thermus_Deinococci':0.440067,'196900205_dec.trend_Poribacteria_uncultured_Planctomycetales_bacterium':0.293483):0.084799):0.037514):1.0E-6,(((('196900601_dec.trend_Proteobacteria_Gammaproteobacteria':1.0E-6,('196900434_inc.trend_Proteobacteria_Gammaproteobacteria':0.15072,'196900188_dec.trend_Proteobacteria_Gammaproteobacteria':0.013773):0.010741):0.01215,196900164_increasing_Proteobacteria_Gammaproteobacteria:1.0E-6):0.01484,(196900196_decreasing_Proteobacteria_JTB23:1.0E-6,(((196900180_decreasing_Proteobacteria_JTB23:1.0E-6,196900310_decreasing_Proteobacteria_JTB23:0.012483):0.025365,'196900348_inc.trend_Proteobacteria_JTB23':1.0E-6):0.012533,196900236_increasing_Proteobacteria_JTB23:1.0E-6):0.012449):0.078059):0.013351,((196900319_increasing_Proteobacteria_SPOTSOCT00m83:0.022881,(((('196900605_inc.trend_Proteobacteria_Gammaproteobacteria':0.052053,('196900452_inc.trend_Proteobacteria_Gammaproteobacteria':1.0E-6,'196900274_dec.trend_Proteobacteria_Gammaproteobacteria':0.012468):1.0E-6):1.0E-6,(196900481_decreasing_Proteobacteria_Gammaproteobacteria:1.0E-6,('196900306_dec.trend_Proteobacteria_Gammaproteobacteria':0.012162,('196900632_dec.trend_Proteobacteria_Gammaproteobacteria':1.0E-6,'196900591_inc.trend_Proteobacteria_Gammaproteobacteria':0.077919):0.012164):0.012162):0.053819):0.061839,(('196900606_inc.trend_Proteobacteria_Gammaproteobacteria':1.0E-6,'196900608_dec.trend_Proteobacteria_Gammaproteobacteria':0.023912):0.162974,'196900344_inc.trend_Proteobacteria_Gammaproteobacteria':0.034196):0.015472):0.054983,196900187_increasing_Proteobacteria_Gammaproteobacteria:0.072333):0.023739):0.027653,(('196900326_dec.trend_Proteobacteria_Gammaproteobacteria':1.0E-6,'196900431_inc.trend_Proteobacteria_Gammaproteobacteria':0.012658):0.108007,(((196900671_increasing_Proteobacteria_Gammaproteobacteria:0.011419,'196900260_dec.trend_Proteobacteria_Gammaproteobacteria':1.0E-6):0.078558,('196900622_dec.trend_Proteobacteria_Gammaproteobacteria':1.0E-6,('196900415_inc.trend_Proteobacteria_Gammaproteobacteria':1.0E-6,((((196900535_increasing_Proteobacteria_Gammaproteobacteria:0.012684,'196900271_dec.trend_Proteobacteria_Gammaproteobacteria':1.0E-6):0.012816,196900320_decreasing_Proteobacteria_Gammaproteobacteria:1.0E-6):1.0E-6,'196900602_dec.trend_Proteobacteria_Gammaproteobacteria':0.041147):0.012866,'196900288_inc.trend_Proteobacteria_Gammaproteobacteria':1.0E-6):0.013028):0.013071):0.049664):0.022436,'196900178_inc.trend_Proteobacteria_Gammaproteobacteria':0.041527):0.028867):0.018874):1.0E-6):0.083684):0.015332):0.013255,((('196900250_dec.trend_Proteobacteria_Alphaproteobacteria':1.0E-6,196900592_decreasing_Proteobacteria_Alphaproteobacteria:0.013157):0.082489,(196900156_increasing_Acidobacteria_Holophagae:1.0E-6,196900336_decreasing_Acidobacteria_Holophagae:0.013039):0.099224):0.039687,(((196900465_increasing_Tectomicrobia_uncultured_bacterium:0.014123,196900142_decreasing_Tectomicrobia_:0.037618):0.408576,(('196900223_dec.trend_Gemmatimonadetes_PAUC43f_marine_benthic_group':1.0E-6,196900335_decreasing_Gemmatimonadetes_PAUC43f_marine_benthic_group:0.013208):0.219394,(('196900614_dec.trend_Gemmatimonadetes_BD2-11_terrestrial_group':0.009375,((((((((196900242_increasing_Gemmatimonadetes_BD2-11_terrestrial_group:0.012388,196900213_decreasing_Gemmatimonadetes_BD2-11_terrestrial_group:1.0E-6):0.012425,196900161_decreasing_Gemmatimonadetes_BD2-11_terrestrial_group:1.0E-6):0.001964,(('196900358_dec.trend_Gemmatimonadetes_BD2-11_terrestrial_group':1.0E-6,196900339_increasing_Gemmatimonadetes_BD2-11_terrestrial_group:0.012045):0.022684,('196900184_inc.trend_Gemmatimonadetes_BD2-11_terrestrial_group':0.016334,(((('196900619_dec.trend_Gemmatimonadetes_BD2-11_terrestrial_group':0.012296,(('196900268_dec.trend_Gemmatimonadetes_BD2-11_terrestrial_group':1.0E-6,'196900201_dec.trend_Gemmatimonadetes_BD2-11_terrestrial_group':0.012419):0.085083,'196900278_dec.trend_Gemmatimonadetes_BD2-11_terrestrial_group':1.0E-6):0.01318):0.012296,('196900660_inc.trend_Gemmatimonadetes_BD2-11_terrestrial_group':0.012008,'196900404_inc.trend_Gemmatimonadetes_BD2-11_terrestrial_group':1.0E-6):1.0E-6):0.043595,'196900670_inc.trend_Gemmatimonadetes_BD2-11_terrestrial_group':0.047314):0.084409,((196900366_increasing_Gemmatimonadetes_BD2-11_terrestrial_group:0.01241,('196900296_dec.trend_Gemmatimonadetes_BD2-11_terrestrial_group':1.0E-6,(196900656_increasing_Gemmatimonadetes_BD2-11_terrestrial_group:1.0E-6,'196900543_inc.trend_Gemmatimonadetes_BD2-11_terrestrial_group':0.039103):0.012537):1.0E-6):0.037713,'196900641_dec.trend_Gemmatimonadetes_BD2-11_terrestrial_group':1.0E-6):0.057889):0.048301):0.010583):0.042836):0.112008,'196900363_dec.trend_Gemmatimonadetes_BD2-11_terrestrial_group':1.0E-6):0.011921,(196900384_increasing_Gemmatimonadetes_BD2-11_terrestrial_group:0.011842,196900280_increasing_Gemmatimonadetes_BD2-11_terrestrial_group:1.0E-6):1.0E-6):0.01185,(196900199_increasing_Gemmatimonadetes_BD2-11_terrestrial_group:1.0E-6,'196900617_dec.trend_Gemmatimonadetes_BD2-11_terrestrial_group':0.011907):1.0E-6):1.0E-6,'196900255_dec.trend_Gemmatimonadetes_BD2-11_terrestrial_group':0.011907):0.049012,((('196900673_inc.trend__':20.209375,('196900438_inc.trend_Gemmatimonadetes_BD2-11_terrestrial_group':1.0E-6,('196900692_inc.trend_Chloroflexi_cD4-96':0.12125,(('196900647_dec.trend_Proteobacteria_Gammaproteobacteria':0.938195,'196900388_inc.trend_Proteobacteria_Gammaproteobacteria':0.151055):0.715598,'196900238_dec.trend_Poribacteria_uncultured_bacterium':0.117906):0.54056):1.087914):0.25329):0.579504,'196900329_dec.trend_Gemmatimonadetes_BD2-11_terrestrial_group':1.0E-6):0.011772,'196900441_inc.trend_Gemmatimonadetes_BD2-11_terrestrial_group':0.011644):1.0E-6):0.013978):0.031443,'196900475_inc.trend_Gemmatimonadetes_BD2-11_terrestrial_group':0.056249):0.176602):0.056349):0.087196,(('196900158_dec.trend_Proteobacteria_Alphaproteobacteria':0.055807,(('196900665_inc.trend_Proteobacteria_Alphaproteobacteria':0.083335,'196900620_inc.trend_Proteobacteria_Alphaproteobacteria':0.086336):0.015244,('196900429_inc.trend_Proteobacteria_Alphaproteobacteria':0.068227,(196900421_increasing_Proteobacteria_Alphaproteobacteria:1.0E-6,((196900308_increasing_Proteobacteria_Alphaproteobacteria:0.012345,(196900663_increasing_Proteobacteria_Alphaproteobacteria:0.066698,((196900655_increasing_Proteobacteria_Alphaproteobacteria:0.138398,(196900141_increasing_Proteobacteria_Alphaproteobacteria:1.0E-6,'196900256_inc.trend_Proteobacteria_Alphaproteobacteria':0.013085):0.037258):0.044527,'196900411_inc.trend_Proteobacteria_Alphaproteobacteria':0.017451):0.024718):0.016972):0.025649,(('196900361_dec.trend_Proteobacteria_Alphaproteobacteria':0.190628,196900580_increasing_Proteobacteria_Alphaproteobacteria:0.008062):0.046323,((((('196900689_inc.trend_Proteobacteria_Alphaproteobacteria':0.012687,(196900442_increasing_Proteobacteria_Alphaproteobacteria:0.021598,196900672_increasing_Proteobacteria_Alphaproteobacteria:0.082976):0.003268):1.0E-6,196900391_decreasing_Proteobacteria_Alphaproteobacteria:0.02528):0.111507,('196900607_dec.trend_Proteobacteria_Alphaproteobacteria':0.13233,'196900678_inc.trend_Proteobacteria_Alphaproteobacteria':0.054845):0.021584):0.027731,'196900375_inc.trend_Proteobacteria_Alphaproteobacteria':0.015884):1.0E-6,(196900301_increasing_Proteobacteria_Alphaproteobacteria:0.205614,'196900374_dec.trend_Proteobacteria_Alphaproteobacteria':0.046584):0.075891):0.054938):1.0E-6):0.026837):1.0E-6):0.085422):1.0E-6):0.102217,'196900679_inc.trend_Proteobacteria_Alphaproteobacteria':0.062724):0.029163):1.0E-6):0.03253):1.0E-6,(((('196900143_inc.trend_Acidobacteria_Subgroup_11':0.012694,'196900595_dec.trend_Acidobacteria_Subgroup_11':1.0E-6):0.064675,(('196900609_dec.trend_Acidobacteria_Subgroup_15':0.132904,('196900189_dec.trend_PAUC34f_uncultured_bacterium':0.293412,(196900253_decreasing_Acidobacteria_Subgroup_15:1.0E-6,196900445_increasing_Acidobacteria_Subgroup_15:0.013096):0.017517):0.01136):0.02634,(('196900552_inc.trend_Nitrospinae_MD2896-B214':0.103665,'196900690_inc.trend_Nitrospinae_MD2896-B214':0.175642):0.090936,('196900511_inc.trend_Acidobacteria_Subgroup_12':0.127484,((196900526_increasing_Acidobacteria_Subgroup_13:0.069956,(196900507_increasing_Acidobacteria_Subgroup_13:1.0E-6,(('196900542_inc.trend_Acidobacteria_Subgroup_13':0.012946,196900314_increasing_Acidobacteria_Subgroup_13:1.0E-6):0.013073,196900425_increasing_Acidobacteria_Subgroup_13:1.0E-6):0.026311):1.0E-6):0.083949,(196900464_increasing_Acidobacteria_Subgroup_2:0.073673,'196900524_inc.trend_Acidobacteria_Subgroup_2':0.218302):0.155674):1.0E-6):0.019238):0.020742):0.0725):0.027012,('196900219_dec.trend_Acidobacteria_Subgroup_5':0.012593,'196900654_inc.trend_Acidobacteria_Subgroup_5':0.040347):0.073165):0.04954,((((('196900237_inc.trend_Acidobacteria_Subgroup_6':1.0E-6,('196900279_inc.trend_Acidobacteria_Subgroup_6':0.013164,'196900636_inc.trend_Acidobacteria_Subgroup_6':1.0E-6):0.01292):0.012879,'196900355_dec.trend_Acidobacteria_Subgroup_6':1.0E-6):0.058603,((('196900653_dec.trend_Acidobacteria_Subgroup_6':0.12361,('196900488_inc.trend_Acidobacteria_Subgroup_6':0.013973,196900522_increasing_Acidobacteria_Subgroup_6:0.042848):0.033248):0.054088,('196900341_inc.trend_Acidobacteria_Subgroup_6':0.056863,((('196900631_dec.trend_Acidobacteria_Subgroup_6':0.026166,('196900206_dec.trend_Acidobacteria_Subgroup_6':1.0E-6,(((196900499_increasing_Acidobacteria_Subgroup_6:1.0E-6,(('196900645_dec.trend_Acidobacteria_Subgroup_6':0.013349,(196900272_increasing_Acidobacteria_Subgroup_6:1.0E-6,((((196900264_decreasing_Acidobacteria_Subgroup_6:0.013316,'196900377_inc.trend_Acidobacteria_Subgroup_6':1.0E-6):0.027725,196900283_decreasing_Acidobacteria_Subgroup_6:0.027259):0.010968,196900228_decreasing_Acidobacteria_Subgroup_6:0.076453):0.064745,('196900639_dec.trend_Acidobacteria_Subgroup_6':0.019668,'196900581_dec.trend_Acidobacteria_Subgroup_6':0.011822):0.021563):0.015301):0.012604):0.027532,('196900356_inc.trend_Acidobacteria_Subgroup_6':0.02575,('196900169_inc.trend_Acidobacteria_Subgroup_6':0.012678,196900600_decreasing_Acidobacteria_Subgroup_6:0.012712):1.0E-6):0.013041):1.0E-6):1.0E-6,(196900398_decreasing_Acidobacteria_Subgroup_6:0.012444,(196900604_decreasing_Acidobacteria_Subgroup_6:0.013221,('196900598_dec.trend_Acidobacteria_Subgroup_6':0.013537,196900265_decreasing_Acidobacteria_Subgroup_6:1.0E-6):1.0E-6):0.013594):0.01365):0.013313,(('196900569_inc.trend_Acidobacteria_Subgroup_6':0.026425,'196900649_dec.trend_Acidobacteria_Subgroup_6':1.0E-6):1.0E-6,('196900179_dec.trend_Acidobacteria_Subgroup_6':0.013115,'196900185_dec.trend_Acidobacteria_Subgroup_6':0.01363):0.013078):1.0E-6):0.02657):0.030324):0.046811,(('196900140_dec.trend_Acidobacteria_Subgroup_6':1.0E-6,'196900208_dec.trend_Acidobacteria_Subgroup_6':0.013874):1.0E-6,((196900323_increasing_Acidobacteria_Subgroup_6:1.0E-6,('196900628_dec.trend_Acidobacteria_Subgroup_6':1.0E-6,'196900559_dec.trend_Acidobacteria_Subgroup_6':0.029106):0.013968):0.013968,'196900418_dec.trend_Acidobacteria_Subgroup_6':0.014133):1.0E-6):0.014122):1.0E-6,((196900546_increasing_Acidobacteria_Subgroup_6:0.01348,(196900496_increasing_Acidobacteria_Subgroup_6:1.0E-6,'196900519_dec.trend_Acidobacteria_Subgroup_6':0.013338):1.0E-6):1.0E-6,(196900332_increasing_Acidobacteria_Subgroup_6:1.0E-6,(196900674_increasing_Acidobacteria_Subgroup_6:0.013491,196900565_increasing_Acidobacteria_Subgroup_6:1.0E-6):0.013286):0.013338):0.027568):0.014465):1.0E-6):1.0E-6,(('196900492_inc.trend_Acidobacteria_Subgroup_6':1.0E-6,('196900521_inc.trend_Acidobacteria_Subgroup_6':0.013036,'196900582_inc.trend_Acidobacteria_Subgroup_6':1.0E-6):0.013078):0.049615,196900517_increasing_Acidobacteria_Subgroup_6:0.054144):0.02872):0.073774):0.168449,((((('196900232_dec.trend_Acidobacteria_Subgroup_21':0.013473,'196900426_inc.trend_Acidobacteria_Subgroup_21':1.0E-6):0.072249,((196900529_increasing_Acidobacteria_Subgroup_21:0.013675,('196900198_dec.trend_Acidobacteria_Subgroup_21':1.0E-6,(196900573_increasing_Acidobacteria_Subgroup_21:0.02742,'196900520_dec.trend_Acidobacteria_Subgroup_21':1.0E-6):0.013545):1.0E-6):1.0E-6,(196900533_increasing_Acidobacteria_Subgroup_21:1.0E-6,((196900539_increasing_Acidobacteria_Subgroup_21:1.0E-6,196900538_increasing_Acidobacteria_Subgroup_21:0.014645):0.013761,('196900513_inc.trend_Acidobacteria_Subgroup_21':0.16749,('196900473_dec.trend_Acidobacteria_Subgroup_21':0.044654,'196900202_dec.trend_Acidobacteria_Subgroup_21':0.011296):0.12228):0.056131):1.0E-6):0.013545):0.065999):0.077435,(196900370_increasing_Acidobacteria_Subgroup_21:1.0E-6,(196900312_increasing_Acidobacteria_Subgroup_21:0.013591,'196900227_inc.trend_Acidobacteria_Subgroup_21':1.0E-6):0.027523):0.052984):0.108405,((((('196900217_inc.trend_Acidobacteria_Subgroup_9':1.0E-6,'196900505_inc.trend_Acidobacteria_Subgroup_9':0.01397):1.0E-6,(('196900157_inc.trend_Acidobacteria_Subgroup_9':0.02758,'196900514_dec.trend_Acidobacteria_Subgroup_9':1.0E-6):0.02775,'196900304_dec.trend_Acidobacteria_Subgroup_9':0.02845):0.030133):1.0E-6,196900554_increasing_Acidobacteria_Subgroup_9:0.014362):0.08349,'196900305_inc.trend_Acidobacteria_Subgroup_9':0.03907):0.016838,(('196900137_dec.trend_Acidobacteria_Subgroup_9':1.0E-6,(196900588_decreasing_Acidobacteria_Subgroup_9:1.0E-6,(196900578_increasing_Acidobacteria_Subgroup_9:0.054866,(196900337_increasing_Acidobacteria_Subgroup_9:0.012873,196900144_decreasing_Acidobacteria_Subgroup_9:1.0E-6):1.0E-6):0.012873):0.012732):0.103362,(('196900352_inc.trend_Acidobacteria_Subgroup_9':0.012489,196900365_increasing_Acidobacteria_Subgroup_9:1.0E-6):0.025411,'196900292_inc.trend_Acidobacteria_Subgroup_9':1.0E-6):0.014713):1.0E-6):0.063793):0.027373,('196900571_dec.trend_Acidobacteria_Subgroup_17':0.156129,'196900444_dec.trend_Acidobacteria_Subgroup_17':0.062023):0.021325):0.066788):1.0E-6,(('196900167_inc.trend_Chloroflexi_TK10':0.481002,('196900162_dec.trend_PAUC34f_uncultured_bacterium':0.060014,('196900369_inc.trend_PAUC34f_uncultured_bacterium':1.0E-6,196900183_decreasing_PAUC34f_uncultured_bacterium:0.012811):0.094274):0.072685):0.070175,'196900241_inc.trend_Nitrospinae_MD2898-B26':0.166638):0.043362):0.029567):0.034789):0.030655):0.02285,(('196900174_dec.trend_Spirochaetae_Spirochaetes':1.0E-6,(('196900149_inc.trend_Spirochaetae_Spirochaetes':0.186341,'196900294_dec.trend_Spirochaetae_Spirochaetes':0.013393):1.0E-6,'196900177_dec.trend_Spirochaetae_Spirochaetes':1.0E-6):0.026637):0.261498,('196900212_inc.trend_PAUC34f_uncultured_gamma_proteobacterium':0.103788,'196900191_dec.trend_PAUC34f_':0.14103):0.201411):0.038058):0.021451):0.098373):0.055937):1.0E-6,((((((196900518_increasing_Chloroflexi_Anaerolineae:1.0E-6,('196900168_inc.trend_Chloroflexi_Anaerolineae':0.027038,196900532_increasing_Chloroflexi_Anaerolineae:0.013516):1.0E-6):0.013311,('196900686_inc.trend_Chloroflexi_Anaerolineae':0.013447,'196900687_inc.trend_Chloroflexi_Anaerolineae':1.0E-6):1.0E-6):0.100412,(('196900420_inc.trend_Chloroflexi_Caldilineae':0.024415,(196900225_decreasing_Chloroflexi_Caldilineae:0.528464,'196900136_dec.trend_Chloroflexi_Caldilineae':1.0E-6):0.074874):0.05939,'196900151_dec.trend_Chloroflexi_Caldilineae':1.0E-6):0.309478):0.245594,(196900387_increasing_Chloroflexi_Anaerolineae:0.014554,('196900594_dec.trend_Chloroflexi_Anaerolineae':0.022173,((('196900621_dec.trend_Chloroflexi_Anaerolineae':0.012373,'196900340_dec.trend_Chloroflexi_Anaerolineae':1.0E-6):0.037753,196900331_decreasing_Chloroflexi_Anaerolineae:1.0E-6):0.012494,(('196900347_dec.trend_Chloroflexi_Anaerolineae':1.0E-6,('196900624_dec.trend_Chloroflexi_Anaerolineae':0.05241,'196900627_dec.trend_Chloroflexi_Anaerolineae':1.0E-6):0.01213):0.012257,196900528_increasing_Chloroflexi_Anaerolineae:1.0E-6):0.012445):0.079028):0.031748):0.187365):0.130328,('196900330_dec.trend_Chloroflexi_Anaerolineae':1.0E-6,196900558_increasing_Chloroflexi_Anaerolineae:0.013913):0.322138):0.141584,('196900637_dec.trend_Chloroflexi_Anaerolineae':0.131296,('196900515_inc.trend_Chloroflexi_Anaerolineae':0.0128,'196900297_inc.trend_Chloroflexi_Anaerolineae':1.0E-6):0.098716):0.014966):0.293164):0.060915):1.0E-6,'196900682_inc.trend_Chloroflexi_S085':0.137512):0.026401,(((('196900376_dec.trend_Chloroflexi_TK10':0.037649,('196900616_dec.trend_Chloroflexi_TK10':0.093121,(('196900640_dec.trend_Chloroflexi_TK10':0.065633,('196900424_dec.trend_Chloroflexi_TK10':0.024127,'196900224_dec.trend_Chloroflexi_TK10':1.0E-6):0.038845):0.02585,('196900534_dec.trend_Chloroflexi_TK10':0.105662,(196900410_increasing_Chloroflexi_TK10:0.037795,('196900281_dec.trend_Chloroflexi_TK10':0.137271,(196900527_increasing_Chloroflexi_TK10:1.0E-6,196900192_decreasing_Chloroflexi_TK10:0.025627):0.029316):0.13449):0.014284):0.020551):0.034496):0.099969):0.064562,(('196900390_inc.trend_Chloroflexi_JG30-KF-CM66':1.0E-6,(196900289_decreasing_Chloroflexi_JG30-KF-CM66:0.092301,196900357_decreasing_Chloroflexi_JG30-KF-CM66:1.0E-6):0.013487):0.015273,((('196900214_dec.trend_Chloroflexi_JG30-KF-CM66':0.014262,'196900408_dec.trend_Chloroflexi_JG30-KF-CM66':1.0E-6):0.028643,(('196900615_dec.trend_Chloroflexi_JG30-KF-CM66':0.014808,(((196900409_increasing_Chloroflexi_JG30-KF-CM66:0.044103,(196900349_decreasing_Chloroflexi_JG30-KF-CM66:0.040585,'196900561_inc.trend_Chloroflexi_JG30-KF-CM66':1.0E-6):0.09233):0.036166,'196900666_inc.trend_Chloroflexi_JG30-KF-CM66':0.014052):0.015085,196900657_increasing_Chloroflexi_:0.043235):1.0E-6):0.014453,'196900540_inc.trend_Chloroflexi_JG30-KF-CM66':1.0E-6):0.014071):1.0E-6,196900648_increasing_Chloroflexi_JG30-KF-CM66:0.028412):0.012294):0.092249):0.061495,('196900221_dec.trend_Chloroflexi_JG30-KF-CM66':0.043166,196900293_decreasing_Chloroflexi_JG30-KF-CM66:0.133851):0.045761):0.040953,((196900277_decreasing_Chloroflexi_TK10:0.026581,196900597_decreasing_Chloroflexi_TK10:0.013103):0.025315,'196900392_inc.trend_Chloroflexi_TK10':1.0E-6):0.223569):0.04637):0.022197,'196900318_inc.trend_Chloroflexi_S085':0.018344):0.049488,196900661_increasing_Chloroflexi_S085:0.028908,'196900612_dec.trend_Chloroflexi_S085':0.007984);
+end;
+
+begin figtree;
+	set appearance.backgroundColorAttribute="Default";
+	set appearance.backgroundColour=#ffffff;
+	set appearance.branchColorAttribute="User selection";
+	set appearance.branchColorGradient=false;
+	set appearance.branchLineWidth=1.0;
+	set appearance.branchMinLineWidth=0.0;
+	set appearance.branchWidthAttribute="Fixed";
+	set appearance.foregroundColour=#000000;
+	set appearance.hilightingGradient=false;
+	set appearance.selectionColour=#2d3680;
+	set branchLabels.colorAttribute="User selection";
+	set branchLabels.displayAttribute="Branch times";
+	set branchLabels.fontName="Abadi MT Condensed Extra Bold";
+	set branchLabels.fontSize=8;
+	set branchLabels.fontStyle=0;
+	set branchLabels.isShown=false;
+	set branchLabels.significantDigits=4;
+	set layout.expansion=0;
+	set layout.layoutType="RECTILINEAR";
+	set layout.zoom=584;
+	set legend.attribute=null;
+	set legend.fontSize=10.0;
+	set legend.isShown=false;
+	set legend.significantDigits=4;
+	set nodeBars.barWidth=4.0;
+	set nodeBars.displayAttribute=null;
+	set nodeBars.isShown=false;
+	set nodeLabels.colorAttribute="User selection";
+	set nodeLabels.displayAttribute="Node ages";
+	set nodeLabels.fontName="Abadi MT Condensed Extra Bold";
+	set nodeLabels.fontSize=8;
+	set nodeLabels.fontStyle=0;
+	set nodeLabels.isShown=false;
+	set nodeLabels.significantDigits=4;
+	set nodeShapeExternal.colourAttribute=null;
+	set nodeShapeExternal.isShown=false;
+	set nodeShapeExternal.minSize=10.0;
+	set nodeShapeExternal.scaleType=Width;
+	set nodeShapeExternal.shapeType=Circle;
+	set nodeShapeExternal.size=4.0;
+	set nodeShapeExternal.sizeAttribute=null;
+	set nodeShapeInternal.colourAttribute=null;
+	set nodeShapeInternal.isShown=false;
+	set nodeShapeInternal.minSize=10.0;
+	set nodeShapeInternal.scaleType=Width;
+	set nodeShapeInternal.shapeType=Circle;
+	set nodeShapeInternal.size=4.0;
+	set nodeShapeInternal.sizeAttribute=null;
+	set polarLayout.alignTipLabels=false;
+	set polarLayout.angularRange=0;
+	set polarLayout.rootAngle=0;
+	set polarLayout.rootLength=100;
+	set polarLayout.showRoot=true;
+	set radialLayout.spread=0.0;
+	set rectilinearLayout.alignTipLabels=false;
+	set rectilinearLayout.curvature=0;
+	set rectilinearLayout.rootLength=100;
+	set scale.offsetAge=0.0;
+	set scale.rootAge=1.0;
+	set scale.scaleFactor=1.0;
+	set scale.scaleRoot=false;
+	set scaleAxis.automaticScale=true;
+	set scaleAxis.fontSize=8.0;
+	set scaleAxis.isShown=false;
+	set scaleAxis.lineWidth=1.0;
+	set scaleAxis.majorTicks=1.0;
+	set scaleAxis.minorTicks=0.5;
+	set scaleAxis.origin=0.0;
+	set scaleAxis.reverseAxis=false;
+	set scaleAxis.showGrid=true;
+	set scaleBar.automaticScale=true;
+	set scaleBar.fontSize=10.0;
+	set scaleBar.isShown=true;
+	set scaleBar.lineWidth=1.0;
+	set scaleBar.scaleRange=0.0;
+	set tipLabels.colorAttribute="User selection";
+	set tipLabels.displayAttribute="Names";
+	set tipLabels.fontName="Abadi MT Condensed Extra Bold";
+	set tipLabels.fontSize=8;
+	set tipLabels.fontStyle=0;
+	set tipLabels.isShown=true;
+	set tipLabels.significantDigits=4;
+	set trees.order=false;
+	set trees.orderType="increasing";
+	set trees.rooting=true;
+	set trees.rootingType="User Selection";
+	set trees.transform=false;
+	set trees.transformType="cladogram";
+end;
+

@@ -16,10 +16,8 @@ Let's start by taking a look at the OTU table and get an overall impression of o
 
 ```{r libraries}
 library(tidyverse)
-
 library(reshape2)
 library(stringr)
-
 library(ggplot2)
 library(RColorBrewer)
 library(forcats)
@@ -27,12 +25,16 @@ library(forcats)
 library(kableExtra)
 options(kableExtra.html.bsTable = T)
 library(gridExtra)
+library(DT)
 
 library(vegan)
 library(phyloseq)
 library(picante)
+library(seqinr)
 
 library(gtools)
+#install.packages("webshot")
+#webshot::install_phantomjs()
 ```
 
 ```{r filtering-pca, fig.cap="Read count overview of the OTU table before and after the normalisation applied in the data analysis for this study."}
@@ -142,7 +144,7 @@ It seems that we don't lose any relevant information and the normalisations in f
 
 ## Alpha diversity
 
-The microbiota are composed of  420 OTUs in _G. barretti_, 461 OTUs in _S. fortis_ and 135 OTUs in _W. bursa_. While _G. barretti_ and _S. fortis_ share 316, respectively they each only share 2 and 8 OTUs with _W. bursa_. 
+The microbiota are composed of  420 OTUs in _G. barretti_, 461 OTUs in _S. fortis_ and 135 OTUs in _W. bursa_. While _G. barretti_ and _S. fortis_ share 316, respectively they each only share 2 and 8 OTUs with _W. bursa_. Only a single OTU (OTU4 or X1969004, an Archaeon) is shared among the three sponge hosts.
 
 How does that reflect in their diversities? Below we show Shannon diversity, species richness (SR) and Faith's phylogenetic distance (PD). 
 
@@ -195,7 +197,9 @@ div_indices <- reshape2::melt(div_indices, id.vars=c("spec", "unified_ID", "Dept
 ggplot(div_indices, aes(x=Depth, y=value))+geom_point()+facet_grid(vars(variable), vars(spec), scales="free")+ theme(axis.text.x = element_text(angle = -90, vjust = 0.5, hjust = 1), legend.position = "none")+ylab("Diversity metrics")+xlab("Sample depth")+theme_bw()
 ```
 
-In some of the downstream analyses, we distinguish between common/abundant OTUs and rare OTUs. We use a cutoff of 0.25% average relative abundance per OTU for the classification. That implies drastically modifying the origial numbers of OTUs per sponge as outlined below.
+We see that the HMA sponges _G. barretti_ and _S. fortis_ not only have more OTUs but also a higher diversity in their prokaryotic communities then the LMA sponge _W. bursa_.
+
+In some of the downstream analyses, we distinguish between common/abundant OTUs and rare OTUs. We use a cutoff of 0.25% average relative abundance per OTU for the classification. That implies drastically modifying the original numbers of OTUs per sponge as outlined below.
 
 ```{r filtering-low-abdc-1}
 micro <- read.csv("data/OTU_all_R.csv", header = T, sep = ";")
@@ -302,13 +306,13 @@ kable(aggr, col.names = c("OTU classification", "count (Gb)", "count (Sf)", "cou
         "responsive"), full_width = F, latex_options = c("scale_down"))
 ```
 
-## Environmental modelling
+## Environmental modelling {#EnvMod}
 
 In order to investigate whether and which of the environmental parameter might "explain"/correlate with variation the the microbiota, we apply [constrained](#constrained) and [unconstrained](#unconstrained) ecological data analysis methods.
 
 ### Constrained modelling approach Automatic stepwise model building {#constrained}
 
-We use canonical correspondence analysis as method for ordination. According to the manual for the R package vegan, "a good dissimilarity index for multidimensional scaling should have a high rank-order similarity with gradient separation" [@R-vegan]. Thus interpreting the results of Tab \@ref(tab:rankindex), we find that square root transformation and wisconsin standardisation increase the rank correlation between the microbial community dissimilarity matrix and the environmental gradient separation in all three sponge microbiota for a number of ecological dissimilarity indices. 
+We use canonical correspondence analysis as method for ordination. According to the manual for the R package vegan, "a good dissimilarity index for multidimensional scaling should have a high rank-order similarity with gradient separation" [@R-vegan]. Thus interpreting the results of Tab \@ref(tab:rankindex), we find that square root transformation and Wisconsin standardisation increase the rank correlation between the microbial community dissimilarity matrix and the environmental gradient separation in all three sponge microbiota for a number of ecological dissimilarity indices. 
 
 ```{r rankindex}
 library(vegan)
@@ -401,9 +405,9 @@ kable(rankindices, col.names = c("Euclidean", "Manhattan", "Bray–Curtis", "Jac
         "scale_down"))
 ```
 
-We adapt the microbial data sets accordingly applying square root transformation and wisconsin standardisation of the microbiota in all subsequent ecological analyses. Then, we build a model (null model) without any environmental parameters, and one (full model) with the maximum number of environmental parameters (terms) possible so that none of them have a VIF > 10. Finally, we use the stepwise model building function `ordistep` to determine, which of the environmental parameters is a significant constraint for the microbiomes. The function compares the null model and adds and removes terms from the full model to find (combinations of) significant contraints. The significance of the paramters is then tested in an ANOVA.
+We adapt the microbial data sets accordingly applying square root transformation and Wisconsin standardisation of the microbiota in all subsequent ecological analyses. Then, we build a model (null model) without any environmental parameters, and one (full model) with the maximum number of environmental parameters (terms) possible so that none of them have a VIF > 10. Finally, we use the stepwise model building function `ordistep` to determine, which of the environmental parameters is a significant constraint for the microbiomes. The function compares the null model and adds and removes terms from the full model to find (combinations of) significant constraints. The significance of the parameters is then tested in an ANOVA.
 
-**_G. barretti_**: first the VIFs of all terms included in the full model, second the result of the stepwise model building, third the anova of the suggested model.
+**_G. barretti_**: first the VIFs of all terms included in the full model, second the result of the stepwise model building, third the ANOVA of the suggested model.
 
 ```{r cca-ordistep-1}
 # mod0 has no terms, intercept only
@@ -418,7 +422,7 @@ mod$anova
 anova(mod)
 ```
 
-**_S. fortis_**: first the VIFs of all terms included in the full model, second the result of the stepwise model building, third the anova of the suggested model.
+**_S. fortis_**: first the VIFs of all terms included in the full model, second the result of the stepwise model building, third the ANOVA of the suggested model.
 ```{r cca-ordistep-2}
 ## Sf
 mod0 <- cca(wisconsin(microbiomes$sf) ~ 1, mds$sf_md)
@@ -429,7 +433,7 @@ mod$anova
 anova(mod)
 ```
 
-**_W. bursa_**: first the VIFs of all terms included in the full model, second the result of the stepwise model building, third the anova of the suggested model.
+**_W. bursa_**: first the VIFs of all terms included in the full model, second the result of the stepwise model building, third the ANOVA of the suggested model.
 ```{r cca-ordistep-3}
 ## Wb
 mod0 <- cca(wisconsin(microbiomes$wb) ~ 1, mds$wb_md)
@@ -488,7 +492,7 @@ plot(ordi_micro, display="sites") # plot
 plot(ef, p.max = 0.05) # arrows
 ```
 
-Hierarchical clustering 
+### Hierarchical clustering {#Hclust} 
 ```{r hclust, fig.cap="Hclust"}
 ## Clustering
 par(mfrow=c(1,3))
@@ -590,9 +594,16 @@ bioenv(wisconsin(microbiomes$wb)~ Depth + Latitude + Longitude + MeanBottomTemp_
 # vegdist(mod$x, "euclid") #same as: vegdist(scale(mds$gb_md), "euclid")
 ```
 
-## Relative abundance bar plots
+To summarise, in this section on [environmental modelling](#EnvMod), we've shown that the prokaryotic communities in _G. barretti_ and _S. fortis_ seem to be influenced by depth both in [contrained](#constrained) and [unconstrained](#unconstrained) methods. For _W. bursa_ we get mixed results. Hence at this point, the picture of a depth effect on LMA sponge prokaryotic communities remains ambiguous.     
+Our intention with the [hierarchical clustering](##Hclust) was to see if we could group the variation in the community composition in order to see if we can take hints from that about which aspect of the (a)biotic environment most likely causes/links to the changes. For _G. barretti_, we see the two main clusters representing the "shallow" (Gb1-Gb10: 407-801 m) versus the "deep" (Gb11-Gb14: 1213-1427 m) specimens. These two groups match the two water masses detected in this part of the North Atlantic. The clustering also yiels a distinct clade/group of deep specimens in _S. fortis_ (Sf9-Sf15: 1036-1476 m). Again, this highlights the distinctiveness of the prokatyotic commmunity of the deep specimens, potentially linked to the differences in the surrounding water masses. In _W. bursa_ the specimens originating from depths greater than 1000 m (Wb13-Wb16) cluster with shallow samples and thus, we cannot deduce any stratifying effect of depth or water masses on its microbiome.
 
-Enough of the anonymous modelling and data fitting, let's take a look at the taxonomy to see who is there.
+This section has given us a general impression that depth affects (mainly HMA) sponge prokarytoic community compositions. But can we be more specific and identify which OTUs are behind those patterns?
+
+## Relative abundances
+
+### Bar plots
+
+Enough of the anonymous modelling and data fitting, let's take a look at the taxonomy of the OTUs to see who is there.
 
 ```{r rel-abdc-plot, fig.cap="Relative abundance of prokaryotic phyla per sponge sample."}
 
@@ -755,7 +766,7 @@ ggplot(df_phylum, aes(x=Sample_ID, y=variable, fill=Phylum))+
 
 ```
 
-We see in this bar plot that the relative abundance of phyla remains fairly stable across the different depths. The composition of the prokaryotic communities in the HMA sponges _G. barretti_ and _S. fortis_ is similar, while the composition in the LMA sponge _W. bursa_ is different to them. 
+We see in this bar plot that the relative abundance of phyla remains fairly stable across the different depths. Generally, the prokaryotic community of sponges is described as somewhat species specific and stable across virtually any measured gradient. At this taxonomic resolution, these findings hold true. The composition of the prokaryotic communities in the HMA sponges _G. barretti_ and _S. fortis_ is similar across all samples, while the composition in the LMA sponge _W. bursa_ differs in composition but also displaying only minor variations in phyla proportions. 
 The phyla left white/blank are present at very low abundance and we thought the figure might be visually easier without too many colours.
 
 ```{r rel-abdc-phyloseq, fig.cap="Rel ABDC Phylum", echo=F, eval=F}
@@ -793,9 +804,9 @@ plot_bar(biom_data, fill = "Phylum")
 #plot_bar(biom_data, fill="Class")
 ```
 
-If you prefer numbers, this is what it breaks down to:
+### Tabular overview
 
-
+If you prefer numbers, this is what it breaks down to. You can sort the tables.
 
 ```{r class-phylum-stats}
 microbiome<-read.csv("data/OTU_all_R.csv", header=T, sep=";") 
@@ -925,7 +936,50 @@ phy_rabdc <- lapply(taxes, function(x) aggregate(avg_rel_abdc ~ Phylum, data = x
 
 class_OTU <- lapply(taxes, function(x) aggregate(avg_rel_abdc ~ Class, data = x, FUN = "length"))
 class_rabdc <- lapply(taxes, function(x) aggregate(avg_rel_abdc ~ Class, data = x, FUN = "sum"))
+```
 
+#### _G. barretti_: Phyla and classes present
+```{r gb-tab-pc}
+#https://rstudio.github.io/DT/
+gb_P <- cbind(phy_OTU$gb, phy_rabdc$gb[,("avg_rel_abdc")])
+colnames(gb_P) <- c("Phylum", "OTU count", "cum. avg. abundance")
+#gb_P$`cummulative average abundance` <- round(c(gb_P$`cummulative average abundance`, 6))
+DT::datatable(gb_P, rownames = FALSE)
+
+gb_C <- cbind(class_OTU$gb, class_rabdc$gb[,("avg_rel_abdc")])
+colnames(gb_C) <- c("Class", "OTU count", "cummulative average abundance")
+#gb_C$`cummulative average abundance` <- round(c(gb_C$`cummulative average abundance`, digits = 6))
+DT::datatable(gb_C, rownames = FALSE)
+```
+
+#### _S. fortis_: Phyla and classes present
+```{r sf-tab-pc}
+sf_P <- cbind(phy_OTU$sf, phy_rabdc$sf[,("avg_rel_abdc")])
+colnames(sf_P) <- c("Phylum", "OTU count", "cum. avg. abundance")
+#sf_P$`cummulative average abundance` <- round(c(sf_P$`cummulative average abundance`, digits = 6))
+DT::datatable(sf_P, rownames = FALSE)
+
+sf_C <- cbind(class_OTU$sf, class_rabdc$sf[,("avg_rel_abdc")])
+colnames(sf_C) <- c("Class", "OTU count", "cummulative average abundance")
+#sf_C$`cummulative average abundance` <- round(c(sf_C$`cummulative average abundance`, digits = 6))
+DT::datatable(sf_C, rownames = FALSE)
+```
+
+#### _W. bursa_: Phyla and classes present
+```{r wb-tab-pc}
+wb_P <- cbind(phy_OTU$wb, phy_rabdc$wb[,("avg_rel_abdc")])
+colnames(wb_P) <- c("Phylum", "OTU count", "cummulative average abundance")
+#wb_P$`cummulative average abundance` <- round(c(wb_P$`cummulative average abundance`, digits = 6))
+DT::datatable(wb_P, rownames = FALSE)
+wb_C <- cbind(class_OTU$wb, class_rabdc$wb[,("avg_rel_abdc")])
+colnames(wb_C) <- c("Class", "OTU count", "cummulative average abundance")
+#wb_C$`cummulative average abundance` <- round(c(wb_C$`cummulative average abundance`, digits = 6))
+DT::datatable(wb_C, rownames = FALSE)
+
+rm(gb_P, sf_P, wb_P, gb_C, sf_C, wb_C)
+```
+
+```{r paired-kable-tables, echo=F, eval=FALSE}
 gb_P <- cbind(phy_OTU$gb, phy_rabdc$gb[,("avg_rel_abdc")])
 colnames(gb_P) <- c("Phylum", "OTU count", "cum. avg. abundance")
 options(kableExtra.html.bsTable = T)
@@ -979,16 +1033,109 @@ kable(wb_C, col.names = c("Class", "OTU count", "cum. avg. abundance"), longtabl
         "responsive"), font_size = 12, full_width = F, latex_options = c("striped", 
         "scale_down"), position = "left")
 
-rm(gb_P, sf_P, wb_P, gb_C, sf_C, wb_C)
+#rm(gb_P, sf_P, wb_P, gb_C, sf_C, wb_C)
 ```
 
-## Depth response
+### Statistical comparison at phylum and class level
 
-Summarising the OTU diversity by phylum or class only show what was previously known. The composition of the sponges' prokaryotic community is stable. However, summarising doesn't do the data justice. We therefore correlate the average realitve abundance of every OTU with depth
+```{r class-phylum-stats-2, echo=F}
+# PHYLUM
+phylum <- full_join(phy_rabdc$gb, phy_rabdc$sf, by = c("Phylum"))
+phylum <- full_join(phylum, phy_rabdc$wb, by = c("Phylum"))
+colnames(phylum) <- c("Phylum", "gb_avg", "sf_avg", "wb_avg")
 
-```{r increade-decrease}
+phylum$gb_avg[is.na(phylum$gb_avg)] <- 0
+phylum$sf_avg[is.na(phylum$sf_avg)] <- 0
+phylum$wb_avg[is.na(phylum$wb_avg)] <- 0
+
+#head(phylum)
+kp <- kruskal.test(phylum[,c(2:4)]) #p-value = 0.2915 # all three
+wp <- wilcox.test(phylum$gb_avg, phylum$sf_avg) #Gb & Sf
+
+# CLASS
+class <- full_join(class_rabdc$gb, class_rabdc$sf, by = c("Class"))
+class <- full_join(class, class_rabdc$wb, by = c("Class"))
+colnames(class) <- c("Class", "gb_avg", "sf_avg", "wb_avg")
+
+class$gb_avg[is.na(class$gb_avg)] <- 0
+class$sf_avg[is.na(class$sf_avg)] <- 0
+class$wb_avg[is.na(class$wb_avg)] <- 0
+
+#head(class)
+kc <- kruskal.test(class[,c(2:4)]) #p-value = 3.364e-05 # all three
+wc <- wilcox.test(class$gb_avg, class$sf_avg) #Gb & Sf
+
+# Comparing the average relative abundance of prokaryotic phyla and classes in the three sponges shows that the difference among the three sponges is not statistically detectable at phylum level (kp: krusal-wallis test p>0.05). But it is at class level (kc: Kruskal-Wallis chi-squared = 20.6, df = 2, p-value = 3.364e-05). However, the first test result is a bit surprising, given that you'd tell apart W. bursa microbiome without problem.
+# Comparing Gb and Fs microbiota shows no siginifcant difference, as seems so by eye.
+```
+
+```{r class-phylum-stats-3, echo=F, eval=F}
+# Is this valid???
+#======================= Testing differences at phylum and class level ===========
+micro_ds <- OTU_prep_sqrt(micro)
+occurrence <- lapply(micro_ds, overall_rabdc)
+
+# PHYLUM
+taxes <- adonis_prep(taxonomy, occurrence)
+taxes <- cleaning(taxes)
+
+taxes <- lapply(taxes, function(x) {rownames(x) <- x$XOTU;x})
+taxes <- lapply(taxes, function(x) {x[c("avg_rel_abdc", "occurrence", "OTU_ID", "XOTU")] <- NULL; x})
+taxes <- lapply(taxes, function(x) {x["Class"] <- NULL; x})
+
+gb <- aggregate(taxes$gb[,2:dim(taxes$gb)[2]], list(taxes$gb[,"Phylum"]), sum) #works
+sf <- aggregate(taxes$sf[,2:dim(taxes$sf)[2]], list(taxes$sf[,"Phylum"]), sum) #works
+wb <- aggregate(taxes$wb[,2:dim(taxes$wb)[2]], list(taxes$wb[,"Phylum"]), sum) #works
+
+taxes_phy <- full_join(gb, sf)
+taxes_phy <- full_join(taxes_phy, wb)
+taxes_phy[is.na(taxes_phy)] <- 0
+
+#aggregate(.~ Group.1, data=taxes_phy, sum) # check there are no weird names
+rownames(taxes_phy) <- taxes_phy$Group.1
+taxes_phy$Group.1 <- NULL
+
+taxes_phy_t <- data.frame(t(taxes_phy))
+specs <- data.frame(rownames(taxes_phy_t))
+colnames(specs) <- c("Sample_ID")
+specs["species"] <- str_sub(specs$Sample_ID, 1,2)
+
+#Permutational ANOVA
+#head(taxes_phy_t)
+#head(specs$species)
+adonis(taxes_phy_t~specs$species) #all three species //significant
+adonis(taxes_phy_t[c(1:29),]~specs[c(1:29), 2]) #only Gb and Sf //significant
+
+# Compare variation of relative abundance of each phylum/class among/within the two/three groups
+# ANOVA (three groups)
+apply(taxes_phy_t, 2, function(x) {summary(aov(x ~specs$species))})
+# of course they're all different, this includes Weberella.
+
+# Mann-Whittney U aka Wilcoxon rank sum test(two groups, gb vs sf)
+gbsf_phy <- taxes_phy_t[c(1:29),]
+gbsf_spec <- specs[c(1:29),]
+apply(gbsf_phy, 2, function(x) {wilcox.test(x~gbsf_spec$species)})
+apply(gbsf_phy, 2, function(x) {(wilcox.test(x~gbsf_spec$species))["p.value"]}) #This is really the result we want
+
+# CLASS
+micro_ds <- OTU_prep_sqrt(micro)
+occurrence <- lapply(micro_ds, overall_rabdc)
+
+taxes <- adonis_prep(taxonomy, occurrence)
+taxes <- cleaning(taxes)
+taxes <- lapply(taxes, function(x) {rownames(x) <- x$XOTU;x})
+taxes <- lapply(taxes, function(x) {x[c("avg_rel_abdc", "occurrence", "OTU_ID", "XOTU")] <- NULL; x})
+
+```
+
+## Depth response: OTU perspective
+
+Summarising the OTU diversity by phylum or class only show what was previously known. The composition of the sponges' prokaryotic community is stable. However, summarising doesn't do the data justice. We therefore correlate the average relative abundance of every OTU with depth
+
+```{r increade-decrease, fig.asp=1.5, fig.cap="OTUs significantly increasing and decreasing with depth in the three sponge species."}
 #====================== INC-DEC CORRELATION ==================
-# Categorises the OTUs by their response to depth. Requires meta_data_prep, OTU_prep_sqrt, rel_abdc.
+# Categorises the OTUs by their response to depth. 
+
 micro <- read.csv("data/OTU_all_R.csv", header = T, sep = ";")
 meta_data <- read.csv("data/Steffen_et_al_metadata_PANGAEA.csv", header=T, sep=";")
 
@@ -1132,8 +1279,10 @@ rownames(overview) <- c("G. barretti microbiota", "S. fortis microbiota", "W. bu
 overview <- data.frame(overview)
 overview["unaffected"] <- overview$Total-(overview$increasing + overview$decreasing)
 
-kable(overview, escape = F, align = "c", booktabs = T, caption = "Microbiota response to depth", "html") %>%
-   kable_styling(bootstrap_options = c("striped", "hover", "condensed", "responsive", latex_options = "striped", full_width = F))
+kable(overview, 
+      col.names = c("Total", "N OTUs increasing", "N OTUs decreasing", "N OTUs unaffected"), 
+      escape = F, align = "c", booktabs = T, caption = "Microbiota response to depth", "html") %>%
+   kable_styling(bootstrap_options = c("hover", "condensed", "responsive", latex_options = "striped", full_width = F))
 
 #overview <- overview[,c(2:4)]
 #overview["response"] <- rownames(overview)
@@ -1155,6 +1304,222 @@ kable(overview, escape = F, align = "c", booktabs = T, caption = "Microbiota res
 #write.csv(wb_response, "wb_response.csv")    
 
 ```
+
+In this Fig.\@ref(fig:increade-decrease) as well as in Tab. \@ref(tab:increade-decrease), we see that at the OTU level, we observe shifts. WHile sometimes more gradual, there seem to OTUs exclusievely present in the "shallow" or the "deep" samples in all three sponges. In fact, in _G. barretti_ and _S. fortis_, the number of OTUs increasing with depth ("deep water mass microbiome") is greater than the number of OTUs decreasing. This leads us to believe that the deep water mass contains microbes yet to discover.
+
+## Sequence similarity
+
+```{r produce-fastas, echo=F, eval=F}
+library(seqinr)
+library(tidyverse)
+#library(dplyr)
+
+setwd("~/Documents/Metabolomics/Depth_Gradient_study/R_depth_study/seqs/")
+
+### FASTA FILE GENERATION
+
+# load data
+fastas <- read.csv("~/Documents/Metabolomics/Depth_Gradient_study/R_depth_study/xcms_publication/OTUs_reads_fasta_column.csv", header=F, sep=";")
+head(fastas)
+
+#OTU_annotation <- read.csv("~/Documents/Metabolomics/Depth_Gradient_study/R_depth_study/xcms_publication/heatmap_figure_gb.csv", header=T, sep=",") # for Gb
+OTU_all <- read.csv("~/Documents/Metabolomics/Depth_Gradient_study/R_depth_study/Microbiome/OTU_all_R.csv", header = T, sep = ";")
+
+# format fasta header column to match "XOTU" format
+colnames(fastas) <- c("header", "seq")
+fastas["OTU"] <- str_sub(fastas$header, 2, 13)
+fastas["dummy"] <- "X"
+fastas["XOTU"] <- paste0(fastas$dummy, fastas$OTU)
+fastas$dummy <- NULL
+fastas$OTU <- NULL
+head(fastas)
+
+# prepare data sets of OTUs for the three sponge hosts
+
+OTU_all["spec"] <- str_sub(OTU_all$Sample_ID, 1,2)
+OTU_gb <- OTU_all[OTU_all$spec=="Gb",]
+OTU_sf <- OTU_all[OTU_all$spec=="Sf",]
+OTU_wb <- OTU_all[OTU_all$spec=="Wb",]
+
+#dim(OTU_gb) # 14 693, 693= 691 +sample_ID +spec
+#dim(OTU_sf) # 15 693, 693= 691 +sample_ID +spec
+#dim(OTU_wb) # 16 693, 693= 691 +sample_ID +spec
+
+    # remove cols with all 0
+OTU_gb <- OTU_gb[, colSums(OTU_gb != 0) > 0]
+OTU_sf <- OTU_sf[, colSums(OTU_sf != 0) > 0]
+OTU_wb <- OTU_wb[, colSums(OTU_wb != 0) > 0]
+
+#dim(OTU_gb) # 14 422, 422= 420 +sample_ID +spec
+#dim(OTU_sf) # 15 463, 463= 461 +sample_ID +spec
+#dim(OTU_wb) # 16 137, 137= 135 +sample_ID +spec
+
+OTU_gb[, c("spec", "Sample_ID")]<- list(NULL)
+OTU_sf[, c("spec", "Sample_ID")]<- list(NULL)
+OTU_wb[, c("spec", "Sample_ID")]<- list(NULL)
+
+# BREAK
+# RUN ONE AT A TIME
+XOTU <- data.frame(colnames(OTU_gb))
+XOTU <- data.frame(colnames(OTU_sf))
+XOTU <- data.frame(colnames(OTU_wb))
+
+colnames(XOTU) <- c("XOTU")
+fastas <- fastas[fastas$XOTU %in% XOTU$XOTU,]
+dim(fastas)[1]==dim(XOTU)[1]
+head(fastas)
+
+#fastas <- left_join(fastas, OTU_annotation[,c("XOTU", "inc_dec", "Phylum", "Class")])
+fastas["dummy"] <- ">"
+fastas["OTU"] <- str_sub(fastas$header, -3)
+fastas["concat1"] <- paste0(fastas$dummy, fastas$OTU)
+fastas["concat"] <- paste(fastas$concat1, fastas$inc_dec, fastas$Phylum, fastas$Class, sep="_")
+fastas["concat"] <- paste(fastas$concat1, fastas$inc_dec, fastas$Phylum, fastas$Class, sep=" ")
+fastas[, c("Phylum","Class","inc_dec", "XOTU", "header")]<- list(NULL)
+fastas["newline"] <- "\n"
+
+#======================= produce fasta fortmatted output file 
+# CHANGE NAME for the different data set
+
+sink("gb_seqs.txt")
+n <- 0
+k <- dim(fastas)[1]
+while(n<=k){
+  cat(paste(fastas$concat[n], fastas$newline[n], fastas$seq[n], fastas$newline[n]))
+  n <- n+1
+}
+sink()
+
+#================================================
+fastas
+sf <- fastas
+wb <- fastas
+gb <- fastas
+
+#Split fasta subsets here in terminal, like so:
+# $ cd to wd()
+# $ grep ">" wb_seqs.txt > wb_seqs_header.txt
+# $ grep -v ">" wb_seqs.txt > wb_seqs_fasta.txt
+
+
+#======================= Labelled fasta files for phylogenetics =====
+# FUN combining data sets
+fasta_headers <- function(seqs_header, seqs, taxonomy, response){
+  colnames(seqs) <- c("seqs")
+  fasta_phylogeny <- bind_cols(seqs_header, seqs)
+  fasta_phylogeny["num"] <- as.numeric(str_sub(fasta_phylogeny$V1,2,5))
+  response["num"] <- as.numeric(str_sub(response$XOTU, -3))
+  fasta_phylogeny <- left_join(fasta_phylogeny, response[, c("classification", "num")])
+  taxonomy["num"] <- as.numeric(str_sub(taxonomy$OTU_ID, -3))
+  tax <- taxonomy[taxonomy$num %in% fasta_phylogeny$num,]
+  fasta_phylogeny <- left_join(fasta_phylogeny, tax[, c("Phylum", "Class", "num")])  
+  fasta_phylogeny["header"] <- paste(fasta_phylogeny$V1, fasta_phylogeny$classification, fasta_phylogeny$Phylum, fasta_phylogeny$Class, sep="_")
+  fasta_phylogeny[, c("V1","Class","classification", "num", "Phylum")]<- list(NULL)
+  fasta_phylogeny["newline"] <- "\n"
+  return(fasta_phylogeny)  
+}
+
+# load one set at a time
+seqs_header <- read.csv("gb_seqs_header.txt", header=F)
+seqs <- read.csv("gb_seqs_fasta.txt", header=F)
+response <- read.csv("~/Documents/Metabolomics/Depth_Gradient_study/R_depth_study/Microbiome/gb_response.csv")
+
+seqs_header <- read.csv("sf_seqs_header.txt", header=F)
+seqs <- read.csv("sf_seqs_fasta.txt", header=F)
+response <- read.csv("~/Documents/Metabolomics/Depth_Gradient_study/R_depth_study/Microbiome/sf_response.csv")
+
+seqs_header <- read.csv("wb_seqs_header.txt", header=F)
+seqs <- read.csv("wb_seqs_fasta.txt", header=F)
+response <- read.csv("~/Documents/Metabolomics/Depth_Gradient_study/R_depth_study/Microbiome/wb_response.csv")
+
+# load
+taxonomy <- read.csv("~/Documents/Metabolomics/Depth_Gradient_study/R_depth_study/xcms_publication/microbiome_taxonomy.csv", header = T, sep = ";")
+
+# RUN  combining data sets
+fasta_phylogeny <- fasta_headers(seqs_header, seqs, taxonomy, response)
+
+# save to file
+
+sink("~/Documents/Metabolomics/Depth_Gradient_study/R_depth_study/seqs/gb_reads_for_phylogeny.fasta")
+sink("~/Documents/Metabolomics/Depth_Gradient_study/R_depth_study/seqs/sf_reads_for_phylogeny.fasta")
+sink("~/Documents/Metabolomics/Depth_Gradient_study/R_depth_study/seqs/wb_reads_for_phylogeny.fasta")
+
+n <- 0
+k <- dim(fasta_phylogeny)[1]
+while(n<=k){
+  cat(paste(fasta_phylogeny$header[n], fasta_phylogeny$newline[n], fasta_phylogeny$seqs[n], fasta_phylogeny$newline[n]))
+  n <- n+1
+}
+sink()
+
+# The files have excess [spaces] that can be removed by hand in any text processing programme.
+```
+
+We produced fasta files, i.e. files containing the DNA sequences of the OTUs in the three sponges. The fasta header contains the following information: "OTU number"\_"depth response"\_"phylum"\_"class". The depth response is coded as "increasing" or "decreasing" if there is a significant correlation (_p_$\leq$ 0.05) with depth and as "inc. trend" or "dec. trend" if the correlation is not significant (_p_$\geq$ 0.05).
+The fasta sequences were aligned with [MAFFT](https://mafft.cbrc.jp/alignment/server/). From the aligned seqeunces, we calculated the sequence similarity comparing all versus all, and retain in a file all comparisons yielding a sequence similarity $\geq$ 97%.
+
+```{r sequence-similarity-1, eval=F}
+#Load one file at a time
+ali <- read.alignment("data/gb_reads_for_phylogeny_MAFFT.fasta", "fasta")
+ali <- read.alignment("data/sf_reads_for_phylogeny_MAFFT.fasta", "fasta")
+ali <- read.alignment("data/wb_reads_for_phylogeny_MAFFT.fasta", "fasta")
+
+# FUN calculate pairwise distance, melt, keeps only entries with >97% and <1 similarity with significant opposing trends in both partners.
+pw_dist <- function(ali){
+  dist <- as.matrix(dist.alignment(ali, matrix = "similarity" ))  #https://www.researchgate.net/post/Homology_similarity_and_identity-can_anyone_help_with_these_terms
+  # dist.alignment: matrix contains the squared root of the pairwise distances. For example, if identity between 2 sequences is 80 the squared root of (1.0 - 0.8) i.e. 0.4472136.
+  dist <- dist**2
+  dist <- 1-dist
+  #dist is now "%" identity, 1=100 % 
+  dist <- melt(dist)
+  # Remove irrelevant entries, i.e. self-comparison and similarities below the threshold, this step now speeds up later steps, but not mandatory
+  dist <- dist[dist$value>=0.97,]
+  dist <- dist[!dist$value==1,]
+  # This removes AB - BA duplicates but still contains self comprisons, AA, BB,CC etc.
+  cols <- c("Var1", "Var2")
+  newdf <- dist [,cols]
+  for (i in 1:nrow(newdf)){
+    newdf[i, ] = sort(newdf[i,cols])
+  }
+  newdf <- newdf[!duplicated(newdf),]
+  # add back similarity values to the remaining comparisons/pairs
+  dist <- left_join(newdf, dist, by=c("Var1"="Var1", "Var2"="Var2"))
+  dist["Var1_response"] <- str_sub(dist$Var1, 5,10)
+  dist["Var2_response"] <- str_sub(dist$Var2, 5,10)
+  #remove not significant comparisons
+  dist <- dist[!dist$Var1_response=="dec.tr",] # can be toggled off
+  dist <- dist[!dist$Var1_response=="inc.tr",] # can be toggled off
+  dist <- dist[!dist$Var2_response=="dec.tr",] # can be toggled off
+  dist <- dist[!dist$Var2_response=="inc.tr",] # can be toggled off
+  dist <- dist[!dist$Var2_response==dist$Var1_response,]
+    # order
+  dist <- dist[order(dist$Var1_response, dist$Var2_response),]
+  return(dist)
+}
+
+dist <- pw_dist(ali)
+dist
+
+# create csv file
+write.csv(dist, "~/Documents/Metabolomics/Depth_Gradient_study/R_depth_study/Phylogeny/gb_similarity.csv") # GB
+write.csv(dist, "~/Documents/Metabolomics/Depth_Gradient_study/R_depth_study/Phylogeny/sf_similarity.csv") # SF
+write.csv(dist, "~/Documents/Metabolomics/Depth_Gradient_study/R_depth_study/Phylogeny/wb_similarity.csv") # WB
+```
+
+```{r sequence-similarity-2, echo=F, eval=T}
+dist_gb <- read.csv("data/gb_similarity.csv")
+dist_sf <- read.csv("data/sf_similarity.csv")
+dist_wb <- read.csv("data/wb_similarity.csv")
+```
+In _G. barretti_ there are `r dim(dist_gb)[1]` pairs of OTUs with a sequence similarity $\geq$ 97% and opposing responses to depth, in _S. fortis_ there are `r dim(dist_sf)[1]` pairs while in _W. bursa_, there are none.
+
+## Phylogeny
+
+The MAFFT aligend fasta sequences of _G. barretti_ OTUs were used to infer a phylogeny under maximum likelihood model in RaxML/Bayesian statistics.
+
+
+
+
 
 
 
