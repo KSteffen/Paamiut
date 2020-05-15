@@ -648,9 +648,13 @@ cleaned["Experiment"] <- c(rep("HILIC pos", 3), rep("HILIC neg", 3), rep("RP pos
 write.csv(cleaned,"data/cleaned_opls_diagnostics.csv", row.names = F)
 ```
 
+```{r ropls-figure, fig.cap="Example output for OPLS models generated with ROPLS. This is HILIC positive cleaned data set for G. barretti.", out.width="150%"}
+knitr::include_graphics("data/opls_Gb_Hp.jpeg")
+```
+
 In the same manner, we can analyse the two remaining sets produced by different filtering options.
 
-```{r opls-2a, fig.cap="PCA of the metabolome data setf filtered to retain only annotated ions. Dots are Gb samples, squares are Wb samples, traingles are Sf samples."}
+```{r opls-2a, fig.cap="PCA of the metabolome data set filtered to retain only annotated ions. Dots are Gb samples, squares are Wb samples, traingles are Sf samples."}
 # load data ION
 hilic_pos <- read.csv("data/HILIC_pos_20190417_cleaned_MH.csv", header=T, sep = ",")
 hilic_neg <- read.csv("data/HILIC_neg_20190421_cleaned_MH.csv", header=T, sep=",")
@@ -697,8 +701,7 @@ ion["Experiment"] <- c(rep("HILIC pos", 3), rep("HILIC neg", 3), rep("RP pos", 3
 write.csv(ion,"data/cleaned_MH_opls_diagnostics.csv", row.names = F)
 ```
 
-
-```{r opls-3a, fig.cap="PCA of the metabolome data setf filtered to retain the feature with the strongest signal per PC group. Dots are Gb samples, squares are Wb samples, traingles are Sf samples."}
+```{r opls-3a, fig.cap="PCA of the metabolome data set filtered to retain the feature with the strongest signal per PC group. Dots are Gb samples, squares are Wb samples, traingles are Sf samples."}
 # load data PC_GROUP
 hilic_pos <- read.csv("data/HILIC_pos_20190417_cleaned_pcgroup.csv", header=T, sep = ",")
 hilic_neg <- read.csv("data/HILIC_neg_20190421_cleaned_pcgroup.csv", header=T, sep=",")
@@ -767,7 +770,20 @@ kable(opls_diagnostics,
   add_header_above(c("Diagnostics" = 8, "Data set attribution" = 3)) %>%
   kable_styling(bootstrap_options = c("striped","hover", "bordered", "condensed", "responsive"), font_size = 12, full_width = F, latex_options = c("striped", "scale_down"))
 
-write.csv(opls_diagnostics, "data/opls_diagnostics.csv", row.names = F)
+#write.csv(opls_diagnostics, "data/opls_diagnostics.csv", row.names = F)
+```
+
+```{r opls-results, fig.cap="Model performance visualised. The larger R2 and Q2, the better the model fits with our data."}
+
+opls_diagnostics$Species <- as.character(opls_diagnostics$Species)
+opls_diagnostics$Species[opls_diagnostics$Species=="Geodia barretti"] <- c("G. barretti")
+opls_diagnostics$Species[opls_diagnostics$Species=="Stryphnus fortis"] <- c("S. fortis")
+opls_diagnostics$Species[opls_diagnostics$Species=="Weberella bursa"] <- c("W. bursa")
+
+k <- ggplot(opls_diagnostics, aes(x=R2X.cum., y=Q2.cum.))+geom_point(aes(col=Species, shape=Experiment))+theme_bw()+theme(legend.position = "bottom")+xlab("R2")+ylab("Q2")+guides(col=guide_legend(title=""), shape=guide_legend(title=""))
+library(ggExtra)
+ggMarginal(k, groupColour = TRUE, groupFill = TRUE)
+
 ```
 
 ??? add at least one picture of an opls
@@ -776,6 +792,7 @@ write.csv(opls_diagnostics, "data/opls_diagnostics.csv", row.names = F)
 From the multivariate model (OPLS) you can derive a vaiable importance in projection (VIF) score for every feature in this model. This is a approximation (but not a statistics test!) of features that support the model.
 A feature with a VIP score $\geq$ 1 is considered important and the higher the score, the greater the contribution to the model.
 
+??? add some code and a table. Or add to previous chunks and RUN OVER NIGHT.
 
 ## Manual annotation, identification and extraction of metabolic feature signals
 

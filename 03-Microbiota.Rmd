@@ -81,6 +81,8 @@ colnames(micro_fig) <- c("total_OTUs","unified_ID", "normalisation")
 micro_fig["Species"] <- str_sub(micro_fig$unified_ID, 1,2)
 
 ggplot(micro_fig, aes(x=unified_ID, y=total_OTUs))+geom_bar(stat = "identity")+facet_grid(vars(normalisation), vars(Species),  scales="free")+xlab("Samples")+ylab("Number of OTUs")+ggtitle("Cummulative read count after normalisation")+theme_bw()+theme(axis.text.x = element_text(angle = 90, hjust = 1))
+
+# see https://chrischizinski.github.io/SNR_R_Group/2016-08-10-Data-Transformations
 ```
 Do the normalisations have affect how well we can discriminate between the microbiota?
 
@@ -109,7 +111,7 @@ untransformed <- pca_plot(microbiome, meta_data, "untransformed")
 sqrt_transformed <- pca_plot(sqrt(microbiome), meta_data, "sqrt")
 sqrt_wisc_transformed <- pca_plot(wisconsin(sqrt(microbiome)), meta_data, "sqrt and wisconsin")
 
-grid.arrange(untransformed, sqrt_transformed, sqrt_wisc_transformed, nrow=1, top="PCA: Impact of normalisation on discimination of the microbiota")
+grid.arrange(untransformed, sqrt_transformed, sqrt_wisc_transformed, nrow=1, top="PCA: Impact of normalisation on discrimination of the microbiota")
 ```
 
 ```{r nmds, fig.cap="NMDS of the data sets with and without transformation/normalisation. Circles are Gb, triangles are Sf, squares are Wb", fig.asp=0.5}
@@ -137,7 +139,7 @@ untransformed <- nmds_plot(microbiome, meta_data, "untransformed")
 sqrt_transformed <- nmds_plot(sqrt(microbiome), meta_data, "sqrt")
 sqrt_wisc_transformed <- nmds_plot(wisconsin(sqrt(microbiome)), meta_data, "sqrt and wisconsin")
 
-grid.arrange(untransformed, sqrt_transformed, sqrt_wisc_transformed, nrow=1, top="NMDS: Impact of normalisation on discimination of the microbiota")
+grid.arrange(untransformed, sqrt_transformed, sqrt_wisc_transformed, nrow=1, top="NMDS: Impact of normalisation on discrimination of the microbiota")
 ```
 
 It seems that we don't lose any relevant information and the normalisations in fact increase the discriminatory power.
@@ -764,6 +766,23 @@ ggplot(df_phylum, aes(x=Sample_ID, y=variable, fill=Phylum))+
  #                 labels = c("Acidobacteria", "Actinobacteria", "Bacteroidetes", "Chlamydiae", "Chloroflexi", "Cyanobacteria", "Deferribacteres", "Deinococcus.Thermus", "Firmicutes", "Gemmatimonadetes", "Nitrospinae", "Nitrospirae", "PAUC34f", "Planctomycetes", "Poribacteria", "Proteobacteria", "SBR1093", "Spirochaetae", "Tectomicrobia", "Thaumarchaeota", "unclassified", "Verrucomicrobia")
 #                  )
 
+
+
+
+
+last_plot()+scale_fill_manual("",
+                  breaks = c("Acidobacteria", "Actinobacteria", "Bacteroidetes", "Chlamydiae", "Chloroflexi", "Cyanobacteria", "Deferribacteres", "Deinococcus.Thermus", "Firmicutes", "Gemmatimonadetes", "Nitrospinae", "Nitrospirae", 
+"PAUC34f", "Planctomycetes", "Poribacteria", "Proteobacteria", "SBR1093", "Spirochaetae", "Tectomicrobia", "Thaumarchaeota", 
+"unclassified", "Verrucomicrobia"),
+                  values = c("#b8c4f6", "#ffaaaf", "#3d1349", "#B6B2A9", "#01559d", "#CACAC8", "#E1DED7", "#CEC7C1", "#9A9B9D", "#019c51", "#b10060", "#49ca00", "#dd8e00", "#f282ff", "#AFA79D", "#ff633f", "#ec0040", "#010b92", "#cf00aa", "#aba900", "#ffffff", "#fce300"
+),
+                  labels = c("Acidobacteria", "Actinobacteria", "Bacteroidetes", "Chlamydiae", "Chloroflexi", "Cyanobacteria", "Deferribacteres", "Deinococcus.Thermus", "Firmicutes", "Gemmatimonadetes", "Nitrospinae", "Nitrospirae", 
+                             "PAUC34f", "Planctomycetes", "Poribacteria", "Proteobacteria", "SBR1093", "Spirochaetae", "Tectomicrobia", "Thaumarchaeota", 
+                             "unclassified", "Verrucomicrobia")
+                  )
+
+
+
 ```
 
 We see in this bar plot that the relative abundance of phyla remains fairly stable across the different depths. Generally, the prokaryotic community of sponges is described as somewhat species specific and stable across virtually any measured gradient. At this taxonomic resolution, these findings hold true. The composition of the prokaryotic communities in the HMA sponges _G. barretti_ and _S. fortis_ is similar across all samples, while the composition in the LMA sponge _W. bursa_ differs in composition but also displaying only minor variations in phyla proportions. 
@@ -1130,7 +1149,7 @@ taxes <- lapply(taxes, function(x) {x[c("avg_rel_abdc", "occurrence", "OTU_ID", 
 
 ## Depth response: OTU perspective
 
-Summarising the OTU diversity by phylum or class only show what was previously known. The composition of the sponges' prokaryotic community is stable. However, summarising doesn't do the data justice. We therefore correlate the average relative abundance of every OTU with depth
+Summarising the OTU diversity by phylum or class only shows what was previously known. The composition of the sponges' prokaryotic community is stable. However, summarising doesn't do the data justice. We therefore correlate the average relative abundance of every OTU with depth. The Otus yielding a significant correlation with depth are shown by their respecive relative abundance across the depths.
 
 ```{r increade-decrease, fig.asp=1.5, fig.cap="OTUs significantly increasing and decreasing with depth in the three sponge species."}
 #====================== INC-DEC CORRELATION ==================
@@ -1269,6 +1288,15 @@ dec <- ggplot(decrease, aes(x=as.factor(Depth), y=name, fill=value))+facet_grid(
 library(gridExtra)
 grid.arrange(inc, dec, nrow=1)
 
+## addition for SpongeEMP OTUs
+#emp <- read.csv("data/SpongeEMP.csv", header=T, sep=";")
+#emp["name"] <- str_replace(emp$OTU_ID,"OTU","")
+#emp[, c("sponge", "OTU_ID")] <- list(NULL)
+#increase <- left_join(increase, emp)
+#ggplot(increase, aes(x=1, y=name, fill=spongeEMP_enriched))+geom_tile()
+#head(increase)
+##
+
 gb_nums <- c(length(unique(gb_heatmap$name)), length(unique(gb_heatmap_i$name)), length(unique(gb_heatmap_d$name)))
 sf_nums <- c(length(unique(sf_heatmap$name)), length(unique(sf_heatmap_i$name)), length(unique(sf_heatmap_d$name)))
 wb_nums <- c(length(unique(wb_heatmap$name)), length(unique(wb_heatmap_i$name)), length(unique(wb_heatmap_d$name)))
@@ -1305,7 +1333,7 @@ kable(overview,
 
 ```
 
-In this Fig.\@ref(fig:increade-decrease) as well as in Tab. \@ref(tab:increade-decrease), we see that at the OTU level, we observe shifts. WHile sometimes more gradual, there seem to OTUs exclusievely present in the "shallow" or the "deep" samples in all three sponges. In fact, in _G. barretti_ and _S. fortis_, the number of OTUs increasing with depth ("deep water mass microbiome") is greater than the number of OTUs decreasing. This leads us to believe that the deep water mass contains microbes yet to discover.
+In this Fig.\@ref(fig:increade-decrease) as well as in Tab. \@ref(tab:increade-decrease), we see that at the OTU level, we observe shifts. While sometimes more gradual, there seem to OTUs exclusievely present in the "shallow" or the "deep" samples in all three sponges. In fact, in _G. barretti_ and _S. fortis_, the number of OTUs increasing with depth ("deep water mass microbiome") is greater than the number of OTUs decreasing. This leads us to believe that the deep water mass contains microbes yet to discover.
 
 ## Sequence similarity
 
