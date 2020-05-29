@@ -8,6 +8,214 @@ knitr::opts_chunk$set(echo = TRUE, tidy=TRUE, message = FALSE, warning = FALSE)
 library(knitr)
 ```
 
+```{r functions, echo=F}
+library(tidyverse)
+library(reshape2)
+library(stringr)
+library(ggplot2)
+library(RColorBrewer)
+library(forcats)
+
+library(kableExtra)
+options(kableExtra.html.bsTable = T)
+library(gridExtra)
+library(DT)
+
+library(vegan)
+library(phyloseq)
+library(picante)
+library(seqinr)
+
+library(gtools)
+
+
+# FUN SET UP: preparing meta data set
+meta_data_prep <- function(meta_data){
+  meta_data <- meta_data[, c("unified_ID", "Depth", "Latitude", "Longitude", "MeanBottomTemp_Cdeg", "MeanBotSalinity_PSU", "YEAR")]
+  colnames(meta_data) <- c("unified_ID", "Depth", "Latitude", "Longitude", "Temperature", "Salinity", "Year")
+  meta_data <- meta_data[!(str_sub(meta_data$unified_ID, 1,2)=="QC"),]
+  meta_data[] <- lapply(meta_data, function(x) if(is.factor(x)) factor(x) else x)
+  # Gb12, Gb20 and Gb21 are missing temperature and salinity. Imputing data from closeby samples:
+  meta_data$Salinity[meta_data$unified_ID=="Gb12"] <- 34.92
+  meta_data$Salinity[meta_data$unified_ID=="Gb20"] <- 34.92
+  meta_data$Salinity[meta_data$unified_ID=="Gb21"] <- 34.56
+  meta_data$Temperature[meta_data$unified_ID=="Gb12"] <- 3.71
+  meta_data$Temperature[meta_data$unified_ID=="Gb20"] <- 3.65
+  meta_data$Temperature[meta_data$unified_ID=="Gb21"] <- 2.32
+  meta_data["spec"] <- str_sub(meta_data$unified_ID,1,2)
+  meta_data <- meta_data[order(meta_data$unified_ID),]
+  return(meta_data)  
+}
+# FUN SET UP: preparing OTU tables
+OTU_prep_sqrt <- function(micro){
+  rownames(micro) <- micro$Sample_ID
+  micro$Sample_ID <- NULL
+  micro <- sqrt(micro)
+  
+  micro_gb <- micro[(str_sub(rownames(micro), 1,2)=="Gb"),]
+  micro_sf <- micro[(str_sub(rownames(micro), 1,2)=="Sf"),]
+  micro_wb <- micro[(str_sub(rownames(micro), 1,2)=="Wb"),]
+  
+  micro_gb <- micro_gb[,colSums(micro_gb!=0)>0]
+  micro_sf <- micro_sf[,colSums(micro_sf!=0)>0]
+  micro_wb <- micro_wb[,colSums(micro_wb!=0)>0]
+  micros <- list(gb=micro_gb, sf=micro_sf, wb=micro_wb)
+  return(micros)  
+}
+# FUN RELATIVE ABUNDANCE: calculate relative abundance of OTU across sponge samples. For figures (OTU relative abdc heatmaps), and inc-dec correlations. Requires OTU_prep_sqrt.
+rel_abdc <- function(micro){
+  mic <- micro
+  mic <- data.frame(t(mic))
+  mic["max"] <- apply(mic, 1, max)
+  
+  n <- 0
+  k <- dim(mic)[1] 
+  while (n<k) {
+    n <- n+1
+    mic[n,] <- mic[n,]/(mic$max[n])
+  }
+  mic$max <- NULL
+  return(mic)
+}
+# FUN correlation: increasing-decreasing and p-value, method default: Pearson's product-moment correlation
+inc_dec <- function(rabdc_df, meta_data){
+  
+  md <- meta_data[meta_data$unified_ID %in% colnames(rabdc_df),]
+  inc_dec <- data.frame(rownames(rabdc_df))
+  colnames(inc_dec) <- "XOTU"
+  inc_dec["inc_dec_estimate"] <- NA
+  inc_dec["inc_dec_p_val"] <- NA
+  
+  n <- 0
+  k <- dim(inc_dec)[1]
+  while (n<k) {
+    n <- n+1
+    inc_dec$inc_dec_estimate[n] <- cor.test(as.numeric(rabdc_df[n,]), md$Depth)$estimate
+    inc_dec$inc_dec_p_val[n] <- cor.test(as.numeric(rabdc_df[n,]), md$Depth)$p.value
+  }
+  
+  inc_dec["classification"] <- NA
+  inc_dec$classification[inc_dec$inc_dec_estimate<0] <- "dec.trend"
+  inc_dec$classification[inc_dec$inc_dec_estimate>0] <- "inc.trend"
+  inc_dec$classification[inc_dec$inc_dec_estimate<0 & inc_dec$inc_dec_p<=0.05] <- "decreasing"
+  inc_dec$classification[inc_dec$inc_dec_estimate>0 & inc_dec$inc_dec_p<=0.05] <- "increasing"
+  return(inc_dec)
+}
+# FUN occurrence
+overall_rabdc <- function(micros){
+  mic <- micros
+  n <- 0
+  k <- dim(mic)[1]
+  mic["rowsum"] <- apply(mic, 1, sum)
+  
+  while (n<k) {
+    n <- n+1
+    mic[n,] <- mic[n,]/(mic$rowsum[n])
+  }
+  
+  mic$rowsum <- NULL
+  mic <- data.frame(t(mic))
+  mic["avg_rel_abdc"] <- apply(mic, 1, mean)
+  mic["occurrence"] <- ifelse(mic$avg>0.0025, "common", "rare")
+  return(mic)
+}
+# FUN prepared list of data sets for taxonomy aggregation
+aggregations <- function(taxonomy, occurrence){
+  occurrence$gb["XOTU"] <-rownames(occurrence$gb) 
+  occurrence$sf["XOTU"] <-rownames(occurrence$sf) 
+  occurrence$wb["XOTU"] <-rownames(occurrence$wb)
+  
+  tax <- taxonomy[, c("OTU_ID", "Phylum", "Class")]
+  n <- 0
+  k <- dim(tax)[1]
+  tax["XOTU"] <- NA
+  while (n<k) {
+    n <- n+1
+    tax$XOTU[n] <- paste0("X",tax$OTU_ID[n])
+  }
+  
+  tax_gb <- inner_join(tax, occurrence$gb[,c("XOTU", "avg_rel_abdc")])
+  tax_sf <- inner_join(tax, occurrence$sf[,c("XOTU", "avg_rel_abdc")])
+  tax_wb <- inner_join(tax, occurrence$wb[,c("XOTU", "avg_rel_abdc")])
+  
+  taxes <- list(gb=tax_gb, sf=tax_sf, wb=tax_wb)
+  
+  gb1 <- aggregate(tax_gb$Phylum, by=list(tax_gb$Phylum), FUN="length")
+  gb2 <- aggregate(tax_gb$avg_rel_abdc, by=list(tax_gb$Phylum), FUN="sum")
+  gb_p <- full_join(gb1, gb2, by=("Group.1"="Group.1"))
+  colnames(gb_p) <- c("Phylum", "OTU_number", "avg_rel_abdc")
+  
+  gb1 <- aggregate(tax_gb$Class, by=list(tax_gb$Class), FUN="length")
+  gb2 <- aggregate(tax_gb$avg_rel_abdc, by=list(tax_gb$Class), FUN="sum")
+  gb_c <- full_join(gb1, gb2, by=("Group.1"="Group.1"))
+  colnames(gb_c) <- c("Class", "OTU_number", "avg_rel_abdc")
+  
+  test1  <- lapply(taxes, function(x) aggregate(avg_rel_abdc ~ Phylum, data = x, FUN = "length"))
+  lapply(taxes, function(x) aggregate(avg_rel_abdc ~ Phylum, data = x, FUN = "sum"))
+  
+  return(taxes)
+}
+# FUN prepared list of data sets for adonis
+adonis_prep <- function(taxonomy, occurrence){
+  occurrence$gb["XOTU"] <-rownames(occurrence$gb) 
+  occurrence$sf["XOTU"] <-rownames(occurrence$sf) 
+  occurrence$wb["XOTU"] <-rownames(occurrence$wb)
+  
+  tax <- taxonomy[, c("OTU_ID", "Phylum", "Class")]
+  n <- 0
+  k <- dim(tax)[1]
+  tax["XOTU"] <- NA
+  while (n<k) {
+    n <- n+1
+    tax$XOTU[n] <- paste0("X",tax$OTU_ID[n])
+  }
+  
+  tax_gb <- inner_join(tax, occurrence$gb)
+  tax_sf <- inner_join(tax, occurrence$sf)
+  tax_wb <- inner_join(tax, occurrence$wb)
+  
+  taxes <- list(gb=tax_gb, sf=tax_sf, wb=tax_wb)
+  return(taxes)
+}
+# FUN cleaning class and phylum namines
+cleaning <- function(taxes) {
+  gb <- taxes$gb
+  sf <- taxes$sf
+  wb <- taxes$wb
+  #Renaming & removing whitespaces
+  gb$Phylum <- as.character(str_trim(as.character(gb$Phylum)))
+  sf$Phylum <- as.character(str_trim(as.character(sf$Phylum)))
+  wb$Phylum <- as.character(str_trim(as.character(wb$Phylum)))
+  gb$Class <- as.character(str_trim(as.character(gb$Class)))
+  sf$Class <- as.character(str_trim(as.character(sf$Class)))
+  wb$Class <- as.character(str_trim(as.character(wb$Class)))
+  ## GB
+  gb$Class[(gb$Phylum=="PAUC34f")] <- "PAUC34f_unclassified"
+  gb$Class[(gb$Phylum=="")] <- "unclassified"
+  gb$Phylum[(gb$Phylum=="")] <- "unclassified"
+  gb$Class[(gb$Phylum=="Tectomicrobia")] <- "Tectomicrobia_unclassified"
+  gb$Class[(gb$Phylum=="SBR1093")] <- "SBR1093_unclassified"
+  gb$Class[(gb$Phylum=="Poribacteria")] <- "Poribacteria_unclassified"
+  gb$Class[gb$Phylum=="Chloroflexi" & gb$Class==""] <- "Chloroflexi_unclassified"
+  ## SF
+  sf$Class[(sf$Phylum=="")] <- "unclassified"
+  sf$Phylum[(sf$Phylum=="")] <- "unclassified"
+  sf$Class[(sf$Phylum=="PAUC34f")] <- "PAUC34f_unclassified"
+  sf$Class[(sf$Phylum=="Proteobacteria" & sf$Class=="")] <- "Proteobacteria_unclassified"
+  sf$Class[(sf$Phylum=="Tectomicrobia")] <- "Tectomicrobia_unclassified"
+  sf$Class[(sf$Phylum=="SBR1093")] <- "SBR1093_unclassified"
+  sf$Class[(sf$Phylum=="Poribacteria")] <- "Poribacteria_unclassified"
+  ## WB
+  wb$Class[(wb$Phylum=="")] <- "unclassified"
+  wb$Phylum[(wb$Phylum=="")] <- "unclassified"
+  # merge back
+  taxes <- list(gb=gb, sf=sf, wb=wb)
+  return(taxes)
+}
+
+
+```
+
 # Microbiota
 
 ## OTU table overview
@@ -150,7 +358,7 @@ The microbiota are composed of  420 OTUs in _G. barretti_, 461 OTUs in _S. forti
 
 How does that reflect in their diversities? Below we show Shannon diversity, species richness (SR) and Faith's phylogenetic distance (PD). 
 
-```{r diversities, fig.cap="Microbiota diversity indices grouped by sponge species and ordered by sample depth."}
+```{r a-diversities, fig.cap="Microbiota diversity indices grouped by sponge species and ordered by sample depth."}
 library(vegan)
 library(reshape2)
 library(phyloseq)
@@ -200,6 +408,150 @@ ggplot(div_indices, aes(x=Depth, y=value))+geom_point()+facet_grid(vars(variable
 ```
 
 We see that the HMA sponges _G. barretti_ and _S. fortis_ not only have more OTUs but also a higher diversity in their prokaryotic communities then the LMA sponge _W. bursa_.
+
+## Beta diversity
+
+In a way, the Fig. \@ref(fig:microbiome-pca) and \@ref(fig:nmds) have already shown us the beta diversity in our samples. Looking more into the data, we found that the two dimensional representation can be misleading at times and so we provide the first three axes components for exploration below.
+
+```{r b-divPCA, fig.cap="PCA of the met"}
+library(plot3D)
+library(rgl)
+library(plotly)
+
+### PCA
+microbiome<-read.csv("data/OTU_all_R.csv", header=T, sep=";") 
+meta_data <- read.csv("data/Steffen_et_al_metadata_PANGAEA.csv", header=T, sep=";")
+meta_data <- meta_data[meta_data$unified_ID %in% microbiome$Sample_ID,]
+
+rownames(microbiome) <- microbiome[,1]
+microbiome[,1] <- NULL
+microbiome <- sqrt(microbiome)
+micro.pca <- prcomp(microbiome, scale=T)
+k <- summary(micro.pca)[["importance"]]
+micro_pca_df <- data.frame(micro.pca$x) #scores, i.e. principal components of the sponge sample 
+micro_pca_df["unified_ID"] <- as.factor(rownames(micro_pca_df))
+x1 <- paste("PC1", round(k[2,1], digits=3)*100, "%")
+y1 <- paste("PC2", round(k[2,2], digits=3)*100, "%")
+z1 <- paste("PC3", round(k[2,3], digits=3)*100, "%")
+micro_pca_df <- left_join(micro_pca_df[,c("PC1", "PC2", "PC3", "unified_ID")], meta_data[,c("Species", "Depth", "Latitude", "Longitude", "MeanBottomTemp_Cdeg", "MeanBotSalinity_PSU", "unified_ID")])
+
+#ggplot(micro_pca_df, aes(x=PC1, y=PC2))+geom_point(size=3, mapping=aes(shape=factor(Species), col=Depth))+ggtitle(my_title)+xlab(x1)+ylab(y1)+labs(shape="Species")+theme_bw()+theme(legend.position = "none")
+
+## rgl/plot3D
+with(micro_pca_df, text3D(PC1, PC2, PC3,
+                       colvar = micro_pca_df$Depth, theta = 60, phi = 20,
+                       xlab = x1, ylab = y1, zlab =z1,
+                       main = "3D microbiome PCA",
+                       labels = micro_pca_df$unified_ID, cex = 0.9,
+                       bty = "g", ticktype = "detailed", d = 2,
+                       clab = c("Depth [m]"), adj = 0.5, font = 2))
+
+## plotly
+axx <- list(
+  backgroundcolor="rgb(211,211,211)",
+  gridcolor="rgb(255,255,255)",
+  title = x1,
+  showbackground=TRUE
+)
+
+axy <- list(
+  backgroundcolor="rgb(211,211,211)",
+  gridcolor="rgb(255,255,255)",
+  title = y1,
+  showbackground=TRUE
+)
+
+axz <- list(
+  backgroundcolor="rgb(211,211,211)",
+  gridcolor="rgb(255,255,255)",
+  title = z1,
+  showbackground=TRUE
+)
+
+mic_i <- plot_ly(micro_pca_df, x = ~micro_pca_df$PC1, y = ~micro_pca_df$PC2, z = ~micro_pca_df$PC3, symbol = ~Species, symbols = c('diamond','x','circle'), color = ~micro_pca_df$Depth) %>%
+  add_markers() %>%
+  layout(scene = list(xaxis=axx,yaxis=axy,zaxis=axz))
+mic_i
+f<- basename(tempfile('PCA_microbiome_plotly', '.', '.html'))
+on.exit(unlink(f), add = TRUE)
+html <- htmlwidgets::saveWidget(mic_i, f)
+```
+
+
+```{r}
+library(plot3D)
+library(rgl)
+library(plotly)
+
+### PCA
+microbiome<-read.csv("data/OTU_all_R.csv", header=T, sep=";") 
+meta_data <- read.csv("data/Steffen_et_al_metadata_PANGAEA.csv", header=T, sep=";")
+meta_data <- meta_data[meta_data$unified_ID %in% microbiome$Sample_ID,]
+
+rownames(microbiome) <- microbiome[,1]
+microbiome[,1] <- NULL
+
+micro.pca <- prcomp(microbiome, scale=T)
+k <- summary(micro.pca)[["importance"]]
+micro_pca_df <- data.frame(micro.pca$x) #scores, i.e. principal components of the sponge sample 
+micro_pca_df["unified_ID"] <- as.factor(rownames(micro_pca_df))
+x1 <- paste("PC1", round(k[2,1], digits=3)*100, "%")
+y1 <- paste("PC2", round(k[2,2], digits=3)*100, "%")
+z1 <- paste("PC3", round(k[2,3], digits=3)*100, "%")
+micro_pca_df <- left_join(micro_pca_df[,c("PC1", "PC2", "PC3", "unified_ID")], meta_data[,c("Species", "Depth", "Latitude", "Longitude", "MeanBottomTemp_Cdeg", "MeanBotSalinity_PSU", "unified_ID")])
+
+#ggplot(micro_pca_df, aes(x=PC1, y=PC2))+geom_point(size=3, mapping=aes(shape=factor(Species), col=Depth))+ggtitle(my_title)+xlab(x1)+ylab(y1)+labs(shape="Species")+theme_bw()+theme(legend.position = "none")
+
+#with(micro_pca_df, scatter3D(x = PC1, y = PC2, z = -PC3, colvar =micro_pca_df$Depth, pch = 16, cex = 1.5, xlab =x1, ylab =y1, zlab =z1, clab = c("Depth","m"), main = "3D microbiome PCA", ticktype = "detailed", theta = 10, d = 2, colkey = list(length = 0.5, width = 0.5, cex.clab = 0.75)))
+
+#ks1
+#scatter3D(x=micro_pca_df$PC1, y=micro_pca_df$PC2, micro_pca_df$PC3) #works
+
+#crude #KEEP
+#scatter3D(x=micro_pca_df$PC1, y=micro_pca_df$PC2, micro_pca_df$PC3, phi = 0, bty = "g",pch = 20, cex = 2, ticktype = "detailed")
+
+#scatter3D(x=micro_pca_df$PC1, y=micro_pca_df$PC2, micro_pca_df$PC3, phi = 0, labels = micro_pca_df$unified_ID, bty = "g",pch = 20, cex = 2, ticktype = "detailed",colvar = micro_pca_df$Depth)
+
+# rgl/plot3D
+with(micro_pca_df, text3D(PC1, PC2, PC3,
+                       colvar = micro_pca_df$Depth, theta = 60, phi = 20,
+                       xlab = x1, ylab = y1, zlab =z1,
+                       main = "3D microbiome PCA",
+                       labels = micro_pca_df$unified_ID, cex = 0.9,
+                       bty = "g", ticktype = "detailed", d = 2,
+                       clab = c("Depth [m]"), adj = 0.5, font = 2))
+
+## plotly
+axx <- list(
+  backgroundcolor="rgb(211,211,211)",
+  gridcolor="rgb(255,255,255)",
+  title = x1,
+  showbackground=TRUE
+)
+
+axy <- list(
+  backgroundcolor="rgb(211,211,211)",
+  gridcolor="rgb(255,255,255)",
+  title = y1,
+  showbackground=TRUE
+)
+
+axz <- list(
+  backgroundcolor="rgb(211,211,211)",
+  gridcolor="rgb(255,255,255)",
+  title = z1,
+  showbackground=TRUE
+)
+
+mic_i <- plot_ly(micro_pca_df, x = ~micro_pca_df$PC1, y = ~micro_pca_df$PC2, z = ~micro_pca_df$PC3, symbol = ~Species, symbols = c('diamond','x','circle'), color = ~micro_pca_df$Depth) %>%
+  add_markers() %>%
+  layout(scene = list(xaxis=axx,yaxis=axy,zaxis=axz))
+mic_i
+f<- basename(tempfile('PCA_microbiome_plotly', '.', '.html'))
+on.exit(unlink(f), add = TRUE)
+html <- htmlwidgets::saveWidget(mic_i, f)
+```
+
 
 In some of the downstream analyses, we distinguish between common/abundant OTUs and rare OTUs. We use a cutoff of 0.25% average relative abundance per OTU for the classification. That implies drastically modifying the original numbers of OTUs per sponge as outlined below.
 
@@ -737,19 +1089,9 @@ df_phylum["Sample_ID"] <- rownames(df_phylum)
 df_phylum <- melt(df_phylum, id.vars=c("Sample_ID"))
 colnames(df_phylum) <- c("Sample_ID", "Phylum", "variable")
 
-ggplot(df_phylum, aes(x=Sample_ID, y=variable, fill=Phylum))+
-  geom_bar(stat="identity")+
-  theme_classic()+theme(axis.text.x = element_text(angle = 90, hjust = 1), legend.position = "bottom")+xlab("Samples ordered by depth")+ylab("Relative abundance")+
-  scale_x_discrete(limits=c("Gb1","Gb2","Gb3", "Gb4", "Gb5", "Gb6", "Gb7", "Gb8", "Gb9", "Gb10", "Gb11", "Gb12", "Gb13", "Gb14", "Sf1", "Sf2", "Sf3", "Sf4", "Sf5", "Sf6", "Sf7", "Sf8", "Sf9", "Sf10", "Sf11", "Sf12", "Sf13", "Sf14", "Sf15", "Wb1", "Wb2", "Wb3", "Wb4", "Wb5", "Wb6", "Wb7", "Wb8", "Wb9", "Wb10", "Wb11", "Wb12", "Wb13", "Wb14", "Wb15", "Wb16"))+
-  scale_fill_manual("",
-                  breaks = c("Acidobacteria", "Actinobacteria", "Bacteroidetes", "Chlamydiae", "Chloroflexi", "Cyanobacteria", "Deferribacteres", "Deinococcus.Thermus", "Firmicutes", "Gemmatimonadetes", "Nitrospinae", "Nitrospirae", 
-"PAUC34f", "Planctomycetes", "Poribacteria", "Proteobacteria", "SBR1093", "Spirochaetae", "Tectomicrobia", "Thaumarchaeota", 
-"unclassified", "Verrucomicrobia"),
-                  values = c("#b8c4f6","#ffaaaf","#3d1349","#ffffff","#01559d","#ffffff","#ffffff","#ffffff","#ffffff","#019c51","#b10060","#49ca00","#dd8e00","#f282ff","#ffffff","#ff633f","#ec0040","#010b92","#cf00aa","#aba900","#ffffff","#fce300"),
-                  labels = c("Acidobacteria", "Actinobacteria", "Bacteroidetes", "Chlamydiae", "Chloroflexi", "Cyanobacteria", "Deferribacteres", "Deinococcus.Thermus", "Firmicutes", "Gemmatimonadetes", "Nitrospinae", "Nitrospirae", 
-                             "PAUC34f", "Planctomycetes", "Poribacteria", "Proteobacteria", "SBR1093", "Spirochaetae", "Tectomicrobia", "Thaumarchaeota", 
-                             "unclassified", "Verrucomicrobia")
-                  )
+#ggplot(df_phylum, aes(x=Sample_ID, y=variable, fill=Phylum))+geom_bar(stat="identity")+
+#  theme_classic()+theme(axis.text.x = element_text(angle = 90, hjust = 1), legend.position = "bottom")+xlab("Samples ordered by depth")+ylab("Relative abundance")+
+#  scale_x_discrete(limits=c("Gb1","Gb2","Gb3", "Gb4", "Gb5", "Gb6", "Gb7", "Gb8", "Gb9", "Gb10", "Gb11", "Gb12", "Gb13", "Gb14", "Sf1", "Sf2", "Sf3", "Sf4", "Sf5", "Sf6", "Sf7", "Sf8", "Sf9", "Sf10", "Sf11", "Sf12", "Sf13", "Sf14", "Sf15", "Wb1", "Wb2", "Wb3", "Wb4", "Wb5", "Wb6", "Wb7", "Wb8", "Wb9", "Wb10", "Wb11", "Wb12", "Wb13", "Wb14", "Wb15", "Wb16"))+ scale_fill_manual("", breaks = c("Acidobacteria", "Actinobacteria", "Bacteroidetes", "Chlamydiae", "Chloroflexi", "Cyanobacteria", "Deferribacteres", "Deinococcus.Thermus", "Firmicutes", "Gemmatimonadetes", "Nitrospinae", "Nitrospirae", "PAUC34f", "Planctomycetes", "Poribacteria", "Proteobacteria", "SBR1093", "Spirochaetae", "Tectomicrobia", "Thaumarchaeota", "unclassified", "Verrucomicrobia"), values = c("#b8c4f6","#ffaaaf","#3d1349","#ffffff","#01559d","#ffffff","#ffffff","#ffffff","#ffffff","#019c51","#b10060","#49ca00","#dd8e00","#f282ff","#ffffff","#ff633f","#ec0040","#010b92","#cf00aa","#aba900","#ffffff","#fce300"), labels = c("Acidobacteria", "Actinobacteria", "Bacteroidetes", "Chlamydiae", "Chloroflexi", "Cyanobacteria", "Deferribacteres", "Deinococcus.Thermus", "Firmicutes", "Gemmatimonadetes", "Nitrospinae", "Nitrospirae", "PAUC34f", "Planctomycetes", "Poribacteria", "Proteobacteria", "SBR1093", "Spirochaetae", "Tectomicrobia", "Thaumarchaeota", "unclassified", "Verrucomicrobia"))
 
 
 #df_phylum["spec"] <- str_sub(df_phylum$Sample_ID,1,2)
@@ -766,10 +1108,6 @@ ggplot(df_phylum, aes(x=Sample_ID, y=variable, fill=Phylum))+
  #                 labels = c("Acidobacteria", "Actinobacteria", "Bacteroidetes", "Chlamydiae", "Chloroflexi", "Cyanobacteria", "Deferribacteres", "Deinococcus.Thermus", "Firmicutes", "Gemmatimonadetes", "Nitrospinae", "Nitrospirae", "PAUC34f", "Planctomycetes", "Poribacteria", "Proteobacteria", "SBR1093", "Spirochaetae", "Tectomicrobia", "Thaumarchaeota", "unclassified", "Verrucomicrobia")
 #                  )
 
-
-
-
-
 last_plot()+scale_fill_manual("",
                   breaks = c("Acidobacteria", "Actinobacteria", "Bacteroidetes", "Chlamydiae", "Chloroflexi", "Cyanobacteria", "Deferribacteres", "Deinococcus.Thermus", "Firmicutes", "Gemmatimonadetes", "Nitrospinae", "Nitrospirae", 
 "PAUC34f", "Planctomycetes", "Poribacteria", "Proteobacteria", "SBR1093", "Spirochaetae", "Tectomicrobia", "Thaumarchaeota", 
@@ -782,11 +1120,12 @@ last_plot()+scale_fill_manual("",
                   )
 
 
-
 ```
 
 We see in this bar plot that the relative abundance of phyla remains fairly stable across the different depths. Generally, the prokaryotic community of sponges is described as somewhat species specific and stable across virtually any measured gradient. At this taxonomic resolution, these findings hold true. The composition of the prokaryotic communities in the HMA sponges _G. barretti_ and _S. fortis_ is similar across all samples, while the composition in the LMA sponge _W. bursa_ differs in composition but also displaying only minor variations in phyla proportions. 
 The phyla left white/blank are present at very low abundance and we thought the figure might be visually easier without too many colours.
+
+The phyla Chloroflexi, Actinobacteria, Acidobacteria, PAUC34f, and Gemmatimonadetes were described as HMA indicator phyla [@moitinho-silva_2017] and are present in the HMA sponges _G. barretti_ and _S. fortis_ (although Actinobacteria are also present in _W. bursa_).The phyla Proteobacteria, Bacteroidetes, Planctomycetes, and Firmicutes were disgnated LMA indicator phyla and are found in _W. bursa_ (although Proteobacteria are also present in the HMA sponges).
 
 ```{r rel-abdc-phyloseq, fig.cap="Rel ABDC Phylum", echo=F, eval=F}
 library(vegan)
@@ -1226,6 +1565,8 @@ gb_response <- inc_dec(rabdc_gb, meta_data)
 sf_response <- inc_dec(rabdc_sf, meta_data)
 wb_response <- inc_dec(rabdc_wb, meta_data)
 
+### dfs to saving, join _reponse to rabdc_ and calculate vag </>1000 m
+
 #For heatmaps
 #gb
 rabdc_gb["XOTU"] <- rownames(rabdc_gb)
@@ -1288,15 +1629,6 @@ dec <- ggplot(decrease, aes(x=as.factor(Depth), y=name, fill=value))+facet_grid(
 library(gridExtra)
 grid.arrange(inc, dec, nrow=1)
 
-## addition for SpongeEMP OTUs
-#emp <- read.csv("data/SpongeEMP.csv", header=T, sep=";")
-#emp["name"] <- str_replace(emp$OTU_ID,"OTU","")
-#emp[, c("sponge", "OTU_ID")] <- list(NULL)
-#increase <- left_join(increase, emp)
-#ggplot(increase, aes(x=1, y=name, fill=spongeEMP_enriched))+geom_tile()
-#head(increase)
-##
-
 gb_nums <- c(length(unique(gb_heatmap$name)), length(unique(gb_heatmap_i$name)), length(unique(gb_heatmap_d$name)))
 sf_nums <- c(length(unique(sf_heatmap$name)), length(unique(sf_heatmap_i$name)), length(unique(sf_heatmap_d$name)))
 wb_nums <- c(length(unique(wb_heatmap$name)), length(unique(wb_heatmap_i$name)), length(unique(wb_heatmap_d$name)))
@@ -1330,10 +1662,155 @@ kable(overview,
 #write.csv(gb_response, "gb_response.csv")    
 #write.csv(sf_response, "sf_response.csv")    
 #write.csv(wb_response, "wb_response.csv")    
+```
+
+```{r EMP-inc-dec, echo=F,eval=F}
+### Additional segment to figure out which of the increasing/decreasing OTUs are SpongeEMP enriched. These are manually coloured in the corresponding figure.
+emp <- read.csv("data/SpongeEMP.csv", header=T, sep=";")
+emp["name"] <- str_replace(emp$OTU_ID,"OTU","")
+emp[, c("sponge", "OTU_ID")] <- list(NULL)
+
+increase <- left_join(increase, emp)
+increase[] <- lapply(increase, function(x) if(is.factor(x)) factor(x) else x)
+yes_inc <- increase %>%
+  na.omit() %>%
+  filter(spongeEMP_enriched=="yes")
+unique(yes_inc$name) # To annotate manually in the figure "148" "164" "138" "156" "337" "242" "236" "339" "465" "454" "308" "151" "269" "229"
+length(unique(yes_inc$name)) # 14
+
+decrease <- left_join(decrease, emp)
+decrease[] <- lapply(decrease, function(x) if(is.factor(x)) factor(x) else x)
+yes_dec <- decrease %>%
+  na.omit() %>%
+  filter(spongeEMP_enriched=="yes")
+unique(yes_dec$name) # To annotate manually in the figure: "215" "176" "180" "209" "289" "192" "182" "183" "335" "146" "196" "211" "161" "260" "277" "320" "144" "213" "331" "310" "336" "589" "588" "189" "137"
+length(unique(yes_dec$name)) #25
+
+rm(dec, decrease, gb_heatmap, gb_heatmap_d, gb_heatmap_i, gb_nums, gb_response, inc, increase, md, meta_data, micro, micro_ds, overview, rabdc_gb, rabdc_sf, rabdc_wb, sf_heatmap, sf_heatmap_d,sf_heatmap_i,sf_nums,sf_response, wb_heatmap, wb_heatmap_d,wb_heatmap_i,wb_nums,wb_response, emp, yes_dec, yes_inc)
 
 ```
 
 In this Fig.\@ref(fig:increade-decrease) as well as in Tab. \@ref(tab:increade-decrease), we see that at the OTU level, we observe shifts. While sometimes more gradual, there seem to OTUs exclusievely present in the "shallow" or the "deep" samples in all three sponges. In fact, in _G. barretti_ and _S. fortis_, the number of OTUs increasing with depth ("deep water mass microbiome") is greater than the number of OTUs decreasing. This leads us to believe that the deep water mass contains microbes yet to discover.
+
+```{r OTU-depth-viz, echo=FALSE, eval=FALSE}
+#Works, but need to figure out how to plot only a fraction at a time
+
+micro <- read.csv("data/OTU_all_R.csv", header = T, sep = ";")
+meta_data <- read.csv("data/Steffen_et_al_metadata_PANGAEA.csv", header=T, sep=";")
+
+meta_data <- meta_data_prep(meta_data)
+
+OTU_prep <- function(micro){
+  rownames(micro) <- micro$Sample_ID
+  micro$Sample_ID <- NULL
+  #micro <- sqrt(micro)
+  
+  micro_gb <- micro[(str_sub(rownames(micro), 1,2)=="Gb"),]
+  micro_sf <- micro[(str_sub(rownames(micro), 1,2)=="Sf"),]
+  micro_wb <- micro[(str_sub(rownames(micro), 1,2)=="Wb"),]
+  
+  micro_gb <- micro_gb[,colSums(micro_gb!=0)>0]
+  micro_sf <- micro_sf[,colSums(micro_sf!=0)>0]
+  micro_wb <- micro_wb[,colSums(micro_wb!=0)>0]
+  micros <- list(gb=micro_gb, sf=micro_sf, wb=micro_wb)
+  return(micros)  
+}
+
+### Additional segment for ginormous plot of individual OTU depth response
+#micro_ds <- OTU_prep(micro)
+#rabdc <- lapply(micro_ds, rel_abdc)
+#rabdc$gb["XOTU"] <- rownames(rabdc$gb)
+#gb_resp <- reshape2::melt(rabdc$gb, idvars=c("XOTU"))
+#md <- meta_data[,c("Depth", "unified_ID")]
+#gb_resp <- left_join(gb_resp, md, by=c("variable"="unified_ID"))
+#gb_resp$Depth <- as.numeric(gb_resp$Depth)
+#gb_resp["lab"] <- str_replace(gb_resp$XOTU,"X196900", "OTU")
+#gb_resp$lab <- as.factor(gb_resp$lab)
+#ggplot(gb_resp, aes(x=Depth, y=value))+geom_point()+theme_bw()+theme(axis.text.x = element_text(angle = 90, hjust = 1))+facet_wrap("lab")
+
+### Additional segment to produce a relative abundace table
+#micro <- read.csv("data/OTU_all_R.csv", header = T, sep = ";")
+#meta_data <- read.csv("data/Steffen_et_al_metadata_PANGAEA.csv", header=T, sep=";")
+#meta_data <- meta_data_prep(meta_data)
+micro_ds <- OTU_prep(micro)
+
+rabdc <- lapply(micro_ds, overall_rabdc)
+rabdc$gb[,c("avg_rel_abdc", "occurrence" )] <- list(NULL)
+rabdc$sf[,c("avg_rel_abdc", "occurrence" )] <- list(NULL)
+rabdc$wb[,c("avg_rel_abdc", "occurrence" )] <- list(NULL)
+
+
+response <- lapply(rabdc, inc_dec, meta_data=meta_data)
+rabdc$gb <- rabdc$gb[,c(1, 7, 8, 9, 10, 11, 12, 13, 14, 2, 3, 4, 5, 6)] # sort
+rabdc$sf <- rabdc$sf[,c(1, 8, 9, 10, 11, 12, 13, 14, 15, 2, 3, 4, 5, 6, 7)]
+rabdc$wb <- rabdc$wb[,c(1, 9, 10, 11, 12, 13, 14, 15, 16, 2, 3, 4, 5, 6, 7, 8)]
+
+# use this to check with samples are shallow and deep
+meta_data[meta_data$spec=="Wb",] %>%
+  arrange(Depth)
+
+#rabdc$gb # Gb 1:14; 1:10 vs 11:14
+shallow_gb <- data.frame(apply(rabdc$gb[,c(1:10)], 1, mean))
+deep_gb <- data.frame(apply(rabdc$gb[,c(11:14)], 1, mean))
+
+#rabdc$sf # Sf 1:15; 1:8 vs 9:15
+shallow_sf <- data.frame(apply(rabdc$sf[,c(1:8)], 1, mean))
+deep_sf <- data.frame(apply(rabdc$sf[,c(9:15)], 1, mean))
+
+#rabdc$wb # Wb 1:16; 1:12 vs 13:16
+shallow_wb <- data.frame(apply(rabdc$wb[,c(1:12)], 1, mean))
+deep_wb <- data.frame(apply(rabdc$wb[,c(13:16)], 1, mean))
+
+ttest_gb <- data.frame(apply(rabdc$gb, 1, function(x) {t.test(x[1:10], x[11:14], paired = F, alternative = "two.sided", var.equal = TRUE)$p.v }))
+ttest_sf <- data.frame(apply(rabdc$sf, 1, function(x) {t.test(x[1:8], x[9:15], paired = F, alternative = "two.sided", var.equal = TRUE)$p.v }))
+ttest_wb <- data.frame(apply(rabdc$wb, 1, function(x) {t.test(x[1:12], x[13:16], paired = F, alternative = "two.sided", var.equal = TRUE)$p.v }))
+
+averages_gb <- cbind(shallow_gb, deep_gb, ttest_gb)
+averages_sf <- cbind(shallow_sf, deep_sf, ttest_sf)
+averages_wb <- cbind(shallow_wb, deep_wb, ttest_wb)
+
+colnames(averages_gb) <- c("shallow_mean", "deep_mean", "ttest_pval")
+colnames(averages_sf) <- c("shallow_mean", "deep_mean", "ttest_pval")
+colnames(averages_wb) <- c("shallow_mean", "deep_mean", "ttest_pval")
+
+all((rownames(rabdc$gb)==rownames(averages_gb)))
+all((rownames(rabdc$gb)==(response$gb["XOTU"])))
+gb_OTUs <- cbind(rabdc$gb, averages_gb, response$gb)
+
+all((rownames(rabdc$sf)==rownames(averages_sf)))
+all((rownames(rabdc$sf)==(response$sf["XOTU"])))
+sf_OTUs <- cbind(rabdc$sf, averages_sf, response$sf)
+
+all((rownames(rabdc$wb)==rownames(averages_wb)))
+all((rownames(rabdc$wb)==(response$wb["XOTU"])))
+wb_OTUs <- cbind(rabdc$wb, averages_wb, response$wb)
+
+#write.csv(gb_OTUs, "data/gb_OTUs_overall_rabdc_annotated_.csv") #second option overal_rabdc
+#write.csv(sf_OTUs, "data/sf_OTUs_overall_rabdc_annotated.csv")
+#write.csv(wb_OTUs, "data/wb_OTUs_overall_rabdc_annotated.csv")
+
+### For Paco's OTUs, REMOVE LATER
+gb_pc <- rbind(rabdc$gb["X196900146",], rabdc$gb["X196900138",], rabdc$gb["X1969004",], rabdc$gb["X19690097",], rabdc$gb["X196900575",], rabdc$gb["X196900144",], rabdc$gb["X196900588",], rabdc$gb["X196900337",], rabdc$gb["X196900578",], rabdc$gb["X196900137",], rabdc$gb["X196900142",], rabdc$gb["X196900165",], rabdc$gb["X196900309",])
+gb_pc <- data.frame(t(gb_pc))
+gb_pc["unified_ID"] <- rownames(gb_pc)
+gb_pc[, c("NA.", "NA1", "NA2")] <- list(NULL)
+gb_pc <- reshape2::melt(gb_pc, idvars=c("unified_ID"))
+md_pc_g <- meta_data[, c("unified_ID", "Depth")]
+gb_pc <- left_join(gb_pc, md_pc_g)
+ggplot(gb_pc, aes(x=Depth, y=value))+geom_point()+facet_wrap(~variable, scales="free")
+
+sf_pc <- rbind(rabdc$sf["X196900146",], rabdc$sf["X196900138",], rabdc$sf["X1969004",], rabdc$sf["X19690097",], rabdc$sf["X196900575",], rabdc$sf["X196900144",], rabdc$sf["X196900588",], rabdc$sf["X196900337",], rabdc$sf["X196900578",], rabdc$sf["X196900137",], rabdc$sf["X196900142",], rabdc$sf["X196900165",], rabdc$sf["X196900309",])
+sf_pc <- data.frame(t(sf_pc))
+sf_pc["unified_ID"] <- rownames(sf_pc)
+sf_pc[, c("NA.", "NA1")] <- list(NULL)
+sf_pc <- reshape2::melt(sf_pc, idvars=c("unified_ID"))
+md_pc_g <- meta_data[, c("unified_ID", "Depth")]
+sf_pc <- left_join(sf_pc, md_pc_g)
+ggplot(sf_pc, aes(x=Depth, y=value))+geom_point()+facet_wrap(~variable, scales="free")
+
+
+```
+
 
 ## Sequence similarity
 
@@ -1551,193 +2028,6 @@ The MAFFT aligend fasta sequences of _G. barretti_ OTUs were used to infer a phy
 
 
 
-```{r functions, echo=F}
-# FUN SET UP: preparing meta data set
-meta_data_prep <- function(meta_data){
-  meta_data <- meta_data[, c("unified_ID", "Depth", "Latitude", "Longitude", "MeanBottomTemp_Cdeg", "MeanBotSalinity_PSU", "YEAR")]
-  colnames(meta_data) <- c("unified_ID", "Depth", "Latitude", "Longitude", "Temperature", "Salinity", "Year")
-  meta_data <- meta_data[!(str_sub(meta_data$unified_ID, 1,2)=="QC"),]
-  meta_data[] <- lapply(meta_data, function(x) if(is.factor(x)) factor(x) else x)
-  # Gb12, Gb20 and Gb21 are missing temperature and salinity. Imputing data from closeby samples:
-  meta_data$Salinity[meta_data$unified_ID=="Gb12"] <- 34.92
-  meta_data$Salinity[meta_data$unified_ID=="Gb20"] <- 34.92
-  meta_data$Salinity[meta_data$unified_ID=="Gb21"] <- 34.56
-  meta_data$Temperature[meta_data$unified_ID=="Gb12"] <- 3.71
-  meta_data$Temperature[meta_data$unified_ID=="Gb20"] <- 3.65
-  meta_data$Temperature[meta_data$unified_ID=="Gb21"] <- 2.32
-  meta_data["spec"] <- str_sub(meta_data$unified_ID,1,2)
-  meta_data <- meta_data[order(meta_data$unified_ID),]
-  return(meta_data)  
-}
-# FUN SET UP: preparing OTU tables
-OTU_prep_sqrt <- function(micro){
-  rownames(micro) <- micro$Sample_ID
-  micro$Sample_ID <- NULL
-  micro <- sqrt(micro)
-  
-  micro_gb <- micro[(str_sub(rownames(micro), 1,2)=="Gb"),]
-  micro_sf <- micro[(str_sub(rownames(micro), 1,2)=="Sf"),]
-  micro_wb <- micro[(str_sub(rownames(micro), 1,2)=="Wb"),]
-  
-  micro_gb <- micro_gb[,colSums(micro_gb!=0)>0]
-  micro_sf <- micro_sf[,colSums(micro_sf!=0)>0]
-  micro_wb <- micro_wb[,colSums(micro_wb!=0)>0]
-  micros <- list(gb=micro_gb, sf=micro_sf, wb=micro_wb)
-  return(micros)  
-}
-# FUN RELATIVE ABUNDANCE: calculate relative abundance of OTU across sponge samples. For figures (OTU relative abdc heatmaps), and inc-dec correlations. Requires OTU_prep_sqrt.
-rel_abdc <- function(micro){
-  mic <- micro
-  mic <- data.frame(t(mic))
-  mic["max"] <- apply(mic, 1, max)
-  
-  n <- 0
-  k <- dim(mic)[1] 
-  while (n<k) {
-    n <- n+1
-    mic[n,] <- mic[n,]/(mic$max[n])
-  }
-  mic$max <- NULL
-  return(mic)
-}
-# FUN correlation: increasing-decreasing and p-value, method default: Pearson's product-moment correlation
-inc_dec <- function(rabdc_df, meta_data){
-  
-  md <- meta_data[meta_data$unified_ID %in% colnames(rabdc_df),]
-  inc_dec <- data.frame(rownames(rabdc_df))
-  colnames(inc_dec) <- "XOTU"
-  inc_dec["inc_dec_estimate"] <- NA
-  inc_dec["inc_dec_p_val"] <- NA
-  
-  n <- 0
-  k <- dim(inc_dec)[1]
-  while (n<k) {
-    n <- n+1
-    inc_dec$inc_dec_estimate[n] <- cor.test(as.numeric(rabdc_df[n,]), md$Depth)$estimate
-    inc_dec$inc_dec_p_val[n] <- cor.test(as.numeric(rabdc_df[n,]), md$Depth)$p.value
-  }
-  
-  inc_dec["classification"] <- NA
-  inc_dec$classification[inc_dec$inc_dec_estimate<0] <- "dec.trend"
-  inc_dec$classification[inc_dec$inc_dec_estimate>0] <- "inc.trend"
-  inc_dec$classification[inc_dec$inc_dec_estimate<0 & inc_dec$inc_dec_p<=0.05] <- "decreasing"
-  inc_dec$classification[inc_dec$inc_dec_estimate>0 & inc_dec$inc_dec_p<=0.05] <- "increasing"
-  return(inc_dec)
-}
-# FUN occurrence
-overall_rabdc <- function(micros){
-  mic <- micros
-  n <- 0
-  k <- dim(mic)[1]
-  mic["rowsum"] <- apply(mic, 1, sum)
-  
-  while (n<k) {
-    n <- n+1
-    mic[n,] <- mic[n,]/(mic$rowsum[n])
-  }
-  
-  mic$rowsum <- NULL
-  mic <- data.frame(t(mic))
-  mic["avg_rel_abdc"] <- apply(mic, 1, mean)
-  mic["occurrence"] <- ifelse(mic$avg>0.0025, "common", "rare")
-  return(mic)
-}
-# FUN prepared list of data sets for taxonomy aggregation
-aggregations <- function(taxonomy, occurrence){
-  occurrence$gb["XOTU"] <-rownames(occurrence$gb) 
-  occurrence$sf["XOTU"] <-rownames(occurrence$sf) 
-  occurrence$wb["XOTU"] <-rownames(occurrence$wb)
-  
-  tax <- taxonomy[, c("OTU_ID", "Phylum", "Class")]
-  n <- 0
-  k <- dim(tax)[1]
-  tax["XOTU"] <- NA
-  while (n<k) {
-    n <- n+1
-    tax$XOTU[n] <- paste0("X",tax$OTU_ID[n])
-  }
-  
-  tax_gb <- inner_join(tax, occurrence$gb[,c("XOTU", "avg_rel_abdc")])
-  tax_sf <- inner_join(tax, occurrence$sf[,c("XOTU", "avg_rel_abdc")])
-  tax_wb <- inner_join(tax, occurrence$wb[,c("XOTU", "avg_rel_abdc")])
-  
-  taxes <- list(gb=tax_gb, sf=tax_sf, wb=tax_wb)
-  
-  gb1 <- aggregate(tax_gb$Phylum, by=list(tax_gb$Phylum), FUN="length")
-  gb2 <- aggregate(tax_gb$avg_rel_abdc, by=list(tax_gb$Phylum), FUN="sum")
-  gb_p <- full_join(gb1, gb2, by=("Group.1"="Group.1"))
-  colnames(gb_p) <- c("Phylum", "OTU_number", "avg_rel_abdc")
-  
-  gb1 <- aggregate(tax_gb$Class, by=list(tax_gb$Class), FUN="length")
-  gb2 <- aggregate(tax_gb$avg_rel_abdc, by=list(tax_gb$Class), FUN="sum")
-  gb_c <- full_join(gb1, gb2, by=("Group.1"="Group.1"))
-  colnames(gb_c) <- c("Class", "OTU_number", "avg_rel_abdc")
-  
-  test1  <- lapply(taxes, function(x) aggregate(avg_rel_abdc ~ Phylum, data = x, FUN = "length"))
-  lapply(taxes, function(x) aggregate(avg_rel_abdc ~ Phylum, data = x, FUN = "sum"))
-  
-  return(taxes)
-}
-# FUN prepared list of data sets for adonis
-adonis_prep <- function(taxonomy, occurrence){
-  occurrence$gb["XOTU"] <-rownames(occurrence$gb) 
-  occurrence$sf["XOTU"] <-rownames(occurrence$sf) 
-  occurrence$wb["XOTU"] <-rownames(occurrence$wb)
-  
-  tax <- taxonomy[, c("OTU_ID", "Phylum", "Class")]
-  n <- 0
-  k <- dim(tax)[1]
-  tax["XOTU"] <- NA
-  while (n<k) {
-    n <- n+1
-    tax$XOTU[n] <- paste0("X",tax$OTU_ID[n])
-  }
-  
-  tax_gb <- inner_join(tax, occurrence$gb)
-  tax_sf <- inner_join(tax, occurrence$sf)
-  tax_wb <- inner_join(tax, occurrence$wb)
-  
-  taxes <- list(gb=tax_gb, sf=tax_sf, wb=tax_wb)
-  return(taxes)
-}
-# FUN cleaning class and phylum namines
-cleaning <- function(taxes) {
-  gb <- taxes$gb
-  sf <- taxes$sf
-  wb <- taxes$wb
-  #Renaming & removing whitespaces
-  gb$Phylum <- as.character(str_trim(as.character(gb$Phylum)))
-  sf$Phylum <- as.character(str_trim(as.character(sf$Phylum)))
-  wb$Phylum <- as.character(str_trim(as.character(wb$Phylum)))
-  gb$Class <- as.character(str_trim(as.character(gb$Class)))
-  sf$Class <- as.character(str_trim(as.character(sf$Class)))
-  wb$Class <- as.character(str_trim(as.character(wb$Class)))
-  ## GB
-  gb$Class[(gb$Phylum=="PAUC34f")] <- "PAUC34f_unclassified"
-  gb$Class[(gb$Phylum=="")] <- "unclassified"
-  gb$Phylum[(gb$Phylum=="")] <- "unclassified"
-  gb$Class[(gb$Phylum=="Tectomicrobia")] <- "Tectomicrobia_unclassified"
-  gb$Class[(gb$Phylum=="SBR1093")] <- "SBR1093_unclassified"
-  gb$Class[(gb$Phylum=="Poribacteria")] <- "Poribacteria_unclassified"
-  gb$Class[gb$Phylum=="Chloroflexi" & gb$Class==""] <- "Chloroflexi_unclassified"
-  ## SF
-  sf$Class[(sf$Phylum=="")] <- "unclassified"
-  sf$Phylum[(sf$Phylum=="")] <- "unclassified"
-  sf$Class[(sf$Phylum=="PAUC34f")] <- "PAUC34f_unclassified"
-  sf$Class[(sf$Phylum=="Proteobacteria" & sf$Class=="")] <- "Proteobacteria_unclassified"
-  sf$Class[(sf$Phylum=="Tectomicrobia")] <- "Tectomicrobia_unclassified"
-  sf$Class[(sf$Phylum=="SBR1093")] <- "SBR1093_unclassified"
-  sf$Class[(sf$Phylum=="Poribacteria")] <- "Poribacteria_unclassified"
-  ## WB
-  wb$Class[(wb$Phylum=="")] <- "unclassified"
-  wb$Phylum[(wb$Phylum=="")] <- "unclassified"
-  # merge back
-  taxes <- list(gb=gb, sf=sf, wb=wb)
-  return(taxes)
-}
-
-
-```
 
 
 
