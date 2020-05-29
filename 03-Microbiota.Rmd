@@ -472,52 +472,49 @@ mic_i <- plot_ly(micro_pca_df, x = ~micro_pca_df$PC1, y = ~micro_pca_df$PC2, z =
   add_markers() %>%
   layout(scene = list(xaxis=axx,yaxis=axy,zaxis=axz))
 mic_i
-f<- basename(tempfile('PCA_microbiome_plotly', '.', '.html'))
-on.exit(unlink(f), add = TRUE)
-html <- htmlwidgets::saveWidget(mic_i, f)
+
+#for saving locally
+#f<- basename(tempfile('PCA_microbiome_plotly', '.', '.html'))
+#on.exit(unlink(f), add = TRUE)
+#html <- htmlwidgets::saveWidget(mic_i, f)
+
+rm(mic_i, f, html, k, x1, y1, z1, micro.pca, axx, axy, axz, micro_pca_df)
 ```
 
 
-```{r}
+```{r b-divNMDS, fig.cap="NMDS based on Bray-Curtis dissimilarity."}
 library(plot3D)
 library(rgl)
 library(plotly)
 
-### PCA
+### NMDS
 microbiome<-read.csv("data/OTU_all_R.csv", header=T, sep=";") 
 meta_data <- read.csv("data/Steffen_et_al_metadata_PANGAEA.csv", header=T, sep=";")
 meta_data <- meta_data[meta_data$unified_ID %in% microbiome$Sample_ID,]
 
 rownames(microbiome) <- microbiome[,1]
 microbiome[,1] <- NULL
+#microbiome <- sqrt(microbiome)
 
-micro.pca <- prcomp(microbiome, scale=T)
-k <- summary(micro.pca)[["importance"]]
-micro_pca_df <- data.frame(micro.pca$x) #scores, i.e. principal components of the sponge sample 
-micro_pca_df["unified_ID"] <- as.factor(rownames(micro_pca_df))
-x1 <- paste("PC1", round(k[2,1], digits=3)*100, "%")
-y1 <- paste("PC2", round(k[2,2], digits=3)*100, "%")
-z1 <- paste("PC3", round(k[2,3], digits=3)*100, "%")
-micro_pca_df <- left_join(micro_pca_df[,c("PC1", "PC2", "PC3", "unified_ID")], meta_data[,c("Species", "Depth", "Latitude", "Longitude", "MeanBottomTemp_Cdeg", "MeanBotSalinity_PSU", "unified_ID")])
-
-#ggplot(micro_pca_df, aes(x=PC1, y=PC2))+geom_point(size=3, mapping=aes(shape=factor(Species), col=Depth))+ggtitle(my_title)+xlab(x1)+ylab(y1)+labs(shape="Species")+theme_bw()+theme(legend.position = "none")
-
-#with(micro_pca_df, scatter3D(x = PC1, y = PC2, z = -PC3, colvar =micro_pca_df$Depth, pch = 16, cex = 1.5, xlab =x1, ylab =y1, zlab =z1, clab = c("Depth","m"), main = "3D microbiome PCA", ticktype = "detailed", theta = 10, d = 2, colkey = list(length = 0.5, width = 0.5, cex.clab = 0.75)))
-
-#ks1
-#scatter3D(x=micro_pca_df$PC1, y=micro_pca_df$PC2, micro_pca_df$PC3) #works
-
-#crude #KEEP
-#scatter3D(x=micro_pca_df$PC1, y=micro_pca_df$PC2, micro_pca_df$PC3, phi = 0, bty = "g",pch = 20, cex = 2, ticktype = "detailed")
-
-#scatter3D(x=micro_pca_df$PC1, y=micro_pca_df$PC2, micro_pca_df$PC3, phi = 0, labels = micro_pca_df$unified_ID, bty = "g",pch = 20, cex = 2, ticktype = "detailed",colvar = micro_pca_df$Depth)
-
+micro.mds <- metaMDS(microbiome, k=3, trymax = 100, distance = "bray",trace=FALSE)
+nmds_points <- as.data.frame(micro.mds$points)
+samples<-data.frame(nmds_points$MDS1, nmds_points$MDS2, nmds_points$MDS3)
+samples["unified_ID"] <- rownames(microbiome)
+meta_data <- meta_data[,c("unified_ID", "Depth", "Species")]
+samples <- left_join(samples, meta_data)
+colnames(samples) <- c("PC1", "PC2", "PC3", "unified_ID","Depth","Species")
+stress <- paste("Stress=", round(micro.mds$stress, digits=3))
+x1 <- c("MDS1")
+y1 <- c("MDS2")
+z1 <- c("MDS3")
+#  p <- ggplot(samples, aes(x=nmds_points.MDS1, y=nmds_points.MDS2))+geom_point(aes(shape = Species, alpha=0.5), size=4)+ggtitle(my_title)+ labs(shape='Sponge species')+theme_bw()+theme(legend.position="none")+xlab("NMDS 1")+ylab("NMDS 2")+ annotate("text", x = 0, y = 1, label = stress)
+ 
 # rgl/plot3D
-with(micro_pca_df, text3D(PC1, PC2, PC3,
-                       colvar = micro_pca_df$Depth, theta = 60, phi = 20,
+with(samples, text3D(PC1, PC2, PC3,
+                       colvar = samples$Depth, theta = 60, phi = 20,
                        xlab = x1, ylab = y1, zlab =z1,
-                       main = "3D microbiome PCA",
-                       labels = micro_pca_df$unified_ID, cex = 0.9,
+                       main = "3D microbiome NMDS",
+                       labels = samples$unified_ID, cex = 0.9,
                        bty = "g", ticktype = "detailed", d = 2,
                        clab = c("Depth [m]"), adj = 0.5, font = 2))
 
@@ -543,13 +540,89 @@ axz <- list(
   showbackground=TRUE
 )
 
-mic_i <- plot_ly(micro_pca_df, x = ~micro_pca_df$PC1, y = ~micro_pca_df$PC2, z = ~micro_pca_df$PC3, symbol = ~Species, symbols = c('diamond','x','circle'), color = ~micro_pca_df$Depth) %>%
+mic_i <- plot_ly(samples, x = ~samples$PC1, y = ~samples$PC2, z = ~samples$PC3, symbol = ~Species, symbols = c('diamond','x','circle'), color = samples$Depth) %>%
   add_markers() %>%
   layout(scene = list(xaxis=axx,yaxis=axy,zaxis=axz))
 mic_i
-f<- basename(tempfile('PCA_microbiome_plotly', '.', '.html'))
-on.exit(unlink(f), add = TRUE)
-html <- htmlwidgets::saveWidget(mic_i, f)
+
+#for saving locally
+#f<- basename(tempfile('NMDS_microbiome_plotly', '.', '.html'))
+#on.exit(unlink(f), add = TRUE)
+#html <- htmlwidgets::saveWidget(mic_i, f)
+
+rm(mic_i, f, html, k, x1, y1, z1, micro.mds, axx, axy, axz, samples, nmds_points)
+```
+NMDS ´r stress´.
+
+```{r b-divOPLS, fig.cap="OPLS based on Bray-Curtis dissimilarity."}
+library(plot3D)
+library(rgl)
+library(plotly)
+library(ropls)
+
+### OPLS
+microbiome<-read.csv("data/OTU_all_R.csv", header=T, sep=";") 
+meta_data <- read.csv("data/Steffen_et_al_metadata_PANGAEA.csv", header=T, sep=";")
+meta_data <- meta_data[meta_data$unified_ID %in% microbiome$Sample_ID,]
+
+rownames(microbiome) <- microbiome[,1]
+microbiome[,1] <- NULL
+microbiome <- sqrt(microbiome)
+
+micro.ropls.pca <- opls(microbiome)
+micro.opls<-opls(microbiome, meta_data[, "Depth"], permI=1000, orthoI=2, scaleC="pareto") #orthoI=NA THIS IS NOT A GOOD MODEL
+micro.opls@summaryDF
+m.ortho.score<-getScoreMN(micro.opls, orthoL=T)
+m.pred.score<-getScoreMN(micro.opls, orthoL=F)
+m.df.3d<-data.frame(m.pred.score, m.ortho.score, meta_data$Depth, meta_data$unified_ID, meta_data$Species)
+
+x1 <- c("predicted")
+y1 <- c("orthogonal 1")
+z1 <- c("orthogonal 2")
+#  p <- ggplot(samples, aes(x=nmds_points.MDS1, y=nmds_points.MDS2))+geom_point(aes(shape = Species, alpha=0.5), size=4)+ggtitle(my_title)+ labs(shape='Sponge species')+theme_bw()+theme(legend.position="none")+xlab("NMDS 1")+ylab("NMDS 2")+ annotate("text", x = 0, y = 1, label = stress)
+ 
+# rgl/plot3D
+with(m.df.3d, text3D(p1, o1, o2,
+                       colvar = m.df.3d$micro_meta_data.Depth, theta = 60, phi = 20,
+                       xlab = x1, ylab = y1, zlab =z1,
+                       main = "3D microbiome OPLS",
+                       labels = m.df.3d$meta_data.unified_ID, cex = 0.9,
+                       bty = "g", ticktype = "detailed", d = 2,
+                       clab = c("Depth [m]"), adj = 0.5, font = 2))
+
+## plotly
+axx <- list(
+  backgroundcolor="rgb(211,211,211)",
+  gridcolor="rgb(255,255,255)",
+  title = x1,
+  showbackground=TRUE
+)
+
+axy <- list(
+  backgroundcolor="rgb(211,211,211)",
+  gridcolor="rgb(255,255,255)",
+  title = y1,
+  showbackground=TRUE
+)
+
+axz <- list(
+  backgroundcolor="rgb(211,211,211)",
+  gridcolor="rgb(255,255,255)",
+  title = z1,
+  showbackground=TRUE
+)
+
+mic_i <- plot_ly(m.df.3d, x = ~m.df.3d$p1, y = ~m.df.3d$o1, z = ~m.df.3d$o2, symbol = ~m.df.3d$meta_data.Species, symbols = c('diamond','x','circle'), color = ~m.df.3d$meta_data.Depth) %>%
+  add_markers() %>%
+  layout(scene = list(xaxis=axx,yaxis=axy,zaxis=axz))
+mic_i
+
+# for saving locally
+#f<- basename(tempfile('OPLS_microbiome_plotly', '.', '.html'))
+#on.exit(unlink(f), add = TRUE)
+#html <- htmlwidgets::saveWidget(mic_i, f)
+
+rm(mic_i, f, html, k, x1, y1, z1 , axx, axy, axz, micro.ropls.pca, micro.opls, m.ortho.score, m.pred.score, m.df.3d)
 ```
 
 
