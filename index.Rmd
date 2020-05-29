@@ -95,6 +95,8 @@ readr::write_lines(htmlhead, path = "header.html")
 This is a set of code and data sets to document and reproduce the computational analyses in Steffen _et al._, 2020.
 In brief, it contains three parts: the metabolome, microbiota and inter-omics analyses. For the metabolome, we include detailed descriptions of the metabolomics data acquisition, data processing with xcms, and multivariate analyses with ropls. In addition, signals of known and novel compounds of interest were manually extracted and analysed. For the microbiota, we include community visualisation and ecological analyses in vegan. The inter-omics section contains mantel test and procrustes rotations, as well as the microbial interaction network annotated with the OTU's correlation with barettin, and their response to depth.
 
+We hope to contribute to good science by providing reproducible documentation of the computational workflow. If you have questions, comments or suggestions please feel free to get in touch.
+
 ## Experimental setup 
 
 Three demosponge species _Geodia barretti_ (n=20), _Stryphnus fortis_ (n=15), and _Weberella bursa_ (n=17) (Fig \@ref(fig:sponges)) were sampled in the Davis Strait between Canada and Greenland (61.147942-66.38245 Lat,-68.78077- -57.96573 Lon) from 244 m to 1467 m depth (Fig \@ref(fig:sample-map1), \@ref(fig:sample-map2)). Temperature and salinity _in situ_ were recorded. All sample metadata is deposited at [PANGAEA](https://doi.pangaea.de/10.1594/PANGAEA.909246). All data for these analyses can be downloaded here.
