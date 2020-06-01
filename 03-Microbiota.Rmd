@@ -213,6 +213,28 @@ cleaning <- function(taxes) {
   return(taxes)
 }
 
+md_prep <- function(microbiomes, meta_data){
+  meta_data <- meta_data[, c("unified_ID", "Depth", "Latitude",  "Longitude", "MeanBottomTemp_Cdeg", "MeanBotSalinity_PSU", "YEAR")]
+  
+  gb <- microbiomes$gb
+  sf <- microbiomes$sf
+  wb <- microbiomes$wb
+  
+  gb_md <- meta_data[meta_data$unified_ID %in% rownames(gb),]
+  rownames(gb_md) <- gb_md$unified_ID
+  gb_md <- gb_md[order(gb_md$unified_ID),]
+  all(rownames(microbiomes$gb)==rownames(gb_md))
+  gb_md <- gb_md[,c("Depth","Latitude","Longitude", "MeanBottomTemp_Cdeg", "MeanBotSalinity_PSU", "YEAR")]
+  
+  sf_md <- meta_data[meta_data$unified_ID %in% rownames(sf),]
+  rownames(sf_md) <- sf_md$unified_ID
+  sf_md$unified_ID <- NULL
+  wb_md <- meta_data[meta_data$unified_ID %in% rownames(wb),]
+  rownames(wb_md) <- wb_md$unified_ID
+  wb_md$unified_ID <- NULL
+  mds <- list(gb_md=gb_md, sf_md=sf_md, wb_md=wb_md)
+  return(mds)
+}
 
 ```
 
@@ -1023,6 +1045,9 @@ microbiome<-read.csv("data/OTU_all_R.csv", header=T, sep=";")
 meta_data <- read.csv("data/Steffen_et_al_metadata_PANGAEA.csv", header=T, sep=";")
 meta_data <- meta_data[meta_data$unified_ID %in% microbiome$Sample_ID,]
 
+# No data transformation/normalisation, as Vegantutor (Oksanen, 2013) p. 32 doesn't do it either.
+# betadiver (x, ...); x = community data matrix
+
 OTU_prep <- function(micro){
   rownames(micro) <- micro$Sample_ID
   micro$Sample_ID <- NULL
@@ -1067,19 +1092,35 @@ adonis(bd ~wb_md$depth_category)
 
 
 ```{r joinagain}
+
 library(pheatmap)
 library(RColorBrewer)
 library(viridis)
 
-k <- vegdist(micro_ds$gb)
+microbiome<-read.csv("data/OTU_all_R.csv", header=T, sep=";") 
+meta_data <- read.csv("data/Steffen_et_al_metadata_PANGAEA.csv", header=T, sep=";")
+meta_data <- meta_data[meta_data$unified_ID %in% microbiome$Sample_ID,]
+
+micro_ds <- OTU_prep_sqrt(microbiome)
+mds <- md_prep(microbiomes, meta_data) 
+gb_md <- mds$gb_md
+sf_md <- mds$sf_md
+wb_md <- mds$wb_md
+
+gb_md["depth_category"] <- ifelse(gb_md$Depth<1000, "shallow", "deep")
+sf_md["depth_category"] <- ifelse(sf_md$Depth<1000, "shallow", "deep")
+wb_md["depth_category"] <- ifelse(wb_md$Depth<1000, "shallow", "deep")
+
+
+k <- vegdist(wisconsin(micro_ds$gb))
 mat_col <- data.frame(group = gb_md$depth_category)
-rownames(mat_col) <- gb_md$unified_ID
+rownames(mat_col) <- rownames(micro_ds$gb)
 col_groups <- gb_md$depth_category
 mat_colors <- list(group = c("gold", "dodgerblue"))
 names(mat_colors$group) <- unique(col_groups)
 
 pheatmap(k,
-  color             = magma(20),
+  color             = magma(10),
   border_color      = NA,
   show_colnames     = FALSE,
   show_rownames     = FALSE,
@@ -1089,15 +1130,15 @@ pheatmap(k,
   fontsize          = 14,
   main              = "G. barretti heatmap")
 
-k <- vegdist(micro_ds$sf)
+k <- vegdist(wisconsin(micro_ds$sf))
 mat_col <- data.frame(group = sf_md$depth_category)
-rownames(mat_col) <- sf_md$unified_ID
+rownames(mat_col) <- rownames(micro_ds$sf)
 col_groups <- sf_md$depth_category
 mat_colors <- list(group = c("gold", "dodgerblue"))
 names(mat_colors$group) <- unique(col_groups)
 
 pheatmap(k,
-  color             = magma(20),
+  color             = magma(10),
   border_color      = NA,
   show_colnames     = FALSE,
   show_rownames     = FALSE,
@@ -1107,15 +1148,15 @@ pheatmap(k,
   fontsize          = 14,
   main              = "S. fortis heatmap")
   
-k <- vegdist(micro_ds$wb)
+k <- vegdist(wisconsin(micro_ds$wb))
 mat_col <- data.frame(group = wb_md$depth_category)
-rownames(mat_col) <- wb_md$unified_ID
+rownames(mat_col) <- rownames(micro_ds$wb)
 col_groups <- wb_md$depth_category
 mat_colors <- list(group = c("gold", "dodgerblue"))
 names(mat_colors$group) <- unique(col_groups)
 
 pheatmap(k,
-  color             = magma(20),
+  color             = magma(10),
   border_color      = NA,
   show_colnames     = TRUE,
   show_rownames     = TRUE,
@@ -1125,28 +1166,28 @@ pheatmap(k,
   fontsize          = 10,
   main              = "W. bursa heatmap")
 
-library(dendsort)
-sort_hclust <- function(...) as.hclust(dendsort(as.dendrogram(...)))
-mat_cluster_rows <- sort_hclust(hclust(dist(k)))
-mat_cluster_cols <- hclust(dist(t(k)))
-mat_cluster_cols <- sort_hclust(mat_cluster_cols)
-mat_breaks <- seq(min(k), max(k), length.out = 10)
+#library(dendsort)
+#sort_hclust <- function(...) as.hclust(dendsort(as.dendrogram(...)))
+#mat_cluster_rows <- sort_hclust(hclust(dist(k)))
+#mat_cluster_cols <- hclust(dist(t(k)))
+#mat_cluster_cols <- sort_hclust(mat_cluster_cols)
+#mat_breaks <- seq(min(k), max(k), length.out = 10)
 
-pheatmap(
-  mat               = k,
-  color             = inferno(length(mat_breaks) - 1),
-  breaks            = mat_breaks,
-  border_color      = NA,
-  cluster_cols      = mat_cluster_cols,
-  cluster_rows      = mat_cluster_rows,
-  show_colnames     = TRUE,
-  show_rownames     = TRUE,
-  annotation_col    = mat_col,
-  annotation_colors = mat_colors,
-  drop_levels       = TRUE,
-  fontsize          = 14,
-  main              = "Sorted Dendrograms"
-)
+#pheatmap(
+#  mat               = k,
+#  color             = inferno(length(mat_breaks) - 1),
+#  breaks            = mat_breaks,
+#  border_color      = NA,
+#  cluster_cols      = mat_cluster_cols,
+#  cluster_rows      = mat_cluster_rows,
+#  show_colnames     = TRUE,
+#  show_rownames     = TRUE,
+#  annotation_col    = mat_col,
+#  annotation_colors = mat_colors,
+#  drop_levels       = TRUE,
+#  fontsize          = 14,
+#  main              = "Sorted heatmap"
+#)
 ```
 
 
