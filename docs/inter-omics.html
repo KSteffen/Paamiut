@@ -24,7 +24,7 @@
 <meta name="author" content="Karin Steffen" />
 
 
-<meta name="date" content="2020-04-22" />
+<meta name="date" content="2020-06-02" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <meta name="apple-mobile-web-app-capable" content="yes" />
@@ -689,7 +689,7 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 <li class="chapter" data-level="1.1.3" data-path="index.html"><a href="index.html#sponges"><i class="fa fa-check"></i><b>1.1.3</b> Sponges</a></li>
 </ul></li>
 <li class="chapter" data-level="1.2" data-path="index.html"><a href="index.html#sample-metadata-analysis"><i class="fa fa-check"></i><b>1.2</b> Sample metadata analysis</a><ul>
-<li class="chapter" data-level="1.2.1" data-path="index.html"><a href="index.html#correlations-visual-inspection-and-variance-inflation-factors-vif-across-all-samples"><i class="fa fa-check"></i><b>1.2.1</b> Correlations, visual inspection and variance inflation factors (VIF) across all samples</a></li>
+<li class="chapter" data-level="1.2.1" data-path="index.html"><a href="index.html#index_cor_vif"><i class="fa fa-check"></i><b>1.2.1</b> Correlations, visual inspection and variance inflation factors (VIF) across all samples</a></li>
 <li class="chapter" data-level="1.2.2" data-path="index.html"><a href="index.html#correlations-visual-inspection-and-variance-inflation-factors-vif-across-g.-barretti-samples"><i class="fa fa-check"></i><b>1.2.2</b> Correlations, visual inspection and variance inflation factors (VIF) across <em>G. barretti</em> samples</a></li>
 </ul></li>
 </ul></li>
@@ -712,11 +712,23 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 <li class="chapter" data-level="2.7" data-path="metabolomics.html"><a href="metabolomics.html#correlations"><i class="fa fa-check"></i><b>2.7</b> Correlations</a></li>
 </ul></li>
 <li class="chapter" data-level="3" data-path="microbiota.html"><a href="microbiota.html"><i class="fa fa-check"></i><b>3</b> Microbiota</a><ul>
-<li class="chapter" data-level="3.1" data-path="microbiota.html"><a href="microbiota.html#functions"><i class="fa fa-check"></i><b>3.1</b> Functions</a></li>
-<li class="chapter" data-level="3.2" data-path="microbiota.html"><a href="microbiota.html#relative-abundance"><i class="fa fa-check"></i><b>3.2</b> Relative abundance</a></li>
-<li class="chapter" data-level="3.3" data-path="microbiota.html"><a href="microbiota.html#data-set-description"><i class="fa fa-check"></i><b>3.3</b> Data set description</a></li>
-<li class="chapter" data-level="3.4" data-path="microbiota.html"><a href="microbiota.html#depth-response"><i class="fa fa-check"></i><b>3.4</b> Depth response</a></li>
-<li class="chapter" data-level="3.5" data-path="microbiota.html"><a href="microbiota.html#shortlist"><i class="fa fa-check"></i><b>3.5</b> Shortlist</a></li>
+<li class="chapter" data-level="3.1" data-path="microbiota.html"><a href="microbiota.html#otu-table-overview"><i class="fa fa-check"></i><b>3.1</b> OTU table overview</a></li>
+<li class="chapter" data-level="3.2" data-path="microbiota.html"><a href="microbiota.html#alpha-diversity"><i class="fa fa-check"></i><b>3.2</b> Alpha diversity</a></li>
+<li class="chapter" data-level="3.3" data-path="microbiota.html"><a href="microbiota.html#beta-diversity"><i class="fa fa-check"></i><b>3.3</b> Beta diversity</a></li>
+<li class="chapter" data-level="3.4" data-path="microbiota.html"><a href="microbiota.html#EnvMod"><i class="fa fa-check"></i><b>3.4</b> Environmental modelling</a><ul>
+<li class="chapter" data-level="3.4.1" data-path="microbiota.html"><a href="microbiota.html#constrained"><i class="fa fa-check"></i><b>3.4.1</b> Constrained modelling approach Automatic stepwise model building</a></li>
+<li class="chapter" data-level="3.4.2" data-path="microbiota.html"><a href="microbiota.html#unconstrained"><i class="fa fa-check"></i><b>3.4.2</b> Unconstrained modelling approach</a></li>
+<li class="chapter" data-level="3.4.3" data-path="microbiota.html"><a href="microbiota.html#Hclust"><i class="fa fa-check"></i><b>3.4.3</b> Hierarchical clustering</a></li>
+<li class="chapter" data-level="3.4.4" data-path="microbiota.html"><a href="microbiota.html#watermasses"><i class="fa fa-check"></i><b>3.4.4</b> Oceanographic setting: watermasses</a></li>
+</ul></li>
+<li class="chapter" data-level="3.5" data-path="microbiota.html"><a href="microbiota.html#relative-abundances"><i class="fa fa-check"></i><b>3.5</b> Relative abundances</a><ul>
+<li class="chapter" data-level="3.5.1" data-path="microbiota.html"><a href="microbiota.html#bar-plots"><i class="fa fa-check"></i><b>3.5.1</b> Bar plots</a></li>
+<li class="chapter" data-level="3.5.2" data-path="microbiota.html"><a href="microbiota.html#tabular-overview"><i class="fa fa-check"></i><b>3.5.2</b> Tabular overview</a></li>
+<li class="chapter" data-level="3.5.3" data-path="microbiota.html"><a href="microbiota.html#statistical-comparison-at-phylum-and-class-level"><i class="fa fa-check"></i><b>3.5.3</b> Statistical comparison at phylum and class level</a></li>
+</ul></li>
+<li class="chapter" data-level="3.6" data-path="microbiota.html"><a href="microbiota.html#depth-response-otu-perspective"><i class="fa fa-check"></i><b>3.6</b> Depth response: OTU perspective</a></li>
+<li class="chapter" data-level="3.7" data-path="microbiota.html"><a href="microbiota.html#sequence-similarity"><i class="fa fa-check"></i><b>3.7</b> Sequence similarity</a></li>
+<li class="chapter" data-level="3.8" data-path="microbiota.html"><a href="microbiota.html#phylogeny"><i class="fa fa-check"></i><b>3.8</b> Phylogeny</a></li>
 </ul></li>
 <li class="chapter" data-level="4" data-path="inter-omics.html"><a href="inter-omics.html"><i class="fa fa-check"></i><b>4</b> Inter-omics</a><ul>
 <li class="chapter" data-level="4.1" data-path="inter-omics.html"><a href="inter-omics.html#mantel-test-and-procrustes-rotations"><i class="fa fa-check"></i><b>4.1</b> Mantel test and procrustes rotations</a><ul>
@@ -729,7 +741,7 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 <li class="chapter" data-level="4.2.1" data-path="inter-omics.html"><a href="inter-omics.html#generating-network-based-on-different-algorithms"><i class="fa fa-check"></i><b>4.2.1</b> Generating network based on different algorithms</a></li>
 <li class="chapter" data-level="4.2.2" data-path="inter-omics.html"><a href="inter-omics.html#consolidation-of-the-different-networks"><i class="fa fa-check"></i><b>4.2.2</b> Consolidation of the different networks</a></li>
 </ul></li>
-<li class="chapter" data-level="4.3" data-path="inter-omics.html"><a href="inter-omics.html#shortlist-1"><i class="fa fa-check"></i><b>4.3</b> Shortlist</a></li>
+<li class="chapter" data-level="4.3" data-path="inter-omics.html"><a href="inter-omics.html#shortlist"><i class="fa fa-check"></i><b>4.3</b> Shortlist</a></li>
 </ul></li>
 <li class="chapter" data-level="5" data-path="funding-disclaimer.html"><a href="funding-disclaimer.html"><i class="fa fa-check"></i><b>5</b> Funding disclaimer</a></li>
 <li class="chapter" data-level="" data-path="references.html"><a href="references.html"><i class="fa fa-check"></i>References</a></li>
@@ -760,188 +772,6 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 <h2><span class="header-section-number">4.1</span> Mantel test and procrustes rotations</h2>
 <div id="libraries-and-functions" class="section level3">
 <h3><span class="header-section-number">4.1.1</span> Libraries and functions</h3>
-<div class="sourceCode" id="cb1"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb1-1"><a href="inter-omics.html#cb1-1"></a><span class="kw">library</span>(tidyverse)</span>
-<span id="cb1-2"><a href="inter-omics.html#cb1-2"></a><span class="kw">library</span>(vegan)</span>
-<span id="cb1-3"><a href="inter-omics.html#cb1-3"></a><span class="kw">library</span>(kableExtra)</span>
-<span id="cb1-4"><a href="inter-omics.html#cb1-4"></a></span>
-<span id="cb1-5"><a href="inter-omics.html#cb1-5"></a><span class="co">############# FUNCTIONS #</span></span>
-<span id="cb1-6"><a href="inter-omics.html#cb1-6"></a></span>
-<span id="cb1-7"><a href="inter-omics.html#cb1-7"></a><span class="co"># Prepare dataframes aka &#39;data gymnastics&#39;. The output is a list with the three</span></span>
-<span id="cb1-8"><a href="inter-omics.html#cb1-8"></a><span class="co"># data set per experiment for the three different species gb, sf, wb</span></span>
-<span id="cb1-9"><a href="inter-omics.html#cb1-9"></a>gymnastics &lt;-<span class="st"> </span><span class="cf">function</span>(df, my_colnames) {</span>
-<span id="cb1-10"><a href="inter-omics.html#cb1-10"></a>    df[, <span class="kw">c</span>(<span class="st">&quot;df.1&quot;</span>, <span class="st">&quot;df&quot;</span>, <span class="st">&quot;mz&quot;</span>, <span class="st">&quot;mzmin&quot;</span>, <span class="st">&quot;mzmadf&quot;</span>, <span class="st">&quot;rt&quot;</span>, <span class="st">&quot;rtmin&quot;</span>, <span class="st">&quot;rtmadf&quot;</span>, <span class="st">&quot;npeaks&quot;</span>, </span>
-<span id="cb1-11"><a href="inter-omics.html#cb1-11"></a>        <span class="st">&quot;Gb&quot;</span>, <span class="st">&quot;QC&quot;</span>, <span class="st">&quot;Sf&quot;</span>, <span class="st">&quot;Wb&quot;</span>)] &lt;-<span class="st"> </span><span class="kw">list</span>(<span class="ot">NULL</span>)</span>
-<span id="cb1-12"><a href="inter-omics.html#cb1-12"></a>    df[, <span class="kw">c</span>(<span class="st">&quot;isotopes&quot;</span>, <span class="st">&quot;adduct&quot;</span>, <span class="st">&quot;pcgroup&quot;</span>, <span class="st">&quot;SD&quot;</span>, <span class="st">&quot;MEAN&quot;</span>, <span class="st">&quot;CV&quot;</span>, <span class="st">&quot;fss&quot;</span>, <span class="st">&quot;df.M.H..&quot;</span>, </span>
-<span id="cb1-13"><a href="inter-omics.html#cb1-13"></a>        <span class="st">&quot;raw_peaks.pcgroup&quot;</span>)] &lt;-<span class="st"> </span><span class="kw">list</span>(<span class="ot">NULL</span>)</span>
-<span id="cb1-14"><a href="inter-omics.html#cb1-14"></a>    df &lt;-<span class="st"> </span><span class="kw">data.frame</span>(<span class="kw">t</span>(df))</span>
-<span id="cb1-15"><a href="inter-omics.html#cb1-15"></a>    df[<span class="st">&quot;ID&quot;</span>] &lt;-<span class="st"> </span><span class="kw">rownames</span>(df)</span>
-<span id="cb1-16"><a href="inter-omics.html#cb1-16"></a>    df[<span class="st">&quot;unified_ID&quot;</span>] &lt;-<span class="st"> </span>masslynx<span class="op">$</span>unified_ID[<span class="kw">match</span>(df<span class="op">$</span>ID, masslynx[[my_colnames]])]</span>
-<span id="cb1-17"><a href="inter-omics.html#cb1-17"></a>    df &lt;-<span class="st"> </span><span class="kw">na.omit</span>(df)</span>
-<span id="cb1-18"><a href="inter-omics.html#cb1-18"></a>    df &lt;-<span class="st"> </span>df[<span class="kw">order</span>(df<span class="op">$</span>unified_ID), ]</span>
-<span id="cb1-19"><a href="inter-omics.html#cb1-19"></a>    <span class="kw">rownames</span>(df) &lt;-<span class="st"> </span>df<span class="op">$</span>unified_ID</span>
-<span id="cb1-20"><a href="inter-omics.html#cb1-20"></a>    df[<span class="st">&quot;spec&quot;</span>] &lt;-<span class="st"> </span><span class="kw">str_sub</span>(df<span class="op">$</span>unified_ID, <span class="dv">1</span>, <span class="dv">2</span>)</span>
-<span id="cb1-21"><a href="inter-omics.html#cb1-21"></a>    df &lt;-<span class="st"> </span>df[<span class="op">!</span>df<span class="op">$</span>spec <span class="op">==</span><span class="st"> &quot;QC&quot;</span>, ]</span>
-<span id="cb1-22"><a href="inter-omics.html#cb1-22"></a>    df[, <span class="kw">c</span>(<span class="st">&quot;ID&quot;</span>, <span class="st">&quot;unified_ID&quot;</span>)] &lt;-<span class="st"> </span><span class="kw">list</span>(<span class="ot">NULL</span>)</span>
-<span id="cb1-23"><a href="inter-omics.html#cb1-23"></a>    df_gb &lt;-<span class="st"> </span>df[df<span class="op">$</span>spec <span class="op">==</span><span class="st"> &quot;Gb&quot;</span>, ]</span>
-<span id="cb1-24"><a href="inter-omics.html#cb1-24"></a>    df_sf &lt;-<span class="st"> </span>df[df<span class="op">$</span>spec <span class="op">==</span><span class="st"> &quot;Sf&quot;</span>, ]</span>
-<span id="cb1-25"><a href="inter-omics.html#cb1-25"></a>    df_wb &lt;-<span class="st"> </span>df[df<span class="op">$</span>spec <span class="op">==</span><span class="st"> &quot;Wb&quot;</span>, ]</span>
-<span id="cb1-26"><a href="inter-omics.html#cb1-26"></a>    df_gb<span class="op">$</span>spec &lt;-<span class="st"> </span><span class="ot">NULL</span></span>
-<span id="cb1-27"><a href="inter-omics.html#cb1-27"></a>    df_sf<span class="op">$</span>spec &lt;-<span class="st"> </span><span class="ot">NULL</span></span>
-<span id="cb1-28"><a href="inter-omics.html#cb1-28"></a>    df_wb<span class="op">$</span>spec &lt;-<span class="st"> </span><span class="ot">NULL</span></span>
-<span id="cb1-29"><a href="inter-omics.html#cb1-29"></a>    <span class="co"># ready for mantel</span></span>
-<span id="cb1-30"><a href="inter-omics.html#cb1-30"></a>    metabolome &lt;-<span class="st"> </span><span class="kw">list</span>(<span class="dt">gb =</span> df_gb, <span class="dt">sf =</span> df_sf, <span class="dt">wb =</span> df_wb)</span>
-<span id="cb1-31"><a href="inter-omics.html#cb1-31"></a>    <span class="kw">return</span>(metabolome)</span>
-<span id="cb1-32"><a href="inter-omics.html#cb1-32"></a>}</span>
-<span id="cb1-33"><a href="inter-omics.html#cb1-33"></a></span>
-<span id="cb1-34"><a href="inter-omics.html#cb1-34"></a><span class="co"># Prepares the microbiome data sets to match the metabolomes. The output is a</span></span>
-<span id="cb1-35"><a href="inter-omics.html#cb1-35"></a><span class="co"># list with all microbiomes and metabolomes</span></span>
-<span id="cb1-36"><a href="inter-omics.html#cb1-36"></a>congruency &lt;-<span class="st"> </span><span class="cf">function</span>(metabolomes) {</span>
-<span id="cb1-37"><a href="inter-omics.html#cb1-37"></a>    metabolome_gb &lt;-<span class="st"> </span>metabolomes<span class="op">$</span>gb</span>
-<span id="cb1-38"><a href="inter-omics.html#cb1-38"></a>    metabolome_sf &lt;-<span class="st"> </span>metabolomes<span class="op">$</span>sf</span>
-<span id="cb1-39"><a href="inter-omics.html#cb1-39"></a>    metabolome_wb &lt;-<span class="st"> </span>metabolomes<span class="op">$</span>wb</span>
-<span id="cb1-40"><a href="inter-omics.html#cb1-40"></a>    </span>
-<span id="cb1-41"><a href="inter-omics.html#cb1-41"></a>    micro_gb &lt;-<span class="st"> </span>micro[micro<span class="op">$</span>spec <span class="op">==</span><span class="st"> &quot;Gb&quot;</span>, ]</span>
-<span id="cb1-42"><a href="inter-omics.html#cb1-42"></a>    micro_sf &lt;-<span class="st"> </span>micro[micro<span class="op">$</span>spec <span class="op">==</span><span class="st"> &quot;Sf&quot;</span>, ]</span>
-<span id="cb1-43"><a href="inter-omics.html#cb1-43"></a>    micro_wb &lt;-<span class="st"> </span>micro[micro<span class="op">$</span>spec <span class="op">==</span><span class="st"> &quot;Wb&quot;</span>, ]</span>
-<span id="cb1-44"><a href="inter-omics.html#cb1-44"></a>    </span>
-<span id="cb1-45"><a href="inter-omics.html#cb1-45"></a>    micro_gb[, <span class="kw">c</span>(<span class="st">&quot;spec&quot;</span>, <span class="st">&quot;unified_ID&quot;</span>)] &lt;-<span class="st"> </span><span class="kw">list</span>(<span class="ot">NULL</span>)</span>
-<span id="cb1-46"><a href="inter-omics.html#cb1-46"></a>    micro_sf[, <span class="kw">c</span>(<span class="st">&quot;spec&quot;</span>, <span class="st">&quot;unified_ID&quot;</span>)] &lt;-<span class="st"> </span><span class="kw">list</span>(<span class="ot">NULL</span>)</span>
-<span id="cb1-47"><a href="inter-omics.html#cb1-47"></a>    micro_wb[, <span class="kw">c</span>(<span class="st">&quot;spec&quot;</span>, <span class="st">&quot;unified_ID&quot;</span>)] &lt;-<span class="st"> </span><span class="kw">list</span>(<span class="ot">NULL</span>)</span>
-<span id="cb1-48"><a href="inter-omics.html#cb1-48"></a>    </span>
-<span id="cb1-49"><a href="inter-omics.html#cb1-49"></a>    micro_gb &lt;-<span class="st"> </span>micro_gb[, <span class="kw">colSums</span>(micro_gb <span class="op">!=</span><span class="st"> </span><span class="dv">0</span>) <span class="op">&gt;</span><span class="st"> </span><span class="dv">0</span>]</span>
-<span id="cb1-50"><a href="inter-omics.html#cb1-50"></a>    micro_sf &lt;-<span class="st"> </span>micro_sf[, <span class="kw">colSums</span>(micro_sf <span class="op">!=</span><span class="st"> </span><span class="dv">0</span>) <span class="op">&gt;</span><span class="st"> </span><span class="dv">0</span>]</span>
-<span id="cb1-51"><a href="inter-omics.html#cb1-51"></a>    micro_wb &lt;-<span class="st"> </span>micro_wb[, <span class="kw">colSums</span>(micro_wb <span class="op">!=</span><span class="st"> </span><span class="dv">0</span>) <span class="op">&gt;</span><span class="st"> </span><span class="dv">0</span>]</span>
-<span id="cb1-52"><a href="inter-omics.html#cb1-52"></a>    </span>
-<span id="cb1-53"><a href="inter-omics.html#cb1-53"></a>    micro_gb &lt;-<span class="st"> </span><span class="kw">sqrt</span>(micro_gb)</span>
-<span id="cb1-54"><a href="inter-omics.html#cb1-54"></a>    micro_sf &lt;-<span class="st"> </span><span class="kw">sqrt</span>(micro_sf)</span>
-<span id="cb1-55"><a href="inter-omics.html#cb1-55"></a>    micro_wb &lt;-<span class="st"> </span><span class="kw">sqrt</span>(micro_wb)</span>
-<span id="cb1-56"><a href="inter-omics.html#cb1-56"></a>    </span>
-<span id="cb1-57"><a href="inter-omics.html#cb1-57"></a>    micro_gb &lt;-<span class="st"> </span><span class="kw">wisconsin</span>(micro_gb)</span>
-<span id="cb1-58"><a href="inter-omics.html#cb1-58"></a>    micro_sf &lt;-<span class="st"> </span><span class="kw">wisconsin</span>(micro_sf)</span>
-<span id="cb1-59"><a href="inter-omics.html#cb1-59"></a>    micro_wb &lt;-<span class="st"> </span><span class="kw">wisconsin</span>(micro_wb)</span>
-<span id="cb1-60"><a href="inter-omics.html#cb1-60"></a>    </span>
-<span id="cb1-61"><a href="inter-omics.html#cb1-61"></a>    micro_gb &lt;-<span class="st"> </span>micro_gb[<span class="kw">rownames</span>(micro_gb) <span class="op">%in%</span><span class="st"> </span><span class="kw">rownames</span>(metabolome_gb), ]</span>
-<span id="cb1-62"><a href="inter-omics.html#cb1-62"></a>    metabolome_gb &lt;-<span class="st"> </span>metabolome_gb[<span class="kw">rownames</span>(metabolome_gb) <span class="op">%in%</span><span class="st"> </span><span class="kw">rownames</span>(micro_gb), </span>
-<span id="cb1-63"><a href="inter-omics.html#cb1-63"></a>        ]</span>
-<span id="cb1-64"><a href="inter-omics.html#cb1-64"></a>    <span class="kw">all</span>(<span class="kw">rownames</span>(micro_gb) <span class="op">==</span><span class="st"> </span><span class="kw">rownames</span>(metabolome_gb))</span>
-<span id="cb1-65"><a href="inter-omics.html#cb1-65"></a>    </span>
-<span id="cb1-66"><a href="inter-omics.html#cb1-66"></a>    micro_sf &lt;-<span class="st"> </span>micro_sf[<span class="kw">rownames</span>(micro_sf) <span class="op">%in%</span><span class="st"> </span><span class="kw">rownames</span>(metabolome_sf), ]</span>
-<span id="cb1-67"><a href="inter-omics.html#cb1-67"></a>    metabolome_sf &lt;-<span class="st"> </span>metabolome_sf[<span class="kw">rownames</span>(metabolome_sf) <span class="op">%in%</span><span class="st"> </span><span class="kw">rownames</span>(micro_sf), </span>
-<span id="cb1-68"><a href="inter-omics.html#cb1-68"></a>        ]</span>
-<span id="cb1-69"><a href="inter-omics.html#cb1-69"></a>    <span class="kw">all</span>(<span class="kw">rownames</span>(micro_sf) <span class="op">==</span><span class="st"> </span><span class="kw">rownames</span>(metabolome_sf))</span>
-<span id="cb1-70"><a href="inter-omics.html#cb1-70"></a>    </span>
-<span id="cb1-71"><a href="inter-omics.html#cb1-71"></a>    micro_wb &lt;-<span class="st"> </span>micro_wb[<span class="kw">rownames</span>(micro_wb) <span class="op">%in%</span><span class="st"> </span><span class="kw">rownames</span>(metabolome_wb), ]</span>
-<span id="cb1-72"><a href="inter-omics.html#cb1-72"></a>    metabolome_wb &lt;-<span class="st"> </span>metabolome_wb[<span class="kw">rownames</span>(metabolome_wb) <span class="op">%in%</span><span class="st"> </span><span class="kw">rownames</span>(micro_wb), </span>
-<span id="cb1-73"><a href="inter-omics.html#cb1-73"></a>        ]</span>
-<span id="cb1-74"><a href="inter-omics.html#cb1-74"></a>    <span class="kw">all</span>(<span class="kw">rownames</span>(micro_wb) <span class="op">==</span><span class="st"> </span><span class="kw">rownames</span>(metabolome_wb))</span>
-<span id="cb1-75"><a href="inter-omics.html#cb1-75"></a>    </span>
-<span id="cb1-76"><a href="inter-omics.html#cb1-76"></a>    congruent_dfs &lt;-<span class="st"> </span><span class="kw">list</span>(<span class="dt">micro_gb =</span> micro_gb, <span class="dt">micro_sf =</span> micro_sf, <span class="dt">micro_wb =</span> micro_wb, </span>
-<span id="cb1-77"><a href="inter-omics.html#cb1-77"></a>        <span class="dt">metabolome_gb =</span> metabolome_gb, <span class="dt">metabolome_sf =</span> metabolome_sf, <span class="dt">metabolome_wb =</span> metabolome_wb)</span>
-<span id="cb1-78"><a href="inter-omics.html#cb1-78"></a>    <span class="kw">return</span>(congruent_dfs)</span>
-<span id="cb1-79"><a href="inter-omics.html#cb1-79"></a>}</span>
-<span id="cb1-80"><a href="inter-omics.html#cb1-80"></a></span>
-<span id="cb1-81"><a href="inter-omics.html#cb1-81"></a><span class="co"># MANTEL </span><span class="al">TEST</span><span class="co"> Generates distance matrices &#39;Bray-Curtis&#39; for microbiome, scaled</span></span>
-<span id="cb1-82"><a href="inter-omics.html#cb1-82"></a><span class="co"># &#39;euclidean&#39; for metabolomes, runs a Mantel test with Spearman correlation, and</span></span>
-<span id="cb1-83"><a href="inter-omics.html#cb1-83"></a><span class="co"># saves the parameters to a data frame.</span></span>
-<span id="cb1-84"><a href="inter-omics.html#cb1-84"></a>cloak &lt;-<span class="st"> </span><span class="cf">function</span>(congruent_dfs, experiment, filtering) {</span>
-<span id="cb1-85"><a href="inter-omics.html#cb1-85"></a>    gb_meta_dist &lt;-<span class="st"> </span><span class="kw">vegdist</span>(<span class="kw">scale</span>(congruent_dfs<span class="op">$</span>metabolome_gb), <span class="st">&quot;euclid&quot;</span>)</span>
-<span id="cb1-86"><a href="inter-omics.html#cb1-86"></a>    micro_gb_dist &lt;-<span class="st"> </span><span class="kw">vegdist</span>(congruent_dfs<span class="op">$</span>micro_gb, <span class="dt">method =</span> <span class="st">&quot;bray&quot;</span>)</span>
-<span id="cb1-87"><a href="inter-omics.html#cb1-87"></a>    </span>
-<span id="cb1-88"><a href="inter-omics.html#cb1-88"></a>    sf_meta_dist &lt;-<span class="st"> </span><span class="kw">vegdist</span>(<span class="kw">scale</span>(congruent_dfs<span class="op">$</span>metabolome_sf), <span class="st">&quot;euclid&quot;</span>)</span>
-<span id="cb1-89"><a href="inter-omics.html#cb1-89"></a>    micro_sf_dist &lt;-<span class="st"> </span><span class="kw">vegdist</span>(congruent_dfs<span class="op">$</span>micro_sf, <span class="dt">method =</span> <span class="st">&quot;bray&quot;</span>)</span>
-<span id="cb1-90"><a href="inter-omics.html#cb1-90"></a>    </span>
-<span id="cb1-91"><a href="inter-omics.html#cb1-91"></a>    wb_meta_dist &lt;-<span class="st"> </span><span class="kw">vegdist</span>(<span class="kw">scale</span>(congruent_dfs<span class="op">$</span>metabolome_wb), <span class="st">&quot;euclid&quot;</span>)</span>
-<span id="cb1-92"><a href="inter-omics.html#cb1-92"></a>    micro_wb_dist &lt;-<span class="st"> </span><span class="kw">vegdist</span>(congruent_dfs<span class="op">$</span>micro_wb, <span class="dt">method =</span> <span class="st">&quot;bray&quot;</span>)</span>
-<span id="cb1-93"><a href="inter-omics.html#cb1-93"></a>    </span>
-<span id="cb1-94"><a href="inter-omics.html#cb1-94"></a>    m_gb &lt;-<span class="st"> </span><span class="kw">mantel</span>(micro_gb_dist, gb_meta_dist, <span class="dt">method =</span> <span class="st">&quot;spearman&quot;</span>)</span>
-<span id="cb1-95"><a href="inter-omics.html#cb1-95"></a>    m_sf &lt;-<span class="st"> </span><span class="kw">mantel</span>(micro_sf_dist, sf_meta_dist, <span class="dt">method =</span> <span class="st">&quot;spearman&quot;</span>)</span>
-<span id="cb1-96"><a href="inter-omics.html#cb1-96"></a>    m_wb &lt;-<span class="st"> </span><span class="kw">mantel</span>(micro_wb_dist, wb_meta_dist, <span class="dt">method =</span> <span class="st">&quot;spearman&quot;</span>)</span>
-<span id="cb1-97"><a href="inter-omics.html#cb1-97"></a>    </span>
-<span id="cb1-98"><a href="inter-omics.html#cb1-98"></a>    micro_dim &lt;-<span class="st"> </span><span class="kw">as.data.frame</span>(<span class="kw">t</span>(<span class="kw">dim</span>(congruent_dfs<span class="op">$</span>micro_gb)))</span>
-<span id="cb1-99"><a href="inter-omics.html#cb1-99"></a>    micro_dim &lt;-<span class="st"> </span><span class="kw">rbind</span>(micro_dim, <span class="kw">as.data.frame</span>(<span class="kw">t</span>(<span class="kw">dim</span>(congruent_dfs<span class="op">$</span>micro_sf))))</span>
-<span id="cb1-100"><a href="inter-omics.html#cb1-100"></a>    micro_dim &lt;-<span class="st"> </span><span class="kw">rbind</span>(micro_dim, <span class="kw">as.data.frame</span>(<span class="kw">t</span>(<span class="kw">dim</span>(congruent_dfs<span class="op">$</span>micro_wb))))</span>
-<span id="cb1-101"><a href="inter-omics.html#cb1-101"></a>    <span class="kw">colnames</span>(micro_dim) &lt;-<span class="st"> </span><span class="kw">c</span>(<span class="st">&quot;micro_samples&quot;</span>, <span class="st">&quot;micro_OTUs&quot;</span>)</span>
-<span id="cb1-102"><a href="inter-omics.html#cb1-102"></a>    </span>
-<span id="cb1-103"><a href="inter-omics.html#cb1-103"></a>    meta_dim &lt;-<span class="st"> </span><span class="kw">as.data.frame</span>(<span class="kw">t</span>(<span class="kw">dim</span>(congruent_dfs<span class="op">$</span>metabolome_gb)))</span>
-<span id="cb1-104"><a href="inter-omics.html#cb1-104"></a>    meta_dim &lt;-<span class="st"> </span><span class="kw">rbind</span>(meta_dim, <span class="kw">as.data.frame</span>(<span class="kw">t</span>(<span class="kw">dim</span>(congruent_dfs<span class="op">$</span>metabolome_sf))))</span>
-<span id="cb1-105"><a href="inter-omics.html#cb1-105"></a>    meta_dim &lt;-<span class="st"> </span><span class="kw">rbind</span>(meta_dim, <span class="kw">as.data.frame</span>(<span class="kw">t</span>(<span class="kw">dim</span>(congruent_dfs<span class="op">$</span>metabolome_wb))))</span>
-<span id="cb1-106"><a href="inter-omics.html#cb1-106"></a>    <span class="kw">colnames</span>(meta_dim) &lt;-<span class="st"> </span><span class="kw">c</span>(<span class="st">&quot;meta_samples&quot;</span>, <span class="st">&quot;meta_features&quot;</span>)</span>
-<span id="cb1-107"><a href="inter-omics.html#cb1-107"></a>    </span>
-<span id="cb1-108"><a href="inter-omics.html#cb1-108"></a>    stats &lt;-<span class="st"> </span><span class="kw">data.frame</span>(m_gb<span class="op">$</span>statistic)</span>
-<span id="cb1-109"><a href="inter-omics.html#cb1-109"></a>    stats &lt;-<span class="st"> </span><span class="kw">rbind</span>(stats, m_sf<span class="op">$</span>statistic)</span>
-<span id="cb1-110"><a href="inter-omics.html#cb1-110"></a>    stats &lt;-<span class="st"> </span><span class="kw">rbind</span>(stats, m_wb<span class="op">$</span>statistic)</span>
-<span id="cb1-111"><a href="inter-omics.html#cb1-111"></a>    </span>
-<span id="cb1-112"><a href="inter-omics.html#cb1-112"></a>    signif &lt;-<span class="st"> </span><span class="kw">data.frame</span>(m_gb<span class="op">$</span>signif)</span>
-<span id="cb1-113"><a href="inter-omics.html#cb1-113"></a>    signif &lt;-<span class="st"> </span><span class="kw">rbind</span>(signif, m_sf<span class="op">$</span>signif)</span>
-<span id="cb1-114"><a href="inter-omics.html#cb1-114"></a>    signif &lt;-<span class="st"> </span><span class="kw">rbind</span>(signif, m_wb<span class="op">$</span>signif)</span>
-<span id="cb1-115"><a href="inter-omics.html#cb1-115"></a>    </span>
-<span id="cb1-116"><a href="inter-omics.html#cb1-116"></a>    <span class="kw">colnames</span>(stats) &lt;-<span class="st"> </span><span class="kw">c</span>(<span class="st">&quot;statistic&quot;</span>)</span>
-<span id="cb1-117"><a href="inter-omics.html#cb1-117"></a>    stats[<span class="st">&quot;signif&quot;</span>] &lt;-<span class="st"> </span>signif</span>
-<span id="cb1-118"><a href="inter-omics.html#cb1-118"></a>    stats[<span class="st">&quot;Sponge species&quot;</span>] &lt;-<span class="st"> </span><span class="kw">c</span>(<span class="st">&quot;Geodia barretti&quot;</span>, <span class="st">&quot;Stryphnus fortis&quot;</span>, <span class="st">&quot;Weberella bursa&quot;</span>)</span>
-<span id="cb1-119"><a href="inter-omics.html#cb1-119"></a>    </span>
-<span id="cb1-120"><a href="inter-omics.html#cb1-120"></a>    stats &lt;-<span class="st"> </span><span class="kw">bind_cols</span>(stats, micro_dim)</span>
-<span id="cb1-121"><a href="inter-omics.html#cb1-121"></a>    stats &lt;-<span class="st"> </span><span class="kw">bind_cols</span>(stats, meta_dim)</span>
-<span id="cb1-122"><a href="inter-omics.html#cb1-122"></a>    stats[<span class="st">&quot;data set&quot;</span>] &lt;-<span class="st"> </span>filtering</span>
-<span id="cb1-123"><a href="inter-omics.html#cb1-123"></a>    stats[<span class="st">&quot;Experiment&quot;</span>] &lt;-<span class="st"> </span>experiment</span>
-<span id="cb1-124"><a href="inter-omics.html#cb1-124"></a>    <span class="kw">return</span>(stats)</span>
-<span id="cb1-125"><a href="inter-omics.html#cb1-125"></a>}</span>
-<span id="cb1-126"><a href="inter-omics.html#cb1-126"></a></span>
-<span id="cb1-127"><a href="inter-omics.html#cb1-127"></a><span class="co"># PROTEST NMDS ordination and protest</span></span>
-<span id="cb1-128"><a href="inter-omics.html#cb1-128"></a>ordination &lt;-<span class="st"> </span><span class="cf">function</span>(congruent_dfs, experiment, filtering) {</span>
-<span id="cb1-129"><a href="inter-omics.html#cb1-129"></a>    <span class="co"># If you do not have community data, you should probably set autotransform =</span></span>
-<span id="cb1-130"><a href="inter-omics.html#cb1-130"></a>    <span class="co"># FALSE. k: number of dimensions</span></span>
-<span id="cb1-131"><a href="inter-omics.html#cb1-131"></a>    gb_meta_mds &lt;-<span class="st"> </span><span class="kw">metaMDS</span>(congruent_dfs<span class="op">$</span>metabolome_gb, <span class="dt">trymax =</span> <span class="dv">100</span>, <span class="dt">distance =</span> <span class="st">&quot;euclid&quot;</span>, </span>
-<span id="cb1-132"><a href="inter-omics.html#cb1-132"></a>        <span class="dt">autotransforme =</span> F)</span>
-<span id="cb1-133"><a href="inter-omics.html#cb1-133"></a>    micro_gb_mds &lt;-<span class="st"> </span><span class="kw">metaMDS</span>(congruent_dfs<span class="op">$</span>micro_gb, <span class="dt">trymax =</span> <span class="dv">100</span>, <span class="dt">distance =</span> <span class="st">&quot;bray&quot;</span>)</span>
-<span id="cb1-134"><a href="inter-omics.html#cb1-134"></a>    </span>
-<span id="cb1-135"><a href="inter-omics.html#cb1-135"></a>    sf_meta_mds &lt;-<span class="st"> </span><span class="kw">metaMDS</span>(congruent_dfs<span class="op">$</span>metabolome_sf, <span class="dt">trymax =</span> <span class="dv">100</span>, <span class="dt">distance =</span> <span class="st">&quot;euclid&quot;</span>, </span>
-<span id="cb1-136"><a href="inter-omics.html#cb1-136"></a>        <span class="dt">autotransforme =</span> F)</span>
-<span id="cb1-137"><a href="inter-omics.html#cb1-137"></a>    micro_sf_mds &lt;-<span class="st"> </span><span class="kw">metaMDS</span>(congruent_dfs<span class="op">$</span>micro_sf, <span class="dt">trymax =</span> <span class="dv">100</span>, <span class="dt">distance =</span> <span class="st">&quot;bray&quot;</span>)</span>
-<span id="cb1-138"><a href="inter-omics.html#cb1-138"></a>    </span>
-<span id="cb1-139"><a href="inter-omics.html#cb1-139"></a>    wb_meta_mds &lt;-<span class="st"> </span><span class="kw">metaMDS</span>(congruent_dfs<span class="op">$</span>metabolome_wb, <span class="dt">trymax =</span> <span class="dv">100</span>, <span class="dt">distance =</span> <span class="st">&quot;euclid&quot;</span>, </span>
-<span id="cb1-140"><a href="inter-omics.html#cb1-140"></a>        <span class="dt">autotransforme =</span> F)</span>
-<span id="cb1-141"><a href="inter-omics.html#cb1-141"></a>    micro_wb_mds &lt;-<span class="st"> </span><span class="kw">metaMDS</span>(congruent_dfs<span class="op">$</span>micro_wb, <span class="dt">trymax =</span> <span class="dv">100</span>, <span class="dt">distance =</span> <span class="st">&quot;bray&quot;</span>)</span>
-<span id="cb1-142"><a href="inter-omics.html#cb1-142"></a>    </span>
-<span id="cb1-143"><a href="inter-omics.html#cb1-143"></a>    gb_proc &lt;-<span class="st"> </span><span class="kw">procrustes</span>(micro_gb_mds, gb_meta_mds, <span class="dt">scores =</span> <span class="st">&quot;sites&quot;</span>)</span>
-<span id="cb1-144"><a href="inter-omics.html#cb1-144"></a>    gb_prot &lt;-<span class="st"> </span><span class="kw">protest</span>(micro_gb_mds, gb_meta_mds, <span class="dt">scores =</span> <span class="st">&quot;sites&quot;</span>)</span>
-<span id="cb1-145"><a href="inter-omics.html#cb1-145"></a>    </span>
-<span id="cb1-146"><a href="inter-omics.html#cb1-146"></a>    sf_proc &lt;-<span class="st"> </span><span class="kw">procrustes</span>(micro_sf_mds, sf_meta_mds, <span class="dt">scores =</span> <span class="st">&quot;sites&quot;</span>)</span>
-<span id="cb1-147"><a href="inter-omics.html#cb1-147"></a>    sf_prot &lt;-<span class="st"> </span><span class="kw">protest</span>(micro_sf_mds, sf_meta_mds, <span class="dt">scores =</span> <span class="st">&quot;sites&quot;</span>)</span>
-<span id="cb1-148"><a href="inter-omics.html#cb1-148"></a>    </span>
-<span id="cb1-149"><a href="inter-omics.html#cb1-149"></a>    wb_proc &lt;-<span class="st"> </span><span class="kw">procrustes</span>(micro_wb_mds, wb_meta_mds, <span class="dt">scores =</span> <span class="st">&quot;sites&quot;</span>)</span>
-<span id="cb1-150"><a href="inter-omics.html#cb1-150"></a>    wb_prot &lt;-<span class="st"> </span><span class="kw">protest</span>(micro_wb_mds, wb_meta_mds, <span class="dt">scores =</span> <span class="st">&quot;sites&quot;</span>)</span>
-<span id="cb1-151"><a href="inter-omics.html#cb1-151"></a>    </span>
-<span id="cb1-152"><a href="inter-omics.html#cb1-152"></a>    micro_dim &lt;-<span class="st"> </span><span class="kw">as.data.frame</span>(<span class="kw">t</span>(<span class="kw">dim</span>(congruent_dfs<span class="op">$</span>micro_gb)))</span>
-<span id="cb1-153"><a href="inter-omics.html#cb1-153"></a>    micro_dim &lt;-<span class="st"> </span><span class="kw">rbind</span>(micro_dim, <span class="kw">as.data.frame</span>(<span class="kw">t</span>(<span class="kw">dim</span>(congruent_dfs<span class="op">$</span>micro_sf))))</span>
-<span id="cb1-154"><a href="inter-omics.html#cb1-154"></a>    micro_dim &lt;-<span class="st"> </span><span class="kw">rbind</span>(micro_dim, <span class="kw">as.data.frame</span>(<span class="kw">t</span>(<span class="kw">dim</span>(congruent_dfs<span class="op">$</span>micro_wb))))</span>
-<span id="cb1-155"><a href="inter-omics.html#cb1-155"></a>    <span class="kw">colnames</span>(micro_dim) &lt;-<span class="st"> </span><span class="kw">c</span>(<span class="st">&quot;micro_samples&quot;</span>, <span class="st">&quot;micro_OTUs&quot;</span>)</span>
-<span id="cb1-156"><a href="inter-omics.html#cb1-156"></a>    </span>
-<span id="cb1-157"><a href="inter-omics.html#cb1-157"></a>    meta_dim &lt;-<span class="st"> </span><span class="kw">as.data.frame</span>(<span class="kw">t</span>(<span class="kw">dim</span>(congruent_dfs<span class="op">$</span>metabolome_gb)))</span>
-<span id="cb1-158"><a href="inter-omics.html#cb1-158"></a>    meta_dim &lt;-<span class="st"> </span><span class="kw">rbind</span>(meta_dim, <span class="kw">as.data.frame</span>(<span class="kw">t</span>(<span class="kw">dim</span>(congruent_dfs<span class="op">$</span>metabolome_sf))))</span>
-<span id="cb1-159"><a href="inter-omics.html#cb1-159"></a>    meta_dim &lt;-<span class="st"> </span><span class="kw">rbind</span>(meta_dim, <span class="kw">as.data.frame</span>(<span class="kw">t</span>(<span class="kw">dim</span>(congruent_dfs<span class="op">$</span>metabolome_wb))))</span>
-<span id="cb1-160"><a href="inter-omics.html#cb1-160"></a>    <span class="kw">colnames</span>(meta_dim) &lt;-<span class="st"> </span><span class="kw">c</span>(<span class="st">&quot;meta_samples&quot;</span>, <span class="st">&quot;meta_features&quot;</span>)</span>
-<span id="cb1-161"><a href="inter-omics.html#cb1-161"></a>    </span>
-<span id="cb1-162"><a href="inter-omics.html#cb1-162"></a>    pss &lt;-<span class="st"> </span><span class="kw">data.frame</span>(gb_prot<span class="op">$</span>ss)</span>
-<span id="cb1-163"><a href="inter-omics.html#cb1-163"></a>    pss &lt;-<span class="st"> </span><span class="kw">rbind</span>(pss, sf_prot<span class="op">$</span>ss)</span>
-<span id="cb1-164"><a href="inter-omics.html#cb1-164"></a>    pss &lt;-<span class="st"> </span><span class="kw">rbind</span>(pss, wb_prot<span class="op">$</span>ss)</span>
-<span id="cb1-165"><a href="inter-omics.html#cb1-165"></a>    <span class="kw">colnames</span>(pss) &lt;-<span class="st"> </span><span class="kw">c</span>(<span class="st">&quot;Procrustes SS&quot;</span>)</span>
-<span id="cb1-166"><a href="inter-omics.html#cb1-166"></a>    </span>
-<span id="cb1-167"><a href="inter-omics.html#cb1-167"></a>    cor &lt;-<span class="st"> </span><span class="kw">data.frame</span>(gb_prot<span class="op">$</span>scale)</span>
-<span id="cb1-168"><a href="inter-omics.html#cb1-168"></a>    cor &lt;-<span class="st"> </span><span class="kw">rbind</span>(cor, sf_prot<span class="op">$</span>scale)</span>
-<span id="cb1-169"><a href="inter-omics.html#cb1-169"></a>    cor &lt;-<span class="st"> </span><span class="kw">rbind</span>(cor, wb_prot<span class="op">$</span>scale)</span>
-<span id="cb1-170"><a href="inter-omics.html#cb1-170"></a>    <span class="kw">colnames</span>(cor) &lt;-<span class="st"> </span><span class="kw">c</span>(<span class="st">&quot;correlation in sym. rotation&quot;</span>)</span>
-<span id="cb1-171"><a href="inter-omics.html#cb1-171"></a>    </span>
-<span id="cb1-172"><a href="inter-omics.html#cb1-172"></a>    signif &lt;-<span class="st"> </span><span class="kw">data.frame</span>(gb_prot<span class="op">$</span>signif)</span>
-<span id="cb1-173"><a href="inter-omics.html#cb1-173"></a>    signif &lt;-<span class="st"> </span><span class="kw">rbind</span>(signif, sf_prot<span class="op">$</span>signif)</span>
-<span id="cb1-174"><a href="inter-omics.html#cb1-174"></a>    signif &lt;-<span class="st"> </span><span class="kw">rbind</span>(signif, wb_prot<span class="op">$</span>signif)</span>
-<span id="cb1-175"><a href="inter-omics.html#cb1-175"></a>    <span class="kw">colnames</span>(signif) &lt;-<span class="st"> </span><span class="kw">c</span>(<span class="st">&quot;signif&quot;</span>)</span>
-<span id="cb1-176"><a href="inter-omics.html#cb1-176"></a>    </span>
-<span id="cb1-177"><a href="inter-omics.html#cb1-177"></a>    stats &lt;-<span class="st"> </span><span class="kw">bind_cols</span>(pss, cor, signif, micro_dim, meta_dim)</span>
-<span id="cb1-178"><a href="inter-omics.html#cb1-178"></a>    stats[<span class="st">&quot;data set&quot;</span>] &lt;-<span class="st"> </span>filtering</span>
-<span id="cb1-179"><a href="inter-omics.html#cb1-179"></a>    stats[<span class="st">&quot;Experiment&quot;</span>] &lt;-<span class="st"> </span>experiment</span>
-<span id="cb1-180"><a href="inter-omics.html#cb1-180"></a>    stats[<span class="st">&quot;Sponge species&quot;</span>] &lt;-<span class="st"> </span><span class="kw">c</span>(<span class="st">&quot;Geodia barretti&quot;</span>, <span class="st">&quot;Stryphnus fortis&quot;</span>, <span class="st">&quot;Weberella bursa&quot;</span>)</span>
-<span id="cb1-181"><a href="inter-omics.html#cb1-181"></a>    <span class="kw">return</span>(stats)</span>
-<span id="cb1-182"><a href="inter-omics.html#cb1-182"></a>}</span></code></pre></div>
 </div>
 <div id="data-sets" class="section level3">
 <h3><span class="header-section-number">4.1.2</span> Data sets</h3>
@@ -3491,10 +3321,10 @@ No further filtering for non-zero values was done (more than two non-zero values
 <span id="cb21-11"><a href="inter-omics.html#cb21-11"></a>fastLSA &lt;-<span class="st"> </span>fastLSA[, <span class="kw">c</span>(<span class="dv">3</span>, <span class="dv">4</span>, <span class="dv">1</span>, <span class="dv">2</span>)]</span>
 <span id="cb21-12"><a href="inter-omics.html#cb21-12"></a>fastLSA &lt;-<span class="st"> </span>fastLSA[<span class="kw">order</span>(fastLSA<span class="op">$</span>p.valueBound), ]</span>
 <span id="cb21-13"><a href="inter-omics.html#cb21-13"></a></span>
-<span id="cb21-14"><a href="inter-omics.html#cb21-14"></a><span class="kw">write.csv</span>(fastLSA, <span class="st">&quot;fastLSA_for_networks.csv&quot;</span>)</span>
-<span id="cb21-15"><a href="inter-omics.html#cb21-15"></a><span class="kw">rm</span>(fastLSA, key)</span></code></pre></div>
+<span id="cb21-14"><a href="inter-omics.html#cb21-14"></a><span class="co"># write.csv(fastLSA, &#39;fastLSA_for_networks.csv&#39;)</span></span>
+<span id="cb21-15"><a href="inter-omics.html#cb21-15"></a><span class="kw">rm</span>(key)</span></code></pre></div>
 <p>LSA scores range from -1 for strong negatively correlations to 1, for strong positive correlations. There were no negative correlations in this data setand we refrained from scaleding the LSA score furhter.
-The resulting network contrained <code>length(unique(c(fastLSA$index1, fastLSA$index2)))</code> nodes and <code>(dim(fastLSA)[1])-1</code> edges.</p>
+The resulting network contrained 129 nodes and 207 edges.</p>
 </div>
 <div id="sparcc" class="section level4">
 <h4><span class="header-section-number">4.2.1.3</span> SparCC</h4>
@@ -3571,7 +3401,7 @@ The resulting network contrained <code>length(unique(c(fastLSA$index1, fastLSA$i
 <span id="cb27-8"><a href="inter-omics.html#cb27-8"></a><span class="co"># Calculate MIC of original data set.</span></span>
 <span id="cb27-9"><a href="inter-omics.html#cb27-9"></a>MINE &lt;-<span class="st"> </span><span class="kw">mine</span>(OTU)</span>
 <span id="cb27-10"><a href="inter-omics.html#cb27-10"></a>MIC &lt;-<span class="st"> </span>MINE<span class="op">$</span>MIC  <span class="co">#dim(MIC): 289 289</span></span></code></pre></div>
-<p>Obtaining p-values for this statistic can be achieved by premutation of the original OTU table as below or emprirically, by selecting the thousandth stronges interactions.</p>
+<p>Obtaining p-values for this statistic can be achieved by premutation of the original OTU table as below or empirically, by selecting the thousand strongest interactions.</p>
 <div class="sourceCode" id="cb28"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb28-1"><a href="inter-omics.html#cb28-1"></a><span class="co"># 10 needs to be replaced with 1000 for final version, three times!!!</span></span>
 <span id="cb28-2"><a href="inter-omics.html#cb28-2"></a><span class="co"># reshuffling the OTU table, saving the MIC to a list, a total of 1000 times</span></span>
 <span id="cb28-3"><a href="inter-omics.html#cb28-3"></a>n &lt;-<span class="st"> </span><span class="dv">0</span></span>
@@ -3935,7 +3765,7 @@ The resulting network contrained <code>length(unique(c(fastLSA$index1, fastLSA$i
 </div>
 </div>
 </div>
-<div id="shortlist-1" class="section level2">
+<div id="shortlist" class="section level2">
 <h2><span class="header-section-number">4.3</span> Shortlist</h2>
 <p>We believe the producer of barettin (and related compounds) to have the following properties:</p>
 <ul>
@@ -3951,7 +3781,7 @@ The resulting network contrained <code>length(unique(c(fastLSA$index1, fastLSA$i
 <div class="sourceCode" id="cb49"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb49-1"><a href="inter-omics.html#cb49-1"></a><span class="kw">sessionInfo</span>()</span></code></pre></div>
 <pre><code>## R version 3.5.1 (2018-07-02)
 ## Platform: x86_64-apple-darwin15.6.0 (64-bit)
-## Running under: macOS  10.14.6
+## Running under: macOS  10.15.4
 ## 
 ## Matrix products: default
 ## BLAS: /Library/Frameworks/R.framework/Versions/3.5/Resources/lib/libRblas.0.dylib

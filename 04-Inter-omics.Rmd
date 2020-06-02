@@ -13,14 +13,6 @@ knitr::opts_chunk$set(echo = TRUE, tidy=TRUE, message = FALSE, warning = FALSE)
 library(knitr)
 ```
 
-# Inter-omics
-
-The inter-omics analyses are comprised of three parts. In the first part, we evaluate congruency of the prokaryotic and metabolomic data set as a whole using numerical methods (Mantel test) and ordination (Procrustes rotation and Protest). The second part consists of generating a microbial interaction network and annotating it with depth response of the OTUs and correlation with the barettin signal. In the third part, we rank OTUs based on properties hypothesised to be true forthe producer of barettin.
-
-## Mantel test and procrustes rotations
-
-### Libraries and functions
-
 ```{r io1_functions}
 library(tidyverse)
 library(vegan)
@@ -194,6 +186,14 @@ ordination <- function(congruent_dfs, experiment, filtering){
 }
 
 ```
+
+# Inter-omics
+
+The inter-omics analyses are comprised of three parts. In the first part, we evaluate congruency of the prokaryotic and metabolomic data set as a whole using numerical methods (Mantel test) and ordination (Procrustes rotation and Protest). The second part consists of generating a microbial interaction network and annotating it with depth response of the OTUs and correlation with the barettin signal. In the third part, we rank OTUs based on properties hypothesised to be true forthe producer of barettin.
+
+## Mantel test and procrustes rotations
+
+### Libraries and functions
 
 ### Data sets
 
@@ -403,7 +403,7 @@ $ ./fastLSA -i ../gb_289_feb2019.txt -d 0 -a 0.05 -o ../gb_289_feb2019.out
 The output file, as specified on the website, containes five columns. 'index1' and 'index2' represent the significant paired indices ranging from 0 to n-1 (OTUs/ASVs). LSA denotes the LSA statistic of each pair, lag was set to 0 with the -d flag and the p-valueBound column provides the p-value's upper boundary for the significantly paired p-value.
 
 To produce comparable data sets, we replaced the indices with their OTU IDs and removed superfluous columns.
-```{r fastLSA2, echo=T, eval=F}
+```{r fastLSA2, echo=T, eval=T}
 fastLSA <- read.csv("data/gb_289_feb2019.out", header = T, sep = "")
 key <- read.csv("data/fastLSA_index_otu_CORRECTEDfeb2019.csv", header=T, sep=";")
 
@@ -417,12 +417,12 @@ fastLSA$X <- NULL
 fastLSA <- fastLSA[,c(3, 4, 1, 2)]
 fastLSA <- fastLSA[order(fastLSA$p.valueBound),]
 
-write.csv(fastLSA, "fastLSA_for_networks.csv")
-rm(fastLSA, key)
+#write.csv(fastLSA, "fastLSA_for_networks.csv")
+rm(key)
 ```
 
 LSA scores range from -1 for strong negatively correlations to 1, for strong positive correlations. There were no negative correlations in this data setand we refrained from scaleding the LSA score furhter.
-The resulting network contrained `length(unique(c(fastLSA$index1, fastLSA$index2)))` nodes and `(dim(fastLSA)[1])-1` edges.
+The resulting network contrained `r length(unique(c(fastLSA$index1_otu, fastLSA$index2_otu)))` nodes and `r (dim(fastLSA)[1])-1` edges.
 
 #### SparCC
 SparCC (Friedman and Alm, 2012) is a network building algorithm for compositional data and can be found at https://bitbucket.org/yonatanf/sparcc.
@@ -520,7 +520,7 @@ MINE <- mine(OTU)
 MIC <- MINE$MIC #dim(MIC): 289 289
 ```
 
-Obtaining p-values for this statistic can be achieved by premutation of the original OTU table as below or emprirically, by selecting the thousandth stronges interactions.
+Obtaining p-values for this statistic can be achieved by premutation of the original OTU table as below or empirically, by selecting the thousand strongest interactions.
 
 ```{r MIC2, eval=F}
 # 10 needs to be replaced with 1000 for final version, three times!!!

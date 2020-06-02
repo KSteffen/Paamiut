@@ -553,7 +553,92 @@ rn_pca <- pca_wrapper(rp_neg, md, "RP pos")
 
 library(gridExtra)
 grid.arrange(hp_pca, hn_pca, rp_pca, rn_pca, nrow=2)
+```
 
+For a general overview of the metabolomic data, Fig. @\ref{fig:all-ropls-plot} is an OPLS model predicting variation as a function of depth versus orthogonal variation in all three sponge metabolomes combined. It is based on the HILIC positive cleaned data.
+
+```{r all-ropls, echo=TRUE, eval=FALSE}
+library(ropls)
+library(dplyr)
+library(ggplot2)
+library(tidyverse)
+library(vegan)
+
+# load data
+hilic_pos <- read.csv("data/HILIC_pos_20190417_cleaned.csv", header=T, sep = ",")
+meta_data <- read.csv("data/Steffen_et_al_metadata_PANGAEA.csv", header=T, sep=";")
+
+formatting <- function(metabolome, meta_data, r, my_colnames) {
+  formatted <- metabolome
+  formatted <- formatted[,14:(dim(formatted)[2]-r)]
+  formatted <- data.frame(t(formatted))
+  formatted["ID"] <- rownames(formatted)
+  formatted["unified_ID"] <-meta_data$unified_ID[match(formatted$ID, meta_data[[my_colnames]])]
+  formatted["filter"] <- str_sub(formatted$unified_ID,1,2)
+  formatted <- formatted[!formatted$filter=="QC",]
+  formatted <- na.omit(formatted)
+  #formatted$filter <- NULL
+  formatted$ID <- NULL
+  formatted <- formatted[order(formatted$unified_ID),] 
+  rownames(formatted) <- formatted$unified_ID
+  return(formatted)
+}
+
+hilic_pos <- formatting(hilic_pos, meta_data, 6, "LC.MS.HILIC.positive")
+md <- meta_data[,c("Species", "Depth", "Latitude", "Longitude", "YEAR", "MeanBottomTemp_Cdeg", "MeanBotSalinity_PSU", "unified_ID")]
+md <- md[md$unified_ID %in% rownames(hilic_pos),]
+md <- md[order(md$unified_ID),]   
+all(rownames(hilic_pos)==md$unified_ID)
+hilic_pos[, c("unified_ID", "filter")]<- list(NULL)
+hilic.ropls.pca <- opls(hilic_pos, plotL=FALSE)
+hilic.opls<-opls(hilic_pos, md[, "Depth"], permI=1000, orthoI=NA, scaleC="pareto", plotL=FALSE)
+h.ortho.score<-getScoreMN(hilic.opls, orthoL=T)
+h.pred.score<-getScoreMN(hilic.opls, orthoL=F)
+h.df.3d<-data.frame(h.pred.score, h.ortho.score, md$Depth, md$unified_ID, md$Species)
+#write.csv(h.df.3d, "data/metabolome_opls_3d.csv")
+#hilic.opls@summaryDF
+#      R2X(cum) R2Y(cum) Q2(cum) RMSEE pre ort  pR2Y   pQ2
+#Total    0.534    0.987   0.662  43.7   1   4 0.001 0.001
+```
+
+```{r all-ropls-plot, fig.cap="Multivariate analysis (OPLS) of all sponge metabolomes by depth. At this point, this is purely for overview. In depth methods and evaluation are provided in the section below."}
+library(plotly)
+h.df.3d <- read.csv("data/metabolome_opls_3d.csv", sep = ",", header = T)
+#format background and axes
+axx <- list(
+  backgroundcolor="rgb(211,211,211)",
+  gridcolor="rgb(255,255,255)",
+  title = "predicted",
+  showbackground=TRUE
+)
+
+axy <- list(
+  backgroundcolor="rgb(211,211,211)",
+  gridcolor="rgb(255,255,255)",
+  title = "orthogonal 1",
+  showbackground=TRUE
+)
+
+axz <- list(
+  backgroundcolor="rgb(211,211,211)",
+  gridcolor="rgb(255,255,255)",
+  title = "orthogonal 2",
+  showbackground=TRUE
+)
+met3D <- plot_ly(h.df.3d, x = ~h.df.3d$p1, y = ~h.df.3d$o1, z = ~h.df.3d$o2, symbol = ~md.Species, symbols = c('diamond','x','circle'), color = ~h.df.3d$md.Depth) %>%
+  add_markers() %>%
+  layout(scene = list(xaxis=axx,yaxis=axy,zaxis=axz))
+met3D
+
+# for saving
+#f<- basename(tempfile('OPLS_metabolome_plotly', '.', '.html'))
+#on.exit(unlink(f), add = TRUE)
+#html <- htmlwidgets::saveWidget(met3D, f)
+
+```
+
+
+```{r metbolome-permanova}
 library(vegan)
 
 permanova <- function(metabolome, md){
@@ -787,8 +872,6 @@ library(ggExtra)
 ggMarginal(k, groupColour = TRUE, groupFill = TRUE)
 
 ```
-
-??? add at least one picture of an opls
 
 ## VIPS
 From the multivariate model (OPLS) you can derive a vaiable importance in projection (VIF) score for every feature in this model. This is a approximation (but not a statistics test!) of features that support the model.

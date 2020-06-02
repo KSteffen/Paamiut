@@ -1041,7 +1041,7 @@ bioenv(wisconsin(microbiomes$wb)~ Depth + Latitude + Longitude + MeanBottomTemp_
 
 ### Oceanographic setting: watermasses {#watermasses} 
 
-```{r betadisper}
+```{r betadisper, echo=F, eval=F}
 #  We perform an ANOVA test on the group dispersion. If the ANOVA's p-value is not significant, that means that group dispersions are homogenous (Null hypothesis of no difference in dispersion between groups)
 
 microbiome<-read.csv("data/OTU_all_R.csv", header=T, sep=";") 
