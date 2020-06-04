@@ -505,7 +505,7 @@ rm(cor_file_m, newdf, p_vals_m, i, cols)
 ```
 
 #### Maximal information coefficient MIC 
-MIC for pariwise interaction was calculated with the R package minearva. The MIC is part of a statistic called Maximal Information-Based Nonparametric Exploration (MINE).
+MIC for pairwise interaction was calculated with the R package minearva. The MIC is part of a statistic called Maximal Information-Based Nonparametric Exploration (MINE).
 
 ```{r MIC1, tidy=TRUE}
 library(minerva)
@@ -520,7 +520,7 @@ MINE <- mine(OTU)
 MIC <- MINE$MIC #dim(MIC): 289 289
 ```
 
-Obtaining p-values for this statistic can be achieved by premutation of the original OTU table as below or empirically, by selecting the thousand strongest interactions.
+Obtaining p-values for this statistic can be achieved by permutation of the original OTU table as below or empirically, by selecting the thousand strongest interactions.
 
 ```{r MIC2, eval=F}
 # 10 needs to be replaced with 1000 for final version, three times!!!
