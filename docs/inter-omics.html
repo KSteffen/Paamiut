@@ -24,7 +24,7 @@
 <meta name="author" content="Karin Steffen" />
 
 
-<meta name="date" content="2020-06-02" />
+<meta name="date" content="2020-06-08" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <meta name="apple-mobile-web-app-capable" content="yes" />
@@ -719,7 +719,7 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 <li class="chapter" data-level="3.4.1" data-path="microbiota.html"><a href="microbiota.html#constrained"><i class="fa fa-check"></i><b>3.4.1</b> Constrained modelling approach Automatic stepwise model building</a></li>
 <li class="chapter" data-level="3.4.2" data-path="microbiota.html"><a href="microbiota.html#unconstrained"><i class="fa fa-check"></i><b>3.4.2</b> Unconstrained modelling approach</a></li>
 <li class="chapter" data-level="3.4.3" data-path="microbiota.html"><a href="microbiota.html#Hclust"><i class="fa fa-check"></i><b>3.4.3</b> Hierarchical clustering</a></li>
-<li class="chapter" data-level="3.4.4" data-path="microbiota.html"><a href="microbiota.html#watermasses"><i class="fa fa-check"></i><b>3.4.4</b> Oceanographic setting: watermasses</a></li>
+<li class="chapter" data-level="3.4.4" data-path="microbiota.html"><a href="microbiota.html#watermasses"><i class="fa fa-check"></i><b>3.4.4</b> Oceanographic setting: water masses</a></li>
 </ul></li>
 <li class="chapter" data-level="3.5" data-path="microbiota.html"><a href="microbiota.html#relative-abundances"><i class="fa fa-check"></i><b>3.5</b> Relative abundances</a><ul>
 <li class="chapter" data-level="3.5.1" data-path="microbiota.html"><a href="microbiota.html#bar-plots"><i class="fa fa-check"></i><b>3.5.1</b> Bar plots</a></li>
@@ -3390,7 +3390,7 @@ The resulting network contrained 129 nodes and 207 edges.</p>
 </div>
 <div id="maximal-information-coefficient-mic" class="section level4">
 <h4><span class="header-section-number">4.2.1.4</span> Maximal information coefficient MIC</h4>
-<p>MIC for pariwise interaction was calculated with the R package minearva. The MIC is part of a statistic called Maximal Information-Based Nonparametric Exploration (MINE).</p>
+<p>MIC for pairwise interaction was calculated with the R package minearva. The MIC is part of a statistic called Maximal Information-Based Nonparametric Exploration (MINE).</p>
 <div class="sourceCode" id="cb27"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb27-1"><a href="inter-omics.html#cb27-1"></a><span class="kw">library</span>(minerva)</span>
 <span id="cb27-2"><a href="inter-omics.html#cb27-2"></a></span>
 <span id="cb27-3"><a href="inter-omics.html#cb27-3"></a>OTU &lt;-<span class="st"> </span><span class="kw">read.csv</span>(<span class="st">&quot;data/gb_289.csv&quot;</span>, <span class="dt">header =</span> T, <span class="dt">sep =</span> <span class="st">&quot;;&quot;</span>)</span>
@@ -3401,7 +3401,7 @@ The resulting network contrained 129 nodes and 207 edges.</p>
 <span id="cb27-8"><a href="inter-omics.html#cb27-8"></a><span class="co"># Calculate MIC of original data set.</span></span>
 <span id="cb27-9"><a href="inter-omics.html#cb27-9"></a>MINE &lt;-<span class="st"> </span><span class="kw">mine</span>(OTU)</span>
 <span id="cb27-10"><a href="inter-omics.html#cb27-10"></a>MIC &lt;-<span class="st"> </span>MINE<span class="op">$</span>MIC  <span class="co">#dim(MIC): 289 289</span></span></code></pre></div>
-<p>Obtaining p-values for this statistic can be achieved by premutation of the original OTU table as below or empirically, by selecting the thousand strongest interactions.</p>
+<p>Obtaining p-values for this statistic can be achieved by permutation of the original OTU table as below or empirically, by selecting the thousand strongest interactions.</p>
 <div class="sourceCode" id="cb28"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb28-1"><a href="inter-omics.html#cb28-1"></a><span class="co"># 10 needs to be replaced with 1000 for final version, three times!!!</span></span>
 <span id="cb28-2"><a href="inter-omics.html#cb28-2"></a><span class="co"># reshuffling the OTU table, saving the MIC to a list, a total of 1000 times</span></span>
 <span id="cb28-3"><a href="inter-omics.html#cb28-3"></a>n &lt;-<span class="st"> </span><span class="dv">0</span></span>
