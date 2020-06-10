@@ -2188,8 +2188,8 @@ We produced fasta files, i.e. files containing the DNA sequences of the OTUs in 
 
 ```{r sequence-similarity, eval=F}
 #Load one set of files at a time
-#ali <- read.alignment("data/gb_reads_for_phylogeny_MAFFT.fasta", "fasta")
-#anno <- read.csv("data/gb_OTUs_overall_rabdc_annotated.csv", header=T, sep=",")
+ali <- read.alignment("data/gb_reads_for_phylogeny_MAFFT.fasta", "fasta")
+anno <- read.csv("data/gb_OTUs_overall_rabdc_annotated.csv", header=T, sep=",")
 
 #ali <- read.alignment("data/sf_reads_for_phylogeny_MAFFT.fasta", "fasta")
 #anno <- read.csv("data/sf_OTUs_overall_rabdc_annotated.csv", header=T, sep=",")
@@ -2250,16 +2250,82 @@ dist <- pw_dist(ali, anno)
 rm(ali, anno, dist)
 ```
 
-```{r sequence-similarity-2, echo=F, eval=T}
-# Sister OTUs / Ecotypes
-dist_gb <- read.csv("data/gb_similarity.csv")
-dist_sf <- read.csv("data/sf_similarity.csv")
+```{r ecotypes-cortest, echo=F, eval=F}
+### ====================cor test fdr instead of ttest fdr ==========================
+
+ali <- read.alignment("data/gb_reads_for_phylogeny_MAFFT.fasta", "fasta")
+anno <- read.csv("data/gb_OTUs_overall_rabdc_annotated.csv", header=T, sep=",")
+
+head(anno)
+
+pw_dist2 <- function(ali, anno){
+  dist <- as.matrix(dist.alignment(ali, matrix = "similarity" ))  #https://www.researchgate.net/post/Homology_similarity_and_identity-can_anyone_help_with_these_terms
+  # dist.alignment: matrix contains the squared root of the pairwise distances. For example, if identity between 2 sequences is 80 the squared root of (1.0 - 0.8) i.e. 0.4472136.
+  dist <- dist**2
+  dist <- 1-dist
+  #dist is now "%" identity, 1=100 % 
+  dist <- melt(dist)
+  # Remove irrelevant entries, i.e. self-comparison and similarities below the threshold, this step now speeds up later steps, but not mandatory
+  dist <- dist[dist$value>=0.97,]
+  dist <- dist[!dist$value==1,]
+  
+  # This removes AB - BA duplicates
+  cols <- c("Var1", "Var2")
+  newdf <- dist [,cols]
+  for (i in 1:nrow(newdf)){
+    newdf[i, ] = sort(newdf[i,cols])
+  }
+  newdf <- newdf[!duplicated(newdf),]
+  
+  # add back similarity values to the remaining comparisons/pairs
+  dist <- left_join(newdf, dist, by=c("Var1"="Var1", "Var2"="Var2"))
+  dist
+  # annotate OTUs
+  anno["OTU_num"] <- str_replace(anno$XOTU, "X", "")
+  anno <- anno[,c("OTU_num", "shallow_mean", "deep_mean", "classification", "inc_dec_p_val", "fdr")]
+  anno["cat"] <- c("none")
+  anno$cat[anno$fdr<0.05 & anno$classification=="decreasing"] <- c("shallow") # can be set to "inc_dec_p_val" instead for less stringency
+  anno$cat[anno$fdr<0.05 & anno$classification=="increasing"] <- c("deep") # can be set to "inc_dec_p_val" instead for less stringency
+  anno <- anno[,c("OTU_num", "cat")]
+  anno$OTU_num <- as.numeric(anno$OTU_num)
+  colnames(anno) <- c("Var1", "Var1_cat")
+  dist <- left_join(dist, anno)
+  colnames(anno) <- c("Var2", "Var2_cat")
+  dist <- left_join(dist, anno)
+  
+  # remove not significant comparisons
+  dist <- dist[!dist$Var1_cat=="none" & !dist$Var2_cat=="none" & !dist$Var1_cat==dist$Var2_cat,] 
+  # order
+  dist <- dist[order(dist$Var1_cat, dist$Var2_cat),]
+  return(dist)
+}
+
+dist <- pw_dist2(ali, anno)
+dist <- data.frame(unique(c(dist$Var1, dist$Var2)))
+colnames(dist) <- c("OTU_ID")
+OTU_dist_taxonomy <- left_join(dist, taxonomy)
 ```
 
-In the _G. barretti_ prokaryotic community, there are `r dim(dist_gb)[1]` pairs of OTUs with a sequence similarity $\geq$ 97% and difference in abundance above/below 1000 m (_p_ ~FDR~ $\leq$ 0.05). In the _S. fortis_ prokaryotic community, there are `r dim(dist_sf)[1]` pairs of OTUs with a sequence similarity $\geq$ 97% and difference in abundance above/below 1000 m (_p_ ~FDR~ $\leq$ 0.05). In the _W. bursa_ åprokaryotic community, none of the members have a significant different abundance in the two water masses.
+```{r sequence-similarity-2, echo=T, eval=T}
+# Sister OTUs / Ecotypes
+dist_gb <- read.csv("data/gb_similarity.csv")
+dist_gb$Var1 <- str_replace(dist_gb$Var1,"X196900", "")
+dist_gb$Var2 <- str_replace(dist_gb$Var2,"X196900", "")
+colnames(dist_gb) <- c("OTU1", "OTU2", "sequence similarity", "category OTU1", "category OTU2")
+dist_gb
+dist_sf <- read.csv("data/sf_similarity.csv")
+dist_sf$Var1 <- str_replace(dist_sf$Var1,"X196900", "")
+dist_sf$Var2 <- str_replace(dist_sf$Var2,"X196900", "")
+colnames(dist_sf) <- c("OTU1", "OTU2", "sequence similarity", "category OTU1", "category OTU2")
+dist_sf
+```
+
+In the _G. barretti_ prokaryotic community, there are `r dim(dist_gb)[1]` pairs of OTUs with a sequence similarity $\geq$ 97% and difference in abundance above/below 1000 m (_p_ ~FDR~ $\leq$ 0.05). In the _S. fortis_ prokaryotic community, there are `r dim(dist_sf)[1]` pairs of OTUs with a sequence similarity $\geq$ 97% and difference in abundance above/below 1000 m (_p_ ~FDR~ $\leq$ 0.05). In the _W. bursa_ prokaryotic community, none of the members have a significant different abundance in the two water masses.
 We interpret these instances as ecotypes, that is, sister OTUs (closely related OTUs) adapted/affiliated to the two different water masses.
 
+
 ```{r sisterOTU-viz, echo=T, eval=T, fig.asp=1.5, fig.cap="Relative abundance of all sister OTUs in _G. barretti_ and _S.fortis_. Note that only the category \"both\" and the respective sponge host (gb or sf) are relevant. The OTUs classified as sister OTUs in the other sponge are added for comparison only."}
+
 ### For Ecotype/ sister OTU discussion
 gb_OTUs <- read.csv("data/gb_OTUs_overall_rabdc_annotated.csv", header=T, sep=",")
 sf_OTUs <- read.csv("data/sf_OTUs_overall_rabdc_annotated.csv", header=T, sep=",")
@@ -2298,6 +2364,8 @@ sisters["combined"] <- c("both")
 sisters$combined[is.na(sisters$sis_sf)] <- c("gb")
 sisters$combined[is.na(sisters$sis_gb)] <- c("sf")
 
+str(gb_OTUs)
+str(sisters)
 
 gb_sis <- left_join(sisters, gb_OTUs, by=c("sis"="OTU_num"))
 gb_sis_m <- gb_sis %>% #instead of reshape2::melt
@@ -2310,7 +2378,6 @@ ggplot(gb_sis_m, aes(x=order, y=value, col=combined))+geom_point()+facet_wrap(~s
 
 
 sf_sis <- left_join(sisters, sf_OTUs, by=c("sis"="OTU_num"))
-
 sf_sis_m <- sf_sis %>% #instead of reshape2::melt
   pivot_longer(
     col=starts_with("Sf")
@@ -2319,6 +2386,22 @@ sf_sis_m <- sf_sis %>% #instead of reshape2::melt
 sf_sis_m["order"] <- as.numeric(str_replace(sf_sis_m$name, "Sf", ""))
 ggplot(sf_sis_m, aes(x=order, y=value, col=combined))+geom_point()+facet_wrap(~sis, scales = "free", ncol=4)+ggtitle("Sf sister OTUs")+geom_vline(xintercept = 8.5)+theme(legend.position = "bottom")
 
+###====================== Taxonomy table ================================ 
+taxonomy <- read.csv("data/microbiome_taxonomy.csv", header = T, sep = ";")
+taxonomy["OTU_num"] <- as.numeric(str_replace(taxonomy$OTU_ID,"196900",""))
+taxonomy <- taxonomy[,c("OTU_num", "Kingdom","Phylum","Class")]
+
+OTU_num_gb$sis_gb <- NULL 
+colnames(OTU_num_gb) <- c("OTU_num")
+OTU_num_gb$OTU_num <- as.numeric(as.character(OTU_num_gb$OTU_num))
+gb_sis_tax <- left_join(OTU_num_gb, taxonomy)
+gb_sis_tax
+
+OTU_num_sf$sis_sf <- NULL 
+colnames(OTU_num_sf) <- c("OTU_num")
+OTU_num_sf$OTU_num <- as.numeric(as.character(OTU_num_sf$OTU_num))
+sf_sis_tax <- left_join(OTU_num_sf, taxonomy)
+sf_sis_tax
 ```
 
 
