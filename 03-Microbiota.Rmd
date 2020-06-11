@@ -1707,7 +1707,7 @@ kable(wb_C, col.names = c("Class", "OTU count", "cum. avg. abundance"), longtabl
 
 ### Statistical comparison at phylum and class level
 
-```{r class-phylum-stats-2, echo=F}
+```{r class-phylum-stats-2, echo=F, eval=F}
 # PHYLUM
 phylum <- full_join(phy_rabdc$gb, phy_rabdc$sf, by = c("Phylum"))
 phylum <- full_join(phylum, phy_rabdc$wb, by = c("Phylum"))
@@ -1738,7 +1738,7 @@ wc <- wilcox.test(class$gb_avg, class$sf_avg) #Gb & Sf
 # Comparing Gb and Fs microbiota shows no siginifcant difference, as seems so by eye.
 ```
 
-```{r class-phylum-stats-3, echo=T, eval=T}
+```{r class-phylum-stats-3, echo=F, eval=F}
 # Is this valid???
 #======================= Testing differences at phylum and class level ===========
 micro_ds <- OTU_prep_sqrt(micro)
@@ -1999,6 +1999,44 @@ write.csv(sf_response, "data/sf_response.csv")
 write.csv(wb_response, "data/wb_response.csv")   
 ```
 
+We've shown that thre is a substantial fraction of OTUs changing with depth in the three sponges. How much do these OTUs contribute the the respecive samples' microbiota? (Are these just rare OTU?)
+
+```{r relative-abdc-fraction}
+micro <- read.csv("data/OTU_all_R.csv", header = T, sep = ";")
+meta_data <- read.csv("data/Steffen_et_al_metadata_PANGAEA.csv", header=T, sep=";")
+
+meta_data <- meta_data_prep(meta_data)
+micro_ds <- OTU_prep_sqrt(micro) 
+rabdc <- lapply(micro_ds, overall_rabdc)
+response <- lapply(rabdc, inc_dec, meta_data=meta_data)
+# until here same as in previous chunk (increade-decrease)
+
+# How much  in terms of relative abundance do OTUs increasing/decreasing contribute?
+resp_subset <- response$gb
+resp_subset <- resp_subset[resp_subset$classification=="increasing" |resp_subset$classification=="decreasing" ,]
+rabdc$gb["XOTU"] <- rownames(rabdc$gb)
+changes <- left_join(resp_subset, rabdc$gb)
+apply(changes[,6:19], 2, sum)
+q <- apply(changes[,6:19], 2, sum)
+
+resp_subset <- response$sf
+resp_subset <- resp_subset[resp_subset$classification=="increasing" |resp_subset$classification=="decreasing" ,]
+rabdc$sf["XOTU"] <- rownames(rabdc$sf)
+changes <- left_join(resp_subset, rabdc$sf)
+apply(changes[,6:20], 2, sum)
+w <- apply(changes[,6:20], 2, sum)
+
+resp_subset <- response$wb
+resp_subset <- resp_subset[resp_subset$classification=="increasing" |resp_subset$classification=="decreasing" ,]
+rabdc$wb["XOTU"] <- rownames(rabdc$wb)
+changes <- left_join(resp_subset, rabdc$wb)
+apply(changes[,6:21], 2, sum)
+e <- apply(changes[,6:21], 2, sum)
+
+```
+
+It turns out they contribute substantially: in _G. barretti_ mean `r round(mean(q), digits=3)` (`r round(sd(q), digits=3)` SD),  in _S. fortis_ mean `r round(mean(w), digits=3)` (`r round(sd(w), digits=3)` SD),  in _W. bursa_ mean `r round(mean(e), digits=3)` (`r round(sd(e), digits=3)` SD). 
+
 ```{r EMP-inc-dec, echo=F,eval=F}
 ### Additional segment to figure out which of the increasing/decreasing OTUs are SpongeEMP enriched. These are manually coloured in the corresponding figure.
 emp <- read.csv("data/SpongeEMP.csv", header=T, sep=";")
@@ -2130,7 +2168,7 @@ write.csv(wb_OTUs, "data/wb_OTUs_overall_rabdc_annotated.csv", row.names =F)
 ```
 
 
-In this Fig.\@ref(fig:increade-decrease) as well as in Tab. \@ref(tab:increade-decrease), we see that at the OTU level, we observe shifts. While sometimes more gradual, there seem to OTUs exclusievely present in the "shallow" or the "deep" samples in all three sponges. In fact, in _G. barretti_ and _S. fortis_, the number of OTUs increasing with depth ("deep water mass microbiome") is greater than the number of OTUs decreasing. This leads us to believe that the deep water mass contains microbes yet to discover.
+In Fig.\@ref(fig:increade-decrease) as well as in Tab. \@ref(tab:increade-decrease), we see that at the OTU level, we observe shifts. While sometimes more gradual, there seem to OTUs exclusively present in the "shallow" or the "deep" samples in all three sponges. In fact, in _G. barretti_ and _S. fortis_, the number of OTUs increasing with depth ("deep water mass microbiome") is greater than the number of OTUs decreasing. This leads us to believe that the deep water mass contains microbes yet to discover. The OTUs increasing and decreasing also represent substantial parts of the three sponge microbiota.
 
 
 ## Sequence similarity
@@ -2323,8 +2361,7 @@ dist_sf
 In the _G. barretti_ prokaryotic community, there are `r dim(dist_gb)[1]` pairs of OTUs with a sequence similarity $\geq$ 97% and difference in abundance above/below 1000 m (_p_ ~FDR~ $\leq$ 0.05). In the _S. fortis_ prokaryotic community, there are `r dim(dist_sf)[1]` pairs of OTUs with a sequence similarity $\geq$ 97% and difference in abundance above/below 1000 m (_p_ ~FDR~ $\leq$ 0.05). In the _W. bursa_ prokaryotic community, none of the members have a significant different abundance in the two water masses.
 We interpret these instances as ecotypes, that is, sister OTUs (closely related OTUs) adapted/affiliated to the two different water masses.
 
-
-```{r sisterOTU-viz, echo=T, eval=T, fig.asp=1.5, fig.cap="Relative abundance of all sister OTUs in _G. barretti_ and _S.fortis_. Note that only the category \"both\" and the respective sponge host (gb or sf) are relevant. The OTUs classified as sister OTUs in the other sponge are added for comparison only."}
+```{r sisterOTU-viz, echo=T, eval=T, fig.asp=1.5, fig.cap="Relative abundance of all sister OTUs shown for _G. barretti_ and _S.fortis_. "}
 
 ### For Ecotype/ sister OTU discussion
 gb_OTUs <- read.csv("data/gb_OTUs_overall_rabdc_annotated.csv", header=T, sep=",")
@@ -2364,9 +2401,6 @@ sisters["combined"] <- c("both")
 sisters$combined[is.na(sisters$sis_sf)] <- c("gb")
 sisters$combined[is.na(sisters$sis_gb)] <- c("sf")
 
-str(gb_OTUs)
-str(sisters)
-
 gb_sis <- left_join(sisters, gb_OTUs, by=c("sis"="OTU_num"))
 gb_sis_m <- gb_sis %>% #instead of reshape2::melt
   pivot_longer(
@@ -2385,7 +2419,12 @@ sf_sis_m <- sf_sis %>% #instead of reshape2::melt
 
 sf_sis_m["order"] <- as.numeric(str_replace(sf_sis_m$name, "Sf", ""))
 ggplot(sf_sis_m, aes(x=order, y=value, col=combined))+geom_point()+facet_wrap(~sis, scales = "free", ncol=4)+ggtitle("Sf sister OTUs")+geom_vline(xintercept = 8.5)+theme(legend.position = "bottom")
+```
 
+It is important to note that only the category "both" and the respective sponge host (gb or sf) are relevant for each plot. The OTUs classified as sister OTUs in the other sponge are added for comparison only. This is meant to allow comparison as an OTU might be increasing in one sponge and decreasing in the other as it occurrs e.g. in OTU192 and potentially also OTU208. It also illustrates the difficulties of adequately assigning and testing for ecotypes.
+Which of these OTUs make up the pairs of correspnding ecotypes is displayed in the tables below for _G. barretti_ and _S. fortis_ respectively.
+
+```{r sis-tax}
 ###====================== Taxonomy table ================================ 
 taxonomy <- read.csv("data/microbiome_taxonomy.csv", header = T, sep = ";")
 taxonomy["OTU_num"] <- as.numeric(str_replace(taxonomy$OTU_ID,"196900",""))
