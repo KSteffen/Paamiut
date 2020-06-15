@@ -1,0 +1,32 @@
+DATASET_CONNECTION
+SEPARATOR COMMA
+DATASET_LABEL,ecotypes connections
+
+COLOR,#00FF00
+DRAW_ARROWS,0
+MAXIMUM_LINE_WIDTH,2
+CURVE_ANGLE,30
+CENTER_CURVES,0
+ALIGN_TO_LABELS,1
+
+DATA
+
+323,418,1,#00FF00,normal,ecotype
+236,310,1,#00FF00,normal,ecotype
+280,363,1,#00FF00,normal,ecotype
+231,367,1,#00FF00,normal,ecotype
+589,596,1,#00FF00,normal,ecotype
+192,527,1,#00FF00,normal,ecotype
+144,578,1,#00FF00,normal,ecotype
+144,337,1,#00FF00,normal,ecotype
+253,445,1,#00FF00,normal,ecotype
+208,323,1,#00FF00,normal,ecotype
+418,546,1,#00FF00,normal,ecotype
+196,236,1,#00FF00,normal,ecotype
+180,236,1,#00FF00,normal,ecotype
+284,658,1,#00FF00,normal,ecotype
+363,384,1,#00FF00,normal,ecotype
+213,242,1,#00FF00,normal,ecotype
+161,242,1,#00FF00,normal,ecotype
+307,537,1,#00FF00,normal,ecotype
+331,528,1,#00FF00,normal,ecotype

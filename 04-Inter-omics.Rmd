@@ -372,6 +372,131 @@ summary(a$Group.3)
 ```
 Out of the `r dim(diagnostics)[1]` tests performed, `r dim(diagnostics[diagnostics$signif<=0.05,])[1]` are significant (_p_ $\leq$ 0.05). Immediately above you can see the the significant tests broken down by sponge species, HPCL-experiment and filtering approach.
 
+## Correlating barettin and prokaryotic relative abundance
+```{r barettin-correlation, echo=TRUE, eval=TRUE, fig.asp=1.3}
+cmp <- read.csv("data/metabolite_master_20190605.csv", header=T, sep=",")
+cmp$X <- NULL
+meta_data <- read.csv("data/Steffen_et_al_metadata_PANGAEA.csv", header = T, sep = ";")   
+micro <- read.csv("data/OTU_all_R.csv", header = T, sep = ";")
+
+# preparing meta data
+meta_data_prep <- function(meta_data){
+  meta_data <- meta_data[, c("unified_ID", "Depth", "Latitude", "Longitude", "MeanBottomTemp_Cdeg", "MeanBotSalinity_PSU", "YEAR")]
+  colnames(meta_data) <- c("unified_ID", "Depth", "Latitude", "Longitude", "Temperature", "Salinity", "Year")
+  meta_data <- meta_data[!(str_sub(meta_data$unified_ID, 1,2)=="QC"),]
+  meta_data[] <- lapply(meta_data, function(x) if(is.factor(x)) factor(x) else x)
+  # Gb12, Gb20 and Gb21 are missing temperature and salinity. Imputing data from closeby samples:
+  meta_data$Salinity[meta_data$unified_ID=="Gb12"] <- 34.92
+  meta_data$Salinity[meta_data$unified_ID=="Gb20"] <- 34.92
+  meta_data$Salinity[meta_data$unified_ID=="Gb21"] <- 34.56
+  meta_data$Temperature[meta_data$unified_ID=="Gb12"] <- 3.71
+  meta_data$Temperature[meta_data$unified_ID=="Gb20"] <- 3.65
+  meta_data$Temperature[meta_data$unified_ID=="Gb21"] <- 2.32
+  meta_data["spec"] <- str_sub(meta_data$unified_ID,1,2)
+  meta_data <- meta_data[order(meta_data$unified_ID),]
+  return(meta_data)  
+}
+
+meta_data <- meta_data_prep(meta_data)
+
+# separating OTU tables by sponge
+OTU_prep_sqrt <- function(micro){
+  rownames(micro) <- micro$Sample_ID
+  micro$Sample_ID <- NULL
+  #micro <- sqrt(micro) #sqrt could be toggled on/off here
+  
+  micro_gb <- micro[(str_sub(rownames(micro), 1,2)=="Gb"),]
+  micro_sf <- micro[(str_sub(rownames(micro), 1,2)=="Sf"),]
+  micro_wb <- micro[(str_sub(rownames(micro), 1,2)=="Wb"),]
+  
+  micro_gb <- micro_gb[,colSums(micro_gb!=0)>0]
+  micro_sf <- micro_sf[,colSums(micro_sf!=0)>0]
+  micro_wb <- micro_wb[,colSums(micro_wb!=0)>0]
+  micros <- list(gb=micro_gb, sf=micro_sf, wb=micro_wb)
+  return(micros)  
+}
+
+micro_ds <- OTU_prep_sqrt(micro) 
+
+# calculating overall relative abundance of each OTU per sample
+overall_rabdc <- function(micros){
+  mic <- micros
+  n <- 0
+  k <- dim(mic)[1]
+  mic["rowsum"] <- apply(mic, 1, sum)
+  
+  while (n<k) {
+    n <- n+1
+    mic[n,] <- mic[n,]/(mic$rowsum[n])
+  }
+  
+  mic$rowsum <- NULL
+  mic <- data.frame(t(mic))
+#  mic["avg_rel_abdc"] <- apply(mic, 1, mean)
+#  mic["occurrence"] <- ifelse(mic$avg>0.0025, "common", "rare")
+  return(mic)
+}
+
+rabdc <- lapply(micro_ds, overall_rabdc)
+
+# preparing congruent data sets
+common_samples <- intersect(colnames(rabdc$gb), cmp$unified_ID)
+rabdc <- rabdc$gb[,colnames(rabdc$gb) %in% common_samples]
+rabdc <- data.frame(t(rabdc))
+
+cmp <- cmp[cmp$unified_ID %in% common_samples,]
+cmp[] <- lapply(cmp, function(x) if(is.factor(x)) factor(x) else x)
+cmp <- cmp[order((cmp$unified_ID)),]
+
+all(rownames(rabdc)==cmp$unified_ID)
+
+# CORRELATION for Gb and Sf
+
+bar_cor <- function(rabdc_df, cmp){
+  barettin <- data.frame(colnames(rabdc_df))
+  colnames(barettin) <- "XOTU"
+  barettin["barettin_estimate_P"] <- NA
+  barettin["barettin_p_val_P"] <- NA
+  barettin["barettin_estimate_S"] <- NA
+  barettin["barettin_p_val_S"] <- NA
+  
+  n <- 0
+  k <- dim(barettin)[1]
+  while (n<k) {
+    n <- n+1
+    barettin$barettin_estimate_P[n] <- cor.test(as.numeric(rabdc_df[,n]), cmp$bar, method="pearson")$estimate
+    barettin$barettin_p_val_P[n] <- cor.test(as.numeric(rabdc_df[,n]), cmp$bar, method="pearson")$p.value
+    barettin$barettin_estimate_S[n] <- cor.test(as.numeric(rabdc_df[,n]), cmp$bar, method="spearman")$estimate
+    barettin$barettin_p_val_S[n] <- cor.test(as.numeric(rabdc_df[,n]), cmp$bar, method="spearman")$p.value
+  }
+  
+  barettin["barettin_fdr_P"] <- NA
+  barettin["barettin_fdr_S"] <- NA
+  barettin$barettin_fdr_P <- p.adjust(barettin$barettin_p_val_P, method="fdr")
+  barettin$barettin_fdr_S <- p.adjust(barettin$barettin_p_val_S, method="fdr")
+  return(barettin)
+}
+
+barettin_cor <- bar_cor(rabdc, cmp)
+head(barettin_cor)
+
+#write.csv(barettin_cor, "data/GB_OTU_barettin_correlation.csv", row.names = F)
+
+par(mfrow=c(1,3))
+hist(barettin_cor$barettin_estimate_P, main="Pearson's pmcc: \n OTU rel abdc ~ barettin signal")
+hist(barettin_cor$barettin_p_val_P, breaks=20, main="Pearson's pmcc p-value")
+hist(barettin_cor$barettin_fdr_P, breaks=20, main="Pearson's pmcc \n fdr corrected p-value")
+par(mfrow=c(1,1))
+
+par(mfrow=c(1,3))
+hist(barettin_cor$barettin_estimate_S, main="Spearman's rho: \n OTU rel abdc ~ barettin signal")
+hist(barettin_cor$barettin_p_val_S, breaks=20, main="Spearman's rho p-value")
+hist(barettin_cor$barettin_fdr_S, breaks=20, main="Spearman's rho \n fdr corrected p-value")
+par(mfrow=c(1,1))
+
+```
+
+
 ## Microbial interaction network
 
 ### Generating network based on different algorithms

@@ -24,7 +24,7 @@
 <meta name="author" content="Karin Steffen" />
 
 
-<meta name="date" content="2020-06-08" />
+<meta name="date" content="2020-06-14" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <meta name="apple-mobile-web-app-capable" content="yes" />
@@ -728,7 +728,6 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 </ul></li>
 <li class="chapter" data-level="3.6" data-path="microbiota.html"><a href="microbiota.html#depth-response-otu-perspective"><i class="fa fa-check"></i><b>3.6</b> Depth response: OTU perspective</a></li>
 <li class="chapter" data-level="3.7" data-path="microbiota.html"><a href="microbiota.html#sequence-similarity"><i class="fa fa-check"></i><b>3.7</b> Sequence similarity</a></li>
-<li class="chapter" data-level="3.8" data-path="microbiota.html"><a href="microbiota.html#phylogeny"><i class="fa fa-check"></i><b>3.8</b> Phylogeny</a></li>
 </ul></li>
 <li class="chapter" data-level="4" data-path="inter-omics.html"><a href="inter-omics.html"><i class="fa fa-check"></i><b>4</b> Inter-omics</a><ul>
 <li class="chapter" data-level="4.1" data-path="inter-omics.html"><a href="inter-omics.html#mantel-test-and-procrustes-rotations"><i class="fa fa-check"></i><b>4.1</b> Mantel test and procrustes rotations</a><ul>
@@ -737,11 +736,12 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 <li class="chapter" data-level="4.1.3" data-path="inter-omics.html"><a href="inter-omics.html#mantel-test-code-and-tabular-output"><i class="fa fa-check"></i><b>4.1.3</b> Mantel test code and tabular output</a></li>
 <li class="chapter" data-level="4.1.4" data-path="inter-omics.html"><a href="inter-omics.html#procrustes-rotation-and-protest-code-and-tabular-output"><i class="fa fa-check"></i><b>4.1.4</b> Procrustes rotation and protest code and tabular output</a></li>
 </ul></li>
-<li class="chapter" data-level="4.2" data-path="inter-omics.html"><a href="inter-omics.html#microbial-interaction-network"><i class="fa fa-check"></i><b>4.2</b> Microbial interaction network</a><ul>
-<li class="chapter" data-level="4.2.1" data-path="inter-omics.html"><a href="inter-omics.html#generating-network-based-on-different-algorithms"><i class="fa fa-check"></i><b>4.2.1</b> Generating network based on different algorithms</a></li>
-<li class="chapter" data-level="4.2.2" data-path="inter-omics.html"><a href="inter-omics.html#consolidation-of-the-different-networks"><i class="fa fa-check"></i><b>4.2.2</b> Consolidation of the different networks</a></li>
+<li class="chapter" data-level="4.2" data-path="inter-omics.html"><a href="inter-omics.html#correlating-barettin-and-prokaryotic-relative-abundance"><i class="fa fa-check"></i><b>4.2</b> Correlating barettin and prokaryotic relative abundance</a></li>
+<li class="chapter" data-level="4.3" data-path="inter-omics.html"><a href="inter-omics.html#microbial-interaction-network"><i class="fa fa-check"></i><b>4.3</b> Microbial interaction network</a><ul>
+<li class="chapter" data-level="4.3.1" data-path="inter-omics.html"><a href="inter-omics.html#generating-network-based-on-different-algorithms"><i class="fa fa-check"></i><b>4.3.1</b> Generating network based on different algorithms</a></li>
+<li class="chapter" data-level="4.3.2" data-path="inter-omics.html"><a href="inter-omics.html#consolidation-of-the-different-networks"><i class="fa fa-check"></i><b>4.3.2</b> Consolidation of the different networks</a></li>
 </ul></li>
-<li class="chapter" data-level="4.3" data-path="inter-omics.html"><a href="inter-omics.html#shortlist"><i class="fa fa-check"></i><b>4.3</b> Shortlist</a></li>
+<li class="chapter" data-level="4.4" data-path="inter-omics.html"><a href="inter-omics.html#shortlist"><i class="fa fa-check"></i><b>4.4</b> Shortlist</a></li>
 </ul></li>
 <li class="chapter" data-level="5" data-path="funding-disclaimer.html"><a href="funding-disclaimer.html"><i class="fa fa-check"></i><b>5</b> Funding disclaimer</a></li>
 <li class="chapter" data-level="" data-path="references.html"><a href="references.html"><i class="fa fa-check"></i>References</a></li>
@@ -3283,10 +3283,155 @@ ion
 <p>Out of the 36 tests performed, 16 are significant (<em>p</em> <span class="math inline">\(\leq\)</span> 0.05). Immediately above you can see the the significant tests broken down by sponge species, HPCL-experiment and filtering approach.</p>
 </div>
 </div>
+<div id="correlating-barettin-and-prokaryotic-relative-abundance" class="section level2">
+<h2><span class="header-section-number">4.2</span> Correlating barettin and prokaryotic relative abundance</h2>
+<div class="sourceCode" id="cb20"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb20-1"><a href="inter-omics.html#cb20-1"></a>cmp &lt;-<span class="st"> </span><span class="kw">read.csv</span>(<span class="st">&quot;data/metabolite_master_20190605.csv&quot;</span>, <span class="dt">header =</span> T, <span class="dt">sep =</span> <span class="st">&quot;,&quot;</span>)</span>
+<span id="cb20-2"><a href="inter-omics.html#cb20-2"></a>cmp<span class="op">$</span>X &lt;-<span class="st"> </span><span class="ot">NULL</span></span>
+<span id="cb20-3"><a href="inter-omics.html#cb20-3"></a>meta_data &lt;-<span class="st"> </span><span class="kw">read.csv</span>(<span class="st">&quot;data/Steffen_et_al_metadata_PANGAEA.csv&quot;</span>, <span class="dt">header =</span> T, <span class="dt">sep =</span> <span class="st">&quot;;&quot;</span>)</span>
+<span id="cb20-4"><a href="inter-omics.html#cb20-4"></a>micro &lt;-<span class="st"> </span><span class="kw">read.csv</span>(<span class="st">&quot;data/OTU_all_R.csv&quot;</span>, <span class="dt">header =</span> T, <span class="dt">sep =</span> <span class="st">&quot;;&quot;</span>)</span>
+<span id="cb20-5"><a href="inter-omics.html#cb20-5"></a></span>
+<span id="cb20-6"><a href="inter-omics.html#cb20-6"></a><span class="co"># preparing meta data</span></span>
+<span id="cb20-7"><a href="inter-omics.html#cb20-7"></a>meta_data_prep &lt;-<span class="st"> </span><span class="cf">function</span>(meta_data) {</span>
+<span id="cb20-8"><a href="inter-omics.html#cb20-8"></a>    meta_data &lt;-<span class="st"> </span>meta_data[, <span class="kw">c</span>(<span class="st">&quot;unified_ID&quot;</span>, <span class="st">&quot;Depth&quot;</span>, <span class="st">&quot;Latitude&quot;</span>, <span class="st">&quot;Longitude&quot;</span>, <span class="st">&quot;MeanBottomTemp_Cdeg&quot;</span>, </span>
+<span id="cb20-9"><a href="inter-omics.html#cb20-9"></a>        <span class="st">&quot;MeanBotSalinity_PSU&quot;</span>, <span class="st">&quot;YEAR&quot;</span>)]</span>
+<span id="cb20-10"><a href="inter-omics.html#cb20-10"></a>    <span class="kw">colnames</span>(meta_data) &lt;-<span class="st"> </span><span class="kw">c</span>(<span class="st">&quot;unified_ID&quot;</span>, <span class="st">&quot;Depth&quot;</span>, <span class="st">&quot;Latitude&quot;</span>, <span class="st">&quot;Longitude&quot;</span>, <span class="st">&quot;Temperature&quot;</span>, </span>
+<span id="cb20-11"><a href="inter-omics.html#cb20-11"></a>        <span class="st">&quot;Salinity&quot;</span>, <span class="st">&quot;Year&quot;</span>)</span>
+<span id="cb20-12"><a href="inter-omics.html#cb20-12"></a>    meta_data &lt;-<span class="st"> </span>meta_data[<span class="op">!</span>(<span class="kw">str_sub</span>(meta_data<span class="op">$</span>unified_ID, <span class="dv">1</span>, <span class="dv">2</span>) <span class="op">==</span><span class="st"> &quot;QC&quot;</span>), ]</span>
+<span id="cb20-13"><a href="inter-omics.html#cb20-13"></a>    meta_data[] &lt;-<span class="st"> </span><span class="kw">lapply</span>(meta_data, <span class="cf">function</span>(x) <span class="cf">if</span> (<span class="kw">is.factor</span>(x)) </span>
+<span id="cb20-14"><a href="inter-omics.html#cb20-14"></a>        <span class="kw">factor</span>(x) <span class="cf">else</span> x)</span>
+<span id="cb20-15"><a href="inter-omics.html#cb20-15"></a>    <span class="co"># Gb12, Gb20 and Gb21 are missing temperature and salinity. Imputing data from</span></span>
+<span id="cb20-16"><a href="inter-omics.html#cb20-16"></a>    <span class="co"># closeby samples:</span></span>
+<span id="cb20-17"><a href="inter-omics.html#cb20-17"></a>    meta_data<span class="op">$</span>Salinity[meta_data<span class="op">$</span>unified_ID <span class="op">==</span><span class="st"> &quot;Gb12&quot;</span>] &lt;-<span class="st"> </span><span class="fl">34.92</span></span>
+<span id="cb20-18"><a href="inter-omics.html#cb20-18"></a>    meta_data<span class="op">$</span>Salinity[meta_data<span class="op">$</span>unified_ID <span class="op">==</span><span class="st"> &quot;Gb20&quot;</span>] &lt;-<span class="st"> </span><span class="fl">34.92</span></span>
+<span id="cb20-19"><a href="inter-omics.html#cb20-19"></a>    meta_data<span class="op">$</span>Salinity[meta_data<span class="op">$</span>unified_ID <span class="op">==</span><span class="st"> &quot;Gb21&quot;</span>] &lt;-<span class="st"> </span><span class="fl">34.56</span></span>
+<span id="cb20-20"><a href="inter-omics.html#cb20-20"></a>    meta_data<span class="op">$</span>Temperature[meta_data<span class="op">$</span>unified_ID <span class="op">==</span><span class="st"> &quot;Gb12&quot;</span>] &lt;-<span class="st"> </span><span class="fl">3.71</span></span>
+<span id="cb20-21"><a href="inter-omics.html#cb20-21"></a>    meta_data<span class="op">$</span>Temperature[meta_data<span class="op">$</span>unified_ID <span class="op">==</span><span class="st"> &quot;Gb20&quot;</span>] &lt;-<span class="st"> </span><span class="fl">3.65</span></span>
+<span id="cb20-22"><a href="inter-omics.html#cb20-22"></a>    meta_data<span class="op">$</span>Temperature[meta_data<span class="op">$</span>unified_ID <span class="op">==</span><span class="st"> &quot;Gb21&quot;</span>] &lt;-<span class="st"> </span><span class="fl">2.32</span></span>
+<span id="cb20-23"><a href="inter-omics.html#cb20-23"></a>    meta_data[<span class="st">&quot;spec&quot;</span>] &lt;-<span class="st"> </span><span class="kw">str_sub</span>(meta_data<span class="op">$</span>unified_ID, <span class="dv">1</span>, <span class="dv">2</span>)</span>
+<span id="cb20-24"><a href="inter-omics.html#cb20-24"></a>    meta_data &lt;-<span class="st"> </span>meta_data[<span class="kw">order</span>(meta_data<span class="op">$</span>unified_ID), ]</span>
+<span id="cb20-25"><a href="inter-omics.html#cb20-25"></a>    <span class="kw">return</span>(meta_data)</span>
+<span id="cb20-26"><a href="inter-omics.html#cb20-26"></a>}</span>
+<span id="cb20-27"><a href="inter-omics.html#cb20-27"></a></span>
+<span id="cb20-28"><a href="inter-omics.html#cb20-28"></a>meta_data &lt;-<span class="st"> </span><span class="kw">meta_data_prep</span>(meta_data)</span>
+<span id="cb20-29"><a href="inter-omics.html#cb20-29"></a></span>
+<span id="cb20-30"><a href="inter-omics.html#cb20-30"></a><span class="co"># separating OTU tables by sponge</span></span>
+<span id="cb20-31"><a href="inter-omics.html#cb20-31"></a>OTU_prep_sqrt &lt;-<span class="st"> </span><span class="cf">function</span>(micro) {</span>
+<span id="cb20-32"><a href="inter-omics.html#cb20-32"></a>    <span class="kw">rownames</span>(micro) &lt;-<span class="st"> </span>micro<span class="op">$</span>Sample_ID</span>
+<span id="cb20-33"><a href="inter-omics.html#cb20-33"></a>    micro<span class="op">$</span>Sample_ID &lt;-<span class="st"> </span><span class="ot">NULL</span></span>
+<span id="cb20-34"><a href="inter-omics.html#cb20-34"></a>    <span class="co"># micro &lt;- sqrt(micro) #sqrt could be toggled on/off here</span></span>
+<span id="cb20-35"><a href="inter-omics.html#cb20-35"></a>    </span>
+<span id="cb20-36"><a href="inter-omics.html#cb20-36"></a>    micro_gb &lt;-<span class="st"> </span>micro[(<span class="kw">str_sub</span>(<span class="kw">rownames</span>(micro), <span class="dv">1</span>, <span class="dv">2</span>) <span class="op">==</span><span class="st"> &quot;Gb&quot;</span>), ]</span>
+<span id="cb20-37"><a href="inter-omics.html#cb20-37"></a>    micro_sf &lt;-<span class="st"> </span>micro[(<span class="kw">str_sub</span>(<span class="kw">rownames</span>(micro), <span class="dv">1</span>, <span class="dv">2</span>) <span class="op">==</span><span class="st"> &quot;Sf&quot;</span>), ]</span>
+<span id="cb20-38"><a href="inter-omics.html#cb20-38"></a>    micro_wb &lt;-<span class="st"> </span>micro[(<span class="kw">str_sub</span>(<span class="kw">rownames</span>(micro), <span class="dv">1</span>, <span class="dv">2</span>) <span class="op">==</span><span class="st"> &quot;Wb&quot;</span>), ]</span>
+<span id="cb20-39"><a href="inter-omics.html#cb20-39"></a>    </span>
+<span id="cb20-40"><a href="inter-omics.html#cb20-40"></a>    micro_gb &lt;-<span class="st"> </span>micro_gb[, <span class="kw">colSums</span>(micro_gb <span class="op">!=</span><span class="st"> </span><span class="dv">0</span>) <span class="op">&gt;</span><span class="st"> </span><span class="dv">0</span>]</span>
+<span id="cb20-41"><a href="inter-omics.html#cb20-41"></a>    micro_sf &lt;-<span class="st"> </span>micro_sf[, <span class="kw">colSums</span>(micro_sf <span class="op">!=</span><span class="st"> </span><span class="dv">0</span>) <span class="op">&gt;</span><span class="st"> </span><span class="dv">0</span>]</span>
+<span id="cb20-42"><a href="inter-omics.html#cb20-42"></a>    micro_wb &lt;-<span class="st"> </span>micro_wb[, <span class="kw">colSums</span>(micro_wb <span class="op">!=</span><span class="st"> </span><span class="dv">0</span>) <span class="op">&gt;</span><span class="st"> </span><span class="dv">0</span>]</span>
+<span id="cb20-43"><a href="inter-omics.html#cb20-43"></a>    micros &lt;-<span class="st"> </span><span class="kw">list</span>(<span class="dt">gb =</span> micro_gb, <span class="dt">sf =</span> micro_sf, <span class="dt">wb =</span> micro_wb)</span>
+<span id="cb20-44"><a href="inter-omics.html#cb20-44"></a>    <span class="kw">return</span>(micros)</span>
+<span id="cb20-45"><a href="inter-omics.html#cb20-45"></a>}</span>
+<span id="cb20-46"><a href="inter-omics.html#cb20-46"></a></span>
+<span id="cb20-47"><a href="inter-omics.html#cb20-47"></a>micro_ds &lt;-<span class="st"> </span><span class="kw">OTU_prep_sqrt</span>(micro)</span>
+<span id="cb20-48"><a href="inter-omics.html#cb20-48"></a></span>
+<span id="cb20-49"><a href="inter-omics.html#cb20-49"></a><span class="co"># calculating overall relative abundance of each OTU per sample</span></span>
+<span id="cb20-50"><a href="inter-omics.html#cb20-50"></a>overall_rabdc &lt;-<span class="st"> </span><span class="cf">function</span>(micros) {</span>
+<span id="cb20-51"><a href="inter-omics.html#cb20-51"></a>    mic &lt;-<span class="st"> </span>micros</span>
+<span id="cb20-52"><a href="inter-omics.html#cb20-52"></a>    n &lt;-<span class="st"> </span><span class="dv">0</span></span>
+<span id="cb20-53"><a href="inter-omics.html#cb20-53"></a>    k &lt;-<span class="st"> </span><span class="kw">dim</span>(mic)[<span class="dv">1</span>]</span>
+<span id="cb20-54"><a href="inter-omics.html#cb20-54"></a>    mic[<span class="st">&quot;rowsum&quot;</span>] &lt;-<span class="st"> </span><span class="kw">apply</span>(mic, <span class="dv">1</span>, sum)</span>
+<span id="cb20-55"><a href="inter-omics.html#cb20-55"></a>    </span>
+<span id="cb20-56"><a href="inter-omics.html#cb20-56"></a>    <span class="cf">while</span> (n <span class="op">&lt;</span><span class="st"> </span>k) {</span>
+<span id="cb20-57"><a href="inter-omics.html#cb20-57"></a>        n &lt;-<span class="st"> </span>n <span class="op">+</span><span class="st"> </span><span class="dv">1</span></span>
+<span id="cb20-58"><a href="inter-omics.html#cb20-58"></a>        mic[n, ] &lt;-<span class="st"> </span>mic[n, ]<span class="op">/</span>(mic<span class="op">$</span>rowsum[n])</span>
+<span id="cb20-59"><a href="inter-omics.html#cb20-59"></a>    }</span>
+<span id="cb20-60"><a href="inter-omics.html#cb20-60"></a>    </span>
+<span id="cb20-61"><a href="inter-omics.html#cb20-61"></a>    mic<span class="op">$</span>rowsum &lt;-<span class="st"> </span><span class="ot">NULL</span></span>
+<span id="cb20-62"><a href="inter-omics.html#cb20-62"></a>    mic &lt;-<span class="st"> </span><span class="kw">data.frame</span>(<span class="kw">t</span>(mic))</span>
+<span id="cb20-63"><a href="inter-omics.html#cb20-63"></a>    <span class="co"># mic[&#39;avg_rel_abdc&#39;] &lt;- apply(mic, 1, mean) mic[&#39;occurrence&#39;] &lt;-</span></span>
+<span id="cb20-64"><a href="inter-omics.html#cb20-64"></a>    <span class="co"># ifelse(mic$avg&gt;0.0025, &#39;common&#39;, &#39;rare&#39;)</span></span>
+<span id="cb20-65"><a href="inter-omics.html#cb20-65"></a>    <span class="kw">return</span>(mic)</span>
+<span id="cb20-66"><a href="inter-omics.html#cb20-66"></a>}</span>
+<span id="cb20-67"><a href="inter-omics.html#cb20-67"></a></span>
+<span id="cb20-68"><a href="inter-omics.html#cb20-68"></a>rabdc &lt;-<span class="st"> </span><span class="kw">lapply</span>(micro_ds, overall_rabdc)</span>
+<span id="cb20-69"><a href="inter-omics.html#cb20-69"></a></span>
+<span id="cb20-70"><a href="inter-omics.html#cb20-70"></a><span class="co"># preparing congruent data sets</span></span>
+<span id="cb20-71"><a href="inter-omics.html#cb20-71"></a>common_samples &lt;-<span class="st"> </span><span class="kw">intersect</span>(<span class="kw">colnames</span>(rabdc<span class="op">$</span>gb), cmp<span class="op">$</span>unified_ID)</span>
+<span id="cb20-72"><a href="inter-omics.html#cb20-72"></a>rabdc &lt;-<span class="st"> </span>rabdc<span class="op">$</span>gb[, <span class="kw">colnames</span>(rabdc<span class="op">$</span>gb) <span class="op">%in%</span><span class="st"> </span>common_samples]</span>
+<span id="cb20-73"><a href="inter-omics.html#cb20-73"></a>rabdc &lt;-<span class="st"> </span><span class="kw">data.frame</span>(<span class="kw">t</span>(rabdc))</span>
+<span id="cb20-74"><a href="inter-omics.html#cb20-74"></a></span>
+<span id="cb20-75"><a href="inter-omics.html#cb20-75"></a>cmp &lt;-<span class="st"> </span>cmp[cmp<span class="op">$</span>unified_ID <span class="op">%in%</span><span class="st"> </span>common_samples, ]</span>
+<span id="cb20-76"><a href="inter-omics.html#cb20-76"></a>cmp[] &lt;-<span class="st"> </span><span class="kw">lapply</span>(cmp, <span class="cf">function</span>(x) <span class="cf">if</span> (<span class="kw">is.factor</span>(x)) <span class="kw">factor</span>(x) <span class="cf">else</span> x)</span>
+<span id="cb20-77"><a href="inter-omics.html#cb20-77"></a>cmp &lt;-<span class="st"> </span>cmp[<span class="kw">order</span>((cmp<span class="op">$</span>unified_ID)), ]</span>
+<span id="cb20-78"><a href="inter-omics.html#cb20-78"></a></span>
+<span id="cb20-79"><a href="inter-omics.html#cb20-79"></a><span class="kw">all</span>(<span class="kw">rownames</span>(rabdc) <span class="op">==</span><span class="st"> </span>cmp<span class="op">$</span>unified_ID)</span></code></pre></div>
+<pre><code>## [1] TRUE</code></pre>
+<div class="sourceCode" id="cb22"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb22-1"><a href="inter-omics.html#cb22-1"></a><span class="co"># CORRELATION for Gb and Sf</span></span>
+<span id="cb22-2"><a href="inter-omics.html#cb22-2"></a></span>
+<span id="cb22-3"><a href="inter-omics.html#cb22-3"></a>bar_cor &lt;-<span class="st"> </span><span class="cf">function</span>(rabdc_df, cmp) {</span>
+<span id="cb22-4"><a href="inter-omics.html#cb22-4"></a>    barettin &lt;-<span class="st"> </span><span class="kw">data.frame</span>(<span class="kw">colnames</span>(rabdc_df))</span>
+<span id="cb22-5"><a href="inter-omics.html#cb22-5"></a>    <span class="kw">colnames</span>(barettin) &lt;-<span class="st"> &quot;XOTU&quot;</span></span>
+<span id="cb22-6"><a href="inter-omics.html#cb22-6"></a>    barettin[<span class="st">&quot;barettin_estimate_P&quot;</span>] &lt;-<span class="st"> </span><span class="ot">NA</span></span>
+<span id="cb22-7"><a href="inter-omics.html#cb22-7"></a>    barettin[<span class="st">&quot;barettin_p_val_P&quot;</span>] &lt;-<span class="st"> </span><span class="ot">NA</span></span>
+<span id="cb22-8"><a href="inter-omics.html#cb22-8"></a>    barettin[<span class="st">&quot;barettin_estimate_S&quot;</span>] &lt;-<span class="st"> </span><span class="ot">NA</span></span>
+<span id="cb22-9"><a href="inter-omics.html#cb22-9"></a>    barettin[<span class="st">&quot;barettin_p_val_S&quot;</span>] &lt;-<span class="st"> </span><span class="ot">NA</span></span>
+<span id="cb22-10"><a href="inter-omics.html#cb22-10"></a>    </span>
+<span id="cb22-11"><a href="inter-omics.html#cb22-11"></a>    n &lt;-<span class="st"> </span><span class="dv">0</span></span>
+<span id="cb22-12"><a href="inter-omics.html#cb22-12"></a>    k &lt;-<span class="st"> </span><span class="kw">dim</span>(barettin)[<span class="dv">1</span>]</span>
+<span id="cb22-13"><a href="inter-omics.html#cb22-13"></a>    <span class="cf">while</span> (n <span class="op">&lt;</span><span class="st"> </span>k) {</span>
+<span id="cb22-14"><a href="inter-omics.html#cb22-14"></a>        n &lt;-<span class="st"> </span>n <span class="op">+</span><span class="st"> </span><span class="dv">1</span></span>
+<span id="cb22-15"><a href="inter-omics.html#cb22-15"></a>        barettin<span class="op">$</span>barettin_estimate_P[n] &lt;-<span class="st"> </span><span class="kw">cor.test</span>(<span class="kw">as.numeric</span>(rabdc_df[, n]), cmp<span class="op">$</span>bar, </span>
+<span id="cb22-16"><a href="inter-omics.html#cb22-16"></a>            <span class="dt">method =</span> <span class="st">&quot;pearson&quot;</span>)<span class="op">$</span>estimate</span>
+<span id="cb22-17"><a href="inter-omics.html#cb22-17"></a>        barettin<span class="op">$</span>barettin_p_val_P[n] &lt;-<span class="st"> </span><span class="kw">cor.test</span>(<span class="kw">as.numeric</span>(rabdc_df[, n]), cmp<span class="op">$</span>bar, </span>
+<span id="cb22-18"><a href="inter-omics.html#cb22-18"></a>            <span class="dt">method =</span> <span class="st">&quot;pearson&quot;</span>)<span class="op">$</span>p.value</span>
+<span id="cb22-19"><a href="inter-omics.html#cb22-19"></a>        barettin<span class="op">$</span>barettin_estimate_S[n] &lt;-<span class="st"> </span><span class="kw">cor.test</span>(<span class="kw">as.numeric</span>(rabdc_df[, n]), cmp<span class="op">$</span>bar, </span>
+<span id="cb22-20"><a href="inter-omics.html#cb22-20"></a>            <span class="dt">method =</span> <span class="st">&quot;spearman&quot;</span>)<span class="op">$</span>estimate</span>
+<span id="cb22-21"><a href="inter-omics.html#cb22-21"></a>        barettin<span class="op">$</span>barettin_p_val_S[n] &lt;-<span class="st"> </span><span class="kw">cor.test</span>(<span class="kw">as.numeric</span>(rabdc_df[, n]), cmp<span class="op">$</span>bar, </span>
+<span id="cb22-22"><a href="inter-omics.html#cb22-22"></a>            <span class="dt">method =</span> <span class="st">&quot;spearman&quot;</span>)<span class="op">$</span>p.value</span>
+<span id="cb22-23"><a href="inter-omics.html#cb22-23"></a>    }</span>
+<span id="cb22-24"><a href="inter-omics.html#cb22-24"></a>    </span>
+<span id="cb22-25"><a href="inter-omics.html#cb22-25"></a>    barettin[<span class="st">&quot;barettin_fdr_P&quot;</span>] &lt;-<span class="st"> </span><span class="ot">NA</span></span>
+<span id="cb22-26"><a href="inter-omics.html#cb22-26"></a>    barettin[<span class="st">&quot;barettin_fdr_S&quot;</span>] &lt;-<span class="st"> </span><span class="ot">NA</span></span>
+<span id="cb22-27"><a href="inter-omics.html#cb22-27"></a>    barettin<span class="op">$</span>barettin_fdr_P &lt;-<span class="st"> </span><span class="kw">p.adjust</span>(barettin<span class="op">$</span>barettin_p_val_P, <span class="dt">method =</span> <span class="st">&quot;fdr&quot;</span>)</span>
+<span id="cb22-28"><a href="inter-omics.html#cb22-28"></a>    barettin<span class="op">$</span>barettin_fdr_S &lt;-<span class="st"> </span><span class="kw">p.adjust</span>(barettin<span class="op">$</span>barettin_p_val_S, <span class="dt">method =</span> <span class="st">&quot;fdr&quot;</span>)</span>
+<span id="cb22-29"><a href="inter-omics.html#cb22-29"></a>    <span class="kw">return</span>(barettin)</span>
+<span id="cb22-30"><a href="inter-omics.html#cb22-30"></a>}</span>
+<span id="cb22-31"><a href="inter-omics.html#cb22-31"></a></span>
+<span id="cb22-32"><a href="inter-omics.html#cb22-32"></a>barettin_cor &lt;-<span class="st"> </span><span class="kw">bar_cor</span>(rabdc, cmp)</span>
+<span id="cb22-33"><a href="inter-omics.html#cb22-33"></a><span class="kw">head</span>(barettin_cor)</span></code></pre></div>
+<pre><code>##         XOTU barettin_estimate_P barettin_p_val_P barettin_estimate_S
+## 1   X1969004          0.64702976     0.0431624924          0.73333333
+## 2 X196900135          0.01731635     0.9621318473         -0.35757576
+## 3 X196900136          0.42395051     0.2220860947          0.33333333
+## 4 X196900143         -0.30279372     0.3950989500         -0.23636364
+## 5 X196900145          0.07434320     0.8382700866          0.06666667
+## 6 X196900148         -0.88129873     0.0007508558         -0.50303030
+##   barettin_p_val_S barettin_fdr_P barettin_fdr_S
+## 1       0.02116648      0.1330178      0.1668153
+## 2       0.31280027      0.9695329      0.5087564
+## 3       0.34884624      0.3606605      0.5355335
+## 4       0.51389833      0.5425968      0.6600067
+## 5       0.86475353      0.8781064      0.9203311
+## 6       0.14336680      0.0105388      0.3294921</code></pre>
+<div class="sourceCode" id="cb24"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb24-1"><a href="inter-omics.html#cb24-1"></a><span class="co"># write.csv(barettin_cor, &#39;data/GB_OTU_barettin_correlation.csv&#39;, row.names = F)</span></span>
+<span id="cb24-2"><a href="inter-omics.html#cb24-2"></a></span>
+<span id="cb24-3"><a href="inter-omics.html#cb24-3"></a><span class="kw">par</span>(<span class="dt">mfrow =</span> <span class="kw">c</span>(<span class="dv">1</span>, <span class="dv">3</span>))</span>
+<span id="cb24-4"><a href="inter-omics.html#cb24-4"></a><span class="kw">hist</span>(barettin_cor<span class="op">$</span>barettin_estimate_P, <span class="dt">main =</span> <span class="st">&quot;Pearson&#39;s pmcc: </span><span class="ch">\n</span><span class="st"> OTU rel abdc ~ barettin signal&quot;</span>)</span>
+<span id="cb24-5"><a href="inter-omics.html#cb24-5"></a><span class="kw">hist</span>(barettin_cor<span class="op">$</span>barettin_p_val_P, <span class="dt">breaks =</span> <span class="dv">20</span>, <span class="dt">main =</span> <span class="st">&quot;Pearson&#39;s pmcc p-value&quot;</span>)</span>
+<span id="cb24-6"><a href="inter-omics.html#cb24-6"></a><span class="kw">hist</span>(barettin_cor<span class="op">$</span>barettin_fdr_P, <span class="dt">breaks =</span> <span class="dv">20</span>, <span class="dt">main =</span> <span class="st">&quot;Pearson&#39;s pmcc </span><span class="ch">\n</span><span class="st"> fdr corrected p-value&quot;</span>)</span></code></pre></div>
+<p><img src="Oceanographic-setting-influences-the-prokaryote-community-and-metabolome-in-deep-sea-sponges_files/figure-html/barettin-correlation-1.png" width="672" /></p>
+<div class="sourceCode" id="cb25"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb25-1"><a href="inter-omics.html#cb25-1"></a><span class="kw">par</span>(<span class="dt">mfrow =</span> <span class="kw">c</span>(<span class="dv">1</span>, <span class="dv">1</span>))</span>
+<span id="cb25-2"><a href="inter-omics.html#cb25-2"></a></span>
+<span id="cb25-3"><a href="inter-omics.html#cb25-3"></a><span class="kw">par</span>(<span class="dt">mfrow =</span> <span class="kw">c</span>(<span class="dv">1</span>, <span class="dv">3</span>))</span>
+<span id="cb25-4"><a href="inter-omics.html#cb25-4"></a><span class="kw">hist</span>(barettin_cor<span class="op">$</span>barettin_estimate_S, <span class="dt">main =</span> <span class="st">&quot;Spearman&#39;s rho: </span><span class="ch">\n</span><span class="st"> OTU rel abdc ~ barettin signal&quot;</span>)</span>
+<span id="cb25-5"><a href="inter-omics.html#cb25-5"></a><span class="kw">hist</span>(barettin_cor<span class="op">$</span>barettin_p_val_S, <span class="dt">breaks =</span> <span class="dv">20</span>, <span class="dt">main =</span> <span class="st">&quot;Spearman&#39;s rho p-value&quot;</span>)</span>
+<span id="cb25-6"><a href="inter-omics.html#cb25-6"></a><span class="kw">hist</span>(barettin_cor<span class="op">$</span>barettin_fdr_S, <span class="dt">breaks =</span> <span class="dv">20</span>, <span class="dt">main =</span> <span class="st">&quot;Spearman&#39;s rho </span><span class="ch">\n</span><span class="st"> fdr corrected p-value&quot;</span>)</span></code></pre></div>
+<p><img src="Oceanographic-setting-influences-the-prokaryote-community-and-metabolome-in-deep-sea-sponges_files/figure-html/barettin-correlation-2.png" width="672" /></p>
+<div class="sourceCode" id="cb26"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb26-1"><a href="inter-omics.html#cb26-1"></a><span class="kw">par</span>(<span class="dt">mfrow =</span> <span class="kw">c</span>(<span class="dv">1</span>, <span class="dv">1</span>))</span></code></pre></div>
+</div>
 <div id="microbial-interaction-network" class="section level2">
-<h2><span class="header-section-number">4.2</span> Microbial interaction network</h2>
+<h2><span class="header-section-number">4.3</span> Microbial interaction network</h2>
 <div id="generating-network-based-on-different-algorithms" class="section level3">
-<h3><span class="header-section-number">4.2.1</span> Generating network based on different algorithms</h3>
+<h3><span class="header-section-number">4.3.1</span> Generating network based on different algorithms</h3>
 <p>The overall goal of the subsequent seqctions of code is to produce a microbial interation network for <em>Geodia barretti</em>. Nodes will be OTUs/ASVs from <em>Geodia barretti</em> samples and edges represent an interaction between those OTUs/ASVs. In this first part, we will employ different algorithms for network building. Network building algorithms are mannifold and their results not uncontroversial, thus the recommended strategy is to use different methods and merge the resulting networks to one consensus representation (Weiss <em>et al</em>., 2016), which we will do in the second part.</p>
 <p>The original data set from 14 specimens of <em>Geodia barretti</em> contained 420 OTUs/ASVs. To reduce sparsity, we removed OTUs/ASVs with two or less non-zero values resulting in a data set containing 289 OTUs/ASVs. This data set was used for network inference with the following methods:</p>
 <ol style="list-style-type: decimal">
@@ -3296,302 +3441,302 @@ ion
 <li>Maximal information coefficient MIC</li>
 </ol>
 <div id="molecular-ecological-network-analysis-mena-pipeline" class="section level4">
-<h4><span class="header-section-number">4.2.1.1</span> Molecular Ecological Network Analysis (MENA) Pipeline</h4>
+<h4><span class="header-section-number">4.3.1.1</span> Molecular Ecological Network Analysis (MENA) Pipeline</h4>
 <p>The implementation of MENA (Deng <em>et al</em>., 2012; Zhou, Deng <em>et al</em>., 2010; Zhou, Deng <em>et al</em>.,2011) can be accessed at <a href="http://ieg4.rccc.ou.edu/mena" class="uri">http://ieg4.rccc.ou.edu/mena</a>. The data set was saved as tab separated values and all zeros were converted to blanks.
 No further filtering for non-zero values was done (more than two non-zero values). For data preparation, default settings were applied, i.e. missing data was only filled with 0.01 in blanks with paired valid values, logarithm was taken, Pearson correlation coefficient was selected. Likewise, Random matrix theory settings were kept at defaults, decreasing the cutoff from the top using Regress Poisson distribution only. The cutoff of 0.800 was chosen for the similarity matrix to construct the network, corresponding to a Chi-square test on Poisson distribution of 99.191 and a p-value of 0.001. This resulted in a network with 241 nodes and 3582 edges.</p>
 <p>A second analysis was produced with the same settings except building the similarity matrix based on Spearman’s Rho. The cutoff of 0.820 was chosen for the similarity matrix to construct the network, corresponding to a Chi-square test on Poisson distribution of 98.417 and a p-value of 0.001. This resulted in a network with 252 nodes and 2216 edges.</p>
 <p>Network properties and parameters are summarized in MENA_network_parameters_Feb2019.xlsx.</p>
 </div>
 <div id="local-similarity-analysis-fastlsa" class="section level4">
-<h4><span class="header-section-number">4.2.1.2</span> Local Similarity Analysis: fastLSA</h4>
+<h4><span class="header-section-number">4.3.1.2</span> Local Similarity Analysis: fastLSA</h4>
 <p>The command line program for calcularing local similarity (Durno <em>et al</em>., 2013) was downloaded from <a href="http://hallam.microbiology.ubc.ca/fastLSA/install/index.html" class="uri">http://hallam.microbiology.ubc.ca/fastLSA/install/index.html</a> and run specifying the input file, no time lag (-d 0) and significance level alpha (-a 0.05). All other paramters were kept at their default values. The input data set was a tab delimited text file stripped of OTU labels or sample IDs.</p>
-<div class="sourceCode" id="cb20"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb20-1"><a href="inter-omics.html#cb20-1"></a>$ <span class="ex">./fastLSA</span> -i ../gb_289_feb2019.txt -d 0 -a 0.05 -o ../gb_289_feb2019.out</span></code></pre></div>
+<div class="sourceCode" id="cb27"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb27-1"><a href="inter-omics.html#cb27-1"></a>$ <span class="ex">./fastLSA</span> -i ../gb_289_feb2019.txt -d 0 -a 0.05 -o ../gb_289_feb2019.out</span></code></pre></div>
 <p>The output file, as specified on the website, containes five columns. ‘index1’ and ‘index2’ represent the significant paired indices ranging from 0 to n-1 (OTUs/ASVs). LSA denotes the LSA statistic of each pair, lag was set to 0 with the -d flag and the p-valueBound column provides the p-value’s upper boundary for the significantly paired p-value.</p>
 <p>To produce comparable data sets, we replaced the indices with their OTU IDs and removed superfluous columns.</p>
-<div class="sourceCode" id="cb21"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb21-1"><a href="inter-omics.html#cb21-1"></a>fastLSA &lt;-<span class="st"> </span><span class="kw">read.csv</span>(<span class="st">&quot;data/gb_289_feb2019.out&quot;</span>, <span class="dt">header =</span> T, <span class="dt">sep =</span> <span class="st">&quot;&quot;</span>)</span>
-<span id="cb21-2"><a href="inter-omics.html#cb21-2"></a>key &lt;-<span class="st"> </span><span class="kw">read.csv</span>(<span class="st">&quot;data/fastLSA_index_otu_CORRECTEDfeb2019.csv&quot;</span>, <span class="dt">header =</span> T, <span class="dt">sep =</span> <span class="st">&quot;;&quot;</span>)</span>
-<span id="cb21-3"><a href="inter-omics.html#cb21-3"></a></span>
-<span id="cb21-4"><a href="inter-omics.html#cb21-4"></a>fastLSA<span class="op">$</span>index1_otu &lt;-<span class="st"> </span>key<span class="op">$</span>fastLSA_OTU[<span class="kw">match</span>(fastLSA<span class="op">$</span>index1, key<span class="op">$</span>fastLSA_index)]</span>
-<span id="cb21-5"><a href="inter-omics.html#cb21-5"></a>fastLSA<span class="op">$</span>index2_otu &lt;-<span class="st"> </span>key<span class="op">$</span>fastLSA_OTU[<span class="kw">match</span>(fastLSA<span class="op">$</span>index2, key<span class="op">$</span>fastLSA_index)]</span>
-<span id="cb21-6"><a href="inter-omics.html#cb21-6"></a></span>
-<span id="cb21-7"><a href="inter-omics.html#cb21-7"></a>fastLSA<span class="op">$</span>index1 &lt;-<span class="st"> </span><span class="ot">NULL</span></span>
-<span id="cb21-8"><a href="inter-omics.html#cb21-8"></a>fastLSA<span class="op">$</span>index2 &lt;-<span class="st"> </span><span class="ot">NULL</span></span>
-<span id="cb21-9"><a href="inter-omics.html#cb21-9"></a>fastLSA<span class="op">$</span>lag &lt;-<span class="st"> </span><span class="ot">NULL</span></span>
-<span id="cb21-10"><a href="inter-omics.html#cb21-10"></a>fastLSA<span class="op">$</span>X &lt;-<span class="st"> </span><span class="ot">NULL</span></span>
-<span id="cb21-11"><a href="inter-omics.html#cb21-11"></a>fastLSA &lt;-<span class="st"> </span>fastLSA[, <span class="kw">c</span>(<span class="dv">3</span>, <span class="dv">4</span>, <span class="dv">1</span>, <span class="dv">2</span>)]</span>
-<span id="cb21-12"><a href="inter-omics.html#cb21-12"></a>fastLSA &lt;-<span class="st"> </span>fastLSA[<span class="kw">order</span>(fastLSA<span class="op">$</span>p.valueBound), ]</span>
-<span id="cb21-13"><a href="inter-omics.html#cb21-13"></a></span>
-<span id="cb21-14"><a href="inter-omics.html#cb21-14"></a><span class="co"># write.csv(fastLSA, &#39;fastLSA_for_networks.csv&#39;)</span></span>
-<span id="cb21-15"><a href="inter-omics.html#cb21-15"></a><span class="kw">rm</span>(key)</span></code></pre></div>
+<div class="sourceCode" id="cb28"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb28-1"><a href="inter-omics.html#cb28-1"></a>fastLSA &lt;-<span class="st"> </span><span class="kw">read.csv</span>(<span class="st">&quot;data/gb_289_feb2019.out&quot;</span>, <span class="dt">header =</span> T, <span class="dt">sep =</span> <span class="st">&quot;&quot;</span>)</span>
+<span id="cb28-2"><a href="inter-omics.html#cb28-2"></a>key &lt;-<span class="st"> </span><span class="kw">read.csv</span>(<span class="st">&quot;data/fastLSA_index_otu_CORRECTEDfeb2019.csv&quot;</span>, <span class="dt">header =</span> T, <span class="dt">sep =</span> <span class="st">&quot;;&quot;</span>)</span>
+<span id="cb28-3"><a href="inter-omics.html#cb28-3"></a></span>
+<span id="cb28-4"><a href="inter-omics.html#cb28-4"></a>fastLSA<span class="op">$</span>index1_otu &lt;-<span class="st"> </span>key<span class="op">$</span>fastLSA_OTU[<span class="kw">match</span>(fastLSA<span class="op">$</span>index1, key<span class="op">$</span>fastLSA_index)]</span>
+<span id="cb28-5"><a href="inter-omics.html#cb28-5"></a>fastLSA<span class="op">$</span>index2_otu &lt;-<span class="st"> </span>key<span class="op">$</span>fastLSA_OTU[<span class="kw">match</span>(fastLSA<span class="op">$</span>index2, key<span class="op">$</span>fastLSA_index)]</span>
+<span id="cb28-6"><a href="inter-omics.html#cb28-6"></a></span>
+<span id="cb28-7"><a href="inter-omics.html#cb28-7"></a>fastLSA<span class="op">$</span>index1 &lt;-<span class="st"> </span><span class="ot">NULL</span></span>
+<span id="cb28-8"><a href="inter-omics.html#cb28-8"></a>fastLSA<span class="op">$</span>index2 &lt;-<span class="st"> </span><span class="ot">NULL</span></span>
+<span id="cb28-9"><a href="inter-omics.html#cb28-9"></a>fastLSA<span class="op">$</span>lag &lt;-<span class="st"> </span><span class="ot">NULL</span></span>
+<span id="cb28-10"><a href="inter-omics.html#cb28-10"></a>fastLSA<span class="op">$</span>X &lt;-<span class="st"> </span><span class="ot">NULL</span></span>
+<span id="cb28-11"><a href="inter-omics.html#cb28-11"></a>fastLSA &lt;-<span class="st"> </span>fastLSA[, <span class="kw">c</span>(<span class="dv">3</span>, <span class="dv">4</span>, <span class="dv">1</span>, <span class="dv">2</span>)]</span>
+<span id="cb28-12"><a href="inter-omics.html#cb28-12"></a>fastLSA &lt;-<span class="st"> </span>fastLSA[<span class="kw">order</span>(fastLSA<span class="op">$</span>p.valueBound), ]</span>
+<span id="cb28-13"><a href="inter-omics.html#cb28-13"></a></span>
+<span id="cb28-14"><a href="inter-omics.html#cb28-14"></a><span class="co"># write.csv(fastLSA, &#39;fastLSA_for_networks.csv&#39;)</span></span>
+<span id="cb28-15"><a href="inter-omics.html#cb28-15"></a><span class="kw">rm</span>(key)</span></code></pre></div>
 <p>LSA scores range from -1 for strong negatively correlations to 1, for strong positive correlations. There were no negative correlations in this data setand we refrained from scaleding the LSA score furhter.
 The resulting network contrained 129 nodes and 207 edges.</p>
 </div>
 <div id="sparcc" class="section level4">
-<h4><span class="header-section-number">4.2.1.3</span> SparCC</h4>
+<h4><span class="header-section-number">4.3.1.3</span> SparCC</h4>
 <p>SparCC (Friedman and Alm, 2012) is a network building algorithm for compositional data and can be found at <a href="https://bitbucket.org/yonatanf/sparcc" class="uri">https://bitbucket.org/yonatanf/sparcc</a>.</p>
 <p>Prior to running it I had to get help as there was a minor issue during compilation. SparCC needed specific versions of numpy, panda and python to run properly, which is easiest accomodated in a specific environment. The OTU table needs to be windows formatted text. The embedded code is an example, for the analysis, 500 iterations were combined.</p>
-<div class="sourceCode" id="cb22"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb22-1"><a href="inter-omics.html#cb22-1"></a>$ <span class="bu">cd</span> to working directory with SparCC and the data set gb_289.csv</span>
-<span id="cb22-2"><a href="inter-omics.html#cb22-2"></a>$ <span class="bu">source</span> activate sparcc</span>
-<span id="cb22-3"><a href="inter-omics.html#cb22-3"></a><span class="ex">python</span> SparCC.py ../gb_sparcc.txt -c ../gb_sparcc_cor_file.txt -v </span>
-<span id="cb22-4"><a href="inter-omics.html#cb22-4"></a><span class="ex">../gb_sparcc_coverage_file.txt</span> -i 5</span>
-<span id="cb22-5"><a href="inter-omics.html#cb22-5"></a>$ <span class="ex">deactivate</span></span></code></pre></div>
+<div class="sourceCode" id="cb29"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb29-1"><a href="inter-omics.html#cb29-1"></a>$ <span class="bu">cd</span> to working directory with SparCC and the data set gb_289.csv</span>
+<span id="cb29-2"><a href="inter-omics.html#cb29-2"></a>$ <span class="bu">source</span> activate sparcc</span>
+<span id="cb29-3"><a href="inter-omics.html#cb29-3"></a><span class="ex">python</span> SparCC.py ../gb_sparcc.txt -c ../gb_sparcc_cor_file.txt -v </span>
+<span id="cb29-4"><a href="inter-omics.html#cb29-4"></a><span class="ex">../gb_sparcc_coverage_file.txt</span> -i 5</span>
+<span id="cb29-5"><a href="inter-omics.html#cb29-5"></a>$ <span class="ex">deactivate</span></span></code></pre></div>
 <p>Create a results directory and redirect all the output there. Pseudo p-value Calculation, generates -n shuffled data sets:</p>
-<div class="sourceCode" id="cb23"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb23-1"><a href="inter-omics.html#cb23-1"></a>$ <span class="fu">mkdir</span> results <span class="co">#creates output directory</span></span>
-<span id="cb23-2"><a href="inter-omics.html#cb23-2"></a>$ <span class="ex">python</span> MakeBootstraps.py ../gb_sparcc.txt -n 5 -t permutation_#.txt -p ../results/ </span></code></pre></div>
+<div class="sourceCode" id="cb30"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb30-1"><a href="inter-omics.html#cb30-1"></a>$ <span class="fu">mkdir</span> results <span class="co">#creates output directory</span></span>
+<span id="cb30-2"><a href="inter-omics.html#cb30-2"></a>$ <span class="ex">python</span> MakeBootstraps.py ../gb_sparcc.txt -n 5 -t permutation_#.txt -p ../results/ </span></code></pre></div>
 <p>And run SparCC.py on all the re-shuffled data sets:</p>
-<div class="sourceCode" id="cb24"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb24-1"><a href="inter-omics.html#cb24-1"></a>$ <span class="ex">python</span> SparCC.py ../results/permutation_0.txt -i 5 --cor_file=../results/perm_cor_0.txt</span>
-<span id="cb24-2"><a href="inter-omics.html#cb24-2"></a>$ <span class="ex">python</span> SparCC.py ../results/permutation_1.txt -i 5 --cor_file=../results/perm_cor_1.txt</span>
-<span id="cb24-3"><a href="inter-omics.html#cb24-3"></a>$ <span class="ex">python</span> SparCC.py ../results/permutation_2.txt -i 5 --cor_file=../results/perm_cor_2.txt</span>
-<span id="cb24-4"><a href="inter-omics.html#cb24-4"></a>$ <span class="ex">python</span> SparCC.py ../results/permutation_3.txt -i 5 --cor_file=../results/perm_cor_3.txt</span>
-<span id="cb24-5"><a href="inter-omics.html#cb24-5"></a>$ <span class="ex">python</span> SparCC.py ../results/permutation_4.txt -i 5 --cor_file=../results/perm_cor_4.txt</span></code></pre></div>
+<div class="sourceCode" id="cb31"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb31-1"><a href="inter-omics.html#cb31-1"></a>$ <span class="ex">python</span> SparCC.py ../results/permutation_0.txt -i 5 --cor_file=../results/perm_cor_0.txt</span>
+<span id="cb31-2"><a href="inter-omics.html#cb31-2"></a>$ <span class="ex">python</span> SparCC.py ../results/permutation_1.txt -i 5 --cor_file=../results/perm_cor_1.txt</span>
+<span id="cb31-3"><a href="inter-omics.html#cb31-3"></a>$ <span class="ex">python</span> SparCC.py ../results/permutation_2.txt -i 5 --cor_file=../results/perm_cor_2.txt</span>
+<span id="cb31-4"><a href="inter-omics.html#cb31-4"></a>$ <span class="ex">python</span> SparCC.py ../results/permutation_3.txt -i 5 --cor_file=../results/perm_cor_3.txt</span>
+<span id="cb31-5"><a href="inter-omics.html#cb31-5"></a>$ <span class="ex">python</span> SparCC.py ../results/permutation_4.txt -i 5 --cor_file=../results/perm_cor_4.txt</span></code></pre></div>
 <p>Generate p-values:</p>
-<div class="sourceCode" id="cb25"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb25-1"><a href="inter-omics.html#cb25-1"></a>$ <span class="ex">python</span> PseudoPvals.py ../results/gb_sparcc_cor_file.txt ../results/perm_cor_#.txt 5 </span>
-<span id="cb25-2"><a href="inter-omics.html#cb25-2"></a><span class="ex">-o</span> ../results/pvals.two_sided.txt -t two_sided</span></code></pre></div>
+<div class="sourceCode" id="cb32"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb32-1"><a href="inter-omics.html#cb32-1"></a>$ <span class="ex">python</span> PseudoPvals.py ../results/gb_sparcc_cor_file.txt ../results/perm_cor_#.txt 5 </span>
+<span id="cb32-2"><a href="inter-omics.html#cb32-2"></a><span class="ex">-o</span> ../results/pvals.two_sided.txt -t two_sided</span></code></pre></div>
 <p>Formatting the resulting data set like so:</p>
-<div class="sourceCode" id="cb26"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb26-1"><a href="inter-omics.html#cb26-1"></a><span class="kw">library</span>(reshape2)</span>
-<span id="cb26-2"><a href="inter-omics.html#cb26-2"></a>cor_file &lt;-<span class="st"> </span><span class="kw">read.csv</span>(<span class="st">&quot;data/gb_sparcc_cor_file_289.csv&quot;</span>, <span class="dt">header =</span> T, <span class="dt">sep =</span> <span class="st">&quot;;&quot;</span>)</span>
-<span id="cb26-3"><a href="inter-omics.html#cb26-3"></a>p_vals &lt;-<span class="st"> </span><span class="kw">read.csv</span>(<span class="st">&quot;data/gb_289_pvals.two_sided.csv&quot;</span>, <span class="dt">header =</span> T, <span class="dt">sep =</span> <span class="st">&quot;;&quot;</span>)</span>
-<span id="cb26-4"><a href="inter-omics.html#cb26-4"></a></span>
-<span id="cb26-5"><a href="inter-omics.html#cb26-5"></a><span class="co"># make OTU ID the rowname</span></span>
-<span id="cb26-6"><a href="inter-omics.html#cb26-6"></a><span class="kw">rownames</span>(cor_file) &lt;-<span class="st"> </span>cor_file[, <span class="dv">1</span>]</span>
-<span id="cb26-7"><a href="inter-omics.html#cb26-7"></a>cor_file[, <span class="dv">1</span>] &lt;-<span class="st"> </span><span class="ot">NULL</span></span>
-<span id="cb26-8"><a href="inter-omics.html#cb26-8"></a><span class="kw">rownames</span>(p_vals) &lt;-<span class="st"> </span>p_vals[, <span class="dv">1</span>]</span>
-<span id="cb26-9"><a href="inter-omics.html#cb26-9"></a>p_vals[, <span class="dv">1</span>] &lt;-<span class="st"> </span><span class="ot">NULL</span></span>
-<span id="cb26-10"><a href="inter-omics.html#cb26-10"></a><span class="co"># check ds congruency</span></span>
-<span id="cb26-11"><a href="inter-omics.html#cb26-11"></a><span class="kw">all</span>(<span class="kw">colnames</span>(cor_file) <span class="op">==</span><span class="st"> </span><span class="kw">rownames</span>(cor_file))</span>
-<span id="cb26-12"><a href="inter-omics.html#cb26-12"></a><span class="kw">all</span>(<span class="kw">colnames</span>(p_vals) <span class="op">==</span><span class="st"> </span><span class="kw">rownames</span>(p_vals))</span>
-<span id="cb26-13"><a href="inter-omics.html#cb26-13"></a></span>
-<span id="cb26-14"><a href="inter-omics.html#cb26-14"></a><span class="co"># melt into long format, all vs all comparison: 289^2=83521 rows</span></span>
-<span id="cb26-15"><a href="inter-omics.html#cb26-15"></a>cor_file_m &lt;-<span class="st"> </span><span class="kw">melt</span>(<span class="kw">as.matrix</span>(cor_file))</span>
-<span id="cb26-16"><a href="inter-omics.html#cb26-16"></a>p_vals_m &lt;-<span class="st"> </span><span class="kw">melt</span>(<span class="kw">as.matrix</span>(p_vals))</span>
-<span id="cb26-17"><a href="inter-omics.html#cb26-17"></a></span>
-<span id="cb26-18"><a href="inter-omics.html#cb26-18"></a><span class="kw">all</span>(cor_file_m<span class="op">$</span>Var1 <span class="op">==</span><span class="st"> </span>p_vals_m<span class="op">$</span>Var1)</span>
-<span id="cb26-19"><a href="inter-omics.html#cb26-19"></a><span class="kw">all</span>(cor_file_m<span class="op">$</span>Var2 <span class="op">==</span><span class="st"> </span>p_vals_m<span class="op">$</span>Var2)</span>
-<span id="cb26-20"><a href="inter-omics.html#cb26-20"></a></span>
-<span id="cb26-21"><a href="inter-omics.html#cb26-21"></a><span class="co"># complete data set with p_vals and &#39;correlation coeff&#39;</span></span>
-<span id="cb26-22"><a href="inter-omics.html#cb26-22"></a>cor_file_m[<span class="st">&quot;p_vals&quot;</span>] &lt;-<span class="st"> </span>p_vals_m<span class="op">$</span>value</span>
-<span id="cb26-23"><a href="inter-omics.html#cb26-23"></a></span>
-<span id="cb26-24"><a href="inter-omics.html#cb26-24"></a><span class="co"># This removes AB - BA duplicates but still contains self comprisons, AA, BB,CC</span></span>
-<span id="cb26-25"><a href="inter-omics.html#cb26-25"></a><span class="co"># etc.</span></span>
-<span id="cb26-26"><a href="inter-omics.html#cb26-26"></a>cols &lt;-<span class="st"> </span><span class="kw">c</span>(<span class="st">&quot;Var1&quot;</span>, <span class="st">&quot;Var2&quot;</span>)</span>
-<span id="cb26-27"><a href="inter-omics.html#cb26-27"></a>newdf &lt;-<span class="st"> </span>cor_file_m[, cols]  <span class="co">#generate new data set with just those two</span></span>
-<span id="cb26-28"><a href="inter-omics.html#cb26-28"></a><span class="co"># a &lt;- Sys.time()</span></span>
-<span id="cb26-29"><a href="inter-omics.html#cb26-29"></a><span class="cf">for</span> (i <span class="cf">in</span> <span class="dv">1</span><span class="op">:</span><span class="kw">nrow</span>(cor_file_m)) {</span>
-<span id="cb26-30"><a href="inter-omics.html#cb26-30"></a>    newdf[i, ] =<span class="st"> </span><span class="kw">sort</span>(cor_file_m[i, cols])</span>
-<span id="cb26-31"><a href="inter-omics.html#cb26-31"></a>}</span>
-<span id="cb26-32"><a href="inter-omics.html#cb26-32"></a><span class="co"># b &lt;- Sys.time() b-a</span></span>
-<span id="cb26-33"><a href="inter-omics.html#cb26-33"></a></span>
-<span id="cb26-34"><a href="inter-omics.html#cb26-34"></a>cor_file_shortened &lt;-<span class="st"> </span>cor_file_m[<span class="op">!</span><span class="kw">duplicated</span>(newdf), ]  <span class="co">#and can be removed with duplicate</span></span>
-<span id="cb26-35"><a href="inter-omics.html#cb26-35"></a>cor_file_shortened &lt;-<span class="st"> </span>cor_file_shortened[<span class="kw">which</span>(cor_file_shortened<span class="op">$</span>Var1 <span class="op">!=</span><span class="st"> </span>cor_file_shortened<span class="op">$</span>Var2), </span>
-<span id="cb26-36"><a href="inter-omics.html#cb26-36"></a>    ]  <span class="co"># removing self comparison</span></span>
-<span id="cb26-37"><a href="inter-omics.html#cb26-37"></a><span class="kw">colnames</span>(cor_file_shortened) &lt;-<span class="st"> </span><span class="kw">c</span>(<span class="st">&quot;Var1_SparCC&quot;</span>, <span class="st">&quot;Var2_SparCC&quot;</span>, <span class="st">&quot;SparCC&quot;</span>, <span class="st">&quot;pSparCC&quot;</span>)  <span class="co">#41616</span></span>
-<span id="cb26-38"><a href="inter-omics.html#cb26-38"></a><span class="kw">write.csv</span>(cor_file_shortened, <span class="st">&quot;data/SparCC_for_networks.csv&quot;</span>)</span>
-<span id="cb26-39"><a href="inter-omics.html#cb26-39"></a><span class="kw">rm</span>(cor_file_m, newdf, p_vals_m, i, cols)</span></code></pre></div>
+<div class="sourceCode" id="cb33"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb33-1"><a href="inter-omics.html#cb33-1"></a><span class="kw">library</span>(reshape2)</span>
+<span id="cb33-2"><a href="inter-omics.html#cb33-2"></a>cor_file &lt;-<span class="st"> </span><span class="kw">read.csv</span>(<span class="st">&quot;data/gb_sparcc_cor_file_289.csv&quot;</span>, <span class="dt">header =</span> T, <span class="dt">sep =</span> <span class="st">&quot;;&quot;</span>)</span>
+<span id="cb33-3"><a href="inter-omics.html#cb33-3"></a>p_vals &lt;-<span class="st"> </span><span class="kw">read.csv</span>(<span class="st">&quot;data/gb_289_pvals.two_sided.csv&quot;</span>, <span class="dt">header =</span> T, <span class="dt">sep =</span> <span class="st">&quot;;&quot;</span>)</span>
+<span id="cb33-4"><a href="inter-omics.html#cb33-4"></a></span>
+<span id="cb33-5"><a href="inter-omics.html#cb33-5"></a><span class="co"># make OTU ID the rowname</span></span>
+<span id="cb33-6"><a href="inter-omics.html#cb33-6"></a><span class="kw">rownames</span>(cor_file) &lt;-<span class="st"> </span>cor_file[, <span class="dv">1</span>]</span>
+<span id="cb33-7"><a href="inter-omics.html#cb33-7"></a>cor_file[, <span class="dv">1</span>] &lt;-<span class="st"> </span><span class="ot">NULL</span></span>
+<span id="cb33-8"><a href="inter-omics.html#cb33-8"></a><span class="kw">rownames</span>(p_vals) &lt;-<span class="st"> </span>p_vals[, <span class="dv">1</span>]</span>
+<span id="cb33-9"><a href="inter-omics.html#cb33-9"></a>p_vals[, <span class="dv">1</span>] &lt;-<span class="st"> </span><span class="ot">NULL</span></span>
+<span id="cb33-10"><a href="inter-omics.html#cb33-10"></a><span class="co"># check ds congruency</span></span>
+<span id="cb33-11"><a href="inter-omics.html#cb33-11"></a><span class="kw">all</span>(<span class="kw">colnames</span>(cor_file) <span class="op">==</span><span class="st"> </span><span class="kw">rownames</span>(cor_file))</span>
+<span id="cb33-12"><a href="inter-omics.html#cb33-12"></a><span class="kw">all</span>(<span class="kw">colnames</span>(p_vals) <span class="op">==</span><span class="st"> </span><span class="kw">rownames</span>(p_vals))</span>
+<span id="cb33-13"><a href="inter-omics.html#cb33-13"></a></span>
+<span id="cb33-14"><a href="inter-omics.html#cb33-14"></a><span class="co"># melt into long format, all vs all comparison: 289^2=83521 rows</span></span>
+<span id="cb33-15"><a href="inter-omics.html#cb33-15"></a>cor_file_m &lt;-<span class="st"> </span><span class="kw">melt</span>(<span class="kw">as.matrix</span>(cor_file))</span>
+<span id="cb33-16"><a href="inter-omics.html#cb33-16"></a>p_vals_m &lt;-<span class="st"> </span><span class="kw">melt</span>(<span class="kw">as.matrix</span>(p_vals))</span>
+<span id="cb33-17"><a href="inter-omics.html#cb33-17"></a></span>
+<span id="cb33-18"><a href="inter-omics.html#cb33-18"></a><span class="kw">all</span>(cor_file_m<span class="op">$</span>Var1 <span class="op">==</span><span class="st"> </span>p_vals_m<span class="op">$</span>Var1)</span>
+<span id="cb33-19"><a href="inter-omics.html#cb33-19"></a><span class="kw">all</span>(cor_file_m<span class="op">$</span>Var2 <span class="op">==</span><span class="st"> </span>p_vals_m<span class="op">$</span>Var2)</span>
+<span id="cb33-20"><a href="inter-omics.html#cb33-20"></a></span>
+<span id="cb33-21"><a href="inter-omics.html#cb33-21"></a><span class="co"># complete data set with p_vals and &#39;correlation coeff&#39;</span></span>
+<span id="cb33-22"><a href="inter-omics.html#cb33-22"></a>cor_file_m[<span class="st">&quot;p_vals&quot;</span>] &lt;-<span class="st"> </span>p_vals_m<span class="op">$</span>value</span>
+<span id="cb33-23"><a href="inter-omics.html#cb33-23"></a></span>
+<span id="cb33-24"><a href="inter-omics.html#cb33-24"></a><span class="co"># This removes AB - BA duplicates but still contains self comprisons, AA, BB,CC</span></span>
+<span id="cb33-25"><a href="inter-omics.html#cb33-25"></a><span class="co"># etc.</span></span>
+<span id="cb33-26"><a href="inter-omics.html#cb33-26"></a>cols &lt;-<span class="st"> </span><span class="kw">c</span>(<span class="st">&quot;Var1&quot;</span>, <span class="st">&quot;Var2&quot;</span>)</span>
+<span id="cb33-27"><a href="inter-omics.html#cb33-27"></a>newdf &lt;-<span class="st"> </span>cor_file_m[, cols]  <span class="co">#generate new data set with just those two</span></span>
+<span id="cb33-28"><a href="inter-omics.html#cb33-28"></a><span class="co"># a &lt;- Sys.time()</span></span>
+<span id="cb33-29"><a href="inter-omics.html#cb33-29"></a><span class="cf">for</span> (i <span class="cf">in</span> <span class="dv">1</span><span class="op">:</span><span class="kw">nrow</span>(cor_file_m)) {</span>
+<span id="cb33-30"><a href="inter-omics.html#cb33-30"></a>    newdf[i, ] =<span class="st"> </span><span class="kw">sort</span>(cor_file_m[i, cols])</span>
+<span id="cb33-31"><a href="inter-omics.html#cb33-31"></a>}</span>
+<span id="cb33-32"><a href="inter-omics.html#cb33-32"></a><span class="co"># b &lt;- Sys.time() b-a</span></span>
+<span id="cb33-33"><a href="inter-omics.html#cb33-33"></a></span>
+<span id="cb33-34"><a href="inter-omics.html#cb33-34"></a>cor_file_shortened &lt;-<span class="st"> </span>cor_file_m[<span class="op">!</span><span class="kw">duplicated</span>(newdf), ]  <span class="co">#and can be removed with duplicate</span></span>
+<span id="cb33-35"><a href="inter-omics.html#cb33-35"></a>cor_file_shortened &lt;-<span class="st"> </span>cor_file_shortened[<span class="kw">which</span>(cor_file_shortened<span class="op">$</span>Var1 <span class="op">!=</span><span class="st"> </span>cor_file_shortened<span class="op">$</span>Var2), </span>
+<span id="cb33-36"><a href="inter-omics.html#cb33-36"></a>    ]  <span class="co"># removing self comparison</span></span>
+<span id="cb33-37"><a href="inter-omics.html#cb33-37"></a><span class="kw">colnames</span>(cor_file_shortened) &lt;-<span class="st"> </span><span class="kw">c</span>(<span class="st">&quot;Var1_SparCC&quot;</span>, <span class="st">&quot;Var2_SparCC&quot;</span>, <span class="st">&quot;SparCC&quot;</span>, <span class="st">&quot;pSparCC&quot;</span>)  <span class="co">#41616</span></span>
+<span id="cb33-38"><a href="inter-omics.html#cb33-38"></a><span class="kw">write.csv</span>(cor_file_shortened, <span class="st">&quot;data/SparCC_for_networks.csv&quot;</span>)</span>
+<span id="cb33-39"><a href="inter-omics.html#cb33-39"></a><span class="kw">rm</span>(cor_file_m, newdf, p_vals_m, i, cols)</span></code></pre></div>
 </div>
 <div id="maximal-information-coefficient-mic" class="section level4">
-<h4><span class="header-section-number">4.2.1.4</span> Maximal information coefficient MIC</h4>
+<h4><span class="header-section-number">4.3.1.4</span> Maximal information coefficient MIC</h4>
 <p>MIC for pairwise interaction was calculated with the R package minearva. The MIC is part of a statistic called Maximal Information-Based Nonparametric Exploration (MINE).</p>
-<div class="sourceCode" id="cb27"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb27-1"><a href="inter-omics.html#cb27-1"></a><span class="kw">library</span>(minerva)</span>
-<span id="cb27-2"><a href="inter-omics.html#cb27-2"></a></span>
-<span id="cb27-3"><a href="inter-omics.html#cb27-3"></a>OTU &lt;-<span class="st"> </span><span class="kw">read.csv</span>(<span class="st">&quot;data/gb_289.csv&quot;</span>, <span class="dt">header =</span> T, <span class="dt">sep =</span> <span class="st">&quot;;&quot;</span>)</span>
-<span id="cb27-4"><a href="inter-omics.html#cb27-4"></a><span class="kw">rownames</span>(OTU) &lt;-<span class="st"> </span>OTU[, <span class="dv">1</span>]</span>
-<span id="cb27-5"><a href="inter-omics.html#cb27-5"></a>OTU[, <span class="dv">1</span>] &lt;-<span class="st"> </span><span class="ot">NULL</span></span>
-<span id="cb27-6"><a href="inter-omics.html#cb27-6"></a>OTU &lt;-<span class="st"> </span><span class="kw">as.data.frame</span>(<span class="kw">t</span>(OTU))</span>
-<span id="cb27-7"><a href="inter-omics.html#cb27-7"></a></span>
-<span id="cb27-8"><a href="inter-omics.html#cb27-8"></a><span class="co"># Calculate MIC of original data set.</span></span>
-<span id="cb27-9"><a href="inter-omics.html#cb27-9"></a>MINE &lt;-<span class="st"> </span><span class="kw">mine</span>(OTU)</span>
-<span id="cb27-10"><a href="inter-omics.html#cb27-10"></a>MIC &lt;-<span class="st"> </span>MINE<span class="op">$</span>MIC  <span class="co">#dim(MIC): 289 289</span></span></code></pre></div>
+<div class="sourceCode" id="cb34"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb34-1"><a href="inter-omics.html#cb34-1"></a><span class="kw">library</span>(minerva)</span>
+<span id="cb34-2"><a href="inter-omics.html#cb34-2"></a></span>
+<span id="cb34-3"><a href="inter-omics.html#cb34-3"></a>OTU &lt;-<span class="st"> </span><span class="kw">read.csv</span>(<span class="st">&quot;data/gb_289.csv&quot;</span>, <span class="dt">header =</span> T, <span class="dt">sep =</span> <span class="st">&quot;;&quot;</span>)</span>
+<span id="cb34-4"><a href="inter-omics.html#cb34-4"></a><span class="kw">rownames</span>(OTU) &lt;-<span class="st"> </span>OTU[, <span class="dv">1</span>]</span>
+<span id="cb34-5"><a href="inter-omics.html#cb34-5"></a>OTU[, <span class="dv">1</span>] &lt;-<span class="st"> </span><span class="ot">NULL</span></span>
+<span id="cb34-6"><a href="inter-omics.html#cb34-6"></a>OTU &lt;-<span class="st"> </span><span class="kw">as.data.frame</span>(<span class="kw">t</span>(OTU))</span>
+<span id="cb34-7"><a href="inter-omics.html#cb34-7"></a></span>
+<span id="cb34-8"><a href="inter-omics.html#cb34-8"></a><span class="co"># Calculate MIC of original data set.</span></span>
+<span id="cb34-9"><a href="inter-omics.html#cb34-9"></a>MINE &lt;-<span class="st"> </span><span class="kw">mine</span>(OTU)</span>
+<span id="cb34-10"><a href="inter-omics.html#cb34-10"></a>MIC &lt;-<span class="st"> </span>MINE<span class="op">$</span>MIC  <span class="co">#dim(MIC): 289 289</span></span></code></pre></div>
 <p>Obtaining p-values for this statistic can be achieved by permutation of the original OTU table as below or empirically, by selecting the thousand strongest interactions.</p>
-<div class="sourceCode" id="cb28"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb28-1"><a href="inter-omics.html#cb28-1"></a><span class="co"># 10 needs to be replaced with 1000 for final version, three times!!!</span></span>
-<span id="cb28-2"><a href="inter-omics.html#cb28-2"></a><span class="co"># reshuffling the OTU table, saving the MIC to a list, a total of 1000 times</span></span>
-<span id="cb28-3"><a href="inter-omics.html#cb28-3"></a>n &lt;-<span class="st"> </span><span class="dv">0</span></span>
-<span id="cb28-4"><a href="inter-omics.html#cb28-4"></a>results &lt;-<span class="st"> </span><span class="kw">list</span>()</span>
-<span id="cb28-5"><a href="inter-omics.html#cb28-5"></a></span>
-<span id="cb28-6"><a href="inter-omics.html#cb28-6"></a><span class="co"># For reproducibility, one could e.g.: set.seed(1984)</span></span>
-<span id="cb28-7"><a href="inter-omics.html#cb28-7"></a></span>
-<span id="cb28-8"><a href="inter-omics.html#cb28-8"></a><span class="co"># c &lt;- Sys.time()</span></span>
-<span id="cb28-9"><a href="inter-omics.html#cb28-9"></a><span class="cf">while</span> (n <span class="op">&lt;</span><span class="st"> </span><span class="dv">1000</span>) {</span>
-<span id="cb28-10"><a href="inter-omics.html#cb28-10"></a>    n &lt;-<span class="st"> </span>n <span class="op">+</span><span class="st"> </span><span class="dv">1</span></span>
-<span id="cb28-11"><a href="inter-omics.html#cb28-11"></a>    mock &lt;-<span class="st"> </span><span class="kw">apply</span>(OTU, <span class="dt">MARGIN =</span> <span class="dv">2</span>, sample)</span>
-<span id="cb28-12"><a href="inter-omics.html#cb28-12"></a>    mock_mine &lt;-<span class="st"> </span><span class="kw">mine</span>(mock)</span>
-<span id="cb28-13"><a href="inter-omics.html#cb28-13"></a>    results[[n]] &lt;-<span class="st"> </span>mock_mine<span class="op">$</span>MIC</span>
-<span id="cb28-14"><a href="inter-omics.html#cb28-14"></a>}</span>
-<span id="cb28-15"><a href="inter-omics.html#cb28-15"></a><span class="co"># d &lt;- Sys.time() d-c</span></span>
-<span id="cb28-16"><a href="inter-omics.html#cb28-16"></a></span>
-<span id="cb28-17"><a href="inter-omics.html#cb28-17"></a><span class="co"># for every element of the true matrix, go through all the same elements in the</span></span>
-<span id="cb28-18"><a href="inter-omics.html#cb28-18"></a><span class="co"># 1000 generated mock matrix MIC indices and count how many of those are greater.</span></span>
-<span id="cb28-19"><a href="inter-omics.html#cb28-19"></a>MIC &lt;-<span class="st"> </span>MINE<span class="op">$</span>MIC</span>
-<span id="cb28-20"><a href="inter-omics.html#cb28-20"></a></span>
-<span id="cb28-21"><a href="inter-omics.html#cb28-21"></a>e_values &lt;-<span class="st"> </span><span class="kw">matrix</span>(<span class="dt">nrow =</span> <span class="kw">nrow</span>(MIC), <span class="dt">ncol =</span> <span class="kw">ncol</span>(MIC), <span class="dt">data =</span> <span class="dv">0</span>)</span>
-<span id="cb28-22"><a href="inter-omics.html#cb28-22"></a><span class="cf">for</span> (i <span class="cf">in</span> <span class="dv">1</span><span class="op">:</span><span class="kw">nrow</span>(MIC)) {</span>
-<span id="cb28-23"><a href="inter-omics.html#cb28-23"></a>    <span class="cf">for</span> (j <span class="cf">in</span> <span class="dv">1</span><span class="op">:</span><span class="kw">ncol</span>(MIC)) {</span>
-<span id="cb28-24"><a href="inter-omics.html#cb28-24"></a>        n &lt;-<span class="st"> </span><span class="dv">0</span></span>
-<span id="cb28-25"><a href="inter-omics.html#cb28-25"></a>        <span class="cf">while</span> (n <span class="op">&lt;</span><span class="st"> </span><span class="dv">1000</span>) {</span>
-<span id="cb28-26"><a href="inter-omics.html#cb28-26"></a>            n &lt;-<span class="st"> </span>n <span class="op">+</span><span class="st"> </span><span class="dv">1</span></span>
-<span id="cb28-27"><a href="inter-omics.html#cb28-27"></a>            <span class="cf">if</span> (results[[n]][i, j] <span class="op">&gt;=</span><span class="st"> </span>MIC[i, j]) {</span>
-<span id="cb28-28"><a href="inter-omics.html#cb28-28"></a>                e_values[i, j] &lt;-<span class="st"> </span>e_values[i, j] <span class="op">+</span><span class="st"> </span><span class="dv">1</span></span>
-<span id="cb28-29"><a href="inter-omics.html#cb28-29"></a>            }</span>
-<span id="cb28-30"><a href="inter-omics.html#cb28-30"></a>        }</span>
-<span id="cb28-31"><a href="inter-omics.html#cb28-31"></a>    }</span>
-<span id="cb28-32"><a href="inter-omics.html#cb28-32"></a>}</span>
-<span id="cb28-33"><a href="inter-omics.html#cb28-33"></a></span>
-<span id="cb28-34"><a href="inter-omics.html#cb28-34"></a>e_values &lt;-<span class="st"> </span>e_values<span class="op">/</span><span class="dv">1000</span></span>
-<span id="cb28-35"><a href="inter-omics.html#cb28-35"></a><span class="co"># write.csv(e_values, &#39;data/MIC_e_values.csv&#39;)</span></span></code></pre></div>
+<div class="sourceCode" id="cb35"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb35-1"><a href="inter-omics.html#cb35-1"></a><span class="co"># 10 needs to be replaced with 1000 for final version, three times!!!</span></span>
+<span id="cb35-2"><a href="inter-omics.html#cb35-2"></a><span class="co"># reshuffling the OTU table, saving the MIC to a list, a total of 1000 times</span></span>
+<span id="cb35-3"><a href="inter-omics.html#cb35-3"></a>n &lt;-<span class="st"> </span><span class="dv">0</span></span>
+<span id="cb35-4"><a href="inter-omics.html#cb35-4"></a>results &lt;-<span class="st"> </span><span class="kw">list</span>()</span>
+<span id="cb35-5"><a href="inter-omics.html#cb35-5"></a></span>
+<span id="cb35-6"><a href="inter-omics.html#cb35-6"></a><span class="co"># For reproducibility, one could e.g.: set.seed(1984)</span></span>
+<span id="cb35-7"><a href="inter-omics.html#cb35-7"></a></span>
+<span id="cb35-8"><a href="inter-omics.html#cb35-8"></a><span class="co"># c &lt;- Sys.time()</span></span>
+<span id="cb35-9"><a href="inter-omics.html#cb35-9"></a><span class="cf">while</span> (n <span class="op">&lt;</span><span class="st"> </span><span class="dv">1000</span>) {</span>
+<span id="cb35-10"><a href="inter-omics.html#cb35-10"></a>    n &lt;-<span class="st"> </span>n <span class="op">+</span><span class="st"> </span><span class="dv">1</span></span>
+<span id="cb35-11"><a href="inter-omics.html#cb35-11"></a>    mock &lt;-<span class="st"> </span><span class="kw">apply</span>(OTU, <span class="dt">MARGIN =</span> <span class="dv">2</span>, sample)</span>
+<span id="cb35-12"><a href="inter-omics.html#cb35-12"></a>    mock_mine &lt;-<span class="st"> </span><span class="kw">mine</span>(mock)</span>
+<span id="cb35-13"><a href="inter-omics.html#cb35-13"></a>    results[[n]] &lt;-<span class="st"> </span>mock_mine<span class="op">$</span>MIC</span>
+<span id="cb35-14"><a href="inter-omics.html#cb35-14"></a>}</span>
+<span id="cb35-15"><a href="inter-omics.html#cb35-15"></a><span class="co"># d &lt;- Sys.time() d-c</span></span>
+<span id="cb35-16"><a href="inter-omics.html#cb35-16"></a></span>
+<span id="cb35-17"><a href="inter-omics.html#cb35-17"></a><span class="co"># for every element of the true matrix, go through all the same elements in the</span></span>
+<span id="cb35-18"><a href="inter-omics.html#cb35-18"></a><span class="co"># 1000 generated mock matrix MIC indices and count how many of those are greater.</span></span>
+<span id="cb35-19"><a href="inter-omics.html#cb35-19"></a>MIC &lt;-<span class="st"> </span>MINE<span class="op">$</span>MIC</span>
+<span id="cb35-20"><a href="inter-omics.html#cb35-20"></a></span>
+<span id="cb35-21"><a href="inter-omics.html#cb35-21"></a>e_values &lt;-<span class="st"> </span><span class="kw">matrix</span>(<span class="dt">nrow =</span> <span class="kw">nrow</span>(MIC), <span class="dt">ncol =</span> <span class="kw">ncol</span>(MIC), <span class="dt">data =</span> <span class="dv">0</span>)</span>
+<span id="cb35-22"><a href="inter-omics.html#cb35-22"></a><span class="cf">for</span> (i <span class="cf">in</span> <span class="dv">1</span><span class="op">:</span><span class="kw">nrow</span>(MIC)) {</span>
+<span id="cb35-23"><a href="inter-omics.html#cb35-23"></a>    <span class="cf">for</span> (j <span class="cf">in</span> <span class="dv">1</span><span class="op">:</span><span class="kw">ncol</span>(MIC)) {</span>
+<span id="cb35-24"><a href="inter-omics.html#cb35-24"></a>        n &lt;-<span class="st"> </span><span class="dv">0</span></span>
+<span id="cb35-25"><a href="inter-omics.html#cb35-25"></a>        <span class="cf">while</span> (n <span class="op">&lt;</span><span class="st"> </span><span class="dv">1000</span>) {</span>
+<span id="cb35-26"><a href="inter-omics.html#cb35-26"></a>            n &lt;-<span class="st"> </span>n <span class="op">+</span><span class="st"> </span><span class="dv">1</span></span>
+<span id="cb35-27"><a href="inter-omics.html#cb35-27"></a>            <span class="cf">if</span> (results[[n]][i, j] <span class="op">&gt;=</span><span class="st"> </span>MIC[i, j]) {</span>
+<span id="cb35-28"><a href="inter-omics.html#cb35-28"></a>                e_values[i, j] &lt;-<span class="st"> </span>e_values[i, j] <span class="op">+</span><span class="st"> </span><span class="dv">1</span></span>
+<span id="cb35-29"><a href="inter-omics.html#cb35-29"></a>            }</span>
+<span id="cb35-30"><a href="inter-omics.html#cb35-30"></a>        }</span>
+<span id="cb35-31"><a href="inter-omics.html#cb35-31"></a>    }</span>
+<span id="cb35-32"><a href="inter-omics.html#cb35-32"></a>}</span>
+<span id="cb35-33"><a href="inter-omics.html#cb35-33"></a></span>
+<span id="cb35-34"><a href="inter-omics.html#cb35-34"></a>e_values &lt;-<span class="st"> </span>e_values<span class="op">/</span><span class="dv">1000</span></span>
+<span id="cb35-35"><a href="inter-omics.html#cb35-35"></a><span class="co"># write.csv(e_values, &#39;data/MIC_e_values.csv&#39;)</span></span></code></pre></div>
 <p>For n=1000, the first part takes about 8 mins on one core, the second part about 2 min. The relevant output is saved in the initial calculations of the MIC and the corresponding e-values are in e_values. These are symmetric matrices that will be reduced to a long table with unique OTUs/ASVs pairs, their MIC and the e-value. For clarity, all other files are removed.</p>
-<div class="sourceCode" id="cb29"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb29-1"><a href="inter-omics.html#cb29-1"></a><span class="kw">rm</span>(MINE, mock, mock_mine, results)</span>
-<span id="cb29-2"><a href="inter-omics.html#cb29-2"></a></span>
-<span id="cb29-3"><a href="inter-omics.html#cb29-3"></a><span class="co"># transforming symmetric matrix to unique-pair long format</span></span>
-<span id="cb29-4"><a href="inter-omics.html#cb29-4"></a>cor_file &lt;-<span class="st"> </span><span class="kw">data.frame</span>(MIC)</span>
-<span id="cb29-5"><a href="inter-omics.html#cb29-5"></a>p_vals &lt;-<span class="st"> </span><span class="kw">data.frame</span>(e_values)</span>
-<span id="cb29-6"><a href="inter-omics.html#cb29-6"></a></span>
-<span id="cb29-7"><a href="inter-omics.html#cb29-7"></a><span class="co"># inspect the files, adapt them and test congruency</span></span>
-<span id="cb29-8"><a href="inter-omics.html#cb29-8"></a><span class="kw">rownames</span>(p_vals) &lt;-<span class="st"> </span><span class="kw">rownames</span>(cor_file)</span>
-<span id="cb29-9"><a href="inter-omics.html#cb29-9"></a><span class="kw">colnames</span>(p_vals) &lt;-<span class="st"> </span><span class="kw">colnames</span>(cor_file)</span>
-<span id="cb29-10"><a href="inter-omics.html#cb29-10"></a><span class="kw">all</span>(<span class="kw">colnames</span>(cor_file) <span class="op">==</span><span class="st"> </span><span class="kw">rownames</span>(cor_file))</span>
-<span id="cb29-11"><a href="inter-omics.html#cb29-11"></a></span>
-<span id="cb29-12"><a href="inter-omics.html#cb29-12"></a><span class="co"># melt into long format, all vs all comparison: 289*289=83521 rows</span></span>
-<span id="cb29-13"><a href="inter-omics.html#cb29-13"></a>cor_file_m &lt;-<span class="st"> </span><span class="kw">melt</span>(<span class="kw">as.matrix</span>(cor_file))</span>
-<span id="cb29-14"><a href="inter-omics.html#cb29-14"></a><span class="kw">all</span>(<span class="kw">colnames</span>(p_vals) <span class="op">==</span><span class="st"> </span><span class="kw">rownames</span>(p_vals))</span>
-<span id="cb29-15"><a href="inter-omics.html#cb29-15"></a>p_vals_m &lt;-<span class="st"> </span><span class="kw">melt</span>(<span class="kw">as.matrix</span>(p_vals))</span>
-<span id="cb29-16"><a href="inter-omics.html#cb29-16"></a></span>
-<span id="cb29-17"><a href="inter-omics.html#cb29-17"></a><span class="co"># complete data set with p_vals</span></span>
-<span id="cb29-18"><a href="inter-omics.html#cb29-18"></a>cor_file_m[<span class="st">&quot;p_vals&quot;</span>] &lt;-<span class="st"> </span>p_vals_m<span class="op">$</span>value</span>
-<span id="cb29-19"><a href="inter-omics.html#cb29-19"></a></span>
-<span id="cb29-20"><a href="inter-omics.html#cb29-20"></a><span class="co"># This removes AB - BA duplicates but still contains self comprisons, AA, BB,</span></span>
-<span id="cb29-21"><a href="inter-omics.html#cb29-21"></a><span class="co"># etc.</span></span>
-<span id="cb29-22"><a href="inter-omics.html#cb29-22"></a>cols &lt;-<span class="st"> </span><span class="kw">c</span>(<span class="st">&quot;Var1&quot;</span>, <span class="st">&quot;Var2&quot;</span>)</span>
-<span id="cb29-23"><a href="inter-omics.html#cb29-23"></a>newdf &lt;-<span class="st"> </span>cor_file_m[, cols]  <span class="co">#generate new data set with just those two</span></span>
-<span id="cb29-24"><a href="inter-omics.html#cb29-24"></a></span>
-<span id="cb29-25"><a href="inter-omics.html#cb29-25"></a><span class="cf">for</span> (i <span class="cf">in</span> <span class="dv">1</span><span class="op">:</span><span class="kw">nrow</span>(cor_file_m)) {</span>
-<span id="cb29-26"><a href="inter-omics.html#cb29-26"></a>    newdf[i, ] &lt;-<span class="st"> </span><span class="kw">sort</span>(cor_file_m[i, cols])</span>
-<span id="cb29-27"><a href="inter-omics.html#cb29-27"></a>}</span>
-<span id="cb29-28"><a href="inter-omics.html#cb29-28"></a></span>
-<span id="cb29-29"><a href="inter-omics.html#cb29-29"></a>cor_file_shortened &lt;-<span class="st"> </span>cor_file_m[<span class="op">!</span><span class="kw">duplicated</span>(newdf), ]  <span class="co">#and can be removed with duplicate</span></span>
-<span id="cb29-30"><a href="inter-omics.html#cb29-30"></a>cor_file_shortened &lt;-<span class="st"> </span>cor_file_shortened[<span class="kw">which</span>(cor_file_shortened<span class="op">$</span>Var1 <span class="op">!=</span><span class="st"> </span>cor_file_shortened<span class="op">$</span>Var2), </span>
-<span id="cb29-31"><a href="inter-omics.html#cb29-31"></a>    ]  <span class="co"># removing self comparison</span></span>
-<span id="cb29-32"><a href="inter-omics.html#cb29-32"></a><span class="kw">rm</span>(cor_file_m, newdf, p_vals_m, i, cols)</span>
-<span id="cb29-33"><a href="inter-omics.html#cb29-33"></a></span>
-<span id="cb29-34"><a href="inter-omics.html#cb29-34"></a><span class="co"># write.csv(cor_file_shortened, &#39;data/MIC_for_networks.csv&#39;)</span></span></code></pre></div>
+<div class="sourceCode" id="cb36"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb36-1"><a href="inter-omics.html#cb36-1"></a><span class="kw">rm</span>(MINE, mock, mock_mine, results)</span>
+<span id="cb36-2"><a href="inter-omics.html#cb36-2"></a></span>
+<span id="cb36-3"><a href="inter-omics.html#cb36-3"></a><span class="co"># transforming symmetric matrix to unique-pair long format</span></span>
+<span id="cb36-4"><a href="inter-omics.html#cb36-4"></a>cor_file &lt;-<span class="st"> </span><span class="kw">data.frame</span>(MIC)</span>
+<span id="cb36-5"><a href="inter-omics.html#cb36-5"></a>p_vals &lt;-<span class="st"> </span><span class="kw">data.frame</span>(e_values)</span>
+<span id="cb36-6"><a href="inter-omics.html#cb36-6"></a></span>
+<span id="cb36-7"><a href="inter-omics.html#cb36-7"></a><span class="co"># inspect the files, adapt them and test congruency</span></span>
+<span id="cb36-8"><a href="inter-omics.html#cb36-8"></a><span class="kw">rownames</span>(p_vals) &lt;-<span class="st"> </span><span class="kw">rownames</span>(cor_file)</span>
+<span id="cb36-9"><a href="inter-omics.html#cb36-9"></a><span class="kw">colnames</span>(p_vals) &lt;-<span class="st"> </span><span class="kw">colnames</span>(cor_file)</span>
+<span id="cb36-10"><a href="inter-omics.html#cb36-10"></a><span class="kw">all</span>(<span class="kw">colnames</span>(cor_file) <span class="op">==</span><span class="st"> </span><span class="kw">rownames</span>(cor_file))</span>
+<span id="cb36-11"><a href="inter-omics.html#cb36-11"></a></span>
+<span id="cb36-12"><a href="inter-omics.html#cb36-12"></a><span class="co"># melt into long format, all vs all comparison: 289*289=83521 rows</span></span>
+<span id="cb36-13"><a href="inter-omics.html#cb36-13"></a>cor_file_m &lt;-<span class="st"> </span><span class="kw">melt</span>(<span class="kw">as.matrix</span>(cor_file))</span>
+<span id="cb36-14"><a href="inter-omics.html#cb36-14"></a><span class="kw">all</span>(<span class="kw">colnames</span>(p_vals) <span class="op">==</span><span class="st"> </span><span class="kw">rownames</span>(p_vals))</span>
+<span id="cb36-15"><a href="inter-omics.html#cb36-15"></a>p_vals_m &lt;-<span class="st"> </span><span class="kw">melt</span>(<span class="kw">as.matrix</span>(p_vals))</span>
+<span id="cb36-16"><a href="inter-omics.html#cb36-16"></a></span>
+<span id="cb36-17"><a href="inter-omics.html#cb36-17"></a><span class="co"># complete data set with p_vals</span></span>
+<span id="cb36-18"><a href="inter-omics.html#cb36-18"></a>cor_file_m[<span class="st">&quot;p_vals&quot;</span>] &lt;-<span class="st"> </span>p_vals_m<span class="op">$</span>value</span>
+<span id="cb36-19"><a href="inter-omics.html#cb36-19"></a></span>
+<span id="cb36-20"><a href="inter-omics.html#cb36-20"></a><span class="co"># This removes AB - BA duplicates but still contains self comprisons, AA, BB,</span></span>
+<span id="cb36-21"><a href="inter-omics.html#cb36-21"></a><span class="co"># etc.</span></span>
+<span id="cb36-22"><a href="inter-omics.html#cb36-22"></a>cols &lt;-<span class="st"> </span><span class="kw">c</span>(<span class="st">&quot;Var1&quot;</span>, <span class="st">&quot;Var2&quot;</span>)</span>
+<span id="cb36-23"><a href="inter-omics.html#cb36-23"></a>newdf &lt;-<span class="st"> </span>cor_file_m[, cols]  <span class="co">#generate new data set with just those two</span></span>
+<span id="cb36-24"><a href="inter-omics.html#cb36-24"></a></span>
+<span id="cb36-25"><a href="inter-omics.html#cb36-25"></a><span class="cf">for</span> (i <span class="cf">in</span> <span class="dv">1</span><span class="op">:</span><span class="kw">nrow</span>(cor_file_m)) {</span>
+<span id="cb36-26"><a href="inter-omics.html#cb36-26"></a>    newdf[i, ] &lt;-<span class="st"> </span><span class="kw">sort</span>(cor_file_m[i, cols])</span>
+<span id="cb36-27"><a href="inter-omics.html#cb36-27"></a>}</span>
+<span id="cb36-28"><a href="inter-omics.html#cb36-28"></a></span>
+<span id="cb36-29"><a href="inter-omics.html#cb36-29"></a>cor_file_shortened &lt;-<span class="st"> </span>cor_file_m[<span class="op">!</span><span class="kw">duplicated</span>(newdf), ]  <span class="co">#and can be removed with duplicate</span></span>
+<span id="cb36-30"><a href="inter-omics.html#cb36-30"></a>cor_file_shortened &lt;-<span class="st"> </span>cor_file_shortened[<span class="kw">which</span>(cor_file_shortened<span class="op">$</span>Var1 <span class="op">!=</span><span class="st"> </span>cor_file_shortened<span class="op">$</span>Var2), </span>
+<span id="cb36-31"><a href="inter-omics.html#cb36-31"></a>    ]  <span class="co"># removing self comparison</span></span>
+<span id="cb36-32"><a href="inter-omics.html#cb36-32"></a><span class="kw">rm</span>(cor_file_m, newdf, p_vals_m, i, cols)</span>
+<span id="cb36-33"><a href="inter-omics.html#cb36-33"></a></span>
+<span id="cb36-34"><a href="inter-omics.html#cb36-34"></a><span class="co"># write.csv(cor_file_shortened, &#39;data/MIC_for_networks.csv&#39;)</span></span></code></pre></div>
 </div>
 </div>
 <div id="consolidation-of-the-different-networks" class="section level3">
-<h3><span class="header-section-number">4.2.2</span> Consolidation of the different networks</h3>
+<h3><span class="header-section-number">4.3.2</span> Consolidation of the different networks</h3>
 <div id="mic" class="section level4">
-<h4><span class="header-section-number">4.2.2.1</span> MIC</h4>
+<h4><span class="header-section-number">4.3.2.1</span> MIC</h4>
 <p>MIC allows to detect a variety of interactions. According to the manual of the R wrapper minerva, the resulting MIC score “is related to the relationship strenght and it can be interpreted as a correlation measure. It is symmetric and it ranges in [0,1], where it tends to 0 for statistically independent data and it approaches 1 in probability for noiseless functional relationships”. Thus, it also contains strong negative relationship up to mutual exclusivity, which we want to filter out.</p>
-<div class="sourceCode" id="cb30"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb30-1"><a href="inter-omics.html#cb30-1"></a>mic &lt;-<span class="st"> </span><span class="kw">read.csv</span>(<span class="st">&quot;data/MIC_for_networks.csv&quot;</span>, <span class="dt">header =</span> T, <span class="dt">sep =</span> <span class="st">&quot;,&quot;</span>)</span>
-<span id="cb30-2"><a href="inter-omics.html#cb30-2"></a>mic<span class="op">$</span>X &lt;-<span class="st"> </span><span class="ot">NULL</span></span>
-<span id="cb30-3"><a href="inter-omics.html#cb30-3"></a><span class="kw">colnames</span>(mic) &lt;-<span class="st"> </span><span class="kw">c</span>(<span class="st">&quot;node1_mic&quot;</span>, <span class="st">&quot;node2_mic&quot;</span>, <span class="st">&quot;MIC&quot;</span>, <span class="st">&quot;pMIC&quot;</span>)</span></code></pre></div>
+<div class="sourceCode" id="cb37"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb37-1"><a href="inter-omics.html#cb37-1"></a>mic &lt;-<span class="st"> </span><span class="kw">read.csv</span>(<span class="st">&quot;data/MIC_for_networks.csv&quot;</span>, <span class="dt">header =</span> T, <span class="dt">sep =</span> <span class="st">&quot;,&quot;</span>)</span>
+<span id="cb37-2"><a href="inter-omics.html#cb37-2"></a>mic<span class="op">$</span>X &lt;-<span class="st"> </span><span class="ot">NULL</span></span>
+<span id="cb37-3"><a href="inter-omics.html#cb37-3"></a><span class="kw">colnames</span>(mic) &lt;-<span class="st"> </span><span class="kw">c</span>(<span class="st">&quot;node1_mic&quot;</span>, <span class="st">&quot;node2_mic&quot;</span>, <span class="st">&quot;MIC&quot;</span>, <span class="st">&quot;pMIC&quot;</span>)</span></code></pre></div>
 <p>Initially, the MIC network generated by the R wrapper minerva contained MIC values for all possible edges (i.e. 41616). Of those, 4370 edges/interactions had a p-value <span class="math inline">\(\leq\)</span> 0.05. As we will only include those edges in the final network, we select those and calculate the linear regression coefficient and p-value for the regression, to test whether we are able to distinguish negative from positive interaction.</p>
-<div class="sourceCode" id="cb31"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb31-1"><a href="inter-omics.html#cb31-1"></a><span class="co"># Original OTU table for regressions</span></span>
-<span id="cb31-2"><a href="inter-omics.html#cb31-2"></a>OTU &lt;-<span class="st"> </span><span class="kw">read.csv</span>(<span class="st">&quot;data/gb_289.csv&quot;</span>, <span class="dt">header =</span> T, <span class="dt">sep =</span> <span class="st">&quot;;&quot;</span>)</span>
-<span id="cb31-3"><a href="inter-omics.html#cb31-3"></a><span class="kw">rownames</span>(OTU) &lt;-<span class="st"> </span>OTU[, <span class="dv">1</span>]</span>
-<span id="cb31-4"><a href="inter-omics.html#cb31-4"></a>OTU[, <span class="dv">1</span>] &lt;-<span class="st"> </span><span class="ot">NULL</span></span>
-<span id="cb31-5"><a href="inter-omics.html#cb31-5"></a>OTU[<span class="st">&quot;ID&quot;</span>] &lt;-<span class="st"> </span><span class="kw">row.names</span>(OTU)</span></code></pre></div>
-<div class="sourceCode" id="cb32"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb32-1"><a href="inter-omics.html#cb32-1"></a><span class="co"># goal: in mic data frame, set to &#39;NA&#39; MIC and pMIC of edges with a significant</span></span>
-<span id="cb32-2"><a href="inter-omics.html#cb32-2"></a><span class="co"># p-value for MIC that have a significant negative regression</span></span>
-<span id="cb32-3"><a href="inter-omics.html#cb32-3"></a></span>
-<span id="cb32-4"><a href="inter-omics.html#cb32-4"></a>mic[<span class="st">&quot;regression&quot;</span>] &lt;-<span class="st"> </span><span class="ot">NA</span></span>
-<span id="cb32-5"><a href="inter-omics.html#cb32-5"></a>mic[<span class="st">&quot;p_regression&quot;</span>] &lt;-<span class="st"> </span><span class="ot">NA</span></span>
-<span id="cb32-6"><a href="inter-omics.html#cb32-6"></a></span>
-<span id="cb32-7"><a href="inter-omics.html#cb32-7"></a><span class="cf">for</span> (i <span class="cf">in</span> <span class="dv">1</span><span class="op">:</span><span class="kw">nrow</span>(mic)) {</span>
-<span id="cb32-8"><a href="inter-omics.html#cb32-8"></a>    bac1 &lt;-<span class="st"> </span><span class="kw">factor</span>(mic[i, <span class="dv">1</span>])</span>
-<span id="cb32-9"><a href="inter-omics.html#cb32-9"></a>    bac2 &lt;-<span class="st"> </span><span class="kw">factor</span>(mic[i, <span class="dv">2</span>])</span>
-<span id="cb32-10"><a href="inter-omics.html#cb32-10"></a>    temp_ds &lt;-<span class="st"> </span><span class="kw">data.frame</span>(<span class="kw">t</span>(<span class="kw">rbind</span>(OTU[OTU<span class="op">$</span>ID <span class="op">==</span><span class="st"> </span>bac1, ], OTU[OTU<span class="op">$</span>ID <span class="op">==</span><span class="st"> </span>bac2, ])))</span>
-<span id="cb32-11"><a href="inter-omics.html#cb32-11"></a>    temp_ds &lt;-<span class="st"> </span>temp_ds[<span class="op">-</span><span class="kw">c</span>(<span class="dv">15</span>), ]</span>
-<span id="cb32-12"><a href="inter-omics.html#cb32-12"></a>    temp_ds[] &lt;-<span class="st"> </span><span class="kw">lapply</span>(temp_ds, <span class="cf">function</span>(x) <span class="cf">if</span> (<span class="kw">is.factor</span>(x)) </span>
-<span id="cb32-13"><a href="inter-omics.html#cb32-13"></a>        <span class="kw">factor</span>(x) <span class="cf">else</span> x)  <span class="co"># removes factors, not sure if necessary</span></span>
-<span id="cb32-14"><a href="inter-omics.html#cb32-14"></a>    mic<span class="op">$</span>regression[i] &lt;-<span class="st"> </span><span class="kw">summary</span>(<span class="kw">lm</span>(<span class="kw">c</span>(temp_ds[, <span class="dv">1</span>]) <span class="op">~</span><span class="st"> </span><span class="kw">c</span>(temp_ds[, <span class="dv">2</span>])))<span class="op">$</span>coefficients[<span class="dv">2</span>, </span>
-<span id="cb32-15"><a href="inter-omics.html#cb32-15"></a>        <span class="dv">1</span>]  <span class="co">#slope</span></span>
-<span id="cb32-16"><a href="inter-omics.html#cb32-16"></a>    mic<span class="op">$</span>p_regression[i] &lt;-<span class="st"> </span><span class="kw">summary</span>(<span class="kw">lm</span>(<span class="kw">c</span>(temp_ds[, <span class="dv">1</span>]) <span class="op">~</span><span class="st"> </span><span class="kw">c</span>(temp_ds[, <span class="dv">2</span>])))<span class="op">$</span>coefficients[<span class="dv">2</span>, </span>
-<span id="cb32-17"><a href="inter-omics.html#cb32-17"></a>        <span class="dv">4</span>]  <span class="co">#p-val</span></span>
-<span id="cb32-18"><a href="inter-omics.html#cb32-18"></a>}</span>
-<span id="cb32-19"><a href="inter-omics.html#cb32-19"></a></span>
-<span id="cb32-20"><a href="inter-omics.html#cb32-20"></a>before &lt;-<span class="st"> </span><span class="kw">sum</span>(mic<span class="op">$</span>pMIC <span class="op">&lt;=</span><span class="st"> </span><span class="fl">0.05</span>)  <span class="co">#4370</span></span>
-<span id="cb32-21"><a href="inter-omics.html#cb32-21"></a>mic<span class="op">$</span>MIC &lt;-<span class="st"> </span><span class="kw">ifelse</span>((mic<span class="op">$</span>pMIC <span class="op">&lt;=</span><span class="st"> </span><span class="fl">0.05</span> <span class="op">&amp;</span><span class="st"> </span>mic<span class="op">$</span>regression <span class="op">&lt;</span><span class="st"> </span><span class="dv">0</span> <span class="op">&amp;</span><span class="st"> </span>mic<span class="op">$</span>p_regression <span class="op">&lt;=</span><span class="st"> </span><span class="fl">0.05</span>), </span>
-<span id="cb32-22"><a href="inter-omics.html#cb32-22"></a>    <span class="ot">NA</span>, mic<span class="op">$</span>MIC)</span>
-<span id="cb32-23"><a href="inter-omics.html#cb32-23"></a>mic<span class="op">$</span>pMIC &lt;-<span class="st"> </span><span class="kw">ifelse</span>((mic<span class="op">$</span>pMIC <span class="op">&lt;=</span><span class="st"> </span><span class="fl">0.05</span> <span class="op">&amp;</span><span class="st"> </span>mic<span class="op">$</span>regression <span class="op">&lt;</span><span class="st"> </span><span class="dv">0</span> <span class="op">&amp;</span><span class="st"> </span>mic<span class="op">$</span>p_regression <span class="op">&lt;=</span><span class="st"> </span><span class="fl">0.05</span>), </span>
-<span id="cb32-24"><a href="inter-omics.html#cb32-24"></a>    <span class="ot">NA</span>, mic<span class="op">$</span>pMIC)</span>
-<span id="cb32-25"><a href="inter-omics.html#cb32-25"></a>after &lt;-<span class="st"> </span><span class="kw">sum</span>(mic<span class="op">$</span>pMIC <span class="op">&lt;=</span><span class="st"> </span><span class="fl">0.05</span>, <span class="dt">na.rm =</span> T)  <span class="co">#3522</span></span>
-<span id="cb32-26"><a href="inter-omics.html#cb32-26"></a></span>
-<span id="cb32-27"><a href="inter-omics.html#cb32-27"></a><span class="kw">write.csv</span>(mic, <span class="st">&quot;data/MIC.csv&quot;</span>)</span>
-<span id="cb32-28"><a href="inter-omics.html#cb32-28"></a><span class="kw">rm</span>(temp_ds, bac1, bac2, i, mic)</span></code></pre></div>
+<div class="sourceCode" id="cb38"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb38-1"><a href="inter-omics.html#cb38-1"></a><span class="co"># Original OTU table for regressions</span></span>
+<span id="cb38-2"><a href="inter-omics.html#cb38-2"></a>OTU &lt;-<span class="st"> </span><span class="kw">read.csv</span>(<span class="st">&quot;data/gb_289.csv&quot;</span>, <span class="dt">header =</span> T, <span class="dt">sep =</span> <span class="st">&quot;;&quot;</span>)</span>
+<span id="cb38-3"><a href="inter-omics.html#cb38-3"></a><span class="kw">rownames</span>(OTU) &lt;-<span class="st"> </span>OTU[, <span class="dv">1</span>]</span>
+<span id="cb38-4"><a href="inter-omics.html#cb38-4"></a>OTU[, <span class="dv">1</span>] &lt;-<span class="st"> </span><span class="ot">NULL</span></span>
+<span id="cb38-5"><a href="inter-omics.html#cb38-5"></a>OTU[<span class="st">&quot;ID&quot;</span>] &lt;-<span class="st"> </span><span class="kw">row.names</span>(OTU)</span></code></pre></div>
+<div class="sourceCode" id="cb39"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb39-1"><a href="inter-omics.html#cb39-1"></a><span class="co"># goal: in mic data frame, set to &#39;NA&#39; MIC and pMIC of edges with a significant</span></span>
+<span id="cb39-2"><a href="inter-omics.html#cb39-2"></a><span class="co"># p-value for MIC that have a significant negative regression</span></span>
+<span id="cb39-3"><a href="inter-omics.html#cb39-3"></a></span>
+<span id="cb39-4"><a href="inter-omics.html#cb39-4"></a>mic[<span class="st">&quot;regression&quot;</span>] &lt;-<span class="st"> </span><span class="ot">NA</span></span>
+<span id="cb39-5"><a href="inter-omics.html#cb39-5"></a>mic[<span class="st">&quot;p_regression&quot;</span>] &lt;-<span class="st"> </span><span class="ot">NA</span></span>
+<span id="cb39-6"><a href="inter-omics.html#cb39-6"></a></span>
+<span id="cb39-7"><a href="inter-omics.html#cb39-7"></a><span class="cf">for</span> (i <span class="cf">in</span> <span class="dv">1</span><span class="op">:</span><span class="kw">nrow</span>(mic)) {</span>
+<span id="cb39-8"><a href="inter-omics.html#cb39-8"></a>    bac1 &lt;-<span class="st"> </span><span class="kw">factor</span>(mic[i, <span class="dv">1</span>])</span>
+<span id="cb39-9"><a href="inter-omics.html#cb39-9"></a>    bac2 &lt;-<span class="st"> </span><span class="kw">factor</span>(mic[i, <span class="dv">2</span>])</span>
+<span id="cb39-10"><a href="inter-omics.html#cb39-10"></a>    temp_ds &lt;-<span class="st"> </span><span class="kw">data.frame</span>(<span class="kw">t</span>(<span class="kw">rbind</span>(OTU[OTU<span class="op">$</span>ID <span class="op">==</span><span class="st"> </span>bac1, ], OTU[OTU<span class="op">$</span>ID <span class="op">==</span><span class="st"> </span>bac2, ])))</span>
+<span id="cb39-11"><a href="inter-omics.html#cb39-11"></a>    temp_ds &lt;-<span class="st"> </span>temp_ds[<span class="op">-</span><span class="kw">c</span>(<span class="dv">15</span>), ]</span>
+<span id="cb39-12"><a href="inter-omics.html#cb39-12"></a>    temp_ds[] &lt;-<span class="st"> </span><span class="kw">lapply</span>(temp_ds, <span class="cf">function</span>(x) <span class="cf">if</span> (<span class="kw">is.factor</span>(x)) </span>
+<span id="cb39-13"><a href="inter-omics.html#cb39-13"></a>        <span class="kw">factor</span>(x) <span class="cf">else</span> x)  <span class="co"># removes factors, not sure if necessary</span></span>
+<span id="cb39-14"><a href="inter-omics.html#cb39-14"></a>    mic<span class="op">$</span>regression[i] &lt;-<span class="st"> </span><span class="kw">summary</span>(<span class="kw">lm</span>(<span class="kw">c</span>(temp_ds[, <span class="dv">1</span>]) <span class="op">~</span><span class="st"> </span><span class="kw">c</span>(temp_ds[, <span class="dv">2</span>])))<span class="op">$</span>coefficients[<span class="dv">2</span>, </span>
+<span id="cb39-15"><a href="inter-omics.html#cb39-15"></a>        <span class="dv">1</span>]  <span class="co">#slope</span></span>
+<span id="cb39-16"><a href="inter-omics.html#cb39-16"></a>    mic<span class="op">$</span>p_regression[i] &lt;-<span class="st"> </span><span class="kw">summary</span>(<span class="kw">lm</span>(<span class="kw">c</span>(temp_ds[, <span class="dv">1</span>]) <span class="op">~</span><span class="st"> </span><span class="kw">c</span>(temp_ds[, <span class="dv">2</span>])))<span class="op">$</span>coefficients[<span class="dv">2</span>, </span>
+<span id="cb39-17"><a href="inter-omics.html#cb39-17"></a>        <span class="dv">4</span>]  <span class="co">#p-val</span></span>
+<span id="cb39-18"><a href="inter-omics.html#cb39-18"></a>}</span>
+<span id="cb39-19"><a href="inter-omics.html#cb39-19"></a></span>
+<span id="cb39-20"><a href="inter-omics.html#cb39-20"></a>before &lt;-<span class="st"> </span><span class="kw">sum</span>(mic<span class="op">$</span>pMIC <span class="op">&lt;=</span><span class="st"> </span><span class="fl">0.05</span>)  <span class="co">#4370</span></span>
+<span id="cb39-21"><a href="inter-omics.html#cb39-21"></a>mic<span class="op">$</span>MIC &lt;-<span class="st"> </span><span class="kw">ifelse</span>((mic<span class="op">$</span>pMIC <span class="op">&lt;=</span><span class="st"> </span><span class="fl">0.05</span> <span class="op">&amp;</span><span class="st"> </span>mic<span class="op">$</span>regression <span class="op">&lt;</span><span class="st"> </span><span class="dv">0</span> <span class="op">&amp;</span><span class="st"> </span>mic<span class="op">$</span>p_regression <span class="op">&lt;=</span><span class="st"> </span><span class="fl">0.05</span>), </span>
+<span id="cb39-22"><a href="inter-omics.html#cb39-22"></a>    <span class="ot">NA</span>, mic<span class="op">$</span>MIC)</span>
+<span id="cb39-23"><a href="inter-omics.html#cb39-23"></a>mic<span class="op">$</span>pMIC &lt;-<span class="st"> </span><span class="kw">ifelse</span>((mic<span class="op">$</span>pMIC <span class="op">&lt;=</span><span class="st"> </span><span class="fl">0.05</span> <span class="op">&amp;</span><span class="st"> </span>mic<span class="op">$</span>regression <span class="op">&lt;</span><span class="st"> </span><span class="dv">0</span> <span class="op">&amp;</span><span class="st"> </span>mic<span class="op">$</span>p_regression <span class="op">&lt;=</span><span class="st"> </span><span class="fl">0.05</span>), </span>
+<span id="cb39-24"><a href="inter-omics.html#cb39-24"></a>    <span class="ot">NA</span>, mic<span class="op">$</span>pMIC)</span>
+<span id="cb39-25"><a href="inter-omics.html#cb39-25"></a>after &lt;-<span class="st"> </span><span class="kw">sum</span>(mic<span class="op">$</span>pMIC <span class="op">&lt;=</span><span class="st"> </span><span class="fl">0.05</span>, <span class="dt">na.rm =</span> T)  <span class="co">#3522</span></span>
+<span id="cb39-26"><a href="inter-omics.html#cb39-26"></a></span>
+<span id="cb39-27"><a href="inter-omics.html#cb39-27"></a><span class="kw">write.csv</span>(mic, <span class="st">&quot;data/MIC.csv&quot;</span>)</span>
+<span id="cb39-28"><a href="inter-omics.html#cb39-28"></a><span class="kw">rm</span>(temp_ds, bac1, bac2, i, mic)</span></code></pre></div>
 <p>The MIC data set initially contained 41616 edges, 4370 of which were significant prior to the removal of negative correlations and leaving 3522 edges with a p-value <span class="math inline">\(\leq\)</span> 0.05.</p>
 </div>
 <div id="sparcc-1" class="section level4">
-<h4><span class="header-section-number">4.2.2.2</span> SparCC</h4>
+<h4><span class="header-section-number">4.3.2.2</span> SparCC</h4>
 <p>The next network data set is based on the SparCC algorithm for computing correlations in compositional data.</p>
-<div class="sourceCode" id="cb33"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb33-1"><a href="inter-omics.html#cb33-1"></a>sparcc &lt;-<span class="st"> </span><span class="kw">read.csv</span>(<span class="st">&quot;data/SparCC_for_networks.csv&quot;</span>, <span class="dt">header =</span> T, <span class="dt">sep =</span> <span class="st">&quot;,&quot;</span>)</span>
-<span id="cb33-2"><a href="inter-omics.html#cb33-2"></a>sparcc<span class="op">$</span>X &lt;-<span class="st"> </span><span class="ot">NULL</span></span>
-<span id="cb33-3"><a href="inter-omics.html#cb33-3"></a><span class="kw">colnames</span>(sparcc) &lt;-<span class="st"> </span><span class="kw">c</span>(<span class="st">&quot;node1_sparcc&quot;</span>, <span class="st">&quot;node2_sparcc&quot;</span>, <span class="st">&quot;SparCC&quot;</span>, <span class="st">&quot;pSparCC&quot;</span>)</span>
-<span id="cb33-4"><a href="inter-omics.html#cb33-4"></a><span class="co"># hist(sparcc$SparCC) hist(sparcc$pSparCC)</span></span>
-<span id="cb33-5"><a href="inter-omics.html#cb33-5"></a>sparcc<span class="op">$</span>pSparCC &lt;-<span class="st"> </span><span class="kw">ifelse</span>((sparcc<span class="op">$</span>SparCC <span class="op">&lt;</span><span class="st"> </span><span class="dv">0</span>), <span class="ot">NA</span>, sparcc<span class="op">$</span>pSparCC)  <span class="co">#setting the p-values of negative interactions to NA</span></span>
-<span id="cb33-6"><a href="inter-omics.html#cb33-6"></a>sparcc<span class="op">$</span>SparCC &lt;-<span class="st"> </span><span class="kw">ifelse</span>((sparcc<span class="op">$</span>SparCC <span class="op">&lt;</span><span class="st"> </span><span class="dv">0</span>), <span class="ot">NA</span>, sparcc<span class="op">$</span>SparCC)  <span class="co">#setting negative interactions to NA</span></span></code></pre></div>
+<div class="sourceCode" id="cb40"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb40-1"><a href="inter-omics.html#cb40-1"></a>sparcc &lt;-<span class="st"> </span><span class="kw">read.csv</span>(<span class="st">&quot;data/SparCC_for_networks.csv&quot;</span>, <span class="dt">header =</span> T, <span class="dt">sep =</span> <span class="st">&quot;,&quot;</span>)</span>
+<span id="cb40-2"><a href="inter-omics.html#cb40-2"></a>sparcc<span class="op">$</span>X &lt;-<span class="st"> </span><span class="ot">NULL</span></span>
+<span id="cb40-3"><a href="inter-omics.html#cb40-3"></a><span class="kw">colnames</span>(sparcc) &lt;-<span class="st"> </span><span class="kw">c</span>(<span class="st">&quot;node1_sparcc&quot;</span>, <span class="st">&quot;node2_sparcc&quot;</span>, <span class="st">&quot;SparCC&quot;</span>, <span class="st">&quot;pSparCC&quot;</span>)</span>
+<span id="cb40-4"><a href="inter-omics.html#cb40-4"></a><span class="co"># hist(sparcc$SparCC) hist(sparcc$pSparCC)</span></span>
+<span id="cb40-5"><a href="inter-omics.html#cb40-5"></a>sparcc<span class="op">$</span>pSparCC &lt;-<span class="st"> </span><span class="kw">ifelse</span>((sparcc<span class="op">$</span>SparCC <span class="op">&lt;</span><span class="st"> </span><span class="dv">0</span>), <span class="ot">NA</span>, sparcc<span class="op">$</span>pSparCC)  <span class="co">#setting the p-values of negative interactions to NA</span></span>
+<span id="cb40-6"><a href="inter-omics.html#cb40-6"></a>sparcc<span class="op">$</span>SparCC &lt;-<span class="st"> </span><span class="kw">ifelse</span>((sparcc<span class="op">$</span>SparCC <span class="op">&lt;</span><span class="st"> </span><span class="dv">0</span>), <span class="ot">NA</span>, sparcc<span class="op">$</span>SparCC)  <span class="co">#setting negative interactions to NA</span></span></code></pre></div>
 <p>The network based on the SparCC algorithm contained 41616 edges of which 20420 negative interactions that were removed. 6622 significant positive edges remain.</p>
 </div>
 <div id="mena" class="section level4">
-<h4><span class="header-section-number">4.2.2.3</span> MENA</h4>
+<h4><span class="header-section-number">4.3.2.3</span> MENA</h4>
 <p>The next two network data sets are generated by MENA based on random matrix theory.</p>
-<div class="sourceCode" id="cb34"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb34-1"><a href="inter-omics.html#cb34-1"></a>mena_pcc &lt;-<span class="st"> </span><span class="kw">read.csv</span>(<span class="st">&quot;data/MENA_0.800_PCC_edge_attribute.txt&quot;</span>, <span class="dt">header =</span> F, <span class="dt">sep =</span> <span class="st">&quot; &quot;</span>)</span>
-<span id="cb34-2"><a href="inter-omics.html#cb34-2"></a><span class="co"># &#39;np&#39; in V2 and -1 in V5 mean negative interaction, these should be removed.</span></span>
-<span id="cb34-3"><a href="inter-omics.html#cb34-3"></a><span class="kw">dim</span>(mena_pcc)[<span class="dv">1</span>] <span class="op">-</span><span class="st"> </span><span class="kw">dim</span>(mena_pcc[mena_pcc<span class="op">$</span>V5 <span class="op">==</span><span class="st"> </span><span class="dv">-1</span>, ])[<span class="dv">1</span>]  <span class="co"># Number of pos interactions</span></span></code></pre></div>
+<div class="sourceCode" id="cb41"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb41-1"><a href="inter-omics.html#cb41-1"></a>mena_pcc &lt;-<span class="st"> </span><span class="kw">read.csv</span>(<span class="st">&quot;data/MENA_0.800_PCC_edge_attribute.txt&quot;</span>, <span class="dt">header =</span> F, <span class="dt">sep =</span> <span class="st">&quot; &quot;</span>)</span>
+<span id="cb41-2"><a href="inter-omics.html#cb41-2"></a><span class="co"># &#39;np&#39; in V2 and -1 in V5 mean negative interaction, these should be removed.</span></span>
+<span id="cb41-3"><a href="inter-omics.html#cb41-3"></a><span class="kw">dim</span>(mena_pcc)[<span class="dv">1</span>] <span class="op">-</span><span class="st"> </span><span class="kw">dim</span>(mena_pcc[mena_pcc<span class="op">$</span>V5 <span class="op">==</span><span class="st"> </span><span class="dv">-1</span>, ])[<span class="dv">1</span>]  <span class="co"># Number of pos interactions</span></span></code></pre></div>
 <pre><code>## [1] 171</code></pre>
-<div class="sourceCode" id="cb36"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb36-1"><a href="inter-omics.html#cb36-1"></a>mena_pcc[<span class="st">&quot;pMENA_PCC&quot;</span>] &lt;-<span class="st"> </span><span class="kw">ifelse</span>((mena_pcc<span class="op">$</span>V5 <span class="op">&lt;</span><span class="st"> </span><span class="dv">0</span>), <span class="ot">NA</span>, <span class="fl">0.001</span>)</span>
-<span id="cb36-2"><a href="inter-omics.html#cb36-2"></a>mena_pcc<span class="op">$</span>V2 &lt;-<span class="st"> </span><span class="ot">NULL</span></span>
-<span id="cb36-3"><a href="inter-omics.html#cb36-3"></a>mena_pcc<span class="op">$</span>V4 &lt;-<span class="st"> </span><span class="ot">NULL</span></span>
-<span id="cb36-4"><a href="inter-omics.html#cb36-4"></a>mena_pcc<span class="op">$</span>V5 &lt;-<span class="st"> </span><span class="ot">NULL</span></span>
-<span id="cb36-5"><a href="inter-omics.html#cb36-5"></a><span class="kw">colnames</span>(mena_pcc) &lt;-<span class="st"> </span><span class="kw">c</span>(<span class="st">&quot;node1_mena&quot;</span>, <span class="st">&quot;node2_mena&quot;</span>, <span class="st">&quot;pMENA_PCC&quot;</span>)</span>
-<span id="cb36-6"><a href="inter-omics.html#cb36-6"></a></span>
-<span id="cb36-7"><a href="inter-omics.html#cb36-7"></a>mena_scc &lt;-<span class="st"> </span><span class="kw">read.csv</span>(<span class="st">&quot;data/MENA_0.820_SCC_edge_attribute.txt&quot;</span>, <span class="dt">header =</span> F, <span class="dt">sep =</span> <span class="st">&quot; &quot;</span>)</span>
-<span id="cb36-8"><a href="inter-omics.html#cb36-8"></a><span class="kw">dim</span>(mena_scc)[<span class="dv">1</span>] <span class="op">-</span><span class="st"> </span><span class="kw">dim</span>(mena_scc[mena_scc<span class="op">$</span>V5 <span class="op">==</span><span class="st"> </span><span class="dv">-1</span>, ])[<span class="dv">1</span>]  <span class="co"># Number of pos interactions</span></span></code></pre></div>
+<div class="sourceCode" id="cb43"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb43-1"><a href="inter-omics.html#cb43-1"></a>mena_pcc[<span class="st">&quot;pMENA_PCC&quot;</span>] &lt;-<span class="st"> </span><span class="kw">ifelse</span>((mena_pcc<span class="op">$</span>V5 <span class="op">&lt;</span><span class="st"> </span><span class="dv">0</span>), <span class="ot">NA</span>, <span class="fl">0.001</span>)</span>
+<span id="cb43-2"><a href="inter-omics.html#cb43-2"></a>mena_pcc<span class="op">$</span>V2 &lt;-<span class="st"> </span><span class="ot">NULL</span></span>
+<span id="cb43-3"><a href="inter-omics.html#cb43-3"></a>mena_pcc<span class="op">$</span>V4 &lt;-<span class="st"> </span><span class="ot">NULL</span></span>
+<span id="cb43-4"><a href="inter-omics.html#cb43-4"></a>mena_pcc<span class="op">$</span>V5 &lt;-<span class="st"> </span><span class="ot">NULL</span></span>
+<span id="cb43-5"><a href="inter-omics.html#cb43-5"></a><span class="kw">colnames</span>(mena_pcc) &lt;-<span class="st"> </span><span class="kw">c</span>(<span class="st">&quot;node1_mena&quot;</span>, <span class="st">&quot;node2_mena&quot;</span>, <span class="st">&quot;pMENA_PCC&quot;</span>)</span>
+<span id="cb43-6"><a href="inter-omics.html#cb43-6"></a></span>
+<span id="cb43-7"><a href="inter-omics.html#cb43-7"></a>mena_scc &lt;-<span class="st"> </span><span class="kw">read.csv</span>(<span class="st">&quot;data/MENA_0.820_SCC_edge_attribute.txt&quot;</span>, <span class="dt">header =</span> F, <span class="dt">sep =</span> <span class="st">&quot; &quot;</span>)</span>
+<span id="cb43-8"><a href="inter-omics.html#cb43-8"></a><span class="kw">dim</span>(mena_scc)[<span class="dv">1</span>] <span class="op">-</span><span class="st"> </span><span class="kw">dim</span>(mena_scc[mena_scc<span class="op">$</span>V5 <span class="op">==</span><span class="st"> </span><span class="dv">-1</span>, ])[<span class="dv">1</span>]  <span class="co"># Number of pos interactions</span></span></code></pre></div>
 <pre><code>## [1] 317</code></pre>
-<div class="sourceCode" id="cb38"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb38-1"><a href="inter-omics.html#cb38-1"></a>mena_scc[<span class="st">&quot;pMENA_SCC&quot;</span>] &lt;-<span class="st"> </span><span class="kw">ifelse</span>((mena_scc<span class="op">$</span>V5 <span class="op">&lt;</span><span class="st"> </span><span class="dv">0</span>), <span class="ot">NA</span>, <span class="fl">0.001</span>)</span>
-<span id="cb38-2"><a href="inter-omics.html#cb38-2"></a>mena_scc<span class="op">$</span>V2 &lt;-<span class="st"> </span><span class="ot">NULL</span></span>
-<span id="cb38-3"><a href="inter-omics.html#cb38-3"></a>mena_scc<span class="op">$</span>V4 &lt;-<span class="st"> </span><span class="ot">NULL</span></span>
-<span id="cb38-4"><a href="inter-omics.html#cb38-4"></a>mena_scc<span class="op">$</span>V5 &lt;-<span class="st"> </span><span class="ot">NULL</span></span>
-<span id="cb38-5"><a href="inter-omics.html#cb38-5"></a><span class="kw">colnames</span>(mena_scc) &lt;-<span class="st"> </span><span class="kw">c</span>(<span class="st">&quot;node1_mena&quot;</span>, <span class="st">&quot;node2_mena&quot;</span>, <span class="st">&quot;pMENA_SCC&quot;</span>)</span></code></pre></div>
+<div class="sourceCode" id="cb45"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb45-1"><a href="inter-omics.html#cb45-1"></a>mena_scc[<span class="st">&quot;pMENA_SCC&quot;</span>] &lt;-<span class="st"> </span><span class="kw">ifelse</span>((mena_scc<span class="op">$</span>V5 <span class="op">&lt;</span><span class="st"> </span><span class="dv">0</span>), <span class="ot">NA</span>, <span class="fl">0.001</span>)</span>
+<span id="cb45-2"><a href="inter-omics.html#cb45-2"></a>mena_scc<span class="op">$</span>V2 &lt;-<span class="st"> </span><span class="ot">NULL</span></span>
+<span id="cb45-3"><a href="inter-omics.html#cb45-3"></a>mena_scc<span class="op">$</span>V4 &lt;-<span class="st"> </span><span class="ot">NULL</span></span>
+<span id="cb45-4"><a href="inter-omics.html#cb45-4"></a>mena_scc<span class="op">$</span>V5 &lt;-<span class="st"> </span><span class="ot">NULL</span></span>
+<span id="cb45-5"><a href="inter-omics.html#cb45-5"></a><span class="kw">colnames</span>(mena_scc) &lt;-<span class="st"> </span><span class="kw">c</span>(<span class="st">&quot;node1_mena&quot;</span>, <span class="st">&quot;node2_mena&quot;</span>, <span class="st">&quot;pMENA_SCC&quot;</span>)</span></code></pre></div>
 <p>MENA network with Pearson correlation contained 3582 edges of which 3411 negative interactions were removed. For Spearman correlations, the network contained 2216 edges of which 1899 negative interactions were removed.</p>
 </div>
 <div id="lsa" class="section level4">
-<h4><span class="header-section-number">4.2.2.4</span> LSA</h4>
+<h4><span class="header-section-number">4.3.2.4</span> LSA</h4>
 <p>The next network data set is based on local similarity. It does not contain any negative values for LSA, so we do not exclude any edges.</p>
-<div class="sourceCode" id="cb39"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb39-1"><a href="inter-omics.html#cb39-1"></a>lsa &lt;-<span class="st"> </span><span class="kw">read.csv</span>(<span class="st">&quot;data/fastLSA_for_networks.csv&quot;</span>, <span class="dt">header =</span> T, <span class="dt">sep =</span> <span class="st">&quot;,&quot;</span>)</span>
-<span id="cb39-2"><a href="inter-omics.html#cb39-2"></a>lsa<span class="op">$</span>X &lt;-<span class="st"> </span><span class="ot">NULL</span></span>
-<span id="cb39-3"><a href="inter-omics.html#cb39-3"></a><span class="kw">colnames</span>(lsa) &lt;-<span class="st"> </span><span class="kw">c</span>(<span class="st">&quot;node1_lsa&quot;</span>, <span class="st">&quot;node2_lsa&quot;</span>, <span class="st">&quot;LSA&quot;</span>, <span class="st">&quot;pLSA&quot;</span>)</span>
-<span id="cb39-4"><a href="inter-omics.html#cb39-4"></a><span class="kw">dim</span>(lsa)[<span class="dv">1</span>]  <span class="co"># Number of edges</span></span></code></pre></div>
+<div class="sourceCode" id="cb46"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb46-1"><a href="inter-omics.html#cb46-1"></a>lsa &lt;-<span class="st"> </span><span class="kw">read.csv</span>(<span class="st">&quot;data/fastLSA_for_networks.csv&quot;</span>, <span class="dt">header =</span> T, <span class="dt">sep =</span> <span class="st">&quot;,&quot;</span>)</span>
+<span id="cb46-2"><a href="inter-omics.html#cb46-2"></a>lsa<span class="op">$</span>X &lt;-<span class="st"> </span><span class="ot">NULL</span></span>
+<span id="cb46-3"><a href="inter-omics.html#cb46-3"></a><span class="kw">colnames</span>(lsa) &lt;-<span class="st"> </span><span class="kw">c</span>(<span class="st">&quot;node1_lsa&quot;</span>, <span class="st">&quot;node2_lsa&quot;</span>, <span class="st">&quot;LSA&quot;</span>, <span class="st">&quot;pLSA&quot;</span>)</span>
+<span id="cb46-4"><a href="inter-omics.html#cb46-4"></a><span class="kw">dim</span>(lsa)[<span class="dv">1</span>]  <span class="co"># Number of edges</span></span></code></pre></div>
 <pre><code>## [1] 208</code></pre>
 </div>
 <div id="integration-of-the-networks" class="section level4">
-<h4><span class="header-section-number">4.2.2.5</span> Integration of the networks</h4>
+<h4><span class="header-section-number">4.3.2.5</span> Integration of the networks</h4>
 <p>Now we combine all five networks into one data set.</p>
-<div class="sourceCode" id="cb41"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb41-1"><a href="inter-omics.html#cb41-1"></a>mic &lt;-<span class="st"> </span><span class="kw">read.csv</span>(<span class="st">&quot;data/MIC.csv&quot;</span>, <span class="dt">header =</span> T)</span>
-<span id="cb41-2"><a href="inter-omics.html#cb41-2"></a>mic<span class="op">$</span>X &lt;-<span class="st"> </span><span class="ot">NULL</span></span>
-<span id="cb41-3"><a href="inter-omics.html#cb41-3"></a>mic<span class="op">$</span>regression &lt;-<span class="st"> </span><span class="ot">NULL</span></span>
-<span id="cb41-4"><a href="inter-omics.html#cb41-4"></a>mic<span class="op">$</span>p_regression &lt;-<span class="st"> </span><span class="ot">NULL</span></span>
-<span id="cb41-5"><a href="inter-omics.html#cb41-5"></a>master_summary &lt;-<span class="st"> </span>mic</span>
-<span id="cb41-6"><a href="inter-omics.html#cb41-6"></a></span>
-<span id="cb41-7"><a href="inter-omics.html#cb41-7"></a><span class="kw">library</span>(dplyr)</span>
-<span id="cb41-8"><a href="inter-omics.html#cb41-8"></a>master_summary &lt;-<span class="st"> </span><span class="kw">full_join</span>(master_summary, lsa, <span class="dt">by =</span> <span class="kw">c</span>(<span class="dt">node1_mic =</span> <span class="st">&quot;node2_lsa&quot;</span>, </span>
-<span id="cb41-9"><a href="inter-omics.html#cb41-9"></a>    <span class="dt">node2_mic =</span> <span class="st">&quot;node1_lsa&quot;</span>))</span>
-<span id="cb41-10"><a href="inter-omics.html#cb41-10"></a><span class="co"># sum(!is.na(master_summary$pLSA))==nrow(lsa) #TRUE</span></span>
-<span id="cb41-11"><a href="inter-omics.html#cb41-11"></a>master_summary &lt;-<span class="st"> </span><span class="kw">full_join</span>(master_summary, sparcc, <span class="dt">by =</span> <span class="kw">c</span>(<span class="dt">node1_mic =</span> <span class="st">&quot;node1_sparcc&quot;</span>, </span>
-<span id="cb41-12"><a href="inter-omics.html#cb41-12"></a>    <span class="dt">node2_mic =</span> <span class="st">&quot;node2_sparcc&quot;</span>))</span>
-<span id="cb41-13"><a href="inter-omics.html#cb41-13"></a><span class="co"># sum(!is.na(master_summary$pSparCC))==sum(!is.na(sparcc$pSparCC)) #TRUE</span></span>
-<span id="cb41-14"><a href="inter-omics.html#cb41-14"></a>master_summary &lt;-<span class="st"> </span><span class="kw">full_join</span>(master_summary, mena_pcc, <span class="dt">by =</span> <span class="kw">c</span>(<span class="dt">node1_mic =</span> <span class="st">&quot;node2_mena&quot;</span>, </span>
-<span id="cb41-15"><a href="inter-omics.html#cb41-15"></a>    <span class="dt">node2_mic =</span> <span class="st">&quot;node1_mena&quot;</span>))</span>
-<span id="cb41-16"><a href="inter-omics.html#cb41-16"></a><span class="co"># sum(!is.na(master_summary$pMENA_PCC))==sum(!is.na(mena_pcc$pMENA_PCC)) #TRUE</span></span>
-<span id="cb41-17"><a href="inter-omics.html#cb41-17"></a>master_summary &lt;-<span class="st"> </span><span class="kw">full_join</span>(master_summary, mena_scc, <span class="dt">by =</span> <span class="kw">c</span>(<span class="dt">node1_mic =</span> <span class="st">&quot;node2_mena&quot;</span>, </span>
-<span id="cb41-18"><a href="inter-omics.html#cb41-18"></a>    <span class="dt">node2_mic =</span> <span class="st">&quot;node1_mena&quot;</span>))</span>
-<span id="cb41-19"><a href="inter-omics.html#cb41-19"></a><span class="co"># sum(!is.na(master_summary$pMENA_SCC))==sum(!is.na(mena_scc$pMENA_SCC)) #TRUE</span></span>
-<span id="cb41-20"><a href="inter-omics.html#cb41-20"></a>master_summary &lt;-<span class="st"> </span>master_summary[, <span class="kw">c</span>(<span class="dv">1</span>, <span class="dv">2</span>, <span class="dv">4</span>, <span class="dv">6</span>, <span class="dv">8</span>, <span class="dv">9</span>, <span class="dv">10</span>, <span class="dv">3</span>, <span class="dv">5</span>, <span class="dv">7</span>)]  <span class="co">#reorder columns</span></span>
-<span id="cb41-21"><a href="inter-omics.html#cb41-21"></a><span class="kw">head</span>(master_summary)</span>
-<span id="cb41-22"><a href="inter-omics.html#cb41-22"></a><span class="co"># write.csv(master_summary, &#39;data/master_summary_networks_1.csv&#39;, row.names =</span></span>
-<span id="cb41-23"><a href="inter-omics.html#cb41-23"></a><span class="co"># FALSE)</span></span></code></pre></div>
-<div class="sourceCode" id="cb42"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb42-1"><a href="inter-omics.html#cb42-1"></a><span class="co"># For p-value merging: metap::sumlog, or EmpiricalBrownsMethod::EBM</span></span>
-<span id="cb42-2"><a href="inter-omics.html#cb42-2"></a><span class="kw">library</span>(metap)</span>
-<span id="cb42-3"><a href="inter-omics.html#cb42-3"></a></span>
-<span id="cb42-4"><a href="inter-omics.html#cb42-4"></a>ms &lt;-<span class="st"> </span><span class="kw">read.csv</span>(<span class="st">&quot;data/master_summary_networks_1.csv&quot;</span>, <span class="dt">header =</span> T)</span>
-<span id="cb42-5"><a href="inter-omics.html#cb42-5"></a><span class="kw">head</span>(ms)</span></code></pre></div>
+<div class="sourceCode" id="cb48"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb48-1"><a href="inter-omics.html#cb48-1"></a>mic &lt;-<span class="st"> </span><span class="kw">read.csv</span>(<span class="st">&quot;data/MIC.csv&quot;</span>, <span class="dt">header =</span> T)</span>
+<span id="cb48-2"><a href="inter-omics.html#cb48-2"></a>mic<span class="op">$</span>X &lt;-<span class="st"> </span><span class="ot">NULL</span></span>
+<span id="cb48-3"><a href="inter-omics.html#cb48-3"></a>mic<span class="op">$</span>regression &lt;-<span class="st"> </span><span class="ot">NULL</span></span>
+<span id="cb48-4"><a href="inter-omics.html#cb48-4"></a>mic<span class="op">$</span>p_regression &lt;-<span class="st"> </span><span class="ot">NULL</span></span>
+<span id="cb48-5"><a href="inter-omics.html#cb48-5"></a>master_summary &lt;-<span class="st"> </span>mic</span>
+<span id="cb48-6"><a href="inter-omics.html#cb48-6"></a></span>
+<span id="cb48-7"><a href="inter-omics.html#cb48-7"></a><span class="kw">library</span>(dplyr)</span>
+<span id="cb48-8"><a href="inter-omics.html#cb48-8"></a>master_summary &lt;-<span class="st"> </span><span class="kw">full_join</span>(master_summary, lsa, <span class="dt">by =</span> <span class="kw">c</span>(<span class="dt">node1_mic =</span> <span class="st">&quot;node2_lsa&quot;</span>, </span>
+<span id="cb48-9"><a href="inter-omics.html#cb48-9"></a>    <span class="dt">node2_mic =</span> <span class="st">&quot;node1_lsa&quot;</span>))</span>
+<span id="cb48-10"><a href="inter-omics.html#cb48-10"></a><span class="co"># sum(!is.na(master_summary$pLSA))==nrow(lsa) #TRUE</span></span>
+<span id="cb48-11"><a href="inter-omics.html#cb48-11"></a>master_summary &lt;-<span class="st"> </span><span class="kw">full_join</span>(master_summary, sparcc, <span class="dt">by =</span> <span class="kw">c</span>(<span class="dt">node1_mic =</span> <span class="st">&quot;node1_sparcc&quot;</span>, </span>
+<span id="cb48-12"><a href="inter-omics.html#cb48-12"></a>    <span class="dt">node2_mic =</span> <span class="st">&quot;node2_sparcc&quot;</span>))</span>
+<span id="cb48-13"><a href="inter-omics.html#cb48-13"></a><span class="co"># sum(!is.na(master_summary$pSparCC))==sum(!is.na(sparcc$pSparCC)) #TRUE</span></span>
+<span id="cb48-14"><a href="inter-omics.html#cb48-14"></a>master_summary &lt;-<span class="st"> </span><span class="kw">full_join</span>(master_summary, mena_pcc, <span class="dt">by =</span> <span class="kw">c</span>(<span class="dt">node1_mic =</span> <span class="st">&quot;node2_mena&quot;</span>, </span>
+<span id="cb48-15"><a href="inter-omics.html#cb48-15"></a>    <span class="dt">node2_mic =</span> <span class="st">&quot;node1_mena&quot;</span>))</span>
+<span id="cb48-16"><a href="inter-omics.html#cb48-16"></a><span class="co"># sum(!is.na(master_summary$pMENA_PCC))==sum(!is.na(mena_pcc$pMENA_PCC)) #TRUE</span></span>
+<span id="cb48-17"><a href="inter-omics.html#cb48-17"></a>master_summary &lt;-<span class="st"> </span><span class="kw">full_join</span>(master_summary, mena_scc, <span class="dt">by =</span> <span class="kw">c</span>(<span class="dt">node1_mic =</span> <span class="st">&quot;node2_mena&quot;</span>, </span>
+<span id="cb48-18"><a href="inter-omics.html#cb48-18"></a>    <span class="dt">node2_mic =</span> <span class="st">&quot;node1_mena&quot;</span>))</span>
+<span id="cb48-19"><a href="inter-omics.html#cb48-19"></a><span class="co"># sum(!is.na(master_summary$pMENA_SCC))==sum(!is.na(mena_scc$pMENA_SCC)) #TRUE</span></span>
+<span id="cb48-20"><a href="inter-omics.html#cb48-20"></a>master_summary &lt;-<span class="st"> </span>master_summary[, <span class="kw">c</span>(<span class="dv">1</span>, <span class="dv">2</span>, <span class="dv">4</span>, <span class="dv">6</span>, <span class="dv">8</span>, <span class="dv">9</span>, <span class="dv">10</span>, <span class="dv">3</span>, <span class="dv">5</span>, <span class="dv">7</span>)]  <span class="co">#reorder columns</span></span>
+<span id="cb48-21"><a href="inter-omics.html#cb48-21"></a><span class="kw">head</span>(master_summary)</span>
+<span id="cb48-22"><a href="inter-omics.html#cb48-22"></a><span class="co"># write.csv(master_summary, &#39;data/master_summary_networks_1.csv&#39;, row.names =</span></span>
+<span id="cb48-23"><a href="inter-omics.html#cb48-23"></a><span class="co"># FALSE)</span></span></code></pre></div>
+<div class="sourceCode" id="cb49"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb49-1"><a href="inter-omics.html#cb49-1"></a><span class="co"># For p-value merging: metap::sumlog, or EmpiricalBrownsMethod::EBM</span></span>
+<span id="cb49-2"><a href="inter-omics.html#cb49-2"></a><span class="kw">library</span>(metap)</span>
+<span id="cb49-3"><a href="inter-omics.html#cb49-3"></a></span>
+<span id="cb49-4"><a href="inter-omics.html#cb49-4"></a>ms &lt;-<span class="st"> </span><span class="kw">read.csv</span>(<span class="st">&quot;data/master_summary_networks_1.csv&quot;</span>, <span class="dt">header =</span> T)</span>
+<span id="cb49-5"><a href="inter-omics.html#cb49-5"></a><span class="kw">head</span>(ms)</span></code></pre></div>
 <pre><code>##      node1_mic  node2_mic  pMIC pLSA pSparCC pMENA_PCC pMENA_SCC       MIC LSA
 ## 1 OTU196900135 OTU1969004 0.918   NA     0.0        NA        NA 0.1601125  NA
 ## 2 OTU196900136 OTU1969004 0.068   NA     0.0        NA        NA 0.5087257  NA
@@ -3606,182 +3751,182 @@ The resulting network contrained 129 nodes and 207 edges.</p>
 ## 4 -0.5931877
 ## 5  0.0806820
 ## 6  0.1745214</code></pre>
-<div class="sourceCode" id="cb44"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb44-1"><a href="inter-omics.html#cb44-1"></a><span class="kw">par</span>(<span class="dt">mfrow =</span> <span class="kw">c</span>(<span class="dv">2</span>, <span class="dv">3</span>))</span>
-<span id="cb44-2"><a href="inter-omics.html#cb44-2"></a><span class="kw">hist</span>(ms<span class="op">$</span>pMIC)</span>
-<span id="cb44-3"><a href="inter-omics.html#cb44-3"></a><span class="kw">hist</span>(ms<span class="op">$</span>pLSA)  <span class="co">#xlim = range(0,1)</span></span>
-<span id="cb44-4"><a href="inter-omics.html#cb44-4"></a><span class="kw">hist</span>(ms<span class="op">$</span>pSparCC)</span>
-<span id="cb44-5"><a href="inter-omics.html#cb44-5"></a><span class="kw">plot</span>(ms<span class="op">$</span>pMENA_PCC)</span>
-<span id="cb44-6"><a href="inter-omics.html#cb44-6"></a><span class="kw">plot</span>(ms<span class="op">$</span>pMENA_SCC)</span>
-<span id="cb44-7"><a href="inter-omics.html#cb44-7"></a><span class="kw">par</span>(<span class="dt">mfrow =</span> <span class="kw">c</span>(<span class="dv">1</span>, <span class="dv">1</span>))</span></code></pre></div>
+<div class="sourceCode" id="cb51"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb51-1"><a href="inter-omics.html#cb51-1"></a><span class="kw">par</span>(<span class="dt">mfrow =</span> <span class="kw">c</span>(<span class="dv">2</span>, <span class="dv">3</span>))</span>
+<span id="cb51-2"><a href="inter-omics.html#cb51-2"></a><span class="kw">hist</span>(ms<span class="op">$</span>pMIC)</span>
+<span id="cb51-3"><a href="inter-omics.html#cb51-3"></a><span class="kw">hist</span>(ms<span class="op">$</span>pLSA)  <span class="co">#xlim = range(0,1)</span></span>
+<span id="cb51-4"><a href="inter-omics.html#cb51-4"></a><span class="kw">hist</span>(ms<span class="op">$</span>pSparCC)</span>
+<span id="cb51-5"><a href="inter-omics.html#cb51-5"></a><span class="kw">plot</span>(ms<span class="op">$</span>pMENA_PCC)</span>
+<span id="cb51-6"><a href="inter-omics.html#cb51-6"></a><span class="kw">plot</span>(ms<span class="op">$</span>pMENA_SCC)</span>
+<span id="cb51-7"><a href="inter-omics.html#cb51-7"></a><span class="kw">par</span>(<span class="dt">mfrow =</span> <span class="kw">c</span>(<span class="dv">1</span>, <span class="dv">1</span>))</span></code></pre></div>
 <p><img src="Oceanographic-setting-influences-the-prokaryote-community-and-metabolome-in-deep-sea-sponges_files/figure-html/integration2-1.png" width="80%" /></p>
-<div class="sourceCode" id="cb45"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb45-1"><a href="inter-omics.html#cb45-1"></a><span class="co"># metap::sumlog doesn&#39;t think 0 is a valid p-value, replace all zeros with small</span></span>
-<span id="cb45-2"><a href="inter-omics.html#cb45-2"></a><span class="co"># non-zero values, e.g. half-minimum</span></span>
-<span id="cb45-3"><a href="inter-omics.html#cb45-3"></a>ms<span class="op">$</span>pSparCC[ms<span class="op">$</span>pSparCC <span class="op">==</span><span class="st"> </span><span class="dv">0</span>] &lt;-<span class="st"> </span><span class="fl">0.005</span></span>
-<span id="cb45-4"><a href="inter-omics.html#cb45-4"></a>ms<span class="op">$</span>pMIC[ms<span class="op">$</span>pMIC <span class="op">==</span><span class="st"> </span><span class="dv">0</span>] &lt;-<span class="st"> </span><span class="fl">5e-04</span></span>
-<span id="cb45-5"><a href="inter-omics.html#cb45-5"></a></span>
-<span id="cb45-6"><a href="inter-omics.html#cb45-6"></a>ms[<span class="st">&quot;NA_count&quot;</span>] &lt;-<span class="st"> </span><span class="ot">NA</span></span>
-<span id="cb45-7"><a href="inter-omics.html#cb45-7"></a>ms[<span class="st">&quot;signif_0.05&quot;</span>] &lt;-<span class="st"> </span><span class="ot">NA</span></span>
-<span id="cb45-8"><a href="inter-omics.html#cb45-8"></a>ms[<span class="st">&quot;signif_0.001&quot;</span>] &lt;-<span class="st"> </span><span class="ot">NA</span></span>
-<span id="cb45-9"><a href="inter-omics.html#cb45-9"></a>ms[<span class="st">&quot;sumlog&quot;</span>] &lt;-<span class="st"> </span><span class="ot">NA</span></span>
-<span id="cb45-10"><a href="inter-omics.html#cb45-10"></a></span>
-<span id="cb45-11"><a href="inter-omics.html#cb45-11"></a>n &lt;-<span class="st"> </span><span class="dv">0</span></span>
-<span id="cb45-12"><a href="inter-omics.html#cb45-12"></a>k &lt;-<span class="st"> </span><span class="kw">dim</span>(ms)[<span class="dv">1</span>]</span>
-<span id="cb45-13"><a href="inter-omics.html#cb45-13"></a><span class="cf">while</span> (n <span class="op">&lt;</span><span class="st"> </span>k) {</span>
-<span id="cb45-14"><a href="inter-omics.html#cb45-14"></a>    n &lt;-<span class="st"> </span>n <span class="op">+</span><span class="st"> </span><span class="dv">1</span></span>
-<span id="cb45-15"><a href="inter-omics.html#cb45-15"></a>    ms<span class="op">$</span>NA_count[n] &lt;-<span class="st"> </span><span class="kw">sum</span>(<span class="kw">is.na</span>(ms[n, <span class="dv">3</span><span class="op">:</span><span class="dv">7</span>]))</span>
-<span id="cb45-16"><a href="inter-omics.html#cb45-16"></a>    ms<span class="op">$</span>signif_<span class="fl">0.05</span>[n] &lt;-<span class="st"> </span><span class="kw">sum</span>(ms[n, <span class="dv">3</span><span class="op">:</span><span class="dv">7</span>] <span class="op">&lt;=</span><span class="st"> </span><span class="fl">0.05</span>, <span class="dt">na.rm =</span> T)</span>
-<span id="cb45-17"><a href="inter-omics.html#cb45-17"></a>    ms<span class="op">$</span>signif_<span class="fl">0.001</span>[n] &lt;-<span class="st"> </span><span class="kw">sum</span>(ms[n, <span class="dv">3</span><span class="op">:</span><span class="dv">7</span>] <span class="op">&lt;=</span><span class="st"> </span><span class="fl">0.001</span>, <span class="dt">na.rm =</span> T)</span>
-<span id="cb45-18"><a href="inter-omics.html#cb45-18"></a>    <span class="kw">ifelse</span>((ms<span class="op">$</span>NA_count[n] <span class="op">&lt;=</span><span class="st"> </span><span class="dv">3</span>), (ms<span class="op">$</span>sumlog[n] &lt;-<span class="st"> </span><span class="kw">sumlog</span>(ms[n, <span class="dv">3</span><span class="op">:</span><span class="dv">7</span>][<span class="op">!</span><span class="kw">is.na</span>(ms[n, </span>
-<span id="cb45-19"><a href="inter-omics.html#cb45-19"></a>        <span class="dv">3</span><span class="op">:</span><span class="dv">7</span>])])<span class="op">$</span>p), <span class="ot">NA</span>)</span>
-<span id="cb45-20"><a href="inter-omics.html#cb45-20"></a>}</span>
-<span id="cb45-21"><a href="inter-omics.html#cb45-21"></a><span class="kw">rm</span>(k, n)</span>
-<span id="cb45-22"><a href="inter-omics.html#cb45-22"></a></span>
-<span id="cb45-23"><a href="inter-omics.html#cb45-23"></a>ms[<span class="st">&quot;p.adjust_Bonferroni&quot;</span>] &lt;-<span class="st"> </span><span class="kw">p.adjust</span>(ms<span class="op">$</span>sumlog, <span class="dt">method =</span> <span class="st">&quot;bonferroni&quot;</span>)</span>
-<span id="cb45-24"><a href="inter-omics.html#cb45-24"></a>ms[<span class="st">&quot;p.adjust_FDR&quot;</span>] &lt;-<span class="st"> </span><span class="kw">p.adjust</span>(ms<span class="op">$</span>sumlog, <span class="dt">method =</span> <span class="st">&quot;fdr&quot;</span>)  <span class="co">#aka Benjamini &amp; Hochberg</span></span>
-<span id="cb45-25"><a href="inter-omics.html#cb45-25"></a></span>
-<span id="cb45-26"><a href="inter-omics.html#cb45-26"></a><span class="kw">write.csv</span>(ms, <span class="st">&quot;data/master_summary_networks_2.csv&quot;</span>)</span>
-<span id="cb45-27"><a href="inter-omics.html#cb45-27"></a></span>
-<span id="cb45-28"><a href="inter-omics.html#cb45-28"></a><span class="kw">par</span>(<span class="dt">mfrow =</span> <span class="kw">c</span>(<span class="dv">1</span>, <span class="dv">3</span>))</span>
-<span id="cb45-29"><a href="inter-omics.html#cb45-29"></a><span class="kw">hist</span>(ms<span class="op">$</span>signif_<span class="fl">0.05</span>, <span class="dt">main =</span> <span class="st">&quot;p-values &lt;= 0.05&quot;</span>, <span class="dt">xlab =</span> <span class="st">&quot;Counts per edge &quot;</span>, <span class="dt">breaks =</span> <span class="kw">c</span>(<span class="dv">0</span>, </span>
-<span id="cb45-30"><a href="inter-omics.html#cb45-30"></a>    <span class="dv">1</span>, <span class="dv">2</span>, <span class="dv">3</span>, <span class="dv">4</span>, <span class="dv">5</span>), <span class="dt">labels =</span> <span class="ot">TRUE</span>)</span>
-<span id="cb45-31"><a href="inter-omics.html#cb45-31"></a><span class="kw">hist</span>(ms<span class="op">$</span>signif_<span class="fl">0.001</span>, <span class="dt">main =</span> <span class="st">&quot;p-values &lt;= 0.001&quot;</span>, <span class="dt">xlab =</span> <span class="st">&quot;Counts per edge &quot;</span>, <span class="dt">breaks =</span> <span class="kw">c</span>(<span class="dv">0</span>, </span>
-<span id="cb45-32"><a href="inter-omics.html#cb45-32"></a>    <span class="dv">1</span>, <span class="dv">2</span>, <span class="dv">3</span>, <span class="dv">4</span>, <span class="dv">5</span>), <span class="dt">labels =</span> <span class="ot">TRUE</span>)</span>
-<span id="cb45-33"><a href="inter-omics.html#cb45-33"></a><span class="kw">hist</span>(ms<span class="op">$</span>NA_count, <span class="dt">main =</span> <span class="st">&quot;NAs&quot;</span>, <span class="dt">xlab =</span> <span class="st">&quot;Counts per edge &quot;</span>, <span class="dt">breaks =</span> <span class="kw">c</span>(<span class="dv">0</span>, <span class="dv">1</span>, <span class="dv">2</span>, <span class="dv">3</span>, </span>
-<span id="cb45-34"><a href="inter-omics.html#cb45-34"></a>    <span class="dv">4</span>, <span class="dv">5</span>), <span class="dt">labels =</span> <span class="ot">TRUE</span>)</span></code></pre></div>
+<div class="sourceCode" id="cb52"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb52-1"><a href="inter-omics.html#cb52-1"></a><span class="co"># metap::sumlog doesn&#39;t think 0 is a valid p-value, replace all zeros with small</span></span>
+<span id="cb52-2"><a href="inter-omics.html#cb52-2"></a><span class="co"># non-zero values, e.g. half-minimum</span></span>
+<span id="cb52-3"><a href="inter-omics.html#cb52-3"></a>ms<span class="op">$</span>pSparCC[ms<span class="op">$</span>pSparCC <span class="op">==</span><span class="st"> </span><span class="dv">0</span>] &lt;-<span class="st"> </span><span class="fl">0.005</span></span>
+<span id="cb52-4"><a href="inter-omics.html#cb52-4"></a>ms<span class="op">$</span>pMIC[ms<span class="op">$</span>pMIC <span class="op">==</span><span class="st"> </span><span class="dv">0</span>] &lt;-<span class="st"> </span><span class="fl">5e-04</span></span>
+<span id="cb52-5"><a href="inter-omics.html#cb52-5"></a></span>
+<span id="cb52-6"><a href="inter-omics.html#cb52-6"></a>ms[<span class="st">&quot;NA_count&quot;</span>] &lt;-<span class="st"> </span><span class="ot">NA</span></span>
+<span id="cb52-7"><a href="inter-omics.html#cb52-7"></a>ms[<span class="st">&quot;signif_0.05&quot;</span>] &lt;-<span class="st"> </span><span class="ot">NA</span></span>
+<span id="cb52-8"><a href="inter-omics.html#cb52-8"></a>ms[<span class="st">&quot;signif_0.001&quot;</span>] &lt;-<span class="st"> </span><span class="ot">NA</span></span>
+<span id="cb52-9"><a href="inter-omics.html#cb52-9"></a>ms[<span class="st">&quot;sumlog&quot;</span>] &lt;-<span class="st"> </span><span class="ot">NA</span></span>
+<span id="cb52-10"><a href="inter-omics.html#cb52-10"></a></span>
+<span id="cb52-11"><a href="inter-omics.html#cb52-11"></a>n &lt;-<span class="st"> </span><span class="dv">0</span></span>
+<span id="cb52-12"><a href="inter-omics.html#cb52-12"></a>k &lt;-<span class="st"> </span><span class="kw">dim</span>(ms)[<span class="dv">1</span>]</span>
+<span id="cb52-13"><a href="inter-omics.html#cb52-13"></a><span class="cf">while</span> (n <span class="op">&lt;</span><span class="st"> </span>k) {</span>
+<span id="cb52-14"><a href="inter-omics.html#cb52-14"></a>    n &lt;-<span class="st"> </span>n <span class="op">+</span><span class="st"> </span><span class="dv">1</span></span>
+<span id="cb52-15"><a href="inter-omics.html#cb52-15"></a>    ms<span class="op">$</span>NA_count[n] &lt;-<span class="st"> </span><span class="kw">sum</span>(<span class="kw">is.na</span>(ms[n, <span class="dv">3</span><span class="op">:</span><span class="dv">7</span>]))</span>
+<span id="cb52-16"><a href="inter-omics.html#cb52-16"></a>    ms<span class="op">$</span>signif_<span class="fl">0.05</span>[n] &lt;-<span class="st"> </span><span class="kw">sum</span>(ms[n, <span class="dv">3</span><span class="op">:</span><span class="dv">7</span>] <span class="op">&lt;=</span><span class="st"> </span><span class="fl">0.05</span>, <span class="dt">na.rm =</span> T)</span>
+<span id="cb52-17"><a href="inter-omics.html#cb52-17"></a>    ms<span class="op">$</span>signif_<span class="fl">0.001</span>[n] &lt;-<span class="st"> </span><span class="kw">sum</span>(ms[n, <span class="dv">3</span><span class="op">:</span><span class="dv">7</span>] <span class="op">&lt;=</span><span class="st"> </span><span class="fl">0.001</span>, <span class="dt">na.rm =</span> T)</span>
+<span id="cb52-18"><a href="inter-omics.html#cb52-18"></a>    <span class="kw">ifelse</span>((ms<span class="op">$</span>NA_count[n] <span class="op">&lt;=</span><span class="st"> </span><span class="dv">3</span>), (ms<span class="op">$</span>sumlog[n] &lt;-<span class="st"> </span><span class="kw">sumlog</span>(ms[n, <span class="dv">3</span><span class="op">:</span><span class="dv">7</span>][<span class="op">!</span><span class="kw">is.na</span>(ms[n, </span>
+<span id="cb52-19"><a href="inter-omics.html#cb52-19"></a>        <span class="dv">3</span><span class="op">:</span><span class="dv">7</span>])])<span class="op">$</span>p), <span class="ot">NA</span>)</span>
+<span id="cb52-20"><a href="inter-omics.html#cb52-20"></a>}</span>
+<span id="cb52-21"><a href="inter-omics.html#cb52-21"></a><span class="kw">rm</span>(k, n)</span>
+<span id="cb52-22"><a href="inter-omics.html#cb52-22"></a></span>
+<span id="cb52-23"><a href="inter-omics.html#cb52-23"></a>ms[<span class="st">&quot;p.adjust_Bonferroni&quot;</span>] &lt;-<span class="st"> </span><span class="kw">p.adjust</span>(ms<span class="op">$</span>sumlog, <span class="dt">method =</span> <span class="st">&quot;bonferroni&quot;</span>)</span>
+<span id="cb52-24"><a href="inter-omics.html#cb52-24"></a>ms[<span class="st">&quot;p.adjust_FDR&quot;</span>] &lt;-<span class="st"> </span><span class="kw">p.adjust</span>(ms<span class="op">$</span>sumlog, <span class="dt">method =</span> <span class="st">&quot;fdr&quot;</span>)  <span class="co">#aka Benjamini &amp; Hochberg</span></span>
+<span id="cb52-25"><a href="inter-omics.html#cb52-25"></a></span>
+<span id="cb52-26"><a href="inter-omics.html#cb52-26"></a><span class="kw">write.csv</span>(ms, <span class="st">&quot;data/master_summary_networks_2.csv&quot;</span>)</span>
+<span id="cb52-27"><a href="inter-omics.html#cb52-27"></a></span>
+<span id="cb52-28"><a href="inter-omics.html#cb52-28"></a><span class="kw">par</span>(<span class="dt">mfrow =</span> <span class="kw">c</span>(<span class="dv">1</span>, <span class="dv">3</span>))</span>
+<span id="cb52-29"><a href="inter-omics.html#cb52-29"></a><span class="kw">hist</span>(ms<span class="op">$</span>signif_<span class="fl">0.05</span>, <span class="dt">main =</span> <span class="st">&quot;p-values &lt;= 0.05&quot;</span>, <span class="dt">xlab =</span> <span class="st">&quot;Counts per edge &quot;</span>, <span class="dt">breaks =</span> <span class="kw">c</span>(<span class="dv">0</span>, </span>
+<span id="cb52-30"><a href="inter-omics.html#cb52-30"></a>    <span class="dv">1</span>, <span class="dv">2</span>, <span class="dv">3</span>, <span class="dv">4</span>, <span class="dv">5</span>), <span class="dt">labels =</span> <span class="ot">TRUE</span>)</span>
+<span id="cb52-31"><a href="inter-omics.html#cb52-31"></a><span class="kw">hist</span>(ms<span class="op">$</span>signif_<span class="fl">0.001</span>, <span class="dt">main =</span> <span class="st">&quot;p-values &lt;= 0.001&quot;</span>, <span class="dt">xlab =</span> <span class="st">&quot;Counts per edge &quot;</span>, <span class="dt">breaks =</span> <span class="kw">c</span>(<span class="dv">0</span>, </span>
+<span id="cb52-32"><a href="inter-omics.html#cb52-32"></a>    <span class="dv">1</span>, <span class="dv">2</span>, <span class="dv">3</span>, <span class="dv">4</span>, <span class="dv">5</span>), <span class="dt">labels =</span> <span class="ot">TRUE</span>)</span>
+<span id="cb52-33"><a href="inter-omics.html#cb52-33"></a><span class="kw">hist</span>(ms<span class="op">$</span>NA_count, <span class="dt">main =</span> <span class="st">&quot;NAs&quot;</span>, <span class="dt">xlab =</span> <span class="st">&quot;Counts per edge &quot;</span>, <span class="dt">breaks =</span> <span class="kw">c</span>(<span class="dv">0</span>, <span class="dv">1</span>, <span class="dv">2</span>, <span class="dv">3</span>, </span>
+<span id="cb52-34"><a href="inter-omics.html#cb52-34"></a>    <span class="dv">4</span>, <span class="dv">5</span>), <span class="dt">labels =</span> <span class="ot">TRUE</span>)</span></code></pre></div>
 <p><img src="Oceanographic-setting-influences-the-prokaryote-community-and-metabolome-in-deep-sea-sponges_files/figure-html/integration2-2.png" width="80%" /></p>
-<div class="sourceCode" id="cb46"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb46-1"><a href="inter-omics.html#cb46-1"></a><span class="kw">par</span>(<span class="dt">mfrow =</span> <span class="kw">c</span>(<span class="dv">1</span>, <span class="dv">1</span>))</span>
-<span id="cb46-2"><a href="inter-omics.html#cb46-2"></a></span>
-<span id="cb46-3"><a href="inter-omics.html#cb46-3"></a>ds &lt;-<span class="st"> </span><span class="kw">split</span>(ms, ms<span class="op">$</span>signif_<span class="fl">0.05</span>)</span>
-<span id="cb46-4"><a href="inter-omics.html#cb46-4"></a>raw_nodes &lt;-<span class="st"> </span><span class="kw">rbind</span>(ds<span class="op">$</span><span class="st">`</span><span class="dt">4</span><span class="st">`</span>, ds<span class="op">$</span><span class="st">`</span><span class="dt">5</span><span class="st">`</span>)  <span class="co"># Selection/inclusion criterion</span></span>
-<span id="cb46-5"><a href="inter-omics.html#cb46-5"></a><span class="kw">rm</span>(ds)</span></code></pre></div>
+<div class="sourceCode" id="cb53"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb53-1"><a href="inter-omics.html#cb53-1"></a><span class="kw">par</span>(<span class="dt">mfrow =</span> <span class="kw">c</span>(<span class="dv">1</span>, <span class="dv">1</span>))</span>
+<span id="cb53-2"><a href="inter-omics.html#cb53-2"></a></span>
+<span id="cb53-3"><a href="inter-omics.html#cb53-3"></a>ds &lt;-<span class="st"> </span><span class="kw">split</span>(ms, ms<span class="op">$</span>signif_<span class="fl">0.05</span>)</span>
+<span id="cb53-4"><a href="inter-omics.html#cb53-4"></a>raw_nodes &lt;-<span class="st"> </span><span class="kw">rbind</span>(ds<span class="op">$</span><span class="st">`</span><span class="dt">4</span><span class="st">`</span>, ds<span class="op">$</span><span class="st">`</span><span class="dt">5</span><span class="st">`</span>)  <span class="co"># Selection/inclusion criterion</span></span>
+<span id="cb53-5"><a href="inter-omics.html#cb53-5"></a><span class="kw">rm</span>(ds)</span></code></pre></div>
 <p>We selected all edges with at least 4 p-values <span class="math inline">\(\leq\)</span> 0.05 (n=155) to visualise in the network.</p>
-<div class="sourceCode" id="cb47"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb47-1"><a href="inter-omics.html#cb47-1"></a><span class="kw">library</span>(igraph)</span>
-<span id="cb47-2"><a href="inter-omics.html#cb47-2"></a></span>
-<span id="cb47-3"><a href="inter-omics.html#cb47-3"></a>edges &lt;-<span class="st"> </span>raw_nodes[, <span class="dv">1</span><span class="op">:</span><span class="dv">2</span>]</span>
-<span id="cb47-4"><a href="inter-omics.html#cb47-4"></a>nodes &lt;-<span class="st"> </span><span class="kw">union</span>(raw_nodes<span class="op">$</span>node1_mic, raw_nodes<span class="op">$</span>node2_mic)</span>
-<span id="cb47-5"><a href="inter-omics.html#cb47-5"></a></span>
-<span id="cb47-6"><a href="inter-omics.html#cb47-6"></a></span>
-<span id="cb47-7"><a href="inter-omics.html#cb47-7"></a><span class="co">### K###</span></span>
-<span id="cb47-8"><a href="inter-omics.html#cb47-8"></a>meta_data &lt;-<span class="st"> </span><span class="kw">read.csv</span>(<span class="st">&quot;~/Documents/Metabolomics/Depth_Gradient_study/R_depth_study/Network_analyses_R/gb_attributes_barettin_vip2.csv&quot;</span>, </span>
-<span id="cb47-9"><a href="inter-omics.html#cb47-9"></a>    <span class="dt">header =</span> T, <span class="dt">sep =</span> <span class="st">&quot;;&quot;</span>)</span>
-<span id="cb47-10"><a href="inter-omics.html#cb47-10"></a><span class="co"># head(meta_data)</span></span>
-<span id="cb47-11"><a href="inter-omics.html#cb47-11"></a>meta_data &lt;-<span class="st"> </span>meta_data[meta_data<span class="op">$</span>OTU_otu <span class="op">%in%</span><span class="st"> </span>nodes, ]</span>
-<span id="cb47-12"><a href="inter-omics.html#cb47-12"></a><span class="co"># head(meta_data) str(meta_data)</span></span>
-<span id="cb47-13"><a href="inter-omics.html#cb47-13"></a>meta_data<span class="op">$</span>OTU_num &lt;-<span class="st"> </span><span class="ot">NULL</span></span>
-<span id="cb47-14"><a href="inter-omics.html#cb47-14"></a>meta_data<span class="op">$</span>order &lt;-<span class="st"> </span><span class="ot">NULL</span></span>
-<span id="cb47-15"><a href="inter-omics.html#cb47-15"></a>nodes &lt;-<span class="st"> </span>meta_data</span>
-<span id="cb47-16"><a href="inter-omics.html#cb47-16"></a>nodes<span class="op">$</span>labels &lt;-<span class="st"> </span><span class="ot">NA</span></span>
-<span id="cb47-17"><a href="inter-omics.html#cb47-17"></a>nodes<span class="op">$</span>labels &lt;-<span class="st"> </span><span class="kw">ifelse</span>(nodes<span class="op">$</span>bar_scale_abs <span class="op">==</span><span class="st"> </span><span class="dv">1</span>, <span class="kw">as.character</span>(nodes<span class="op">$</span>OTU_otu), <span class="ot">NA</span>)</span>
-<span id="cb47-18"><a href="inter-omics.html#cb47-18"></a><span class="co"># sum(!is.na(nodes$labels)) #18 nodes$labels head(nodes, n=20)</span></span>
-<span id="cb47-19"><a href="inter-omics.html#cb47-19"></a>nodes<span class="op">$</span>labels &lt;-<span class="st"> </span><span class="kw">sub</span>(<span class="dt">pattern =</span> <span class="st">&quot;OTU196900&quot;</span>, <span class="dt">replacement =</span> <span class="st">&quot;&quot;</span>, <span class="dt">x =</span> nodes<span class="op">$</span>labels, <span class="dt">ignore.case =</span> F)</span>
-<span id="cb47-20"><a href="inter-omics.html#cb47-20"></a>nodes[] &lt;-<span class="st"> </span><span class="kw">lapply</span>(nodes, <span class="cf">function</span>(x) <span class="cf">if</span> (<span class="kw">is.factor</span>(x)) <span class="kw">factor</span>(x) <span class="cf">else</span> x)</span>
-<span id="cb47-21"><a href="inter-omics.html#cb47-21"></a></span>
-<span id="cb47-22"><a href="inter-omics.html#cb47-22"></a>net &lt;-<span class="st"> </span><span class="kw">graph_from_data_frame</span>(<span class="dt">d =</span> edges, <span class="dt">vertices =</span> nodes, <span class="dt">directed =</span> F)</span>
-<span id="cb47-23"><a href="inter-omics.html#cb47-23"></a></span>
-<span id="cb47-24"><a href="inter-omics.html#cb47-24"></a><span class="co"># plot(net) l &lt;- layout_with_kk(net) plot(net,</span></span>
-<span id="cb47-25"><a href="inter-omics.html#cb47-25"></a><span class="co"># edge.arrow.size=.4,vertex.label=NA, layout=l) #plot again</span></span>
-<span id="cb47-26"><a href="inter-omics.html#cb47-26"></a></span>
-<span id="cb47-27"><a href="inter-omics.html#cb47-27"></a><span class="co"># Barettin highligted (orange node size)</span></span>
-<span id="cb47-28"><a href="inter-omics.html#cb47-28"></a>l &lt;-<span class="st"> </span><span class="kw">layout_with_kk</span>(net)</span>
-<span id="cb47-29"><a href="inter-omics.html#cb47-29"></a><span class="kw">plot</span>(net, <span class="dt">edge.arrow.size =</span> <span class="fl">0.2</span>, <span class="dt">edge.color =</span> <span class="st">&quot;grey&quot;</span>, <span class="dt">vertex.color =</span> <span class="st">&quot;orange&quot;</span>, <span class="dt">vertex.frame.color =</span> <span class="st">&quot;#ffffff&quot;</span>, </span>
-<span id="cb47-30"><a href="inter-omics.html#cb47-30"></a>    <span class="dt">vertex.label =</span> <span class="ot">NA</span>, <span class="dt">vertex.label.color =</span> <span class="st">&quot;black&quot;</span>, <span class="dt">vertex.size =</span> <span class="kw">V</span>(net)<span class="op">$</span>bar_scale_rel <span class="op">*</span><span class="st"> </span></span>
-<span id="cb47-31"><a href="inter-omics.html#cb47-31"></a><span class="st">        </span><span class="dv">10</span>, <span class="dt">layout =</span> l)</span>
-<span id="cb47-32"><a href="inter-omics.html#cb47-32"></a></span>
-<span id="cb47-33"><a href="inter-omics.html#cb47-33"></a><span class="co"># node info and classification for all nodes correlated with barettin</span></span>
-<span id="cb47-34"><a href="inter-omics.html#cb47-34"></a>node_info &lt;-<span class="st"> </span>nodes[, <span class="kw">c</span>(<span class="st">&quot;OTU_otu&quot;</span>, <span class="st">&quot;phylum&quot;</span>, <span class="st">&quot;class&quot;</span>)][nodes<span class="op">$</span>bar_scale_abs <span class="op">==</span><span class="st"> </span><span class="dv">1</span>, ]</span>
-<span id="cb47-35"><a href="inter-omics.html#cb47-35"></a>node_info[<span class="st">&quot;counter&quot;</span>] &lt;-<span class="st"> </span><span class="dv">1</span>  <span class="co">#for quick grasp with aggregate</span></span>
-<span id="cb47-36"><a href="inter-omics.html#cb47-36"></a>node_info</span>
-<span id="cb47-37"><a href="inter-omics.html#cb47-37"></a><span class="kw">nrow</span>(node_info)  <span class="co">#18</span></span>
-<span id="cb47-38"><a href="inter-omics.html#cb47-38"></a>node_info[] &lt;-<span class="st"> </span><span class="kw">lapply</span>(node_info, <span class="cf">function</span>(x) <span class="cf">if</span> (<span class="kw">is.factor</span>(x)) <span class="kw">factor</span>(x) <span class="cf">else</span> x)  <span class="co">#dropping factors from full data set for all columns</span></span>
-<span id="cb47-39"><a href="inter-omics.html#cb47-39"></a>node_info[<span class="kw">order</span>(node_info<span class="op">$</span>phylum, node_info<span class="op">$</span>class), ]</span>
-<span id="cb47-40"><a href="inter-omics.html#cb47-40"></a><span class="kw">aggregate</span>(. <span class="op">~</span><span class="st"> </span>phylum, <span class="dt">data =</span> node_info, sum)</span>
-<span id="cb47-41"><a href="inter-omics.html#cb47-41"></a><span class="kw">aggregate</span>(. <span class="op">~</span><span class="st"> </span>class, <span class="dt">data =</span> node_info, sum)</span>
-<span id="cb47-42"><a href="inter-omics.html#cb47-42"></a></span>
-<span id="cb47-43"><a href="inter-omics.html#cb47-43"></a><span class="co"># Taxonomy coloring &amp; barettin: Phylum</span></span>
-<span id="cb47-44"><a href="inter-omics.html#cb47-44"></a>ecol &lt;-<span class="st"> </span><span class="kw">rep</span>(<span class="st">&quot;gray80&quot;</span>, <span class="kw">ecount</span>(net))</span>
-<span id="cb47-45"><a href="inter-omics.html#cb47-45"></a>vcol &lt;-<span class="st"> </span><span class="kw">rep</span>(<span class="st">&quot;grey40&quot;</span>, <span class="kw">vcount</span>(net))</span>
-<span id="cb47-46"><a href="inter-omics.html#cb47-46"></a>vcol[<span class="kw">V</span>(net)<span class="op">$</span>phylum <span class="op">==</span><span class="st"> &quot;Proteobacteria&quot;</span>] &lt;-<span class="st"> &quot;yellow&quot;</span></span>
-<span id="cb47-47"><a href="inter-omics.html#cb47-47"></a>vcol[<span class="kw">V</span>(net)<span class="op">$</span>phylum <span class="op">==</span><span class="st"> &quot;Acidobacteria&quot;</span>] &lt;-<span class="st"> &quot;purple&quot;</span></span>
-<span id="cb47-48"><a href="inter-omics.html#cb47-48"></a>vcol[<span class="kw">V</span>(net)<span class="op">$</span>phylum <span class="op">==</span><span class="st"> &quot;Chloroflexi&quot;</span>] &lt;-<span class="st"> &quot;blue&quot;</span></span>
-<span id="cb47-49"><a href="inter-omics.html#cb47-49"></a>vcol[<span class="kw">V</span>(net)<span class="op">$</span>phylum <span class="op">==</span><span class="st"> &quot;Gemmatimonadetes&quot;</span>] &lt;-<span class="st"> &quot;red&quot;</span></span>
-<span id="cb47-50"><a href="inter-omics.html#cb47-50"></a><span class="co"># The unclassified OTU196900307 will be displayed in grey.</span></span>
-<span id="cb47-51"><a href="inter-omics.html#cb47-51"></a><span class="kw">plot</span>(net, <span class="dt">vertex.color =</span> vcol, <span class="dt">edge.color =</span> ecol, <span class="dt">vertex.size =</span> <span class="kw">V</span>(net)<span class="op">$</span>bar_scale_rel <span class="op">*</span><span class="st"> </span></span>
-<span id="cb47-52"><a href="inter-omics.html#cb47-52"></a><span class="st">    </span><span class="dv">10</span>, <span class="dt">edge.width =</span> <span class="kw">E</span>(net)<span class="op">$</span>value<span class="op">^</span><span class="dv">2</span>, <span class="dt">vertex.label =</span> <span class="ot">NA</span>, <span class="dt">layout =</span> l)</span>
-<span id="cb47-53"><a href="inter-omics.html#cb47-53"></a></span>
-<span id="cb47-54"><a href="inter-omics.html#cb47-54"></a><span class="co"># PUBLICATION FIGURE Taxonomy coloring &amp; barettin: Class</span></span>
-<span id="cb47-55"><a href="inter-omics.html#cb47-55"></a>ecol &lt;-<span class="st"> </span><span class="kw">rep</span>(<span class="st">&quot;gray80&quot;</span>, <span class="kw">ecount</span>(net))</span>
-<span id="cb47-56"><a href="inter-omics.html#cb47-56"></a>vcol &lt;-<span class="st"> </span><span class="kw">rep</span>(<span class="st">&quot;grey40&quot;</span>, <span class="kw">vcount</span>(net))</span>
-<span id="cb47-57"><a href="inter-omics.html#cb47-57"></a>vcol[<span class="kw">V</span>(net)<span class="op">$</span>class <span class="op">==</span><span class="st"> &quot;Holophagae&quot;</span>] &lt;-<span class="st"> &quot;#9e0142&quot;</span></span>
-<span id="cb47-58"><a href="inter-omics.html#cb47-58"></a>vcol[<span class="kw">V</span>(net)<span class="op">$</span>class <span class="op">==</span><span class="st"> &quot;Subgroup_15&quot;</span>] &lt;-<span class="st"> &quot;#d53e4f&quot;</span></span>
-<span id="cb47-59"><a href="inter-omics.html#cb47-59"></a>vcol[<span class="kw">V</span>(net)<span class="op">$</span>class <span class="op">==</span><span class="st"> &quot;Subgroup_6&quot;</span>] &lt;-<span class="st"> &quot;#f46d43&quot;</span></span>
-<span id="cb47-60"><a href="inter-omics.html#cb47-60"></a>vcol[<span class="kw">V</span>(net)<span class="op">$</span>class <span class="op">==</span><span class="st"> &quot;Anaerolineae&quot;</span>] &lt;-<span class="st"> &quot;#fdae61&quot;</span></span>
-<span id="cb47-61"><a href="inter-omics.html#cb47-61"></a>vcol[<span class="kw">V</span>(net)<span class="op">$</span>class <span class="op">==</span><span class="st"> &quot;JG30-KF-CM66&quot;</span>] &lt;-<span class="st"> &quot;#fee08b&quot;</span></span>
-<span id="cb47-62"><a href="inter-omics.html#cb47-62"></a>vcol[<span class="kw">V</span>(net)<span class="op">$</span>class <span class="op">==</span><span class="st"> &quot;SAR202_clade&quot;</span>] &lt;-<span class="st"> &quot;#e6f598&quot;</span></span>
-<span id="cb47-63"><a href="inter-omics.html#cb47-63"></a>vcol[<span class="kw">V</span>(net)<span class="op">$</span>class <span class="op">==</span><span class="st"> &quot;TK10&quot;</span>] &lt;-<span class="st"> &quot;#abdda4&quot;</span></span>
-<span id="cb47-64"><a href="inter-omics.html#cb47-64"></a>vcol[<span class="kw">V</span>(net)<span class="op">$</span>class <span class="op">==</span><span class="st"> &quot;BD2-11_terrestrial_group&quot;</span>] &lt;-<span class="st"> &quot;#66c2a5&quot;</span></span>
-<span id="cb47-65"><a href="inter-omics.html#cb47-65"></a>vcol[<span class="kw">V</span>(net)<span class="op">$</span>class <span class="op">==</span><span class="st"> &quot;Alphaproteobacteria&quot;</span>] &lt;-<span class="st"> &quot;#3288bd&quot;</span></span>
-<span id="cb47-66"><a href="inter-omics.html#cb47-66"></a>vcol[<span class="kw">V</span>(net)<span class="op">$</span>class <span class="op">==</span><span class="st"> &quot;JTB23&quot;</span>] &lt;-<span class="st"> &quot;#5e4fa2&quot;</span></span>
-<span id="cb47-67"><a href="inter-omics.html#cb47-67"></a></span>
-<span id="cb47-68"><a href="inter-omics.html#cb47-68"></a>colrs &lt;-<span class="st"> </span><span class="kw">c</span>(<span class="st">&quot;#9e0142&quot;</span>, <span class="st">&quot;#d53e4f&quot;</span>, <span class="st">&quot;#f46d43&quot;</span>, <span class="st">&quot;#fdae61&quot;</span>, <span class="st">&quot;#fee08b&quot;</span>, <span class="st">&quot;#e6f598&quot;</span>, <span class="st">&quot;#abdda4&quot;</span>, </span>
-<span id="cb47-69"><a href="inter-omics.html#cb47-69"></a>    <span class="st">&quot;#66c2a5&quot;</span>, <span class="st">&quot;#3288bd&quot;</span>, <span class="st">&quot;#5e4fa2&quot;</span>)</span>
-<span id="cb47-70"><a href="inter-omics.html#cb47-70"></a><span class="kw">V</span>(net)<span class="op">$</span>color &lt;-<span class="st"> </span>colrs[<span class="kw">V</span>(net)<span class="op">$</span>class]</span>
-<span id="cb47-71"><a href="inter-omics.html#cb47-71"></a></span>
-<span id="cb47-72"><a href="inter-omics.html#cb47-72"></a><span class="co"># PUBLICATION FIGURE</span></span>
-<span id="cb47-73"><a href="inter-omics.html#cb47-73"></a><span class="kw">plot</span>(net, <span class="dt">vertex.color =</span> vcol, <span class="dt">edge.color =</span> ecol, <span class="dt">vertex.size =</span> <span class="kw">V</span>(net)<span class="op">$</span>bar_scale_rel <span class="op">*</span><span class="st"> </span></span>
-<span id="cb47-74"><a href="inter-omics.html#cb47-74"></a><span class="st">    </span><span class="dv">10</span>, <span class="dt">edge.width =</span> <span class="kw">E</span>(net)<span class="op">$</span>value<span class="op">^</span><span class="dv">2</span>, <span class="dt">vertex.label =</span> <span class="ot">NA</span>, <span class="dt">layout =</span> l)</span>
-<span id="cb47-75"><a href="inter-omics.html#cb47-75"></a><span class="co"># legend(x=-2.1, y=0.5, c(&#39;Holophagae (Acidobacteria)&#39;,&#39;Subgroup_15</span></span>
-<span id="cb47-76"><a href="inter-omics.html#cb47-76"></a><span class="co"># (Acidobacteria)&#39;, &#39;Subgroup_6 (Acidobacteria)&#39;, &#39;Anaerolineae (Chloroflexi)&#39;,</span></span>
-<span id="cb47-77"><a href="inter-omics.html#cb47-77"></a><span class="co"># &#39;JG30-KF-CM66 (Chloroflexi)&#39;, &#39;SAR202_clade (Chloroflexi)&#39;, &#39;TK10</span></span>
-<span id="cb47-78"><a href="inter-omics.html#cb47-78"></a><span class="co"># (Chloroflexi)&#39;, &#39;BD2-11_terrestrial_group (Gemmatimonadetes)&#39;,</span></span>
-<span id="cb47-79"><a href="inter-omics.html#cb47-79"></a><span class="co"># &#39;Alphaproteobacteria (Proteobacteria)&#39;, &#39;JTB23 (Proteobacteria)&#39;), pt.bg=colrs,</span></span>
-<span id="cb47-80"><a href="inter-omics.html#cb47-80"></a><span class="co"># pch=21,col=&#39;#777777&#39;, pt.cex=2, cex=.8, bty=&#39;n&#39;, ncol=1)</span></span>
-<span id="cb47-81"><a href="inter-omics.html#cb47-81"></a><span class="kw">legend</span>(<span class="dt">x =</span> <span class="fl">-2.9</span>, <span class="dt">y =</span> <span class="fl">0.5</span>, <span class="kw">c</span>(<span class="st">&quot;Holophagae (Acidobacteria)&quot;</span>, <span class="st">&quot;Subgroup_15 (Acidobacteria)&quot;</span>, </span>
-<span id="cb47-82"><a href="inter-omics.html#cb47-82"></a>    <span class="st">&quot;Subgroup_6 (Acidobacteria)&quot;</span>, <span class="st">&quot;Anaerolineae (Chloroflexi)&quot;</span>, <span class="st">&quot;JG30-KF-CM66 (Chloroflexi)&quot;</span>, </span>
-<span id="cb47-83"><a href="inter-omics.html#cb47-83"></a>    <span class="st">&quot;SAR202_clade (Chloroflexi)&quot;</span>, <span class="st">&quot;TK10 (Chloroflexi)&quot;</span>, <span class="st">&quot;BD2-11_terrestrial_group (Gemmatimonadetes)&quot;</span>, </span>
-<span id="cb47-84"><a href="inter-omics.html#cb47-84"></a>    <span class="st">&quot;Alphaproteobacteria (Proteobacteria)&quot;</span>, <span class="st">&quot;JTB23 (Proteobacteria)&quot;</span>), <span class="dt">pt.bg =</span> colrs, </span>
-<span id="cb47-85"><a href="inter-omics.html#cb47-85"></a>    <span class="dt">pch =</span> <span class="dv">21</span>, <span class="dt">col =</span> <span class="st">&quot;#777777&quot;</span>, <span class="dt">pt.cex =</span> <span class="fl">1.5</span>, <span class="dt">cex =</span> <span class="fl">0.7</span>, <span class="dt">bty =</span> <span class="st">&quot;n&quot;</span>, <span class="dt">ncol =</span> <span class="dv">1</span>)</span>
-<span id="cb47-86"><a href="inter-omics.html#cb47-86"></a></span>
-<span id="cb47-87"><a href="inter-omics.html#cb47-87"></a><span class="co"># Labels, personal use</span></span>
-<span id="cb47-88"><a href="inter-omics.html#cb47-88"></a><span class="kw">plot</span>(net, <span class="dt">vertex.color =</span> vcol, <span class="dt">edge.color =</span> ecol, <span class="dt">vertex.size =</span> <span class="kw">V</span>(net)<span class="op">$</span>bar_scale_rel <span class="op">*</span><span class="st"> </span></span>
-<span id="cb47-89"><a href="inter-omics.html#cb47-89"></a><span class="st">    </span><span class="dv">10</span>, <span class="dt">edge.width =</span> <span class="kw">E</span>(net)<span class="op">$</span>value<span class="op">^</span><span class="dv">2</span>, <span class="dt">vertex.label =</span> <span class="kw">V</span>(net)<span class="op">$</span>labels, <span class="dt">layout =</span> l)</span>
-<span id="cb47-90"><a href="inter-omics.html#cb47-90"></a><span class="co"># legend(x=-2.1, y=0.5, c(&#39;Holophagae (Acidobacteria)&#39;,&#39;Subgroup_15</span></span>
-<span id="cb47-91"><a href="inter-omics.html#cb47-91"></a><span class="co"># (Acidobacteria)&#39;, &#39;Subgroup_6 (Acidobacteria)&#39;, &#39;Anaerolineae (Chloroflexi)&#39;,</span></span>
-<span id="cb47-92"><a href="inter-omics.html#cb47-92"></a><span class="co"># &#39;JG30-KF-CM66 (Chloroflexi)&#39;, &#39;SAR202_clade (Chloroflexi)&#39;, &#39;TK10</span></span>
-<span id="cb47-93"><a href="inter-omics.html#cb47-93"></a><span class="co"># (Chloroflexi)&#39;, &#39;BD2-11_terrestrial_group (Gemmatimonadetes)&#39;,</span></span>
-<span id="cb47-94"><a href="inter-omics.html#cb47-94"></a><span class="co"># &#39;Alphaproteobacteria (Proteobacteria)&#39;, &#39;JTB23 (Proteobacteria)&#39;), pt.bg=colrs,</span></span>
-<span id="cb47-95"><a href="inter-omics.html#cb47-95"></a><span class="co"># pch=21,col=&#39;#777777&#39;, pt.cex=2, cex=.8, bty=&#39;n&#39;, ncol=1)</span></span>
-<span id="cb47-96"><a href="inter-omics.html#cb47-96"></a><span class="kw">legend</span>(<span class="dt">x =</span> <span class="fl">-2.9</span>, <span class="dt">y =</span> <span class="fl">0.5</span>, <span class="kw">c</span>(<span class="st">&quot;Holophagae (Acidobacteria)&quot;</span>, <span class="st">&quot;Subgroup_15 (Acidobacteria)&quot;</span>, </span>
-<span id="cb47-97"><a href="inter-omics.html#cb47-97"></a>    <span class="st">&quot;Subgroup_6 (Acidobacteria)&quot;</span>, <span class="st">&quot;Anaerolineae (Chloroflexi)&quot;</span>, <span class="st">&quot;JG30-KF-CM66 (Chloroflexi)&quot;</span>, </span>
-<span id="cb47-98"><a href="inter-omics.html#cb47-98"></a>    <span class="st">&quot;SAR202_clade (Chloroflexi)&quot;</span>, <span class="st">&quot;TK10 (Chloroflexi)&quot;</span>, <span class="st">&quot;BD2-11_terrestrial_group (Gemmatimonadetes)&quot;</span>, </span>
-<span id="cb47-99"><a href="inter-omics.html#cb47-99"></a>    <span class="st">&quot;Alphaproteobacteria (Proteobacteria)&quot;</span>, <span class="st">&quot;JTB23 (Proteobacteria)&quot;</span>), <span class="dt">pt.bg =</span> colrs, </span>
-<span id="cb47-100"><a href="inter-omics.html#cb47-100"></a>    <span class="dt">pch =</span> <span class="dv">21</span>, <span class="dt">col =</span> <span class="st">&quot;#777777&quot;</span>, <span class="dt">pt.cex =</span> <span class="fl">1.5</span>, <span class="dt">cex =</span> <span class="fl">0.7</span>, <span class="dt">bty =</span> <span class="st">&quot;n&quot;</span>, <span class="dt">ncol =</span> <span class="dv">1</span>)</span>
-<span id="cb47-101"><a href="inter-omics.html#cb47-101"></a></span>
-<span id="cb47-102"><a href="inter-omics.html#cb47-102"></a></span>
-<span id="cb47-103"><a href="inter-omics.html#cb47-103"></a><span class="co"># VIPs</span></span>
-<span id="cb47-104"><a href="inter-omics.html#cb47-104"></a>l &lt;-<span class="st"> </span><span class="kw">layout_with_kk</span>(net)</span>
-<span id="cb47-105"><a href="inter-omics.html#cb47-105"></a><span class="kw">plot</span>(net, <span class="dt">edge.arrow.size =</span> <span class="fl">0.2</span>, <span class="dt">edge.color =</span> <span class="st">&quot;grey&quot;</span>, <span class="dt">vertex.color =</span> <span class="st">&quot;orange&quot;</span>, <span class="dt">vertex.frame.color =</span> <span class="st">&quot;#ffffff&quot;</span>, </span>
-<span id="cb47-106"><a href="inter-omics.html#cb47-106"></a>    <span class="dt">vertex.label =</span> <span class="ot">NA</span>, <span class="dt">vertex.label.color =</span> <span class="st">&quot;black&quot;</span>, <span class="dt">vertex.size =</span> <span class="kw">V</span>(net)<span class="op">$</span>vip_scale_rel <span class="op">*</span><span class="st"> </span></span>
-<span id="cb47-107"><a href="inter-omics.html#cb47-107"></a><span class="st">        </span><span class="dv">5</span>, <span class="dt">layout =</span> l)</span></code></pre></div>
+<div class="sourceCode" id="cb54"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb54-1"><a href="inter-omics.html#cb54-1"></a><span class="kw">library</span>(igraph)</span>
+<span id="cb54-2"><a href="inter-omics.html#cb54-2"></a></span>
+<span id="cb54-3"><a href="inter-omics.html#cb54-3"></a>edges &lt;-<span class="st"> </span>raw_nodes[, <span class="dv">1</span><span class="op">:</span><span class="dv">2</span>]</span>
+<span id="cb54-4"><a href="inter-omics.html#cb54-4"></a>nodes &lt;-<span class="st"> </span><span class="kw">union</span>(raw_nodes<span class="op">$</span>node1_mic, raw_nodes<span class="op">$</span>node2_mic)</span>
+<span id="cb54-5"><a href="inter-omics.html#cb54-5"></a></span>
+<span id="cb54-6"><a href="inter-omics.html#cb54-6"></a></span>
+<span id="cb54-7"><a href="inter-omics.html#cb54-7"></a><span class="co">### K###</span></span>
+<span id="cb54-8"><a href="inter-omics.html#cb54-8"></a>meta_data &lt;-<span class="st"> </span><span class="kw">read.csv</span>(<span class="st">&quot;~/Documents/Metabolomics/Depth_Gradient_study/R_depth_study/Network_analyses_R/gb_attributes_barettin_vip2.csv&quot;</span>, </span>
+<span id="cb54-9"><a href="inter-omics.html#cb54-9"></a>    <span class="dt">header =</span> T, <span class="dt">sep =</span> <span class="st">&quot;;&quot;</span>)</span>
+<span id="cb54-10"><a href="inter-omics.html#cb54-10"></a><span class="co"># head(meta_data)</span></span>
+<span id="cb54-11"><a href="inter-omics.html#cb54-11"></a>meta_data &lt;-<span class="st"> </span>meta_data[meta_data<span class="op">$</span>OTU_otu <span class="op">%in%</span><span class="st"> </span>nodes, ]</span>
+<span id="cb54-12"><a href="inter-omics.html#cb54-12"></a><span class="co"># head(meta_data) str(meta_data)</span></span>
+<span id="cb54-13"><a href="inter-omics.html#cb54-13"></a>meta_data<span class="op">$</span>OTU_num &lt;-<span class="st"> </span><span class="ot">NULL</span></span>
+<span id="cb54-14"><a href="inter-omics.html#cb54-14"></a>meta_data<span class="op">$</span>order &lt;-<span class="st"> </span><span class="ot">NULL</span></span>
+<span id="cb54-15"><a href="inter-omics.html#cb54-15"></a>nodes &lt;-<span class="st"> </span>meta_data</span>
+<span id="cb54-16"><a href="inter-omics.html#cb54-16"></a>nodes<span class="op">$</span>labels &lt;-<span class="st"> </span><span class="ot">NA</span></span>
+<span id="cb54-17"><a href="inter-omics.html#cb54-17"></a>nodes<span class="op">$</span>labels &lt;-<span class="st"> </span><span class="kw">ifelse</span>(nodes<span class="op">$</span>bar_scale_abs <span class="op">==</span><span class="st"> </span><span class="dv">1</span>, <span class="kw">as.character</span>(nodes<span class="op">$</span>OTU_otu), <span class="ot">NA</span>)</span>
+<span id="cb54-18"><a href="inter-omics.html#cb54-18"></a><span class="co"># sum(!is.na(nodes$labels)) #18 nodes$labels head(nodes, n=20)</span></span>
+<span id="cb54-19"><a href="inter-omics.html#cb54-19"></a>nodes<span class="op">$</span>labels &lt;-<span class="st"> </span><span class="kw">sub</span>(<span class="dt">pattern =</span> <span class="st">&quot;OTU196900&quot;</span>, <span class="dt">replacement =</span> <span class="st">&quot;&quot;</span>, <span class="dt">x =</span> nodes<span class="op">$</span>labels, <span class="dt">ignore.case =</span> F)</span>
+<span id="cb54-20"><a href="inter-omics.html#cb54-20"></a>nodes[] &lt;-<span class="st"> </span><span class="kw">lapply</span>(nodes, <span class="cf">function</span>(x) <span class="cf">if</span> (<span class="kw">is.factor</span>(x)) <span class="kw">factor</span>(x) <span class="cf">else</span> x)</span>
+<span id="cb54-21"><a href="inter-omics.html#cb54-21"></a></span>
+<span id="cb54-22"><a href="inter-omics.html#cb54-22"></a>net &lt;-<span class="st"> </span><span class="kw">graph_from_data_frame</span>(<span class="dt">d =</span> edges, <span class="dt">vertices =</span> nodes, <span class="dt">directed =</span> F)</span>
+<span id="cb54-23"><a href="inter-omics.html#cb54-23"></a></span>
+<span id="cb54-24"><a href="inter-omics.html#cb54-24"></a><span class="co"># plot(net) l &lt;- layout_with_kk(net) plot(net,</span></span>
+<span id="cb54-25"><a href="inter-omics.html#cb54-25"></a><span class="co"># edge.arrow.size=.4,vertex.label=NA, layout=l) #plot again</span></span>
+<span id="cb54-26"><a href="inter-omics.html#cb54-26"></a></span>
+<span id="cb54-27"><a href="inter-omics.html#cb54-27"></a><span class="co"># Barettin highligted (orange node size)</span></span>
+<span id="cb54-28"><a href="inter-omics.html#cb54-28"></a>l &lt;-<span class="st"> </span><span class="kw">layout_with_kk</span>(net)</span>
+<span id="cb54-29"><a href="inter-omics.html#cb54-29"></a><span class="kw">plot</span>(net, <span class="dt">edge.arrow.size =</span> <span class="fl">0.2</span>, <span class="dt">edge.color =</span> <span class="st">&quot;grey&quot;</span>, <span class="dt">vertex.color =</span> <span class="st">&quot;orange&quot;</span>, <span class="dt">vertex.frame.color =</span> <span class="st">&quot;#ffffff&quot;</span>, </span>
+<span id="cb54-30"><a href="inter-omics.html#cb54-30"></a>    <span class="dt">vertex.label =</span> <span class="ot">NA</span>, <span class="dt">vertex.label.color =</span> <span class="st">&quot;black&quot;</span>, <span class="dt">vertex.size =</span> <span class="kw">V</span>(net)<span class="op">$</span>bar_scale_rel <span class="op">*</span><span class="st"> </span></span>
+<span id="cb54-31"><a href="inter-omics.html#cb54-31"></a><span class="st">        </span><span class="dv">10</span>, <span class="dt">layout =</span> l)</span>
+<span id="cb54-32"><a href="inter-omics.html#cb54-32"></a></span>
+<span id="cb54-33"><a href="inter-omics.html#cb54-33"></a><span class="co"># node info and classification for all nodes correlated with barettin</span></span>
+<span id="cb54-34"><a href="inter-omics.html#cb54-34"></a>node_info &lt;-<span class="st"> </span>nodes[, <span class="kw">c</span>(<span class="st">&quot;OTU_otu&quot;</span>, <span class="st">&quot;phylum&quot;</span>, <span class="st">&quot;class&quot;</span>)][nodes<span class="op">$</span>bar_scale_abs <span class="op">==</span><span class="st"> </span><span class="dv">1</span>, ]</span>
+<span id="cb54-35"><a href="inter-omics.html#cb54-35"></a>node_info[<span class="st">&quot;counter&quot;</span>] &lt;-<span class="st"> </span><span class="dv">1</span>  <span class="co">#for quick grasp with aggregate</span></span>
+<span id="cb54-36"><a href="inter-omics.html#cb54-36"></a>node_info</span>
+<span id="cb54-37"><a href="inter-omics.html#cb54-37"></a><span class="kw">nrow</span>(node_info)  <span class="co">#18</span></span>
+<span id="cb54-38"><a href="inter-omics.html#cb54-38"></a>node_info[] &lt;-<span class="st"> </span><span class="kw">lapply</span>(node_info, <span class="cf">function</span>(x) <span class="cf">if</span> (<span class="kw">is.factor</span>(x)) <span class="kw">factor</span>(x) <span class="cf">else</span> x)  <span class="co">#dropping factors from full data set for all columns</span></span>
+<span id="cb54-39"><a href="inter-omics.html#cb54-39"></a>node_info[<span class="kw">order</span>(node_info<span class="op">$</span>phylum, node_info<span class="op">$</span>class), ]</span>
+<span id="cb54-40"><a href="inter-omics.html#cb54-40"></a><span class="kw">aggregate</span>(. <span class="op">~</span><span class="st"> </span>phylum, <span class="dt">data =</span> node_info, sum)</span>
+<span id="cb54-41"><a href="inter-omics.html#cb54-41"></a><span class="kw">aggregate</span>(. <span class="op">~</span><span class="st"> </span>class, <span class="dt">data =</span> node_info, sum)</span>
+<span id="cb54-42"><a href="inter-omics.html#cb54-42"></a></span>
+<span id="cb54-43"><a href="inter-omics.html#cb54-43"></a><span class="co"># Taxonomy coloring &amp; barettin: Phylum</span></span>
+<span id="cb54-44"><a href="inter-omics.html#cb54-44"></a>ecol &lt;-<span class="st"> </span><span class="kw">rep</span>(<span class="st">&quot;gray80&quot;</span>, <span class="kw">ecount</span>(net))</span>
+<span id="cb54-45"><a href="inter-omics.html#cb54-45"></a>vcol &lt;-<span class="st"> </span><span class="kw">rep</span>(<span class="st">&quot;grey40&quot;</span>, <span class="kw">vcount</span>(net))</span>
+<span id="cb54-46"><a href="inter-omics.html#cb54-46"></a>vcol[<span class="kw">V</span>(net)<span class="op">$</span>phylum <span class="op">==</span><span class="st"> &quot;Proteobacteria&quot;</span>] &lt;-<span class="st"> &quot;yellow&quot;</span></span>
+<span id="cb54-47"><a href="inter-omics.html#cb54-47"></a>vcol[<span class="kw">V</span>(net)<span class="op">$</span>phylum <span class="op">==</span><span class="st"> &quot;Acidobacteria&quot;</span>] &lt;-<span class="st"> &quot;purple&quot;</span></span>
+<span id="cb54-48"><a href="inter-omics.html#cb54-48"></a>vcol[<span class="kw">V</span>(net)<span class="op">$</span>phylum <span class="op">==</span><span class="st"> &quot;Chloroflexi&quot;</span>] &lt;-<span class="st"> &quot;blue&quot;</span></span>
+<span id="cb54-49"><a href="inter-omics.html#cb54-49"></a>vcol[<span class="kw">V</span>(net)<span class="op">$</span>phylum <span class="op">==</span><span class="st"> &quot;Gemmatimonadetes&quot;</span>] &lt;-<span class="st"> &quot;red&quot;</span></span>
+<span id="cb54-50"><a href="inter-omics.html#cb54-50"></a><span class="co"># The unclassified OTU196900307 will be displayed in grey.</span></span>
+<span id="cb54-51"><a href="inter-omics.html#cb54-51"></a><span class="kw">plot</span>(net, <span class="dt">vertex.color =</span> vcol, <span class="dt">edge.color =</span> ecol, <span class="dt">vertex.size =</span> <span class="kw">V</span>(net)<span class="op">$</span>bar_scale_rel <span class="op">*</span><span class="st"> </span></span>
+<span id="cb54-52"><a href="inter-omics.html#cb54-52"></a><span class="st">    </span><span class="dv">10</span>, <span class="dt">edge.width =</span> <span class="kw">E</span>(net)<span class="op">$</span>value<span class="op">^</span><span class="dv">2</span>, <span class="dt">vertex.label =</span> <span class="ot">NA</span>, <span class="dt">layout =</span> l)</span>
+<span id="cb54-53"><a href="inter-omics.html#cb54-53"></a></span>
+<span id="cb54-54"><a href="inter-omics.html#cb54-54"></a><span class="co"># PUBLICATION FIGURE Taxonomy coloring &amp; barettin: Class</span></span>
+<span id="cb54-55"><a href="inter-omics.html#cb54-55"></a>ecol &lt;-<span class="st"> </span><span class="kw">rep</span>(<span class="st">&quot;gray80&quot;</span>, <span class="kw">ecount</span>(net))</span>
+<span id="cb54-56"><a href="inter-omics.html#cb54-56"></a>vcol &lt;-<span class="st"> </span><span class="kw">rep</span>(<span class="st">&quot;grey40&quot;</span>, <span class="kw">vcount</span>(net))</span>
+<span id="cb54-57"><a href="inter-omics.html#cb54-57"></a>vcol[<span class="kw">V</span>(net)<span class="op">$</span>class <span class="op">==</span><span class="st"> &quot;Holophagae&quot;</span>] &lt;-<span class="st"> &quot;#9e0142&quot;</span></span>
+<span id="cb54-58"><a href="inter-omics.html#cb54-58"></a>vcol[<span class="kw">V</span>(net)<span class="op">$</span>class <span class="op">==</span><span class="st"> &quot;Subgroup_15&quot;</span>] &lt;-<span class="st"> &quot;#d53e4f&quot;</span></span>
+<span id="cb54-59"><a href="inter-omics.html#cb54-59"></a>vcol[<span class="kw">V</span>(net)<span class="op">$</span>class <span class="op">==</span><span class="st"> &quot;Subgroup_6&quot;</span>] &lt;-<span class="st"> &quot;#f46d43&quot;</span></span>
+<span id="cb54-60"><a href="inter-omics.html#cb54-60"></a>vcol[<span class="kw">V</span>(net)<span class="op">$</span>class <span class="op">==</span><span class="st"> &quot;Anaerolineae&quot;</span>] &lt;-<span class="st"> &quot;#fdae61&quot;</span></span>
+<span id="cb54-61"><a href="inter-omics.html#cb54-61"></a>vcol[<span class="kw">V</span>(net)<span class="op">$</span>class <span class="op">==</span><span class="st"> &quot;JG30-KF-CM66&quot;</span>] &lt;-<span class="st"> &quot;#fee08b&quot;</span></span>
+<span id="cb54-62"><a href="inter-omics.html#cb54-62"></a>vcol[<span class="kw">V</span>(net)<span class="op">$</span>class <span class="op">==</span><span class="st"> &quot;SAR202_clade&quot;</span>] &lt;-<span class="st"> &quot;#e6f598&quot;</span></span>
+<span id="cb54-63"><a href="inter-omics.html#cb54-63"></a>vcol[<span class="kw">V</span>(net)<span class="op">$</span>class <span class="op">==</span><span class="st"> &quot;TK10&quot;</span>] &lt;-<span class="st"> &quot;#abdda4&quot;</span></span>
+<span id="cb54-64"><a href="inter-omics.html#cb54-64"></a>vcol[<span class="kw">V</span>(net)<span class="op">$</span>class <span class="op">==</span><span class="st"> &quot;BD2-11_terrestrial_group&quot;</span>] &lt;-<span class="st"> &quot;#66c2a5&quot;</span></span>
+<span id="cb54-65"><a href="inter-omics.html#cb54-65"></a>vcol[<span class="kw">V</span>(net)<span class="op">$</span>class <span class="op">==</span><span class="st"> &quot;Alphaproteobacteria&quot;</span>] &lt;-<span class="st"> &quot;#3288bd&quot;</span></span>
+<span id="cb54-66"><a href="inter-omics.html#cb54-66"></a>vcol[<span class="kw">V</span>(net)<span class="op">$</span>class <span class="op">==</span><span class="st"> &quot;JTB23&quot;</span>] &lt;-<span class="st"> &quot;#5e4fa2&quot;</span></span>
+<span id="cb54-67"><a href="inter-omics.html#cb54-67"></a></span>
+<span id="cb54-68"><a href="inter-omics.html#cb54-68"></a>colrs &lt;-<span class="st"> </span><span class="kw">c</span>(<span class="st">&quot;#9e0142&quot;</span>, <span class="st">&quot;#d53e4f&quot;</span>, <span class="st">&quot;#f46d43&quot;</span>, <span class="st">&quot;#fdae61&quot;</span>, <span class="st">&quot;#fee08b&quot;</span>, <span class="st">&quot;#e6f598&quot;</span>, <span class="st">&quot;#abdda4&quot;</span>, </span>
+<span id="cb54-69"><a href="inter-omics.html#cb54-69"></a>    <span class="st">&quot;#66c2a5&quot;</span>, <span class="st">&quot;#3288bd&quot;</span>, <span class="st">&quot;#5e4fa2&quot;</span>)</span>
+<span id="cb54-70"><a href="inter-omics.html#cb54-70"></a><span class="kw">V</span>(net)<span class="op">$</span>color &lt;-<span class="st"> </span>colrs[<span class="kw">V</span>(net)<span class="op">$</span>class]</span>
+<span id="cb54-71"><a href="inter-omics.html#cb54-71"></a></span>
+<span id="cb54-72"><a href="inter-omics.html#cb54-72"></a><span class="co"># PUBLICATION FIGURE</span></span>
+<span id="cb54-73"><a href="inter-omics.html#cb54-73"></a><span class="kw">plot</span>(net, <span class="dt">vertex.color =</span> vcol, <span class="dt">edge.color =</span> ecol, <span class="dt">vertex.size =</span> <span class="kw">V</span>(net)<span class="op">$</span>bar_scale_rel <span class="op">*</span><span class="st"> </span></span>
+<span id="cb54-74"><a href="inter-omics.html#cb54-74"></a><span class="st">    </span><span class="dv">10</span>, <span class="dt">edge.width =</span> <span class="kw">E</span>(net)<span class="op">$</span>value<span class="op">^</span><span class="dv">2</span>, <span class="dt">vertex.label =</span> <span class="ot">NA</span>, <span class="dt">layout =</span> l)</span>
+<span id="cb54-75"><a href="inter-omics.html#cb54-75"></a><span class="co"># legend(x=-2.1, y=0.5, c(&#39;Holophagae (Acidobacteria)&#39;,&#39;Subgroup_15</span></span>
+<span id="cb54-76"><a href="inter-omics.html#cb54-76"></a><span class="co"># (Acidobacteria)&#39;, &#39;Subgroup_6 (Acidobacteria)&#39;, &#39;Anaerolineae (Chloroflexi)&#39;,</span></span>
+<span id="cb54-77"><a href="inter-omics.html#cb54-77"></a><span class="co"># &#39;JG30-KF-CM66 (Chloroflexi)&#39;, &#39;SAR202_clade (Chloroflexi)&#39;, &#39;TK10</span></span>
+<span id="cb54-78"><a href="inter-omics.html#cb54-78"></a><span class="co"># (Chloroflexi)&#39;, &#39;BD2-11_terrestrial_group (Gemmatimonadetes)&#39;,</span></span>
+<span id="cb54-79"><a href="inter-omics.html#cb54-79"></a><span class="co"># &#39;Alphaproteobacteria (Proteobacteria)&#39;, &#39;JTB23 (Proteobacteria)&#39;), pt.bg=colrs,</span></span>
+<span id="cb54-80"><a href="inter-omics.html#cb54-80"></a><span class="co"># pch=21,col=&#39;#777777&#39;, pt.cex=2, cex=.8, bty=&#39;n&#39;, ncol=1)</span></span>
+<span id="cb54-81"><a href="inter-omics.html#cb54-81"></a><span class="kw">legend</span>(<span class="dt">x =</span> <span class="fl">-2.9</span>, <span class="dt">y =</span> <span class="fl">0.5</span>, <span class="kw">c</span>(<span class="st">&quot;Holophagae (Acidobacteria)&quot;</span>, <span class="st">&quot;Subgroup_15 (Acidobacteria)&quot;</span>, </span>
+<span id="cb54-82"><a href="inter-omics.html#cb54-82"></a>    <span class="st">&quot;Subgroup_6 (Acidobacteria)&quot;</span>, <span class="st">&quot;Anaerolineae (Chloroflexi)&quot;</span>, <span class="st">&quot;JG30-KF-CM66 (Chloroflexi)&quot;</span>, </span>
+<span id="cb54-83"><a href="inter-omics.html#cb54-83"></a>    <span class="st">&quot;SAR202_clade (Chloroflexi)&quot;</span>, <span class="st">&quot;TK10 (Chloroflexi)&quot;</span>, <span class="st">&quot;BD2-11_terrestrial_group (Gemmatimonadetes)&quot;</span>, </span>
+<span id="cb54-84"><a href="inter-omics.html#cb54-84"></a>    <span class="st">&quot;Alphaproteobacteria (Proteobacteria)&quot;</span>, <span class="st">&quot;JTB23 (Proteobacteria)&quot;</span>), <span class="dt">pt.bg =</span> colrs, </span>
+<span id="cb54-85"><a href="inter-omics.html#cb54-85"></a>    <span class="dt">pch =</span> <span class="dv">21</span>, <span class="dt">col =</span> <span class="st">&quot;#777777&quot;</span>, <span class="dt">pt.cex =</span> <span class="fl">1.5</span>, <span class="dt">cex =</span> <span class="fl">0.7</span>, <span class="dt">bty =</span> <span class="st">&quot;n&quot;</span>, <span class="dt">ncol =</span> <span class="dv">1</span>)</span>
+<span id="cb54-86"><a href="inter-omics.html#cb54-86"></a></span>
+<span id="cb54-87"><a href="inter-omics.html#cb54-87"></a><span class="co"># Labels, personal use</span></span>
+<span id="cb54-88"><a href="inter-omics.html#cb54-88"></a><span class="kw">plot</span>(net, <span class="dt">vertex.color =</span> vcol, <span class="dt">edge.color =</span> ecol, <span class="dt">vertex.size =</span> <span class="kw">V</span>(net)<span class="op">$</span>bar_scale_rel <span class="op">*</span><span class="st"> </span></span>
+<span id="cb54-89"><a href="inter-omics.html#cb54-89"></a><span class="st">    </span><span class="dv">10</span>, <span class="dt">edge.width =</span> <span class="kw">E</span>(net)<span class="op">$</span>value<span class="op">^</span><span class="dv">2</span>, <span class="dt">vertex.label =</span> <span class="kw">V</span>(net)<span class="op">$</span>labels, <span class="dt">layout =</span> l)</span>
+<span id="cb54-90"><a href="inter-omics.html#cb54-90"></a><span class="co"># legend(x=-2.1, y=0.5, c(&#39;Holophagae (Acidobacteria)&#39;,&#39;Subgroup_15</span></span>
+<span id="cb54-91"><a href="inter-omics.html#cb54-91"></a><span class="co"># (Acidobacteria)&#39;, &#39;Subgroup_6 (Acidobacteria)&#39;, &#39;Anaerolineae (Chloroflexi)&#39;,</span></span>
+<span id="cb54-92"><a href="inter-omics.html#cb54-92"></a><span class="co"># &#39;JG30-KF-CM66 (Chloroflexi)&#39;, &#39;SAR202_clade (Chloroflexi)&#39;, &#39;TK10</span></span>
+<span id="cb54-93"><a href="inter-omics.html#cb54-93"></a><span class="co"># (Chloroflexi)&#39;, &#39;BD2-11_terrestrial_group (Gemmatimonadetes)&#39;,</span></span>
+<span id="cb54-94"><a href="inter-omics.html#cb54-94"></a><span class="co"># &#39;Alphaproteobacteria (Proteobacteria)&#39;, &#39;JTB23 (Proteobacteria)&#39;), pt.bg=colrs,</span></span>
+<span id="cb54-95"><a href="inter-omics.html#cb54-95"></a><span class="co"># pch=21,col=&#39;#777777&#39;, pt.cex=2, cex=.8, bty=&#39;n&#39;, ncol=1)</span></span>
+<span id="cb54-96"><a href="inter-omics.html#cb54-96"></a><span class="kw">legend</span>(<span class="dt">x =</span> <span class="fl">-2.9</span>, <span class="dt">y =</span> <span class="fl">0.5</span>, <span class="kw">c</span>(<span class="st">&quot;Holophagae (Acidobacteria)&quot;</span>, <span class="st">&quot;Subgroup_15 (Acidobacteria)&quot;</span>, </span>
+<span id="cb54-97"><a href="inter-omics.html#cb54-97"></a>    <span class="st">&quot;Subgroup_6 (Acidobacteria)&quot;</span>, <span class="st">&quot;Anaerolineae (Chloroflexi)&quot;</span>, <span class="st">&quot;JG30-KF-CM66 (Chloroflexi)&quot;</span>, </span>
+<span id="cb54-98"><a href="inter-omics.html#cb54-98"></a>    <span class="st">&quot;SAR202_clade (Chloroflexi)&quot;</span>, <span class="st">&quot;TK10 (Chloroflexi)&quot;</span>, <span class="st">&quot;BD2-11_terrestrial_group (Gemmatimonadetes)&quot;</span>, </span>
+<span id="cb54-99"><a href="inter-omics.html#cb54-99"></a>    <span class="st">&quot;Alphaproteobacteria (Proteobacteria)&quot;</span>, <span class="st">&quot;JTB23 (Proteobacteria)&quot;</span>), <span class="dt">pt.bg =</span> colrs, </span>
+<span id="cb54-100"><a href="inter-omics.html#cb54-100"></a>    <span class="dt">pch =</span> <span class="dv">21</span>, <span class="dt">col =</span> <span class="st">&quot;#777777&quot;</span>, <span class="dt">pt.cex =</span> <span class="fl">1.5</span>, <span class="dt">cex =</span> <span class="fl">0.7</span>, <span class="dt">bty =</span> <span class="st">&quot;n&quot;</span>, <span class="dt">ncol =</span> <span class="dv">1</span>)</span>
+<span id="cb54-101"><a href="inter-omics.html#cb54-101"></a></span>
+<span id="cb54-102"><a href="inter-omics.html#cb54-102"></a></span>
+<span id="cb54-103"><a href="inter-omics.html#cb54-103"></a><span class="co"># VIPs</span></span>
+<span id="cb54-104"><a href="inter-omics.html#cb54-104"></a>l &lt;-<span class="st"> </span><span class="kw">layout_with_kk</span>(net)</span>
+<span id="cb54-105"><a href="inter-omics.html#cb54-105"></a><span class="kw">plot</span>(net, <span class="dt">edge.arrow.size =</span> <span class="fl">0.2</span>, <span class="dt">edge.color =</span> <span class="st">&quot;grey&quot;</span>, <span class="dt">vertex.color =</span> <span class="st">&quot;orange&quot;</span>, <span class="dt">vertex.frame.color =</span> <span class="st">&quot;#ffffff&quot;</span>, </span>
+<span id="cb54-106"><a href="inter-omics.html#cb54-106"></a>    <span class="dt">vertex.label =</span> <span class="ot">NA</span>, <span class="dt">vertex.label.color =</span> <span class="st">&quot;black&quot;</span>, <span class="dt">vertex.size =</span> <span class="kw">V</span>(net)<span class="op">$</span>vip_scale_rel <span class="op">*</span><span class="st"> </span></span>
+<span id="cb54-107"><a href="inter-omics.html#cb54-107"></a><span class="st">        </span><span class="dv">5</span>, <span class="dt">layout =</span> l)</span></code></pre></div>
 </div>
 </div>
 </div>
 <div id="shortlist" class="section level2">
-<h2><span class="header-section-number">4.3</span> Shortlist</h2>
+<h2><span class="header-section-number">4.4</span> Shortlist</h2>
 <p>We believe the producer of barettin (and related compounds) to have the following properties:</p>
 <ul>
 <li>common (average relative abundance &gt; 0.25%)</li>
 <li>specific to <em>G. barretti</em></li>
 <li>positively correlated with barettin</li>
 </ul>
-<div class="sourceCode" id="cb48"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb48-1"><a href="inter-omics.html#cb48-1"></a><span class="kw">head</span>(rabdc_gb)</span>
-<span id="cb48-2"><a href="inter-omics.html#cb48-2"></a><span class="kw">head</span>(rabdc_sf)</span>
-<span id="cb48-3"><a href="inter-omics.html#cb48-3"></a><span class="kw">setdiff</span>(<span class="kw">rownames</span>(rabdc_gb), <span class="kw">rownames</span>(rabdc_sf))  <span class="co">#Setdiff finds rows that appear in first table but not in second</span></span>
-<span id="cb48-4"><a href="inter-omics.html#cb48-4"></a>gb_unique &lt;-<span class="st"> </span><span class="kw">data.frame</span>(<span class="kw">setdiff</span>(<span class="kw">rownames</span>(rabdc_gb), <span class="kw">rownames</span>(rabdc_sf)))</span>
-<span id="cb48-5"><a href="inter-omics.html#cb48-5"></a><span class="kw">colnames</span>(gb_unique) &lt;-<span class="st"> </span><span class="kw">c</span>(<span class="st">&quot;XOTU&quot;</span>)</span></code></pre></div>
-<div class="sourceCode" id="cb49"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb49-1"><a href="inter-omics.html#cb49-1"></a><span class="kw">sessionInfo</span>()</span></code></pre></div>
+<div class="sourceCode" id="cb55"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb55-1"><a href="inter-omics.html#cb55-1"></a><span class="kw">head</span>(rabdc_gb)</span>
+<span id="cb55-2"><a href="inter-omics.html#cb55-2"></a><span class="kw">head</span>(rabdc_sf)</span>
+<span id="cb55-3"><a href="inter-omics.html#cb55-3"></a><span class="kw">setdiff</span>(<span class="kw">rownames</span>(rabdc_gb), <span class="kw">rownames</span>(rabdc_sf))  <span class="co">#Setdiff finds rows that appear in first table but not in second</span></span>
+<span id="cb55-4"><a href="inter-omics.html#cb55-4"></a>gb_unique &lt;-<span class="st"> </span><span class="kw">data.frame</span>(<span class="kw">setdiff</span>(<span class="kw">rownames</span>(rabdc_gb), <span class="kw">rownames</span>(rabdc_sf)))</span>
+<span id="cb55-5"><a href="inter-omics.html#cb55-5"></a><span class="kw">colnames</span>(gb_unique) &lt;-<span class="st"> </span><span class="kw">c</span>(<span class="st">&quot;XOTU&quot;</span>)</span></code></pre></div>
+<div class="sourceCode" id="cb56"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb56-1"><a href="inter-omics.html#cb56-1"></a><span class="kw">sessionInfo</span>()</span></code></pre></div>
 <pre><code>## R version 3.5.1 (2018-07-02)
 ## Platform: x86_64-apple-darwin15.6.0 (64-bit)
-## Running under: macOS  10.15.4
+## Running under: macOS  10.15.5
 ## 
 ## Matrix products: default
 ## BLAS: /Library/Frameworks/R.framework/Versions/3.5/Resources/lib/libRblas.0.dylib

@@ -2443,4 +2443,110 @@ sf_sis_tax <- left_join(OTU_num_sf, taxonomy)
 sf_sis_tax
 ```
 
+## Annotated phylogeny
+
+To combinethe different categories and classifications with the OTUs, we annotated a maximum likelihood phylogeny with the depth response, SpongeEMP enrichment and barettin correlation. The tree can also be accessed at [iTol](https://itol.embl.de/shared_projects.cgi) under iTOL login karin_steffen.
+
+```{r phylogeny-annotation, echo=T, eval=F}
+# $ grep ">" gb_420_mafft.fasta | cut -d ' ' -f 1 | sed 's/>//g' > gb_420_mafft_OTU.csv
+leaves <- read.csv("data/gb_420_mafft_OTU.csv", header=F, sep=",")
+#leaves$V1[leaves$V1==4] <- c("004")
+#leaves$V1[leaves$V1==97] <- c("097")
+leaves["labels"] <- paste0("OTU", leaves$V1)
+#Labels
+#write.csv(leaves, "data/leave_labels.csv", row.names = F) # Then open in text editor and select the apropriate separator, i.e. 'SEPARATOR COMMA' followed by 'DATA'
+
+# Color range
+
+taxonomy <- read.csv("data/microbiome_taxonomy.csv", header = T, sep = ";")
+taxonomy[] <- lapply(taxonomy, str_trim)
+taxonomy["labels"] <- str_replace(taxonomy$OTU_ID, "196900", "OTU")
+taxonomy$Phylum[taxonomy$Phylum==""] <- c("unclassified")
+leaves <- left_join(leaves, taxonomy)
+unique(leaves$Phylum)
+phyla_cols <- read.csv("data/phyla-hex-colour.csv", header=T, sep=";")
+phyla_cols[] <- lapply(phyla_cols, str_trim)
+leaves <- left_join(leaves, phyla_cols)
+leaves <- leaves[,c("V1", "hex")]
+leaves["label"] <- c("label")
+leaves <- leaves[,c(1,3,2)]
+head(leaves)
+#Label color
+#write.csv(leaves, "data/leave_label-color.csv", row.names = F) # Then open in text editor and select the apropriate separator, i.e. 'SEPARATOR COMMA' followed by 'DATA'
+
+# Lines for sister OTUs/ecotypes
+gb_sis <- read.csv("data/gb_similarity.csv", header = T, sep=",")
+gb_sis$Var1 <- c(str_replace(gb_sis$Var1, "196900", ""))
+gb_sis$Var2 <- c(str_replace(gb_sis$Var2, "196900", ""))
+
+# For binary
+
+# depth
+gb_bin <- read.csv("data/gb_OTUs_overall_rabdc_annotated.csv", header=T, sep=",")
+head(gb_bin)
+colnames(gb_bin)
+
+gb_bin["ttest.fdr"] <- c(-1)
+gb_bin$ttest.fdr[gb_bin$ttest_fdr<0.05 & gb_bin$shallow_mean>gb_bin$deep_mean] <- c(1) # shallow
+gb_bin$ttest.fdr[gb_bin$ttest_fdr<0.05 & gb_bin$shallow_mean<gb_bin$deep_mean] <- c(0) # deep
+
+gb_bin["cortest.p"] <- c(-1)
+gb_bin$cortest.p[gb_bin$classification=="decreasing"] <- c(1) # shallow
+gb_bin$cortest.p[gb_bin$classification=="increasing"] <- c(0) # deep
+
+gb_bin <- gb_bin[,c("XOTU","ttest.fdr", "cortest.p")]
+gb_bin["OTU"] <- str_replace(gb_bin$XOTU, "X196900", "")
+
+# emp
+emp <- read.csv("data/SpongeEMP.csv", header=T, sep=";")
+emp["OTU"] <- str_replace(emp$OTU_ID, "OTU", "")
+emp["emp"] <- -1
+emp$emp[emp$spongeEMP_enriched=="yes"] <- 1
+emp$emp[emp$spongeEMP_enriched=="no"] <- 0
+emp <- emp[emp$sponge=="Gb",]
+emp[, c("OTU_ID", "spongeEMP_enriched", "sponge")] <- list(NULL)
+
+str(emp)
+str(gb_bin)
+dim(emp)
+dim(gb_bin)
+
+gb_bin <- left_join(gb_bin, emp)
+emp$OTU
+gb_bin$XOTU <- NULL
+gb_bin <- gb_bin[,c(3,1,2,4)]
+
+# barettin correlation
+bar_cor <- read.csv("data/GB_OTU_barettin_correlation.csv", head=T, sep=",")
+# negative, and not significant correlations need to be removed
+# Summary
+# Pearson pmcc > 0 &
+#    p < 0.05   56
+#    fdr < 0.05 22
+# Spearman rho > 0 &
+#    p < 0.05   42
+#    fdr < 0.05  1
+
+#bar_cor %>%
+#  filter(barettin_estimate_P>0) %>%
+#  filter(barettin_p_val_P<0.05)
+
+bar_cor["OTU"] <- str_replace(bar_cor$XOTU, "X196900", "")
+bar_cor["bar_cat"] <- -1
+bar_cor$bar_cat[bar_cor$barettin_estimate_P<0] <- 0
+bar_cor$bar_cat[bar_cor$barettin_estimate_P>0 & bar_cor$barettin_p_val_P>0.05] <- 0
+bar_cor$bar_cat[bar_cor$barettin_estimate_P>0 & bar_cor$barettin_p_val_P<0.05] <- 1
+bar_cor <- bar_cor[,c("OTU", "bar_cat")]
+
+gb_bin <- left_join(gb_bin, bar_cor)
+head(gb_bin)
+
+
+
+#write.csv(gb_bin, "data/leaf_bin.csv", row.names = F)
+```
+
+```{r tree, fig.cap="Annotated ML phylogeny."}
+knitr::include_graphics("data/annotated_tree.png")
+```
 
