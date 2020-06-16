@@ -373,6 +373,7 @@ summary(a$Group.3)
 Out of the `r dim(diagnostics)[1]` tests performed, `r dim(diagnostics[diagnostics$signif<=0.05,])[1]` are significant (_p_ $\leq$ 0.05). Immediately above you can see the the significant tests broken down by sponge species, HPCL-experiment and filtering approach.
 
 ## Correlating barettin and prokaryotic relative abundance
+
 ```{r barettin-correlation, echo=TRUE, eval=TRUE, fig.asp=0.4}
 cmp <- read.csv("data/metabolite_master_20190605.csv", header=T, sep=",")
 cmp$X <- NULL
@@ -492,6 +493,21 @@ hist(barettin_cor$barettin_estimate_S, main="Spearman's rho: \n OTU rel abdc ~ b
 hist(barettin_cor$barettin_p_val_S, breaks=20, main="Spearman's rho p-value", xlab="p-value")
 hist(barettin_cor$barettin_fdr_S, breaks=20, main="Spearman's rho \n fdr corrected p-value", xlab="FDR corrected p-value")
 par(mfrow=c(1,1))
+
+# For Sf, for shortlist
+cmp <- read.csv("data/metabolite_master_20190605.csv", header=T, sep=",")
+cmp$X <- NULL
+rabdc <- lapply(micro_ds, overall_rabdc)
+common_samples <- intersect(colnames(rabdc$sf), cmp$unified_ID)
+rabdc <- rabdc$sf[,colnames(rabdc$sf) %in% common_samples]
+rabdc <- data.frame(t(rabdc))
+
+cmp <- cmp[cmp$unified_ID %in% common_samples,]
+cmp[] <- lapply(cmp, function(x) if(is.factor(x)) factor(x) else x)
+cmp <- cmp[order((cmp$unified_ID)),]
+all(rownames(rabdc)==cmp$unified_ID)
+barettin_cor <- bar_cor(rabdc, cmp)
+#write.csv(barettin_cor, "data/SF_OTU_barettin_correlation.csv", row.names = F)
 ```
 
 
@@ -903,9 +919,9 @@ write.csv(edges, "data/master_summary_networks_2.csv", row.names = F)
 
 ```
 
-We selected all edges with at least 4 p-values $\leq$ 0.05 to visualise in the network. This c network has `r dim(edges)[1]` edges and `r length(nodes)` nodes.
+We selected all edges with at least 4 p-values $\leq$ 0.05 to visualise in the network. This consensus network has `r dim(edges)[1]` edges and `r length(nodes)` nodes. Below are two versions of the network. In the first version, all OTUs correlating with barettin are colour-coded by class. In the second version, all OTUs increasing/decreasing woth depth are highlighted by colour.
 
-```{r igraph1}
+```{r igraph, fig.cap="Micrbial interaction networks highlighting OTUs correlating with barettin and OTUs correlating with depth."}
 #THANK YOU: https://kateto.net/networks-r-igraph
 
 edges <- read.csv("data/master_summary_networks_2.csv", header = T, sep = ",")
@@ -980,7 +996,6 @@ V(net)$color <- colrs[V(net)$class]
 plot(net, vertex.color=vcol, edge.color=ecol, vertex.size=V(net)$barettin_c*10, vertex.label=NA, layout=l) 
 legend(x=1, y=0.5, c("Subgroup_26 (Acidobacteria)","Subgroup_15 (Acidobacteria)", "Subgroup_6 (Acidobacteria)", "Anaerolineae (Chloroflexi)", "JG30-KF-CM66 (Chloroflexi)", "SAR202_clade (Chloroflexi)", "TK10 (Chloroflexi)", "BD2-11_terrestrial_group (Gemmatimonadetes)", "Alphaproteobacteria (Proteobacteria)", "JTB23 (Proteobacteria)", "Acidimicrobiia (Actinobacteria)"), pt.bg=colrs, pch=21,col="#777777", pt.cex=1.5, cex=.7, bty="n", ncol=1)
 
-
 # Depth by correlation
 ecol <- rep("gray80", ecount(net))
 vcol <- rep("grey40", vcount(net))
@@ -1002,15 +1017,134 @@ We believe the producer of barettin (and related compounds) to have the followin
  - specific to _G. barretti_
  - positively correlated with barettin
 
-```{r shortlist, eval=F}
+the OTUs below fulfill these criteria:
+```{r shortlist}
 
-head(rabdc_gb)
-head(rabdc_sf)
-setdiff(rownames(rabdc_gb), rownames(rabdc_sf)) #Setdiff finds rows that appear in first table but not in second
-gb_unique <- data.frame(setdiff(rownames(rabdc_gb), rownames(rabdc_sf)))
+#most annotation from NW
+micro <- read.csv("data/OTU_all_R.csv", header = T, sep = ";")
+
+OTU_prep_sqrt <- function(micro){
+  rownames(micro) <- micro$Sample_ID
+  micro$Sample_ID <- NULL
+  #micro <- sqrt(micro)
+  
+  micro_gb <- micro[(str_sub(rownames(micro), 1,2)=="Gb"),]
+  micro_sf <- micro[(str_sub(rownames(micro), 1,2)=="Sf"),]
+  micro_wb <- micro[(str_sub(rownames(micro), 1,2)=="Wb"),]
+  
+  micro_gb <- micro_gb[,colSums(micro_gb!=0)>0] #removes columns that only contain 0
+  micro_sf <- micro_sf[,colSums(micro_sf!=0)>0]
+  micro_wb <- micro_wb[,colSums(micro_wb!=0)>0]
+  micros <- list(gb=micro_gb, sf=micro_sf, wb=micro_wb)
+  return(micros)  
+}
+
+micro_ds <- OTU_prep_sqrt(micro)
+
+overall_rabdc <- function(micro){
+  mic <- micro
+  n <- 0
+  k <- dim(mic)[1]
+  mic["rowsum"] <- apply(mic, 1, sum)
+  
+  while (n<k) {
+    n <- n+1
+    mic[n,] <- mic[n,]/(mic$rowsum[n])
+  }
+  
+  mic$rowsum <- NULL
+  mic <- data.frame(t(mic))
+  mic["avg_rel_abdc"] <- apply(mic, 1, mean)
+  mic["occurrence"] <- ifelse(mic$avg>0.0025, "common", "rare")
+  return(mic)
+}
+
+occurrence <- lapply(micro_ds, overall_rabdc)
+
+depth <- read.csv("data/gb_OTUs_overall_rabdc_annotated.csv", header=T, sep=",")
+taxonomy <- read.csv("data/microbiome_taxonomy.csv", header = T, sep = ";")
+barettin <- read.csv("data/GB_OTU_barettin_correlation.csv", header = T, sep = ",")
+
+# matching IDs
+nodes["OTU"] <- str_replace(nodes$OTU_long, "OTU196900", "")
+depth["OTU"] <- str_replace(depth$XOTU, "X196900", "")
+taxonomy["OTU"] <- str_replace(taxonomy$OTU_ID, "196900", "")
+barettin["OTU"] <- str_replace(barettin$XOTU, "X196900", "")
+occurrence$gb["OTU"] <- str_replace(rownames(occurrence$gb), "X196900", "")
+
+# downsizing to relevant columns
+#nodes$OTU_long <- NULL
+depth <- depth[,c("ttest_pval", "ttest_fdr", "inc_dec_estimate", "inc_dec_p_val", "fdr", "classification", "OTU")]
+colnames(depth) <- c("ttest_pval", "ttest_fdr", "inc_dec_estimate", "inc_dec_p_val", "inc_dec_fdr", "inc_dec_classification", "OTU")
+barettin$XOTU <- NULL
+taxonomy[] <- lapply(taxonomy, str_trim)
+
+# combining dfs
+shortlist_gb <- left_join(occurrence$gb, depth)
+shortlist_gb <- left_join(shortlist_gb, barettin)
+shortlist_gb <- left_join(shortlist_gb, taxonomy)
+
+# Exclude Sf OTUs
+#intersect(colnames(micro_ds$gb), colnames(micro_ds$sf)) # shared OTUs
+#length(intersect(colnames(micro_ds$gb), colnames(micro_ds$sf))) # 316
+
+setdiff(colnames(micro_ds$gb), colnames(micro_ds$sf)) # Setdiff finds rows that appear in first table but not in second
+length(setdiff(colnames(micro_ds$gb), colnames(micro_ds$sf))) # 104:ok!
+gb_unique <- data.frame(setdiff(colnames(micro_ds$gb), colnames(micro_ds$sf)))
 colnames(gb_unique) <- c("XOTU")
+gb_unique["OTU"] <- str_replace(gb_unique$XOTU, "X196900", "")
 
+gb_unique <- left_join(gb_unique, shortlist_gb)
 
+gb_unique <- gb_unique %>%
+  filter(occurrence=="common")%>%
+  filter(barettin_estimate_P>0 & barettin_p_val_P<0.05)
+
+# Recovery of those OTUs that also correlate with barettin in S. fortis
+sf_shared <- data.frame(intersect(colnames(micro_ds$gb), colnames(micro_ds$sf)))
+colnames(sf_shared) <- c("XOTU")
+sf_barretin <- read.csv("data/SF_OTU_barettin_correlation.csv", header=T, sep=",")
+
+sf_shared <- left_join(sf_shared, sf_barretin)
+
+# Sf
+# Pearson
+#  p<0.05     24
+#  pFDR>0.05   8
+# Spearman
+#  p<0.05     14
+#  pFDR>0.05   0
+
+sf_shared <- sf_shared %>%
+  filter(barettin_estimate_P>0)  %>%
+  filter(barettin_p_val_P<0.05)  
+
+sf_shared["OTU"] <- str_replace(sf_shared$XOTU,"X196900", "")
+shared_recovered <- shortlist_gb[shortlist_gb$OTU %in% sf_shared$OTU,]
+
+# check again for the criteria in the new df
+shared_recovered <- shared_recovered  %>%
+  filter(occurrence=="common")%>%
+  filter(barettin_estimate_P>0 & barettin_p_val_P<0.05)
+
+# combine the two data sets: gb_unique and shared_recovered
+
+gb_unique["group"] <- c("gb_unique")
+shared_recovered["group"] <- c("sf_shared")
+
+gb_unique <- gb_unique[,c("OTU", "group", "Kingdom", "Phylum", "Class")]
+shared_recovered <- shared_recovered[,c("OTU", "group", "Kingdom", "Phylum", "Class")]
+
+shortlist <- rbind(gb_unique, shared_recovered)
+
+options(kableExtra.html.bsTable = T)
+kable(shortlist, 
+      col.names = c("OTU","group", "Kingdom", "Phylum", "Class"), 
+      longtable = T, booktabs = T, 
+      caption = "Shortlist of OTUs that were deemed candidate producers of barettin.", 
+      row.names=FALSE) %>%
+  add_header_above(c(" " = 2, "Taxonomy" = 3)) %>%
+  kable_styling(bootstrap_options = c("striped","hover", "bordered", "condensed", "responsive"), full_width = F,latex_options = c("striped", "scale_down"))
 
 ```
 
