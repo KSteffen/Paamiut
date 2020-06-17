@@ -489,6 +489,93 @@ ggplot(df, aes(fill=filter, x=acquisition, y=value))+
 
 After preliminary analyses of metabolomics data, a few outliers were re-identified by P. Cárdenas, and one specimen was removed from the data set as it originated from another species.
 
+## Chromatorgrams
+
+In _G. barretti_ barettin and 8,9-dihydrobarettin are major compounds with distinct peaks in the chromatogram. We wanted to see whether _S. fortis_ and _W. bursa_ also had major compounds and whether differences in sample depth would be directly reflected in the chromatograms.
+
+```{r chromatorgrams-1}
+gb_chrom <- read.csv("data/Gb_all_chromatograms.csv", header=T, sep=";")
+# differences in RT negligible/insignificant between the different chromatograms/samples
+
+gb_chrom[, c("Gb10_RT", "Gb12_RT","Gb13_RT", "Gb14_RT", "Gb15_RT", "Gb16_RT", "Gb17_RT", "Gb18_RT", "Gb19_RT", "Gb2_RT", "Gb20_RT", "Gb21_RT", "Gb3_RT", "Gb7_RT", "Gb8_RT", "Gb9_RT")]<- list(NULL)
+colnames(gb_chrom)[colnames(gb_chrom) == "Gb1_RT"] <- "RT"
+gb_chrom <- gb_chrom[gb_chrom$RT<=12,] # removing tail w/o any signal, run ended at 12 min
+
+#ugly but works
+p_gb_chrom <- ggplot(gb_chrom, aes(x=RT, y=Gb1))+geom_line()+
+theme_classic()+
+geom_rect(data=NULL,aes(xmin=6.3,xmax=6.5,ymin=-Inf,ymax=Inf),fill="lightgreen", alpha=0.5)+
+geom_rect(data=NULL,aes(xmin=6.95,xmax=7.15,ymin=-Inf,ymax=Inf),fill="lightblue", alpha=0.5)+
+geom_line(aes(x=RT, y=Gb2))+
+geom_line(aes(x=RT, y=Gb3))+
+geom_line(aes(x=RT, y=Gb7))+
+geom_line(aes(x=RT, y=Gb8))+
+geom_line(aes(x=RT, y=Gb9))+
+geom_line(aes(x=RT, y=Gb10))+
+geom_line(aes(x=RT, y=Gb15))+
+geom_line(aes(x=RT, y=Gb16))+
+geom_line(aes(x=RT, y=Gb17))+
+geom_line(aes(x=RT, y=Gb19))+
+geom_line(aes(x=RT, y=Gb21))+
+geom_line(aes(x=RT, y=Gb12, color="red", alpha=0.5))+
+geom_line(aes(x=RT, y=Gb13, color="red", alpha=0.5))+
+geom_line(aes(x=RT, y=Gb14, color="red", alpha=0.5))+
+geom_line(aes(x=RT, y=Gb18, color="red", alpha=0.5))+
+geom_line(aes(x=RT, y=Gb20, color="red", alpha=0.5))+
+xlab("RT")+ylab("Signal intensity")+ggtitle("Overlay chromatograms from G. barretti HILIC positive")+theme(legend.position = "none")
+
+sf_chrom <- read.csv("data/Sf_all_chromatograms.csv", header=T, sep=";")
+sf_chrom[, c("Sf10_RT", "Sf11_RT","Sf12_RT","Sf13_RT","Sf14_RT","Sf15_RT","Sf2_RT","Sf3_RT","Sf4_RT","Sf5_RT","Sf6_RT","Sf7_RT")]<- list(NULL)
+colnames(sf_chrom)[colnames(sf_chrom) == "Sf1_RT"] <- "RT"
+sf_chrom <- sf_chrom[sf_chrom$RT<=12,]
+
+
+p_sf_chrom <- ggplot(sf_chrom, aes(x=RT, y=Sf1))+geom_line()+
+geom_line(aes(x=RT, y=Sf2))+
+geom_line(aes(x=RT, y=Sf3))+
+geom_line(aes(x=RT, y=Sf4))+
+geom_line(aes(x=RT, y=Sf5))+
+geom_line(aes(x=RT, y=Sf6))+
+geom_line(aes(x=RT, y=Sf7))+
+geom_line(aes(x=RT, y=Sf10, color="red", alpha=0.5))+
+geom_line(aes(x=RT, y=Sf11, color="red", alpha=0.5))+
+geom_line(aes(x=RT, y=Sf12, color="red", alpha=0.5))+
+geom_line(aes(x=RT, y=Sf13, color="red", alpha=0.5))+
+geom_line(aes(x=RT, y=Sf14, color="red", alpha=0.5))+
+geom_line(aes(x=RT, y=Sf15, color="red", alpha=0.5))+
+xlab("RT")+ylab("Signal intensity")+ggtitle("Overlay chromatograms from S. fortis HILIC positive")+
+theme_classic()+theme(legend.position = "none")
+
+wb_chrom <- read.csv("data/Wb_all_chromatograms.csv", header=T, sep=";")
+wb_chrom[, c("Wb10_RT","Wb11_RT","Wb12_RT","Wb13_RT","Wb14_RT","Wb15_RT","Wb16_RT", "Wb17_RT","Wb2_RT","Wb3_RT","Wb4_RT","Wb5_RT","Wb6_RT","Wb7_RT","Wb8_RT")]<- list(NULL)
+colnames(wb_chrom)[colnames(wb_chrom) == "Wb1_RT"] <- "RT"
+wb_chrom <- wb_chrom[wb_chrom$RT<=12,]
+
+p_wb_chrom <- ggplot(wb_chrom, aes(x=RT, y=Wb1))+geom_line()+
+geom_line(aes(x=RT, y=Wb2))+
+geom_line(aes(x=RT, y=Wb3))+
+geom_line(aes(x=RT, y=Wb4))+
+geom_line(aes(x=RT, y=Wb5))+
+geom_line(aes(x=RT, y=Wb6))+
+geom_line(aes(x=RT, y=Wb7))+
+geom_line(aes(x=RT, y=Wb8))+
+geom_line(aes(x=RT, y=Wb10))+
+geom_line(aes(x=RT, y=Wb11))+
+geom_line(aes(x=RT, y=Wb12))+
+geom_line(aes(x=RT, y=Wb13, color="red", alpha=0.5))+
+geom_line(aes(x=RT, y=Wb14, color="red", alpha=0.5))+
+geom_line(aes(x=RT, y=Wb15, color="red", alpha=0.5))+
+geom_line(aes(x=RT, y=Wb16, color="red", alpha=0.5))+
+geom_line(aes(x=RT, y=Wb17, color="red", alpha=0.5))+
+xlab("RT")+ylab("Signal intensity")+ggtitle("Overlay chromatograms from W. bursa HILIC positive")+
+theme_classic()+theme(legend.position = "none")
+
+library(gridExtra)
+grid.arrange(p_gb_chrom, p_sf_chrom, p_wb_chrom, nrow=3)
+rm(p_gb_chrom, p_sf_chrom, p_wb_chrom, gb_chrom, sf_chrom, wb_chrom)
+```
+
+
 ## Multivariate analyses
 
 We start by visualising all metabolomes with a PCA and a PERMANOVA to get a first impression of our data.
@@ -877,11 +964,10 @@ ggMarginal(k, groupColour = TRUE, groupFill = TRUE)
 From the multivariate model (OPLS) you can derive a vaiable importance in projection (VIF) score for every feature in this model. This is a approximation (but not a statistics test!) of features that support the model.
 A feature with a VIP score $\geq$ 1 is considered important and the higher the score, the greater the contribution to the model.
 
-??? add some code and a table. Or add to previous chunks and RUN OVER NIGHT.
-
-## Manual annotation, identification and extraction of metabolic feature signals
+## Metabolites and correlations
 
 A manually curated data set of signal intensities was produced for analysis of identified known and novel compounds.
+
 ```{r compounds1}
 library(ggplot2)
 library(ggrepel)
@@ -891,7 +977,7 @@ library(forcats)
 
 cmp <- read.csv("data/metabolite_master_20190605.csv", header=T, sep=",")
 meta_data <- read.csv("data/Steffen_et_al_metadata_PANGAEA.csv", header = T, sep = ";")   
-md <- md[c("Depth", "unified_ID")]
+md <- meta_data[c("Depth", "unified_ID")]
 
 # FUN prep: remove, QC samples format depth and IDs
 prep <- function(metabolites, md){
@@ -925,98 +1011,187 @@ mets$Species[mets$spec=="Wb"] <- c("Weberella bursa")
 all <- ggplot(mets, aes(x=Depth, y=value))+geom_point()+facet_grid(variable~Species, labeller = labeller(variable=label_wrap_gen(10, multi_line = TRUE)), scales="free")
 all <- all+ggtitle("VIPs")+ylab("signal")+xlab("Depth")+theme_bw()+theme(strip.text.x = element_text(face = "italic"), panel.background = element_rect(fill = "white", colour = "black"), panel.border = element_rect(colour = "black", fill=NA), axis.text.x = element_text(angle = 90, hjust = 1))+scale_y_continuous(labels = scales::scientific)+scale_x_continuous(breaks = scales::pretty_breaks(n = 12))
 all
+
 ```
 
-## Chromatorgrams
+```{r vip-stats}
+cmp <- read.csv("data/metabolite_master_20190605.csv", header=T, sep=",")
+meta_data <- read.csv("data/Steffen_et_al_metadata_PANGAEA.csv", header = T, sep = ";")   
+md <- meta_data[c("Depth", "unified_ID")]
+metabolites <- prep(cmp, md)
+mets <- metabolites[,c("asb","his", "cre", "pch", "crn", "acl", "ser", "mbc", "chol_s", "bet", "choline", "ura", "spec", "Depth")]
 
-In _G. barretti_ barettin and 8,9-dihydrobarettin are major compounds with distinct peaks in the chromatogram. We wanted to see whether _S. fortis_ and _W. bursa_ also had major compounds and whether differences in sample depth would be directly reflected in the chromatograms.
+mets_gb <- mets[mets$spec=="Gb",]
+mets_sf <- mets[mets$spec=="Sf",]
+mets_wb <- mets[mets$spec=="Wb",]
+mets_gb$spec <- NULL
+mets_sf$spec <- NULL
+mets_wb$spec <- NULL
 
-```{r chromatorgrams-1}
-gb_chrom <- read.csv("data/Gb_all_chromatograms.csv", header=T, sep=";")
-# differences in RT negligible/insignificant between the different chromatograms/samples
+mets_gb$ser <- NULL # too many NAs
 
-gb_chrom[, c("Gb10_RT", "Gb12_RT","Gb13_RT", "Gb14_RT", "Gb15_RT", "Gb16_RT", "Gb17_RT", "Gb18_RT", "Gb19_RT", "Gb2_RT", "Gb20_RT", "Gb21_RT", "Gb3_RT", "Gb7_RT", "Gb8_RT", "Gb9_RT")]<- list(NULL)
-colnames(gb_chrom)[colnames(gb_chrom) == "Gb1_RT"] <- "RT"
-gb_chrom <- gb_chrom[gb_chrom$RT<=12,] # removing tail w/o any signal, run ended at 12 min
+metabolite_stats <- function(mets) {
+  # Prepare df for collecting results
+  results <- data.frame(colnames(mets)[-length(colnames(mets))])
+  colnames(results) <- c("metabolite")
+  results[,c("cor_rho", "cor_p.value","cor_fdr", "t.test_stat", "t.test_param", "t.test_p.val", "t.test_fdr")] <- NA
 
-#ugly but works
-p_gb_chrom <- ggplot(gb_chrom, aes(x=RT, y=Gb1))+geom_line()+
-theme_classic()+
-geom_rect(data=NULL,aes(xmin=6.3,xmax=6.5,ymin=-Inf,ymax=Inf),fill="lightgreen", alpha=0.5)+
-geom_rect(data=NULL,aes(xmin=6.95,xmax=7.15,ymin=-Inf,ymax=Inf),fill="lightblue", alpha=0.5)+
-geom_line(aes(x=RT, y=Gb2))+
-geom_line(aes(x=RT, y=Gb3))+
-geom_line(aes(x=RT, y=Gb7))+
-geom_line(aes(x=RT, y=Gb8))+
-geom_line(aes(x=RT, y=Gb9))+
-geom_line(aes(x=RT, y=Gb10))+
-geom_line(aes(x=RT, y=Gb15))+
-geom_line(aes(x=RT, y=Gb16))+
-geom_line(aes(x=RT, y=Gb17))+
-geom_line(aes(x=RT, y=Gb19))+
-geom_line(aes(x=RT, y=Gb21))+
-geom_line(aes(x=RT, y=Gb12, color="red", alpha=0.5))+
-geom_line(aes(x=RT, y=Gb13, color="red", alpha=0.5))+
-geom_line(aes(x=RT, y=Gb14, color="red", alpha=0.5))+
-geom_line(aes(x=RT, y=Gb18, color="red", alpha=0.5))+
-geom_line(aes(x=RT, y=Gb20, color="red", alpha=0.5))+
-xlab("RT")+ylab("Signal intensity")+ggtitle("Overlay chromatograms from G. barretti HILIC positive")+theme(legend.position = "none")
+  n <- 0
+  k <- dim(mets)[2]-1
+  while(n<k){
+    n <- n+1
+    corr <- cor.test(mets[,n], mets$Depth, method = "spearman")
+    results$cor_rho[n] <- corr$estimate
+    results$cor_p.value[n] <- corr$p.value
+    tt <- t.test(mets[,n][mets$Depth<1000], mets[,n][mets$Depth>1000])
+    results$t.test_stat[n] <- tt$statistic
+    results$t.test_param[n] <- tt$parameter
+    results$t.test_p.val[n] <- tt$p.value
+  }
+  cor_fdr <- c(p.adjust(results$cor_p.value, method = "fdr"))
+  #colnames(cor_fdr) <- c("cor_fdr")
+  results$cor_fdr <- cor_fdr
+  t.test_fdr <- c(p.adjust(results$t.test_p.val, method = "fdr"))
+  #colnames(t.test_fdr) <- c("t.test_fdr")
+  results$t.test_fdr <- t.test_fdr
+  
+  return(results)
+}
 
-sf_chrom <- read.csv("data/Sf_all_chromatograms.csv", header=T, sep=";")
-sf_chrom[, c("Sf10_RT", "Sf11_RT","Sf12_RT","Sf13_RT","Sf14_RT","Sf15_RT","Sf2_RT","Sf3_RT","Sf4_RT","Sf5_RT","Sf6_RT","Sf7_RT")]<- list(NULL)
-colnames(sf_chrom)[colnames(sf_chrom) == "Sf1_RT"] <- "RT"
-sf_chrom <- sf_chrom[sf_chrom$RT<=12,]
+gb_met_stats <- metabolite_stats(mets_gb)
+sf_met_stats <- metabolite_stats(mets_sf)
+wb_met_stats <- metabolite_stats(mets_wb)
+
+gb_met_stats["Species"] <- c("Gb")
+sf_met_stats["Species"] <- c("Sf")
+wb_met_stats["Species"] <- c("Wb")
+
+gb_met_stats$metabolite <- c("arsenobetaine", "histamine", "creatine", "phosphocholine", "carnitine", "acetylcholine", "2-methyl-butyroyl-carnitine", "choline sulfate", "betaine", "choline", "uranidine")
+sf_met_stats$metabolite <- c("arsenobetaine", "histamine", "creatine", "phosphocholine", "carnitine", "acetylcholine", "serotonin", "2-methyl-butyroyl-carnitine", "choline sulfate", "betaine", "choline", "uranidine")
+wb_met_stats$metabolite <- c("arsenobetaine", "histamine", "creatine", "phosphocholine", "carnitine", "acetylcholine", "serotonin", "2-methyl-butyroyl-carnitine", "choline sulfate", "betaine", "choline", "uranidine")
 
 
-p_sf_chrom <- ggplot(sf_chrom, aes(x=RT, y=Sf1))+geom_line()+
-geom_line(aes(x=RT, y=Sf2))+
-geom_line(aes(x=RT, y=Sf3))+
-geom_line(aes(x=RT, y=Sf4))+
-geom_line(aes(x=RT, y=Sf5))+
-geom_line(aes(x=RT, y=Sf6))+
-geom_line(aes(x=RT, y=Sf7))+
-geom_line(aes(x=RT, y=Sf10, color="red", alpha=0.5))+
-geom_line(aes(x=RT, y=Sf11, color="red", alpha=0.5))+
-geom_line(aes(x=RT, y=Sf12, color="red", alpha=0.5))+
-geom_line(aes(x=RT, y=Sf13, color="red", alpha=0.5))+
-geom_line(aes(x=RT, y=Sf14, color="red", alpha=0.5))+
-geom_line(aes(x=RT, y=Sf15, color="red", alpha=0.5))+
-xlab("RT")+ylab("Signal intensity")+ggtitle("Overlay chromatograms from S. fortis HILIC positive")+
-theme_classic()+theme(legend.position = "none")
+results <- rbind(gb_met_stats, sf_met_stats, wb_met_stats)
+kable(results, digits=4, longtable = T, booktabs = T, caption = "Depth response for VIP metabolites as approximated by different methods.") %>%
+  add_header_above(c("","depth correlation" = 3, "depth groups" = 4, "")) %>%
+  kable_styling(bootstrap_options = c("striped","hover", "bordered", "condensed", "responsive"), font_size = 12, full_width = F,latex_options = c("striped", "scale_down"))
 
-wb_chrom <- read.csv("data/Wb_all_chromatograms.csv", header=T, sep=";")
-wb_chrom[, c("Wb10_RT","Wb11_RT","Wb12_RT","Wb13_RT","Wb14_RT","Wb15_RT","Wb16_RT", "Wb17_RT","Wb2_RT","Wb3_RT","Wb4_RT","Wb5_RT","Wb6_RT","Wb7_RT","Wb8_RT")]<- list(NULL)
-colnames(wb_chrom)[colnames(wb_chrom) == "Wb1_RT"] <- "RT"
-wb_chrom <- wb_chrom[wb_chrom$RT<=12,]
+```
 
-p_wb_chrom <- ggplot(wb_chrom, aes(x=RT, y=Wb1))+geom_line()+
-geom_line(aes(x=RT, y=Wb2))+
-geom_line(aes(x=RT, y=Wb3))+
-geom_line(aes(x=RT, y=Wb4))+
-geom_line(aes(x=RT, y=Wb5))+
-geom_line(aes(x=RT, y=Wb6))+
-geom_line(aes(x=RT, y=Wb7))+
-geom_line(aes(x=RT, y=Wb8))+
-geom_line(aes(x=RT, y=Wb10))+
-geom_line(aes(x=RT, y=Wb11))+
-geom_line(aes(x=RT, y=Wb12))+
-geom_line(aes(x=RT, y=Wb13, color="red", alpha=0.5))+
-geom_line(aes(x=RT, y=Wb14, color="red", alpha=0.5))+
-geom_line(aes(x=RT, y=Wb15, color="red", alpha=0.5))+
-geom_line(aes(x=RT, y=Wb16, color="red", alpha=0.5))+
-geom_line(aes(x=RT, y=Wb17, color="red", alpha=0.5))+
-xlab("RT")+ylab("Signal intensity")+ggtitle("Overlay chromatograms from W. bursa HILIC positive")+
-theme_classic()+theme(legend.position = "none")
+```{r known-compounds-fig}
+cmp <- read.csv("data/metabolite_master_20190605.csv", header=T, sep=",")
 
-library(gridExtra)
-grid.arrange(p_gb_chrom, p_sf_chrom, p_wb_chrom, nrow=3)
-rm(p_gb_chrom, p_sf_chrom, p_wb_chrom, gb_chrom, sf_chrom, wb_chrom)
+meta_data <- read.csv("data/Steffen_et_al_metadata_PANGAEA.csv", header = T, sep = ";")   
+md <- meta_data[c("Depth", "unified_ID", "Species")]
+
+# 6-bromo-8-hydroxy-conicamin = cp4
+# cyclo Pro-Arg = solterin or soelterin
+
+# Prepare df for Gb compounds
+metabolites <- prep(cmp, md)
+mets <- metabolites[,c( "bar", "dhb", "dhhb",
+                "GeoA","GeoAi","GeoB", "sol",
+                "brc", "cp4" , "GeoC","L6bhp",
+                "barrettide_A", "barrettide_B", "unified_ID", "Depth", "Species")]
+mets <- mets[mets$Species=="Geodia barretti",]
+colnames(mets)<- c("barettin", "8,9-dihydrobarettin", "8,9−dihydro−8−hydroxy−barettin", "Geobarrettin A", "Geobarrettin A isomer", "Geobarrettin B", "cyclo Pro-Arg", "6-bromo-conicamin", "6-bromo-8-hydroxy-conicamin", "Geobarrettin C", "L-6-bromo- \n hypaphorine", "Barrettide A", "Barrettide B", "unified_ID", "Depth", "Species")
+mets[,c("unified_ID","Species")] <- list(NULL)
+
+mets <- reshape2::melt(mets, id.vars=c("Depth"))
+ggplot(mets, aes(x=Depth, y=value))+geom_point()+facet_wrap(.~variable, scales="free")+theme_bw()
+
+mets <- metabolites[,c("sfn", "ian", "unified_ID", "Depth", "Species")]
+mets <- mets[mets$Species=="Stryphnus fortis",]
+mets[,c("unified_ID","Species")] <- list(NULL)
+colnames(mets) <- c("Stryphnusin", "Ianthellin", "Depth")
+
+mets <- reshape2::melt(mets, id.vars=c("Depth"))
+ggplot(mets, aes(x=Depth, y=value))+geom_point()+facet_wrap(.~variable, scales="free")+theme_bw()
+
 ```
 
 
+```{r known-cmpds-stats-gb}
+cmp <- read.csv("data/metabolite_master_20190605.csv", header=T, sep=",")
+
+meta_data <- read.csv("data/Steffen_et_al_metadata_PANGAEA.csv", header = T, sep = ";")   
+md <- meta_data[c("Depth", "unified_ID", "Species")]
+
+# 6-bromo-8-hydroxy-conicamin = cp4
+# cyclo Pro-Arg = solterin or soelterin
+
+# Prepare df for Gb compounds
+metabolites <- prep(cmp, md)
+mets <- metabolites[,c( "bar", "dhb", "dhhb",
+                "GeoA","GeoAi","GeoB", "sol",
+                "brc", "cp4" , "GeoC","L6bhp",
+                "barrettide_A", "barrettide_B", "unified_ID", "Depth", "Species")]
+mets <- mets[mets$Species=="Geodia barretti",]
+mets[,c("unified_ID","Species")] <- list(NULL)
 
 
-## Correlations
+metabolite_stats <- function(mets) {
+  # Prepare df for collecting results
+  results <- data.frame(colnames(mets)[-length(colnames(mets))])
+  colnames(results) <- c("metabolite")
+  results[,c("cor_rho", "cor_p.value","cor_fdr", "t.test_stat", "t.test_param", "t.test_p.val", "t.test_fdr")] <- NA
+
+  n <- 0
+  k <- dim(mets)[2]-1
+  while(n<k){
+    n <- n+1
+    corr <- cor.test(mets[,n], mets$Depth, method = "spearman")
+    results$cor_rho[n] <- corr$estimate
+    results$cor_p.value[n] <- corr$p.value
+    tt <- t.test(mets[,n][mets$Depth<1000], mets[,n][mets$Depth>1000])
+    results$t.test_stat[n] <- tt$statistic
+    results$t.test_param[n] <- tt$parameter
+    results$t.test_p.val[n] <- tt$p.value
+  }
+  cor_fdr <- c(p.adjust(results$cor_p.value, method = "fdr"))
+  #colnames(cor_fdr) <- c("cor_fdr")
+  results$cor_fdr <- cor_fdr
+  t.test_fdr <- c(p.adjust(results$t.test_p.val, method = "fdr"))
+  #colnames(t.test_fdr) <- c("t.test_fdr")
+  results$t.test_fdr <- t.test_fdr
+  
+  return(results)
+}
+
+mets_stats <- metabolite_stats(mets)
+
+# better names
+Metabolites <- c("barettin", "8,9-dihydrobarettin", "8,9−dihydro−8−hydroxy−barettin", "Geobarrettin A", "Geobarrettin A isomer", "Geobarrettin B", "cyclo Pro-Arg", "6-bromo-conicamin", "6-bromo-8-hydroxy-conicamin", "Geobarrettin C", "L-6-bromohypaphorine", "Barrettide A", "Barrettide B")
+mets_stats$metabolite <- Metabolites
+
+kable(mets_stats, digits=4, longtable = T, booktabs = T, caption = "Depth response for _G. barretti_ metabolites as approximated by different methods.") %>%
+  add_header_above(c("","depth correlation" = 3, "depth groups" = 4)) %>%
+  kable_styling(bootstrap_options = c("striped","hover", "bordered", "condensed", "responsive"), font_size = 12, full_width = F,latex_options = c("striped", "scale_down"))
+
+```
+
+```{r known-cmpds-stats-sf}
+cmp <- read.csv("data/metabolite_master_20190605.csv", header=T, sep=",")
+
+meta_data <- read.csv("data/Steffen_et_al_metadata_PANGAEA.csv", header = T, sep = ";")   
+md <- meta_data[c("Depth", "unified_ID", "Species")]
+
+# Prepare df for Gb compounds
+metabolites <- prep(cmp, md)
+mets <- metabolites[,c("sfn", "ian", "unified_ID", "Depth", "Species")]
+mets <- mets[mets$Species=="Stryphnus fortis",]
+mets[,c("unified_ID","Species")] <- list(NULL)
+
+mets_stats <- metabolite_stats(mets)
+
+Metabolites <- c("Stryphnusin", "Ianthellin")
+mets_stats$metabolite <- Metabolites
+
+kable(mets_stats, longtable = T, booktabs = T, caption = "Depth response fro _S. fortis_ metabolites as approximated by different methods.") %>%
+  add_header_above(c("","depth correlation" = 3, "depth groups" = 4)) %>%
+  kable_styling(bootstrap_options = c("striped","hover", "bordered", "condensed", "responsive"), font_size = 12, full_width = F,latex_options = c("striped", "scale_down"))
+
+```
 
 
 

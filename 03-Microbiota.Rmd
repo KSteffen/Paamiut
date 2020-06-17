@@ -270,6 +270,7 @@ library(seqinr)
 library(gtools)
 #install.packages("webshot")
 #webshot::install_phantomjs()
+set.seed(1984)
 ```
 
 ```{r filtering-pca, fig.cap="Read count overview of the OTU table before and after the normalisation applied in the data analysis for this study."}
@@ -900,6 +901,7 @@ For all _G. barretti_ and _S. fortis_ depth is a significant constraint of the m
 In an alternative approach, we fit environmental vectors onto an ordination of the microbiota. This method allows to include all environmental parameters (regardless of collinearity). Length of the arrow indicates strength of the predictor (environmental parameter).
 
 ```{r envfit-1, fig.cap="Fitting significant (p<0.05) environmental vectors onto ordination of G. barretti microbiome."}
+set.seed(1984)
 microbiome<-read.csv("data/OTU_all_R.csv", header=T, sep=";") 
 meta_data <- read.csv("data/Steffen_et_al_metadata_PANGAEA.csv", header=T, sep=";")
 
@@ -918,25 +920,33 @@ colnames(mds$gb_md) <- c("Depth","Lat","Lon","Temp", "Sal", "Year")
 colnames(mds$sf_md) <- c("Depth","Lat","Lon","Temp", "Sal", "Year")  
 colnames(mds$wb_md) <- c("Depth","Lat","Lon","Temp", "Sal", "Year")  
 
+# Gb
 dist_micro <- vegdist(wisconsin(microbiomes$gb)) #distance matrix
 ordi_micro <- metaMDS(dist_micro, trace = F)# ordination
 ef <- envfit(ordi_micro, mds$gb_md, permutations = 999) # fitting arrows; STRATA?
+ef
+# r Goodness of fit statistic: Squared correlation coefficient
+# I will report r^2 i.e. goodness of fit rather than correlaiton because correlation with a distance matrix is not meaningful for understanding
 plot(ordi_micro, display="sites") #plot
 plot(ef, p.max = 0.05) #arrows
 ```
 
 ```{r envfit-2, fig.cap="Fitting significant (p<0.05) environmental vectors onto ordination of S. fortis microbiome."}
+set.seed(1984)
 dist_micro <- vegdist(wisconsin(microbiomes$sf)) # distance matrix
 ordi_micro <- metaMDS(dist_micro, trace=F) # ordination
 ef <- envfit(ordi_micro, mds$sf_md, permutations = 999) # fitting arrows
+ef
 plot(ordi_micro, display="sites") # plot
 plot(ef, p.max = 0.05) # arrows
 ```
 
 ```{r envfit-3, fig.cap="Fitting significant (p<0.05) environmental vectors onto ordination of W. bursa microbiome."}
+set.seed(1984)
 dist_micro <- vegdist(wisconsin(microbiomes$wb)) # distance matrix
 ordi_micro <- metaMDS(dist_micro, trace = F) # ordination
 ef <- envfit(ordi_micro, mds$wb_md, permutations = 999) # fitting arrows
+ef
 plot(ordi_micro, display="sites") # plot
 plot(ef, p.max = 0.05) # arrows
 ```
@@ -2110,7 +2120,8 @@ rabdc$gb[,c("avg_rel_abdc", "occurrence" )] <- list(NULL)
 rabdc$sf[,c("avg_rel_abdc", "occurrence" )] <- list(NULL)
 rabdc$wb[,c("avg_rel_abdc", "occurrence" )] <- list(NULL)
 
-
+##
+##
 response <- lapply(rabdc, inc_dec, meta_data=meta_data)
 rabdc$gb <- rabdc$gb[,c(1, 7, 8, 9, 10, 11, 12, 13, 14, 2, 3, 4, 5, 6)] # sort
 rabdc$sf <- rabdc$sf[,c(1, 8, 9, 10, 11, 12, 13, 14, 15, 2, 3, 4, 5, 6, 7)]
@@ -2549,4 +2560,5 @@ head(gb_bin)
 ```{r tree, fig.cap="Annotated ML phylogeny."}
 knitr::include_graphics("data/annotated_tree.png")
 ```
+
 

@@ -13,7 +13,7 @@ knitr::opts_chunk$set(echo = TRUE, tidy=TRUE, message = FALSE, warning = FALSE)
 library(knitr)
 ```
 
-```{r io1_functions}
+```{r io1-functions}
 library(tidyverse)
 library(vegan)
 library(kableExtra)
@@ -197,7 +197,7 @@ The inter-omics analyses are comprised of three parts. In the first part, we eva
 
 ### Data sets
 
-```{r io2_data_mp, eval=FALSE}
+```{r io2-data_mp, eval=FALSE}
 # LOAD DATA 
 micro <- read.csv("data/OTU_all_R.csv", header = T, sep = ";")
 colnames(micro)[colnames(micro) == "Sample_ID"] <- "unified_ID"
@@ -239,7 +239,7 @@ rp_neg <- read.csv("data/RP_neg_20190422_cleaned_pcgroup.csv", header=T, sep=","
 
 ### Mantel test code and tabular output
 
-```{r io3_mantel-test, eval=F}
+```{r io3-mantel-test, eval=F}
 ###=============================== MANTEL TEST=================================
 
 #run one of this at a time
@@ -277,7 +277,7 @@ diagnostics
 write.csv(diagnostics, "mantel_stats_FUN.csv")
 ```
 
-```{r io4_mantel_results}
+```{r io4-mantel-results}
 diagnostics <- read.csv("data/mantel_stats_FUN.csv")
 diagnostics$X <- NULL
 diagnostics <- diagnostics[,c("statistic", "signif", "micro_samples","micro_OTUs","meta_samples","meta_features","Sponge.species", "Experiment",  "data.set")]
@@ -1148,7 +1148,72 @@ kable(shortlist,
 
 ```
 
+```{r shortlisted-OTU-bar}
+micro <- read.csv("data/OTU_all_R.csv", header = T, sep = ";")
+meta_data <- read.csv("data/Steffen_et_al_metadata_PANGAEA.csv", header=T, sep=";")
+cmp <- read.csv("data/metabolite_master_20190605.csv", header=T, sep=",")
 
+meta_data <- meta_data_prep(meta_data)
+
+OTU_prep <- function(micro){
+  rownames(micro) <- micro$Sample_ID
+  micro$Sample_ID <- NULL
+  #micro <- sqrt(micro)
+  
+  micro_gb <- micro[(str_sub(rownames(micro), 1,2)=="Gb"),]
+  micro_sf <- micro[(str_sub(rownames(micro), 1,2)=="Sf"),]
+  micro_wb <- micro[(str_sub(rownames(micro), 1,2)=="Wb"),]
+  
+  micro_gb <- micro_gb[,colSums(micro_gb!=0)>0]
+  micro_sf <- micro_sf[,colSums(micro_sf!=0)>0]
+  micro_wb <- micro_wb[,colSums(micro_wb!=0)>0]
+  micros <- list(gb=micro_gb, sf=micro_sf, wb=micro_wb)
+  return(micros)  
+}
+
+micro_ds <- OTU_prep(micro)
+
+overall_rabdc <- function(micros){
+  mic <- micros
+  n <- 0
+  k <- dim(mic)[1]
+  mic["rowsum"] <- apply(mic, 1, sum)
+  
+  while (n<k) {
+    n <- n+1
+    mic[n,] <- mic[n,]/(mic$rowsum[n])
+  }
+  
+  mic$rowsum <- NULL
+  mic <- data.frame(t(mic))
+#  mic["avg_rel_abdc"] <- apply(mic, 1, mean)
+#  mic["occurrence"] <- ifelse(mic$avg>0.0025, "common", "rare")
+  return(mic)
+}
+
+rabdc <- lapply(micro_ds, overall_rabdc)
+
+rabdc$gb[,c("avg_rel_abdc", "occurrence" )] <- list(NULL)
+
+#Shortlist OTUs
+sl <- rabdc$gb[c("X196900144", "X196900180", "X196900213", "X196900310", "X196900588", "X196900589"),]
+sl <- data.frame(t(sl))
+sl["unified_ID"] <- rownames(sl)
+sl <- left_join(sl, meta_data[,c("unified_ID", "Depth")])
+sl <- left_join(sl, cmp[,c("unified_ID", "bar")])
+summary(lm(X196900144~bar, sl))
+summary(lm(X196900180~bar, sl))
+summary(lm(X196900213~bar, sl))
+summary(lm(X196900310~bar, sl))
+summary(lm(X196900588~bar, sl))
+summary(lm(X196900589~bar, sl))
+library(reshape2)
+sl <- melt(sl, id.vars = c("unified_ID", "Depth", "bar"))
+ggplot(sl, aes(x=Depth, y=value))+geom_point()+facet_grid(.~variable)
+
+ggplot(sl, aes(x=bar, y=value))+geom_point()+geom_smooth(method='lm', formula= y~x)+facet_wrap(.~variable, scales="free")+theme_bw()+theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1))+xlab("Barettin signal")+ylab("OTU relative abundance")+scale_y_continuous(labels = scales::scientific)+scale_x_continuous(labels =scales::scientific)+ ggtitle("Shortlisted OTUs and barettin")
+
+```
 
 ```{r sess04}
 sessionInfo()
