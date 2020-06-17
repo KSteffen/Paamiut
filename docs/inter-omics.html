@@ -708,8 +708,7 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 <li class="chapter" data-level="2.3" data-path="metabolomics.html"><a href="metabolomics.html#chromatorgrams"><i class="fa fa-check"></i><b>2.3</b> Chromatorgrams</a></li>
 <li class="chapter" data-level="2.4" data-path="metabolomics.html"><a href="metabolomics.html#multivariate-analyses"><i class="fa fa-check"></i><b>2.4</b> Multivariate analyses</a></li>
 <li class="chapter" data-level="2.5" data-path="metabolomics.html"><a href="metabolomics.html#vips"><i class="fa fa-check"></i><b>2.5</b> VIPS</a></li>
-<li class="chapter" data-level="2.6" data-path="metabolomics.html"><a href="metabolomics.html#manual-annotation-identification-and-extraction-of-metabolic-feature-signals"><i class="fa fa-check"></i><b>2.6</b> Manual annotation, identification and extraction of metabolic feature signals</a></li>
-<li class="chapter" data-level="2.7" data-path="metabolomics.html"><a href="metabolomics.html#correlations"><i class="fa fa-check"></i><b>2.7</b> Correlations</a></li>
+<li class="chapter" data-level="2.6" data-path="metabolomics.html"><a href="metabolomics.html#metabolites-and-correlations"><i class="fa fa-check"></i><b>2.6</b> Metabolites and correlations</a></li>
 </ul></li>
 <li class="chapter" data-level="3" data-path="microbiota.html"><a href="microbiota.html"><i class="fa fa-check"></i><b>3</b> Microbiota</a><ul>
 <li class="chapter" data-level="3.1" data-path="microbiota.html"><a href="microbiota.html#otu-table-overview"><i class="fa fa-check"></i><b>3.1</b> OTU table overview</a></li>
@@ -3982,74 +3981,53 @@ Figure 4.2: Micrbial interaction networks highlighting OTUs correlating with bar
 <span id="cb52-67"><a href="inter-omics.html#cb52-67"></a><span class="co"># shared OTUs length(intersect(colnames(micro_ds$gb), colnames(micro_ds$sf))) #</span></span>
 <span id="cb52-68"><a href="inter-omics.html#cb52-68"></a><span class="co"># 316</span></span>
 <span id="cb52-69"><a href="inter-omics.html#cb52-69"></a></span>
-<span id="cb52-70"><a href="inter-omics.html#cb52-70"></a><span class="kw">setdiff</span>(<span class="kw">colnames</span>(micro_ds<span class="op">$</span>gb), <span class="kw">colnames</span>(micro_ds<span class="op">$</span>sf))  <span class="co"># Setdiff finds rows that appear in first table but not in second</span></span></code></pre></div>
-<pre><code>##   [1] &quot;X196900605&quot; &quot;X196900606&quot; &quot;X196900591&quot; &quot;X196900596&quot; &quot;X196900597&quot;
-##   [6] &quot;X196900589&quot; &quot;X196900618&quot; &quot;X196900588&quot; &quot;X196900619&quot; &quot;X196900592&quot;
-##  [11] &quot;X196900614&quot; &quot;X196900590&quot; &quot;X196900594&quot; &quot;X196900598&quot; &quot;X196900603&quot;
-##  [16] &quot;X196900608&quot; &quot;X196900620&quot; &quot;X196900631&quot; &quot;X196900600&quot; &quot;X196900604&quot;
-##  [21] &quot;X196900611&quot; &quot;X196900612&quot; &quot;X19690097&quot;  &quot;X196900613&quot; &quot;X196900616&quot;
-##  [26] &quot;X196900624&quot; &quot;X196900630&quot; &quot;X196900661&quot; &quot;X196900599&quot; &quot;X196900601&quot;
-##  [31] &quot;X196900623&quot; &quot;X196900628&quot; &quot;X196900635&quot; &quot;X196900648&quot; &quot;X196900655&quot;
-##  [36] &quot;X196900656&quot; &quot;X196900658&quot; &quot;X196900662&quot; &quot;X196900663&quot; &quot;X196900667&quot;
-##  [41] &quot;X196900672&quot; &quot;X196900593&quot; &quot;X196900595&quot; &quot;X196900609&quot; &quot;X196900610&quot;
-##  [46] &quot;X196900617&quot; &quot;X196900634&quot; &quot;X196900636&quot; &quot;X196900639&quot; &quot;X196900642&quot;
-##  [51] &quot;X196900644&quot; &quot;X196900657&quot; &quot;X196900664&quot; &quot;X196900668&quot; &quot;X196900671&quot;
-##  [56] &quot;X196900674&quot; &quot;X196900677&quot; &quot;X196900602&quot; &quot;X196900607&quot; &quot;X196900615&quot;
-##  [61] &quot;X196900621&quot; &quot;X196900622&quot; &quot;X196900625&quot; &quot;X196900626&quot; &quot;X196900627&quot;
-##  [66] &quot;X196900629&quot; &quot;X196900632&quot; &quot;X196900633&quot; &quot;X196900637&quot; &quot;X196900638&quot;
-##  [71] &quot;X196900640&quot; &quot;X196900641&quot; &quot;X196900643&quot; &quot;X196900645&quot; &quot;X196900646&quot;
-##  [76] &quot;X196900647&quot; &quot;X196900649&quot; &quot;X196900652&quot; &quot;X196900653&quot; &quot;X196900654&quot;
-##  [81] &quot;X196900659&quot; &quot;X196900660&quot; &quot;X196900665&quot; &quot;X196900666&quot; &quot;X196900669&quot;
-##  [86] &quot;X196900670&quot; &quot;X196900673&quot; &quot;X196900675&quot; &quot;X196900676&quot; &quot;X196900678&quot;
-##  [91] &quot;X196900679&quot; &quot;X196900680&quot; &quot;X196900681&quot; &quot;X196900682&quot; &quot;X196900683&quot;
-##  [96] &quot;X196900684&quot; &quot;X196900685&quot; &quot;X196900686&quot; &quot;X196900687&quot; &quot;X196900688&quot;
-## [101] &quot;X196900689&quot; &quot;X196900690&quot; &quot;X196900691&quot; &quot;X196900692&quot;</code></pre>
-<div class="sourceCode" id="cb54"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb54-1"><a href="inter-omics.html#cb54-1"></a><span class="kw">length</span>(<span class="kw">setdiff</span>(<span class="kw">colnames</span>(micro_ds<span class="op">$</span>gb), <span class="kw">colnames</span>(micro_ds<span class="op">$</span>sf)))  <span class="co"># 104:ok!</span></span></code></pre></div>
-<pre><code>## [1] 104</code></pre>
-<div class="sourceCode" id="cb56"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb56-1"><a href="inter-omics.html#cb56-1"></a>gb_unique &lt;-<span class="st"> </span><span class="kw">data.frame</span>(<span class="kw">setdiff</span>(<span class="kw">colnames</span>(micro_ds<span class="op">$</span>gb), <span class="kw">colnames</span>(micro_ds<span class="op">$</span>sf)))</span>
-<span id="cb56-2"><a href="inter-omics.html#cb56-2"></a><span class="kw">colnames</span>(gb_unique) &lt;-<span class="st"> </span><span class="kw">c</span>(<span class="st">&quot;XOTU&quot;</span>)</span>
-<span id="cb56-3"><a href="inter-omics.html#cb56-3"></a>gb_unique[<span class="st">&quot;OTU&quot;</span>] &lt;-<span class="st"> </span><span class="kw">str_replace</span>(gb_unique<span class="op">$</span>XOTU, <span class="st">&quot;X196900&quot;</span>, <span class="st">&quot;&quot;</span>)</span>
-<span id="cb56-4"><a href="inter-omics.html#cb56-4"></a></span>
-<span id="cb56-5"><a href="inter-omics.html#cb56-5"></a>gb_unique &lt;-<span class="st"> </span><span class="kw">left_join</span>(gb_unique, shortlist_gb)</span>
-<span id="cb56-6"><a href="inter-omics.html#cb56-6"></a></span>
-<span id="cb56-7"><a href="inter-omics.html#cb56-7"></a>gb_unique &lt;-<span class="st"> </span>gb_unique <span class="op">%&gt;%</span><span class="st"> </span><span class="kw">filter</span>(occurrence <span class="op">==</span><span class="st"> &quot;common&quot;</span>) <span class="op">%&gt;%</span><span class="st"> </span><span class="kw">filter</span>(barettin_estimate_P <span class="op">&gt;</span><span class="st"> </span></span>
-<span id="cb56-8"><a href="inter-omics.html#cb56-8"></a><span class="st">    </span><span class="dv">0</span> <span class="op">&amp;</span><span class="st"> </span>barettin_p_val_P <span class="op">&lt;</span><span class="st"> </span><span class="fl">0.05</span>)</span>
-<span id="cb56-9"><a href="inter-omics.html#cb56-9"></a></span>
-<span id="cb56-10"><a href="inter-omics.html#cb56-10"></a><span class="co"># Recovery of those OTUs that also correlate with barettin in S. fortis</span></span>
-<span id="cb56-11"><a href="inter-omics.html#cb56-11"></a>sf_shared &lt;-<span class="st"> </span><span class="kw">data.frame</span>(<span class="kw">intersect</span>(<span class="kw">colnames</span>(micro_ds<span class="op">$</span>gb), <span class="kw">colnames</span>(micro_ds<span class="op">$</span>sf)))</span>
-<span id="cb56-12"><a href="inter-omics.html#cb56-12"></a><span class="kw">colnames</span>(sf_shared) &lt;-<span class="st"> </span><span class="kw">c</span>(<span class="st">&quot;XOTU&quot;</span>)</span>
-<span id="cb56-13"><a href="inter-omics.html#cb56-13"></a>sf_barretin &lt;-<span class="st"> </span><span class="kw">read.csv</span>(<span class="st">&quot;data/SF_OTU_barettin_correlation.csv&quot;</span>, <span class="dt">header =</span> T, <span class="dt">sep =</span> <span class="st">&quot;,&quot;</span>)</span>
-<span id="cb56-14"><a href="inter-omics.html#cb56-14"></a></span>
-<span id="cb56-15"><a href="inter-omics.html#cb56-15"></a>sf_shared &lt;-<span class="st"> </span><span class="kw">left_join</span>(sf_shared, sf_barretin)</span>
-<span id="cb56-16"><a href="inter-omics.html#cb56-16"></a></span>
-<span id="cb56-17"><a href="inter-omics.html#cb56-17"></a><span class="co"># Sf Pearson p&lt;0.05 24 pFDR&gt;0.05 8 Spearman p&lt;0.05 14 pFDR&gt;0.05 0</span></span>
-<span id="cb56-18"><a href="inter-omics.html#cb56-18"></a></span>
-<span id="cb56-19"><a href="inter-omics.html#cb56-19"></a>sf_shared &lt;-<span class="st"> </span>sf_shared <span class="op">%&gt;%</span><span class="st"> </span><span class="kw">filter</span>(barettin_estimate_P <span class="op">&gt;</span><span class="st"> </span><span class="dv">0</span>) <span class="op">%&gt;%</span><span class="st"> </span><span class="kw">filter</span>(barettin_p_val_P <span class="op">&lt;</span><span class="st"> </span></span>
-<span id="cb56-20"><a href="inter-omics.html#cb56-20"></a><span class="st">    </span><span class="fl">0.05</span>)</span>
-<span id="cb56-21"><a href="inter-omics.html#cb56-21"></a></span>
-<span id="cb56-22"><a href="inter-omics.html#cb56-22"></a>sf_shared[<span class="st">&quot;OTU&quot;</span>] &lt;-<span class="st"> </span><span class="kw">str_replace</span>(sf_shared<span class="op">$</span>XOTU, <span class="st">&quot;X196900&quot;</span>, <span class="st">&quot;&quot;</span>)</span>
-<span id="cb56-23"><a href="inter-omics.html#cb56-23"></a>shared_recovered &lt;-<span class="st"> </span>shortlist_gb[shortlist_gb<span class="op">$</span>OTU <span class="op">%in%</span><span class="st"> </span>sf_shared<span class="op">$</span>OTU, ]</span>
-<span id="cb56-24"><a href="inter-omics.html#cb56-24"></a></span>
-<span id="cb56-25"><a href="inter-omics.html#cb56-25"></a><span class="co"># check again for the criteria in the new df</span></span>
-<span id="cb56-26"><a href="inter-omics.html#cb56-26"></a>shared_recovered &lt;-<span class="st"> </span>shared_recovered <span class="op">%&gt;%</span><span class="st"> </span><span class="kw">filter</span>(occurrence <span class="op">==</span><span class="st"> &quot;common&quot;</span>) <span class="op">%&gt;%</span><span class="st"> </span><span class="kw">filter</span>(barettin_estimate_P <span class="op">&gt;</span><span class="st"> </span></span>
-<span id="cb56-27"><a href="inter-omics.html#cb56-27"></a><span class="st">    </span><span class="dv">0</span> <span class="op">&amp;</span><span class="st"> </span>barettin_p_val_P <span class="op">&lt;</span><span class="st"> </span><span class="fl">0.05</span>)</span>
-<span id="cb56-28"><a href="inter-omics.html#cb56-28"></a></span>
-<span id="cb56-29"><a href="inter-omics.html#cb56-29"></a><span class="co"># combine the two data sets: gb_unique and shared_recovered</span></span>
-<span id="cb56-30"><a href="inter-omics.html#cb56-30"></a></span>
-<span id="cb56-31"><a href="inter-omics.html#cb56-31"></a>gb_unique[<span class="st">&quot;group&quot;</span>] &lt;-<span class="st"> </span><span class="kw">c</span>(<span class="st">&quot;gb_unique&quot;</span>)</span>
-<span id="cb56-32"><a href="inter-omics.html#cb56-32"></a>shared_recovered[<span class="st">&quot;group&quot;</span>] &lt;-<span class="st"> </span><span class="kw">c</span>(<span class="st">&quot;sf_shared&quot;</span>)</span>
-<span id="cb56-33"><a href="inter-omics.html#cb56-33"></a></span>
-<span id="cb56-34"><a href="inter-omics.html#cb56-34"></a>gb_unique &lt;-<span class="st"> </span>gb_unique[, <span class="kw">c</span>(<span class="st">&quot;OTU&quot;</span>, <span class="st">&quot;group&quot;</span>, <span class="st">&quot;Kingdom&quot;</span>, <span class="st">&quot;Phylum&quot;</span>, <span class="st">&quot;Class&quot;</span>)]</span>
-<span id="cb56-35"><a href="inter-omics.html#cb56-35"></a>shared_recovered &lt;-<span class="st"> </span>shared_recovered[, <span class="kw">c</span>(<span class="st">&quot;OTU&quot;</span>, <span class="st">&quot;group&quot;</span>, <span class="st">&quot;Kingdom&quot;</span>, <span class="st">&quot;Phylum&quot;</span>, <span class="st">&quot;Class&quot;</span>)]</span>
-<span id="cb56-36"><a href="inter-omics.html#cb56-36"></a></span>
-<span id="cb56-37"><a href="inter-omics.html#cb56-37"></a>shortlist &lt;-<span class="st"> </span><span class="kw">rbind</span>(gb_unique, shared_recovered)</span>
-<span id="cb56-38"><a href="inter-omics.html#cb56-38"></a></span>
-<span id="cb56-39"><a href="inter-omics.html#cb56-39"></a><span class="kw">options</span>(<span class="dt">kableExtra.html.bsTable =</span> T)</span>
-<span id="cb56-40"><a href="inter-omics.html#cb56-40"></a><span class="kw">kable</span>(shortlist, <span class="dt">col.names =</span> <span class="kw">c</span>(<span class="st">&quot;OTU&quot;</span>, <span class="st">&quot;group&quot;</span>, <span class="st">&quot;Kingdom&quot;</span>, <span class="st">&quot;Phylum&quot;</span>, <span class="st">&quot;Class&quot;</span>), <span class="dt">longtable =</span> T, </span>
-<span id="cb56-41"><a href="inter-omics.html#cb56-41"></a>    <span class="dt">booktabs =</span> T, <span class="dt">caption =</span> <span class="st">&quot;Shortlist of OTUs that were deemed candidate producers of barettin.&quot;</span>, </span>
-<span id="cb56-42"><a href="inter-omics.html#cb56-42"></a>    <span class="dt">row.names =</span> <span class="ot">FALSE</span>) <span class="op">%&gt;%</span><span class="st"> </span><span class="kw">add_header_above</span>(<span class="kw">c</span>(<span class="st">`</span><span class="dt"> </span><span class="st">`</span> =<span class="st"> </span><span class="dv">2</span>, <span class="dt">Taxonomy =</span> <span class="dv">3</span>)) <span class="op">%&gt;%</span><span class="st"> </span><span class="kw">kable_styling</span>(<span class="dt">bootstrap_options =</span> <span class="kw">c</span>(<span class="st">&quot;striped&quot;</span>, </span>
-<span id="cb56-43"><a href="inter-omics.html#cb56-43"></a>    <span class="st">&quot;hover&quot;</span>, <span class="st">&quot;bordered&quot;</span>, <span class="st">&quot;condensed&quot;</span>, <span class="st">&quot;responsive&quot;</span>), <span class="dt">full_width =</span> F, <span class="dt">latex_options =</span> <span class="kw">c</span>(<span class="st">&quot;striped&quot;</span>, </span>
-<span id="cb56-44"><a href="inter-omics.html#cb56-44"></a>    <span class="st">&quot;scale_down&quot;</span>))</span></code></pre></div>
+<span id="cb52-70"><a href="inter-omics.html#cb52-70"></a><span class="co"># setdiff(colnames(micro_ds$gb), colnames(micro_ds$sf)) # Setdiff finds rows that</span></span>
+<span id="cb52-71"><a href="inter-omics.html#cb52-71"></a><span class="co"># appear in first table but not in second length(setdiff(colnames(micro_ds$gb),</span></span>
+<span id="cb52-72"><a href="inter-omics.html#cb52-72"></a><span class="co"># colnames(micro_ds$sf))) # 104:ok!</span></span>
+<span id="cb52-73"><a href="inter-omics.html#cb52-73"></a>gb_unique &lt;-<span class="st"> </span><span class="kw">data.frame</span>(<span class="kw">setdiff</span>(<span class="kw">colnames</span>(micro_ds<span class="op">$</span>gb), <span class="kw">colnames</span>(micro_ds<span class="op">$</span>sf)))</span>
+<span id="cb52-74"><a href="inter-omics.html#cb52-74"></a><span class="kw">colnames</span>(gb_unique) &lt;-<span class="st"> </span><span class="kw">c</span>(<span class="st">&quot;XOTU&quot;</span>)</span>
+<span id="cb52-75"><a href="inter-omics.html#cb52-75"></a>gb_unique[<span class="st">&quot;OTU&quot;</span>] &lt;-<span class="st"> </span><span class="kw">str_replace</span>(gb_unique<span class="op">$</span>XOTU, <span class="st">&quot;X196900&quot;</span>, <span class="st">&quot;&quot;</span>)</span>
+<span id="cb52-76"><a href="inter-omics.html#cb52-76"></a></span>
+<span id="cb52-77"><a href="inter-omics.html#cb52-77"></a>gb_unique &lt;-<span class="st"> </span><span class="kw">left_join</span>(gb_unique, shortlist_gb)</span>
+<span id="cb52-78"><a href="inter-omics.html#cb52-78"></a></span>
+<span id="cb52-79"><a href="inter-omics.html#cb52-79"></a>gb_unique &lt;-<span class="st"> </span>gb_unique <span class="op">%&gt;%</span><span class="st"> </span><span class="kw">filter</span>(occurrence <span class="op">==</span><span class="st"> &quot;common&quot;</span>) <span class="op">%&gt;%</span><span class="st"> </span><span class="kw">filter</span>(barettin_estimate_P <span class="op">&gt;</span><span class="st"> </span></span>
+<span id="cb52-80"><a href="inter-omics.html#cb52-80"></a><span class="st">    </span><span class="dv">0</span> <span class="op">&amp;</span><span class="st"> </span>barettin_p_val_P <span class="op">&lt;</span><span class="st"> </span><span class="fl">0.05</span>)</span>
+<span id="cb52-81"><a href="inter-omics.html#cb52-81"></a></span>
+<span id="cb52-82"><a href="inter-omics.html#cb52-82"></a><span class="co"># Recovery of those OTUs that also correlate with barettin in S. fortis</span></span>
+<span id="cb52-83"><a href="inter-omics.html#cb52-83"></a>sf_shared &lt;-<span class="st"> </span><span class="kw">data.frame</span>(<span class="kw">intersect</span>(<span class="kw">colnames</span>(micro_ds<span class="op">$</span>gb), <span class="kw">colnames</span>(micro_ds<span class="op">$</span>sf)))</span>
+<span id="cb52-84"><a href="inter-omics.html#cb52-84"></a><span class="kw">colnames</span>(sf_shared) &lt;-<span class="st"> </span><span class="kw">c</span>(<span class="st">&quot;XOTU&quot;</span>)</span>
+<span id="cb52-85"><a href="inter-omics.html#cb52-85"></a>sf_barretin &lt;-<span class="st"> </span><span class="kw">read.csv</span>(<span class="st">&quot;data/SF_OTU_barettin_correlation.csv&quot;</span>, <span class="dt">header =</span> T, <span class="dt">sep =</span> <span class="st">&quot;,&quot;</span>)</span>
+<span id="cb52-86"><a href="inter-omics.html#cb52-86"></a></span>
+<span id="cb52-87"><a href="inter-omics.html#cb52-87"></a>sf_shared &lt;-<span class="st"> </span><span class="kw">left_join</span>(sf_shared, sf_barretin)</span>
+<span id="cb52-88"><a href="inter-omics.html#cb52-88"></a></span>
+<span id="cb52-89"><a href="inter-omics.html#cb52-89"></a><span class="co"># Sf Pearson p&lt;0.05 24 pFDR&gt;0.05 8 Spearman p&lt;0.05 14 pFDR&gt;0.05 0</span></span>
+<span id="cb52-90"><a href="inter-omics.html#cb52-90"></a></span>
+<span id="cb52-91"><a href="inter-omics.html#cb52-91"></a>sf_shared &lt;-<span class="st"> </span>sf_shared <span class="op">%&gt;%</span><span class="st"> </span><span class="kw">filter</span>(barettin_estimate_P <span class="op">&gt;</span><span class="st"> </span><span class="dv">0</span>) <span class="op">%&gt;%</span><span class="st"> </span><span class="kw">filter</span>(barettin_p_val_P <span class="op">&lt;</span><span class="st"> </span></span>
+<span id="cb52-92"><a href="inter-omics.html#cb52-92"></a><span class="st">    </span><span class="fl">0.05</span>)</span>
+<span id="cb52-93"><a href="inter-omics.html#cb52-93"></a></span>
+<span id="cb52-94"><a href="inter-omics.html#cb52-94"></a>sf_shared[<span class="st">&quot;OTU&quot;</span>] &lt;-<span class="st"> </span><span class="kw">str_replace</span>(sf_shared<span class="op">$</span>XOTU, <span class="st">&quot;X196900&quot;</span>, <span class="st">&quot;&quot;</span>)</span>
+<span id="cb52-95"><a href="inter-omics.html#cb52-95"></a>shared_recovered &lt;-<span class="st"> </span>shortlist_gb[shortlist_gb<span class="op">$</span>OTU <span class="op">%in%</span><span class="st"> </span>sf_shared<span class="op">$</span>OTU, ]</span>
+<span id="cb52-96"><a href="inter-omics.html#cb52-96"></a></span>
+<span id="cb52-97"><a href="inter-omics.html#cb52-97"></a><span class="co"># check again for the criteria in the new df</span></span>
+<span id="cb52-98"><a href="inter-omics.html#cb52-98"></a>shared_recovered &lt;-<span class="st"> </span>shared_recovered <span class="op">%&gt;%</span><span class="st"> </span><span class="kw">filter</span>(occurrence <span class="op">==</span><span class="st"> &quot;common&quot;</span>) <span class="op">%&gt;%</span><span class="st"> </span><span class="kw">filter</span>(barettin_estimate_P <span class="op">&gt;</span><span class="st"> </span></span>
+<span id="cb52-99"><a href="inter-omics.html#cb52-99"></a><span class="st">    </span><span class="dv">0</span> <span class="op">&amp;</span><span class="st"> </span>barettin_p_val_P <span class="op">&lt;</span><span class="st"> </span><span class="fl">0.05</span>)</span>
+<span id="cb52-100"><a href="inter-omics.html#cb52-100"></a></span>
+<span id="cb52-101"><a href="inter-omics.html#cb52-101"></a><span class="co"># combine the two data sets: gb_unique and shared_recovered</span></span>
+<span id="cb52-102"><a href="inter-omics.html#cb52-102"></a></span>
+<span id="cb52-103"><a href="inter-omics.html#cb52-103"></a>gb_unique[<span class="st">&quot;group&quot;</span>] &lt;-<span class="st"> </span><span class="kw">c</span>(<span class="st">&quot;gb_unique&quot;</span>)</span>
+<span id="cb52-104"><a href="inter-omics.html#cb52-104"></a>shared_recovered[<span class="st">&quot;group&quot;</span>] &lt;-<span class="st"> </span><span class="kw">c</span>(<span class="st">&quot;sf_shared&quot;</span>)</span>
+<span id="cb52-105"><a href="inter-omics.html#cb52-105"></a></span>
+<span id="cb52-106"><a href="inter-omics.html#cb52-106"></a>gb_unique &lt;-<span class="st"> </span>gb_unique[, <span class="kw">c</span>(<span class="st">&quot;OTU&quot;</span>, <span class="st">&quot;group&quot;</span>, <span class="st">&quot;Kingdom&quot;</span>, <span class="st">&quot;Phylum&quot;</span>, <span class="st">&quot;Class&quot;</span>)]</span>
+<span id="cb52-107"><a href="inter-omics.html#cb52-107"></a>shared_recovered &lt;-<span class="st"> </span>shared_recovered[, <span class="kw">c</span>(<span class="st">&quot;OTU&quot;</span>, <span class="st">&quot;group&quot;</span>, <span class="st">&quot;Kingdom&quot;</span>, <span class="st">&quot;Phylum&quot;</span>, <span class="st">&quot;Class&quot;</span>)]</span>
+<span id="cb52-108"><a href="inter-omics.html#cb52-108"></a></span>
+<span id="cb52-109"><a href="inter-omics.html#cb52-109"></a>shortlist &lt;-<span class="st"> </span><span class="kw">rbind</span>(gb_unique, shared_recovered)</span>
+<span id="cb52-110"><a href="inter-omics.html#cb52-110"></a></span>
+<span id="cb52-111"><a href="inter-omics.html#cb52-111"></a><span class="kw">options</span>(<span class="dt">kableExtra.html.bsTable =</span> T)</span>
+<span id="cb52-112"><a href="inter-omics.html#cb52-112"></a><span class="kw">kable</span>(shortlist, <span class="dt">col.names =</span> <span class="kw">c</span>(<span class="st">&quot;OTU&quot;</span>, <span class="st">&quot;group&quot;</span>, <span class="st">&quot;Kingdom&quot;</span>, <span class="st">&quot;Phylum&quot;</span>, <span class="st">&quot;Class&quot;</span>), <span class="dt">longtable =</span> T, </span>
+<span id="cb52-113"><a href="inter-omics.html#cb52-113"></a>    <span class="dt">booktabs =</span> T, <span class="dt">caption =</span> <span class="st">&quot;Shortlist of OTUs that were deemed candidate producers of barettin.&quot;</span>, </span>
+<span id="cb52-114"><a href="inter-omics.html#cb52-114"></a>    <span class="dt">row.names =</span> <span class="ot">FALSE</span>) <span class="op">%&gt;%</span><span class="st"> </span><span class="kw">add_header_above</span>(<span class="kw">c</span>(<span class="st">`</span><span class="dt"> </span><span class="st">`</span> =<span class="st"> </span><span class="dv">2</span>, <span class="dt">Taxonomy =</span> <span class="dv">3</span>)) <span class="op">%&gt;%</span><span class="st"> </span><span class="kw">kable_styling</span>(<span class="dt">bootstrap_options =</span> <span class="kw">c</span>(<span class="st">&quot;striped&quot;</span>, </span>
+<span id="cb52-115"><a href="inter-omics.html#cb52-115"></a>    <span class="st">&quot;hover&quot;</span>, <span class="st">&quot;bordered&quot;</span>, <span class="st">&quot;condensed&quot;</span>, <span class="st">&quot;responsive&quot;</span>), <span class="dt">full_width =</span> F, <span class="dt">latex_options =</span> <span class="kw">c</span>(<span class="st">&quot;striped&quot;</span>, </span>
+<span id="cb52-116"><a href="inter-omics.html#cb52-116"></a>    <span class="st">&quot;scale_down&quot;</span>))</span></code></pre></div>
 <table class="table table-striped table-hover table-bordered table-condensed table-responsive" style="width: auto !important; margin-left: auto; margin-right: auto;">
 <caption>
 <span id="tab:shortlist">Table 4.2: </span>Shortlist of OTUs that were deemed candidate producers of barettin.
@@ -4187,60 +4165,60 @@ JTB23
 </tr>
 </tbody>
 </table>
-<div class="sourceCode" id="cb57"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb57-1"><a href="inter-omics.html#cb57-1"></a>micro &lt;-<span class="st"> </span><span class="kw">read.csv</span>(<span class="st">&quot;data/OTU_all_R.csv&quot;</span>, <span class="dt">header =</span> T, <span class="dt">sep =</span> <span class="st">&quot;;&quot;</span>)</span>
-<span id="cb57-2"><a href="inter-omics.html#cb57-2"></a>meta_data &lt;-<span class="st"> </span><span class="kw">read.csv</span>(<span class="st">&quot;data/Steffen_et_al_metadata_PANGAEA.csv&quot;</span>, <span class="dt">header =</span> T, <span class="dt">sep =</span> <span class="st">&quot;;&quot;</span>)</span>
-<span id="cb57-3"><a href="inter-omics.html#cb57-3"></a>cmp &lt;-<span class="st"> </span><span class="kw">read.csv</span>(<span class="st">&quot;data/metabolite_master_20190605.csv&quot;</span>, <span class="dt">header =</span> T, <span class="dt">sep =</span> <span class="st">&quot;,&quot;</span>)</span>
-<span id="cb57-4"><a href="inter-omics.html#cb57-4"></a></span>
-<span id="cb57-5"><a href="inter-omics.html#cb57-5"></a>meta_data &lt;-<span class="st"> </span><span class="kw">meta_data_prep</span>(meta_data)</span>
-<span id="cb57-6"><a href="inter-omics.html#cb57-6"></a></span>
-<span id="cb57-7"><a href="inter-omics.html#cb57-7"></a>OTU_prep &lt;-<span class="st"> </span><span class="cf">function</span>(micro) {</span>
-<span id="cb57-8"><a href="inter-omics.html#cb57-8"></a>    <span class="kw">rownames</span>(micro) &lt;-<span class="st"> </span>micro<span class="op">$</span>Sample_ID</span>
-<span id="cb57-9"><a href="inter-omics.html#cb57-9"></a>    micro<span class="op">$</span>Sample_ID &lt;-<span class="st"> </span><span class="ot">NULL</span></span>
-<span id="cb57-10"><a href="inter-omics.html#cb57-10"></a>    <span class="co"># micro &lt;- sqrt(micro)</span></span>
-<span id="cb57-11"><a href="inter-omics.html#cb57-11"></a>    </span>
-<span id="cb57-12"><a href="inter-omics.html#cb57-12"></a>    micro_gb &lt;-<span class="st"> </span>micro[(<span class="kw">str_sub</span>(<span class="kw">rownames</span>(micro), <span class="dv">1</span>, <span class="dv">2</span>) <span class="op">==</span><span class="st"> &quot;Gb&quot;</span>), ]</span>
-<span id="cb57-13"><a href="inter-omics.html#cb57-13"></a>    micro_sf &lt;-<span class="st"> </span>micro[(<span class="kw">str_sub</span>(<span class="kw">rownames</span>(micro), <span class="dv">1</span>, <span class="dv">2</span>) <span class="op">==</span><span class="st"> &quot;Sf&quot;</span>), ]</span>
-<span id="cb57-14"><a href="inter-omics.html#cb57-14"></a>    micro_wb &lt;-<span class="st"> </span>micro[(<span class="kw">str_sub</span>(<span class="kw">rownames</span>(micro), <span class="dv">1</span>, <span class="dv">2</span>) <span class="op">==</span><span class="st"> &quot;Wb&quot;</span>), ]</span>
-<span id="cb57-15"><a href="inter-omics.html#cb57-15"></a>    </span>
-<span id="cb57-16"><a href="inter-omics.html#cb57-16"></a>    micro_gb &lt;-<span class="st"> </span>micro_gb[, <span class="kw">colSums</span>(micro_gb <span class="op">!=</span><span class="st"> </span><span class="dv">0</span>) <span class="op">&gt;</span><span class="st"> </span><span class="dv">0</span>]</span>
-<span id="cb57-17"><a href="inter-omics.html#cb57-17"></a>    micro_sf &lt;-<span class="st"> </span>micro_sf[, <span class="kw">colSums</span>(micro_sf <span class="op">!=</span><span class="st"> </span><span class="dv">0</span>) <span class="op">&gt;</span><span class="st"> </span><span class="dv">0</span>]</span>
-<span id="cb57-18"><a href="inter-omics.html#cb57-18"></a>    micro_wb &lt;-<span class="st"> </span>micro_wb[, <span class="kw">colSums</span>(micro_wb <span class="op">!=</span><span class="st"> </span><span class="dv">0</span>) <span class="op">&gt;</span><span class="st"> </span><span class="dv">0</span>]</span>
-<span id="cb57-19"><a href="inter-omics.html#cb57-19"></a>    micros &lt;-<span class="st"> </span><span class="kw">list</span>(<span class="dt">gb =</span> micro_gb, <span class="dt">sf =</span> micro_sf, <span class="dt">wb =</span> micro_wb)</span>
-<span id="cb57-20"><a href="inter-omics.html#cb57-20"></a>    <span class="kw">return</span>(micros)</span>
-<span id="cb57-21"><a href="inter-omics.html#cb57-21"></a>}</span>
-<span id="cb57-22"><a href="inter-omics.html#cb57-22"></a></span>
-<span id="cb57-23"><a href="inter-omics.html#cb57-23"></a>micro_ds &lt;-<span class="st"> </span><span class="kw">OTU_prep</span>(micro)</span>
-<span id="cb57-24"><a href="inter-omics.html#cb57-24"></a></span>
-<span id="cb57-25"><a href="inter-omics.html#cb57-25"></a>overall_rabdc &lt;-<span class="st"> </span><span class="cf">function</span>(micros) {</span>
-<span id="cb57-26"><a href="inter-omics.html#cb57-26"></a>    mic &lt;-<span class="st"> </span>micros</span>
-<span id="cb57-27"><a href="inter-omics.html#cb57-27"></a>    n &lt;-<span class="st"> </span><span class="dv">0</span></span>
-<span id="cb57-28"><a href="inter-omics.html#cb57-28"></a>    k &lt;-<span class="st"> </span><span class="kw">dim</span>(mic)[<span class="dv">1</span>]</span>
-<span id="cb57-29"><a href="inter-omics.html#cb57-29"></a>    mic[<span class="st">&quot;rowsum&quot;</span>] &lt;-<span class="st"> </span><span class="kw">apply</span>(mic, <span class="dv">1</span>, sum)</span>
-<span id="cb57-30"><a href="inter-omics.html#cb57-30"></a>    </span>
-<span id="cb57-31"><a href="inter-omics.html#cb57-31"></a>    <span class="cf">while</span> (n <span class="op">&lt;</span><span class="st"> </span>k) {</span>
-<span id="cb57-32"><a href="inter-omics.html#cb57-32"></a>        n &lt;-<span class="st"> </span>n <span class="op">+</span><span class="st"> </span><span class="dv">1</span></span>
-<span id="cb57-33"><a href="inter-omics.html#cb57-33"></a>        mic[n, ] &lt;-<span class="st"> </span>mic[n, ]<span class="op">/</span>(mic<span class="op">$</span>rowsum[n])</span>
-<span id="cb57-34"><a href="inter-omics.html#cb57-34"></a>    }</span>
-<span id="cb57-35"><a href="inter-omics.html#cb57-35"></a>    </span>
-<span id="cb57-36"><a href="inter-omics.html#cb57-36"></a>    mic<span class="op">$</span>rowsum &lt;-<span class="st"> </span><span class="ot">NULL</span></span>
-<span id="cb57-37"><a href="inter-omics.html#cb57-37"></a>    mic &lt;-<span class="st"> </span><span class="kw">data.frame</span>(<span class="kw">t</span>(mic))</span>
-<span id="cb57-38"><a href="inter-omics.html#cb57-38"></a>    <span class="co"># mic[&#39;avg_rel_abdc&#39;] &lt;- apply(mic, 1, mean) mic[&#39;occurrence&#39;] &lt;-</span></span>
-<span id="cb57-39"><a href="inter-omics.html#cb57-39"></a>    <span class="co"># ifelse(mic$avg&gt;0.0025, &#39;common&#39;, &#39;rare&#39;)</span></span>
-<span id="cb57-40"><a href="inter-omics.html#cb57-40"></a>    <span class="kw">return</span>(mic)</span>
-<span id="cb57-41"><a href="inter-omics.html#cb57-41"></a>}</span>
-<span id="cb57-42"><a href="inter-omics.html#cb57-42"></a></span>
-<span id="cb57-43"><a href="inter-omics.html#cb57-43"></a>rabdc &lt;-<span class="st"> </span><span class="kw">lapply</span>(micro_ds, overall_rabdc)</span>
-<span id="cb57-44"><a href="inter-omics.html#cb57-44"></a></span>
-<span id="cb57-45"><a href="inter-omics.html#cb57-45"></a>rabdc<span class="op">$</span>gb[, <span class="kw">c</span>(<span class="st">&quot;avg_rel_abdc&quot;</span>, <span class="st">&quot;occurrence&quot;</span>)] &lt;-<span class="st"> </span><span class="kw">list</span>(<span class="ot">NULL</span>)</span>
-<span id="cb57-46"><a href="inter-omics.html#cb57-46"></a></span>
-<span id="cb57-47"><a href="inter-omics.html#cb57-47"></a><span class="co"># Shortlist OTUs</span></span>
-<span id="cb57-48"><a href="inter-omics.html#cb57-48"></a>sl &lt;-<span class="st"> </span>rabdc<span class="op">$</span>gb[<span class="kw">c</span>(<span class="st">&quot;X196900144&quot;</span>, <span class="st">&quot;X196900180&quot;</span>, <span class="st">&quot;X196900213&quot;</span>, <span class="st">&quot;X196900310&quot;</span>, <span class="st">&quot;X196900588&quot;</span>, </span>
-<span id="cb57-49"><a href="inter-omics.html#cb57-49"></a>    <span class="st">&quot;X196900589&quot;</span>), ]</span>
-<span id="cb57-50"><a href="inter-omics.html#cb57-50"></a>sl &lt;-<span class="st"> </span><span class="kw">data.frame</span>(<span class="kw">t</span>(sl))</span>
-<span id="cb57-51"><a href="inter-omics.html#cb57-51"></a>sl[<span class="st">&quot;unified_ID&quot;</span>] &lt;-<span class="st"> </span><span class="kw">rownames</span>(sl)</span>
-<span id="cb57-52"><a href="inter-omics.html#cb57-52"></a>sl &lt;-<span class="st"> </span><span class="kw">left_join</span>(sl, meta_data[, <span class="kw">c</span>(<span class="st">&quot;unified_ID&quot;</span>, <span class="st">&quot;Depth&quot;</span>)])</span>
-<span id="cb57-53"><a href="inter-omics.html#cb57-53"></a>sl &lt;-<span class="st"> </span><span class="kw">left_join</span>(sl, cmp[, <span class="kw">c</span>(<span class="st">&quot;unified_ID&quot;</span>, <span class="st">&quot;bar&quot;</span>)])</span>
-<span id="cb57-54"><a href="inter-omics.html#cb57-54"></a><span class="kw">summary</span>(<span class="kw">lm</span>(X196900144 <span class="op">~</span><span class="st"> </span>bar, sl))</span></code></pre></div>
+<div class="sourceCode" id="cb53"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb53-1"><a href="inter-omics.html#cb53-1"></a>micro &lt;-<span class="st"> </span><span class="kw">read.csv</span>(<span class="st">&quot;data/OTU_all_R.csv&quot;</span>, <span class="dt">header =</span> T, <span class="dt">sep =</span> <span class="st">&quot;;&quot;</span>)</span>
+<span id="cb53-2"><a href="inter-omics.html#cb53-2"></a>meta_data &lt;-<span class="st"> </span><span class="kw">read.csv</span>(<span class="st">&quot;data/Steffen_et_al_metadata_PANGAEA.csv&quot;</span>, <span class="dt">header =</span> T, <span class="dt">sep =</span> <span class="st">&quot;;&quot;</span>)</span>
+<span id="cb53-3"><a href="inter-omics.html#cb53-3"></a>cmp &lt;-<span class="st"> </span><span class="kw">read.csv</span>(<span class="st">&quot;data/metabolite_master_20190605.csv&quot;</span>, <span class="dt">header =</span> T, <span class="dt">sep =</span> <span class="st">&quot;,&quot;</span>)</span>
+<span id="cb53-4"><a href="inter-omics.html#cb53-4"></a></span>
+<span id="cb53-5"><a href="inter-omics.html#cb53-5"></a>meta_data &lt;-<span class="st"> </span><span class="kw">meta_data_prep</span>(meta_data)</span>
+<span id="cb53-6"><a href="inter-omics.html#cb53-6"></a></span>
+<span id="cb53-7"><a href="inter-omics.html#cb53-7"></a>OTU_prep &lt;-<span class="st"> </span><span class="cf">function</span>(micro) {</span>
+<span id="cb53-8"><a href="inter-omics.html#cb53-8"></a>    <span class="kw">rownames</span>(micro) &lt;-<span class="st"> </span>micro<span class="op">$</span>Sample_ID</span>
+<span id="cb53-9"><a href="inter-omics.html#cb53-9"></a>    micro<span class="op">$</span>Sample_ID &lt;-<span class="st"> </span><span class="ot">NULL</span></span>
+<span id="cb53-10"><a href="inter-omics.html#cb53-10"></a>    <span class="co"># micro &lt;- sqrt(micro)</span></span>
+<span id="cb53-11"><a href="inter-omics.html#cb53-11"></a>    </span>
+<span id="cb53-12"><a href="inter-omics.html#cb53-12"></a>    micro_gb &lt;-<span class="st"> </span>micro[(<span class="kw">str_sub</span>(<span class="kw">rownames</span>(micro), <span class="dv">1</span>, <span class="dv">2</span>) <span class="op">==</span><span class="st"> &quot;Gb&quot;</span>), ]</span>
+<span id="cb53-13"><a href="inter-omics.html#cb53-13"></a>    micro_sf &lt;-<span class="st"> </span>micro[(<span class="kw">str_sub</span>(<span class="kw">rownames</span>(micro), <span class="dv">1</span>, <span class="dv">2</span>) <span class="op">==</span><span class="st"> &quot;Sf&quot;</span>), ]</span>
+<span id="cb53-14"><a href="inter-omics.html#cb53-14"></a>    micro_wb &lt;-<span class="st"> </span>micro[(<span class="kw">str_sub</span>(<span class="kw">rownames</span>(micro), <span class="dv">1</span>, <span class="dv">2</span>) <span class="op">==</span><span class="st"> &quot;Wb&quot;</span>), ]</span>
+<span id="cb53-15"><a href="inter-omics.html#cb53-15"></a>    </span>
+<span id="cb53-16"><a href="inter-omics.html#cb53-16"></a>    micro_gb &lt;-<span class="st"> </span>micro_gb[, <span class="kw">colSums</span>(micro_gb <span class="op">!=</span><span class="st"> </span><span class="dv">0</span>) <span class="op">&gt;</span><span class="st"> </span><span class="dv">0</span>]</span>
+<span id="cb53-17"><a href="inter-omics.html#cb53-17"></a>    micro_sf &lt;-<span class="st"> </span>micro_sf[, <span class="kw">colSums</span>(micro_sf <span class="op">!=</span><span class="st"> </span><span class="dv">0</span>) <span class="op">&gt;</span><span class="st"> </span><span class="dv">0</span>]</span>
+<span id="cb53-18"><a href="inter-omics.html#cb53-18"></a>    micro_wb &lt;-<span class="st"> </span>micro_wb[, <span class="kw">colSums</span>(micro_wb <span class="op">!=</span><span class="st"> </span><span class="dv">0</span>) <span class="op">&gt;</span><span class="st"> </span><span class="dv">0</span>]</span>
+<span id="cb53-19"><a href="inter-omics.html#cb53-19"></a>    micros &lt;-<span class="st"> </span><span class="kw">list</span>(<span class="dt">gb =</span> micro_gb, <span class="dt">sf =</span> micro_sf, <span class="dt">wb =</span> micro_wb)</span>
+<span id="cb53-20"><a href="inter-omics.html#cb53-20"></a>    <span class="kw">return</span>(micros)</span>
+<span id="cb53-21"><a href="inter-omics.html#cb53-21"></a>}</span>
+<span id="cb53-22"><a href="inter-omics.html#cb53-22"></a></span>
+<span id="cb53-23"><a href="inter-omics.html#cb53-23"></a>micro_ds &lt;-<span class="st"> </span><span class="kw">OTU_prep</span>(micro)</span>
+<span id="cb53-24"><a href="inter-omics.html#cb53-24"></a></span>
+<span id="cb53-25"><a href="inter-omics.html#cb53-25"></a>overall_rabdc &lt;-<span class="st"> </span><span class="cf">function</span>(micros) {</span>
+<span id="cb53-26"><a href="inter-omics.html#cb53-26"></a>    mic &lt;-<span class="st"> </span>micros</span>
+<span id="cb53-27"><a href="inter-omics.html#cb53-27"></a>    n &lt;-<span class="st"> </span><span class="dv">0</span></span>
+<span id="cb53-28"><a href="inter-omics.html#cb53-28"></a>    k &lt;-<span class="st"> </span><span class="kw">dim</span>(mic)[<span class="dv">1</span>]</span>
+<span id="cb53-29"><a href="inter-omics.html#cb53-29"></a>    mic[<span class="st">&quot;rowsum&quot;</span>] &lt;-<span class="st"> </span><span class="kw">apply</span>(mic, <span class="dv">1</span>, sum)</span>
+<span id="cb53-30"><a href="inter-omics.html#cb53-30"></a>    </span>
+<span id="cb53-31"><a href="inter-omics.html#cb53-31"></a>    <span class="cf">while</span> (n <span class="op">&lt;</span><span class="st"> </span>k) {</span>
+<span id="cb53-32"><a href="inter-omics.html#cb53-32"></a>        n &lt;-<span class="st"> </span>n <span class="op">+</span><span class="st"> </span><span class="dv">1</span></span>
+<span id="cb53-33"><a href="inter-omics.html#cb53-33"></a>        mic[n, ] &lt;-<span class="st"> </span>mic[n, ]<span class="op">/</span>(mic<span class="op">$</span>rowsum[n])</span>
+<span id="cb53-34"><a href="inter-omics.html#cb53-34"></a>    }</span>
+<span id="cb53-35"><a href="inter-omics.html#cb53-35"></a>    </span>
+<span id="cb53-36"><a href="inter-omics.html#cb53-36"></a>    mic<span class="op">$</span>rowsum &lt;-<span class="st"> </span><span class="ot">NULL</span></span>
+<span id="cb53-37"><a href="inter-omics.html#cb53-37"></a>    mic &lt;-<span class="st"> </span><span class="kw">data.frame</span>(<span class="kw">t</span>(mic))</span>
+<span id="cb53-38"><a href="inter-omics.html#cb53-38"></a>    <span class="co"># mic[&#39;avg_rel_abdc&#39;] &lt;- apply(mic, 1, mean) mic[&#39;occurrence&#39;] &lt;-</span></span>
+<span id="cb53-39"><a href="inter-omics.html#cb53-39"></a>    <span class="co"># ifelse(mic$avg&gt;0.0025, &#39;common&#39;, &#39;rare&#39;)</span></span>
+<span id="cb53-40"><a href="inter-omics.html#cb53-40"></a>    <span class="kw">return</span>(mic)</span>
+<span id="cb53-41"><a href="inter-omics.html#cb53-41"></a>}</span>
+<span id="cb53-42"><a href="inter-omics.html#cb53-42"></a></span>
+<span id="cb53-43"><a href="inter-omics.html#cb53-43"></a>rabdc &lt;-<span class="st"> </span><span class="kw">lapply</span>(micro_ds, overall_rabdc)</span>
+<span id="cb53-44"><a href="inter-omics.html#cb53-44"></a></span>
+<span id="cb53-45"><a href="inter-omics.html#cb53-45"></a>rabdc<span class="op">$</span>gb[, <span class="kw">c</span>(<span class="st">&quot;avg_rel_abdc&quot;</span>, <span class="st">&quot;occurrence&quot;</span>)] &lt;-<span class="st"> </span><span class="kw">list</span>(<span class="ot">NULL</span>)</span>
+<span id="cb53-46"><a href="inter-omics.html#cb53-46"></a></span>
+<span id="cb53-47"><a href="inter-omics.html#cb53-47"></a><span class="co"># Shortlist OTUs</span></span>
+<span id="cb53-48"><a href="inter-omics.html#cb53-48"></a>sl &lt;-<span class="st"> </span>rabdc<span class="op">$</span>gb[<span class="kw">c</span>(<span class="st">&quot;X196900144&quot;</span>, <span class="st">&quot;X196900180&quot;</span>, <span class="st">&quot;X196900213&quot;</span>, <span class="st">&quot;X196900310&quot;</span>, <span class="st">&quot;X196900588&quot;</span>, </span>
+<span id="cb53-49"><a href="inter-omics.html#cb53-49"></a>    <span class="st">&quot;X196900589&quot;</span>), ]</span>
+<span id="cb53-50"><a href="inter-omics.html#cb53-50"></a>sl &lt;-<span class="st"> </span><span class="kw">data.frame</span>(<span class="kw">t</span>(sl))</span>
+<span id="cb53-51"><a href="inter-omics.html#cb53-51"></a>sl[<span class="st">&quot;unified_ID&quot;</span>] &lt;-<span class="st"> </span><span class="kw">rownames</span>(sl)</span>
+<span id="cb53-52"><a href="inter-omics.html#cb53-52"></a>sl &lt;-<span class="st"> </span><span class="kw">left_join</span>(sl, meta_data[, <span class="kw">c</span>(<span class="st">&quot;unified_ID&quot;</span>, <span class="st">&quot;Depth&quot;</span>)])</span>
+<span id="cb53-53"><a href="inter-omics.html#cb53-53"></a>sl &lt;-<span class="st"> </span><span class="kw">left_join</span>(sl, cmp[, <span class="kw">c</span>(<span class="st">&quot;unified_ID&quot;</span>, <span class="st">&quot;bar&quot;</span>)])</span>
+<span id="cb53-54"><a href="inter-omics.html#cb53-54"></a><span class="kw">summary</span>(<span class="kw">lm</span>(X196900144 <span class="op">~</span><span class="st"> </span>bar, sl))</span></code></pre></div>
 <pre><code>## 
 ## Call:
 ## lm(formula = X196900144 ~ bar, data = sl)
@@ -4260,7 +4238,7 @@ JTB23
 ##   (4 observations deleted due to missingness)
 ## Multiple R-squared:  0.8051, Adjusted R-squared:  0.7807 
 ## F-statistic: 33.04 on 1 and 8 DF,  p-value: 0.0004298</code></pre>
-<div class="sourceCode" id="cb59"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb59-1"><a href="inter-omics.html#cb59-1"></a><span class="kw">summary</span>(<span class="kw">lm</span>(X196900180 <span class="op">~</span><span class="st"> </span>bar, sl))</span></code></pre></div>
+<div class="sourceCode" id="cb55"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb55-1"><a href="inter-omics.html#cb55-1"></a><span class="kw">summary</span>(<span class="kw">lm</span>(X196900180 <span class="op">~</span><span class="st"> </span>bar, sl))</span></code></pre></div>
 <pre><code>## 
 ## Call:
 ## lm(formula = X196900180 ~ bar, data = sl)
@@ -4280,7 +4258,7 @@ JTB23
 ##   (4 observations deleted due to missingness)
 ## Multiple R-squared:  0.7643, Adjusted R-squared:  0.7348 
 ## F-statistic: 25.94 on 1 and 8 DF,  p-value: 0.0009383</code></pre>
-<div class="sourceCode" id="cb61"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb61-1"><a href="inter-omics.html#cb61-1"></a><span class="kw">summary</span>(<span class="kw">lm</span>(X196900213 <span class="op">~</span><span class="st"> </span>bar, sl))</span></code></pre></div>
+<div class="sourceCode" id="cb57"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb57-1"><a href="inter-omics.html#cb57-1"></a><span class="kw">summary</span>(<span class="kw">lm</span>(X196900213 <span class="op">~</span><span class="st"> </span>bar, sl))</span></code></pre></div>
 <pre><code>## 
 ## Call:
 ## lm(formula = X196900213 ~ bar, data = sl)
@@ -4300,7 +4278,7 @@ JTB23
 ##   (4 observations deleted due to missingness)
 ## Multiple R-squared:  0.5852, Adjusted R-squared:  0.5333 
 ## F-statistic: 11.29 on 1 and 8 DF,  p-value: 0.009939</code></pre>
-<div class="sourceCode" id="cb63"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb63-1"><a href="inter-omics.html#cb63-1"></a><span class="kw">summary</span>(<span class="kw">lm</span>(X196900310 <span class="op">~</span><span class="st"> </span>bar, sl))</span></code></pre></div>
+<div class="sourceCode" id="cb59"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb59-1"><a href="inter-omics.html#cb59-1"></a><span class="kw">summary</span>(<span class="kw">lm</span>(X196900310 <span class="op">~</span><span class="st"> </span>bar, sl))</span></code></pre></div>
 <pre><code>## 
 ## Call:
 ## lm(formula = X196900310 ~ bar, data = sl)
@@ -4320,7 +4298,7 @@ JTB23
 ##   (4 observations deleted due to missingness)
 ## Multiple R-squared:  0.4439, Adjusted R-squared:  0.3744 
 ## F-statistic: 6.385 on 1 and 8 DF,  p-value: 0.03543</code></pre>
-<div class="sourceCode" id="cb65"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb65-1"><a href="inter-omics.html#cb65-1"></a><span class="kw">summary</span>(<span class="kw">lm</span>(X196900588 <span class="op">~</span><span class="st"> </span>bar, sl))</span></code></pre></div>
+<div class="sourceCode" id="cb61"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb61-1"><a href="inter-omics.html#cb61-1"></a><span class="kw">summary</span>(<span class="kw">lm</span>(X196900588 <span class="op">~</span><span class="st"> </span>bar, sl))</span></code></pre></div>
 <pre><code>## 
 ## Call:
 ## lm(formula = X196900588 ~ bar, data = sl)
@@ -4340,7 +4318,7 @@ JTB23
 ##   (4 observations deleted due to missingness)
 ## Multiple R-squared:  0.4021, Adjusted R-squared:  0.3274 
 ## F-statistic:  5.38 on 1 and 8 DF,  p-value: 0.04895</code></pre>
-<div class="sourceCode" id="cb67"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb67-1"><a href="inter-omics.html#cb67-1"></a><span class="kw">summary</span>(<span class="kw">lm</span>(X196900589 <span class="op">~</span><span class="st"> </span>bar, sl))</span></code></pre></div>
+<div class="sourceCode" id="cb63"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb63-1"><a href="inter-omics.html#cb63-1"></a><span class="kw">summary</span>(<span class="kw">lm</span>(X196900589 <span class="op">~</span><span class="st"> </span>bar, sl))</span></code></pre></div>
 <pre><code>## 
 ## Call:
 ## lm(formula = X196900589 ~ bar, data = sl)
@@ -4360,17 +4338,19 @@ JTB23
 ##   (4 observations deleted due to missingness)
 ## Multiple R-squared:  0.779,  Adjusted R-squared:  0.7513 
 ## F-statistic: 28.19 on 1 and 8 DF,  p-value: 0.0007201</code></pre>
-<div class="sourceCode" id="cb69"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb69-1"><a href="inter-omics.html#cb69-1"></a><span class="kw">library</span>(reshape2)</span>
-<span id="cb69-2"><a href="inter-omics.html#cb69-2"></a>sl &lt;-<span class="st"> </span><span class="kw">melt</span>(sl, <span class="dt">id.vars =</span> <span class="kw">c</span>(<span class="st">&quot;unified_ID&quot;</span>, <span class="st">&quot;Depth&quot;</span>, <span class="st">&quot;bar&quot;</span>))</span>
-<span id="cb69-3"><a href="inter-omics.html#cb69-3"></a><span class="kw">ggplot</span>(sl, <span class="kw">aes</span>(<span class="dt">x =</span> Depth, <span class="dt">y =</span> value)) <span class="op">+</span><span class="st"> </span><span class="kw">geom_point</span>() <span class="op">+</span><span class="st"> </span><span class="kw">facet_grid</span>(. <span class="op">~</span><span class="st"> </span>variable)</span></code></pre></div>
+<div class="sourceCode" id="cb65"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb65-1"><a href="inter-omics.html#cb65-1"></a><span class="kw">library</span>(reshape2)</span>
+<span id="cb65-2"><a href="inter-omics.html#cb65-2"></a>sl &lt;-<span class="st"> </span><span class="kw">melt</span>(sl, <span class="dt">id.vars =</span> <span class="kw">c</span>(<span class="st">&quot;unified_ID&quot;</span>, <span class="st">&quot;Depth&quot;</span>, <span class="st">&quot;bar&quot;</span>))</span>
+<span id="cb65-3"><a href="inter-omics.html#cb65-3"></a><span class="kw">ggplot</span>(sl, <span class="kw">aes</span>(<span class="dt">x =</span> Depth, <span class="dt">y =</span> value)) <span class="op">+</span><span class="st"> </span><span class="kw">geom_point</span>() <span class="op">+</span><span class="st"> </span><span class="kw">facet_wrap</span>(. <span class="op">~</span><span class="st"> </span>variable, <span class="dt">scales =</span> <span class="st">&quot;free&quot;</span>) <span class="op">+</span><span class="st"> </span></span>
+<span id="cb65-4"><a href="inter-omics.html#cb65-4"></a><span class="st">    </span><span class="kw">theme_bw</span>() <span class="op">+</span><span class="st"> </span><span class="kw">scale_y_continuous</span>(<span class="dt">labels =</span> scales<span class="op">::</span>scientific) <span class="op">+</span><span class="st"> </span><span class="kw">scale_x_continuous</span>(<span class="dt">labels =</span> scales<span class="op">::</span>scientific) <span class="op">+</span><span class="st"> </span></span>
+<span id="cb65-5"><a href="inter-omics.html#cb65-5"></a><span class="st">    </span><span class="kw">ggtitle</span>(<span class="st">&quot;Shortlisted OTUs and depth&quot;</span>)</span></code></pre></div>
 <p><img src="Oceanographic-setting-influences-the-prokaryote-community-and-metabolome-in-deep-sea-sponges_files/figure-html/shortlisted-OTU-bar-1.png" width="672" /></p>
-<div class="sourceCode" id="cb70"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb70-1"><a href="inter-omics.html#cb70-1"></a><span class="kw">ggplot</span>(sl, <span class="kw">aes</span>(<span class="dt">x =</span> bar, <span class="dt">y =</span> value)) <span class="op">+</span><span class="st"> </span><span class="kw">geom_point</span>() <span class="op">+</span><span class="st"> </span><span class="kw">geom_smooth</span>(<span class="dt">method =</span> <span class="st">&quot;lm&quot;</span>, <span class="dt">formula =</span> y <span class="op">~</span><span class="st"> </span></span>
-<span id="cb70-2"><a href="inter-omics.html#cb70-2"></a><span class="st">    </span>x) <span class="op">+</span><span class="st"> </span><span class="kw">facet_wrap</span>(. <span class="op">~</span><span class="st"> </span>variable, <span class="dt">scales =</span> <span class="st">&quot;free&quot;</span>) <span class="op">+</span><span class="st"> </span><span class="kw">theme_bw</span>() <span class="op">+</span><span class="st"> </span><span class="kw">theme</span>(<span class="dt">axis.text.x =</span> <span class="kw">element_text</span>(<span class="dt">angle =</span> <span class="dv">90</span>, </span>
-<span id="cb70-3"><a href="inter-omics.html#cb70-3"></a>    <span class="dt">vjust =</span> <span class="fl">0.5</span>, <span class="dt">hjust =</span> <span class="dv">1</span>)) <span class="op">+</span><span class="st"> </span><span class="kw">xlab</span>(<span class="st">&quot;Barettin signal&quot;</span>) <span class="op">+</span><span class="st"> </span><span class="kw">ylab</span>(<span class="st">&quot;OTU relative abundance&quot;</span>) <span class="op">+</span><span class="st"> </span></span>
-<span id="cb70-4"><a href="inter-omics.html#cb70-4"></a><span class="st">    </span><span class="kw">scale_y_continuous</span>(<span class="dt">labels =</span> scales<span class="op">::</span>scientific) <span class="op">+</span><span class="st"> </span><span class="kw">scale_x_continuous</span>(<span class="dt">labels =</span> scales<span class="op">::</span>scientific) <span class="op">+</span><span class="st"> </span></span>
-<span id="cb70-5"><a href="inter-omics.html#cb70-5"></a><span class="st">    </span><span class="kw">ggtitle</span>(<span class="st">&quot;Shortlisted OTUs and barettin&quot;</span>)</span></code></pre></div>
+<div class="sourceCode" id="cb66"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb66-1"><a href="inter-omics.html#cb66-1"></a><span class="kw">ggplot</span>(sl, <span class="kw">aes</span>(<span class="dt">x =</span> bar, <span class="dt">y =</span> value)) <span class="op">+</span><span class="st"> </span><span class="kw">geom_point</span>() <span class="op">+</span><span class="st"> </span><span class="kw">geom_smooth</span>(<span class="dt">method =</span> <span class="st">&quot;lm&quot;</span>, <span class="dt">formula =</span> y <span class="op">~</span><span class="st"> </span></span>
+<span id="cb66-2"><a href="inter-omics.html#cb66-2"></a><span class="st">    </span>x) <span class="op">+</span><span class="st"> </span><span class="kw">facet_wrap</span>(. <span class="op">~</span><span class="st"> </span>variable, <span class="dt">scales =</span> <span class="st">&quot;free&quot;</span>) <span class="op">+</span><span class="st"> </span><span class="kw">theme_bw</span>() <span class="op">+</span><span class="st"> </span><span class="kw">theme</span>(<span class="dt">axis.text.x =</span> <span class="kw">element_text</span>(<span class="dt">angle =</span> <span class="dv">90</span>, </span>
+<span id="cb66-3"><a href="inter-omics.html#cb66-3"></a>    <span class="dt">vjust =</span> <span class="fl">0.5</span>, <span class="dt">hjust =</span> <span class="dv">1</span>)) <span class="op">+</span><span class="st"> </span><span class="kw">xlab</span>(<span class="st">&quot;Barettin signal&quot;</span>) <span class="op">+</span><span class="st"> </span><span class="kw">ylab</span>(<span class="st">&quot;OTU relative abundance&quot;</span>) <span class="op">+</span><span class="st"> </span></span>
+<span id="cb66-4"><a href="inter-omics.html#cb66-4"></a><span class="st">    </span><span class="kw">scale_y_continuous</span>(<span class="dt">labels =</span> scales<span class="op">::</span>scientific) <span class="op">+</span><span class="st"> </span><span class="kw">scale_x_continuous</span>(<span class="dt">labels =</span> scales<span class="op">::</span>scientific) <span class="op">+</span><span class="st"> </span></span>
+<span id="cb66-5"><a href="inter-omics.html#cb66-5"></a><span class="st">    </span><span class="kw">ggtitle</span>(<span class="st">&quot;Shortlisted OTUs and barettin&quot;</span>)</span></code></pre></div>
 <p><img src="Oceanographic-setting-influences-the-prokaryote-community-and-metabolome-in-deep-sea-sponges_files/figure-html/shortlisted-OTU-bar-2.png" width="672" /></p>
-<div class="sourceCode" id="cb71"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb71-1"><a href="inter-omics.html#cb71-1"></a><span class="kw">sessionInfo</span>()</span></code></pre></div>
+<div class="sourceCode" id="cb67"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb67-1"><a href="inter-omics.html#cb67-1"></a><span class="kw">sessionInfo</span>()</span></code></pre></div>
 <pre><code>## R version 3.5.1 (2018-07-02)
 ## Platform: x86_64-apple-darwin15.6.0 (64-bit)
 ## Running under: macOS  10.15.5

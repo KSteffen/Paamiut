@@ -1019,7 +1019,6 @@ We believe the producer of barettin (and related compounds) to have the followin
 
 the OTUs below fulfill these criteria:
 ```{r shortlist}
-
 #most annotation from NW
 micro <- read.csv("data/OTU_all_R.csv", header = T, sep = ";")
 
@@ -1088,8 +1087,8 @@ shortlist_gb <- left_join(shortlist_gb, taxonomy)
 #intersect(colnames(micro_ds$gb), colnames(micro_ds$sf)) # shared OTUs
 #length(intersect(colnames(micro_ds$gb), colnames(micro_ds$sf))) # 316
 
-setdiff(colnames(micro_ds$gb), colnames(micro_ds$sf)) # Setdiff finds rows that appear in first table but not in second
-length(setdiff(colnames(micro_ds$gb), colnames(micro_ds$sf))) # 104:ok!
+#setdiff(colnames(micro_ds$gb), colnames(micro_ds$sf)) # Setdiff finds rows that appear in first table but not in second
+#length(setdiff(colnames(micro_ds$gb), colnames(micro_ds$sf))) # 104:ok!
 gb_unique <- data.frame(setdiff(colnames(micro_ds$gb), colnames(micro_ds$sf)))
 colnames(gb_unique) <- c("XOTU")
 gb_unique["OTU"] <- str_replace(gb_unique$XOTU, "X196900", "")
@@ -1209,7 +1208,7 @@ summary(lm(X196900588~bar, sl))
 summary(lm(X196900589~bar, sl))
 library(reshape2)
 sl <- melt(sl, id.vars = c("unified_ID", "Depth", "bar"))
-ggplot(sl, aes(x=Depth, y=value))+geom_point()+facet_grid(.~variable)
+ggplot(sl, aes(x=Depth, y=value))+geom_point()+facet_wrap(.~variable, scales="free")+theme_bw()+scale_y_continuous(labels = scales::scientific)+scale_x_continuous(labels =scales::scientific)+ ggtitle("Shortlisted OTUs and depth")
 
 ggplot(sl, aes(x=bar, y=value))+geom_point()+geom_smooth(method='lm', formula= y~x)+facet_wrap(.~variable, scales="free")+theme_bw()+theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1))+xlab("Barettin signal")+ylab("OTU relative abundance")+scale_y_continuous(labels = scales::scientific)+scale_x_continuous(labels =scales::scientific)+ ggtitle("Shortlisted OTUs and barettin")
 
