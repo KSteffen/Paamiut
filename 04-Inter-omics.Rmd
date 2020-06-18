@@ -189,7 +189,7 @@ ordination <- function(congruent_dfs, experiment, filtering){
 
 # Inter-omics
 
-The inter-omics analyses are comprised of three parts. In the first part, we evaluate congruency of the prokaryotic and metabolomic data set as a whole using numerical methods (Mantel test) and ordination (Procrustes rotation and Protest). The second part consists of generating a microbial interaction network and annotating it with depth response of the OTUs and correlation with the barettin signal. In the third part, we rank OTUs based on properties hypothesised to be true forthe producer of barettin.
+The inter-omics analyses are comprised of three parts. In the first part, we evaluate congruency of the prokaryotic and metabolomic data set as a whole using numerical methods (Mantel test) and ordination (Procrustes rotation and Protest). The second part consists of generating a microbial interaction network and annotating it with depth response of the OTUs and correlation with the barettin signal. In the third part, we rank OTUs based on properties hypothesised to be true for the producer of barettin.
 
 ## Mantel test and procrustes rotations
 
@@ -305,7 +305,7 @@ As we can see from the table, in `r dim(dig)[1]` cases, the Mantel test returns 
 
 ### Procrustes rotation and protest code and tabular output
 
-```{r io5_prt, eval=F}
+```{r io5-prt, eval=F}
 ###=============================== PROTEST ====================================
 
 #run one of this at a time
@@ -348,7 +348,7 @@ rm(diagnostics_hp_cleaned, diagnostics_hn_cleaned, diagnostics_rp_cleaned, diagn
 rm(hilic_pos, hilic_neg, rp_pos, rp_neg)
 ```
 
-```{r io6_prt}
+```{r io6-prt}
 diagnostics <- read.csv("data/protest_stats_FUN.csv")
 diagnostics$X <- NULL
 diagnostics <- diagnostics[,c("Procrustes.SS","correlation.in.sym..rotation", "signif", "micro_samples","micro_OTUs","meta_samples","meta_features","Sponge.species", "Experiment",  "data.set")]
@@ -367,7 +367,6 @@ a <- aggregate(dig, by=list(dig$Sponge.species, dig$Experiment, dig$data.set), F
 summary(a$Group.1)
 summary(a$Group.2)
 summary(a$Group.3)
-
 
 ```
 Out of the `r dim(diagnostics)[1]` tests performed, `r dim(diagnostics[diagnostics$signif<=0.05,])[1]` are significant (_p_ $\leq$ 0.05). Immediately above you can see the the significant tests broken down by sponge species, HPCL-experiment and filtering approach.
@@ -921,7 +920,7 @@ write.csv(edges, "data/master_summary_networks_2.csv", row.names = F)
 
 We selected all edges with at least 4 p-values $\leq$ 0.05 to visualise in the network. This consensus network has `r dim(edges)[1]` edges and `r length(nodes)` nodes. Below are two versions of the network. In the first version, all OTUs correlating with barettin are colour-coded by class. In the second version, all OTUs increasing/decreasing woth depth are highlighted by colour.
 
-```{r igraph, fig.cap="Micrbial interaction networks highlighting OTUs correlating with barettin and OTUs correlating with depth."}
+```{r igraph, fig.cap="Microbial interaction networks highlighting OTUs correlating with barettin and OTUs correlating with depth."}
 #THANK YOU: https://kateto.net/networks-r-igraph
 
 edges <- read.csv("data/master_summary_networks_2.csv", header = T, sep = ",")

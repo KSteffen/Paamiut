@@ -135,7 +135,7 @@ sample_map2 <- ggplot(data = world) +geom_sf() +
 sample_map2
 ```
 
-```{r sample-map2, fig.cap="Detail map of the sampling site, samples represented by dots are coloured according to sponge species."}
+```{r sample-map2, fig.cap="Detailed map of the sampling site, samples represented by dots are coloured according to sponge species."}
 map_data<-getNOAA.bathy(-70,-50,58,68, resolution = 4, keep=T, antimeridian=FALSE)
 sample_map_1 <- autoplot(map_data, geom=c("r", "c"))+
   scale_fill_gradient2(low="dodgerblue4", mid="gainsboro", high="darkgreen")+ 
@@ -176,7 +176,7 @@ knitr::include_graphics("data/water_masses_2002-2015 T-S Profiles Selected in To
 knitr::include_graphics("data/sponges.png")
 ```
 
-_G. barretti_ and _S. fortis_ are high microbial abundance sponges often found living in proximity. _W. bursa_ is likely a low microbial abundance sponges (see diversity metrics, Nicole Boury-Esnault _per.comm._). While all songes originate from the same geographic region, _W. bursa_ typically does not occur in the same habitats as _G. barretti_ and _S. fortis_ [@murillo_sponge_2018].
+_G. barretti_ and _S. fortis_ are high microbial abundance (HMA) sponges often found living in proximity. _W. bursa_ is likely a low microbial abundance sponges (see diversity metrics, Nicole Boury-Esnault _per.comm._). While all sponges originate from the same geographic region, _W. bursa_ typically does not occur in the same habitats as _G. barretti_ and _S. fortis_ [@murillo_sponge_2018].
 It is important to note that _S. fortis_ is whiteish in colour, and the yellow shown in the picture stems from _Hexadella dedritifera_ frequently found overgrowing it.
 
 ## Sample metadata analysis

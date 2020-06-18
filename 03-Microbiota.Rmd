@@ -900,7 +900,7 @@ For all _G. barretti_ and _S. fortis_ depth is a significant constraint of the m
 
 In an alternative approach, we fit environmental vectors onto an ordination of the microbiota. This method allows to include all environmental parameters (regardless of collinearity). Length of the arrow indicates strength of the predictor (environmental parameter).
 
-```{r envfit-1, fig.cap="Fitting significant (p<0.05) environmental vectors onto ordination of G. barretti microbiome."}
+```{r envfit-1, fig.cap="Fitting significant (p<0.05) environmental vectors onto ordination of _G. barretti_ microbiome."}
 set.seed(1984)
 microbiome<-read.csv("data/OTU_all_R.csv", header=T, sep=";") 
 meta_data <- read.csv("data/Steffen_et_al_metadata_PANGAEA.csv", header=T, sep=";")
@@ -931,7 +931,7 @@ plot(ordi_micro, display="sites") #plot
 plot(ef, p.max = 0.05) #arrows
 ```
 
-```{r envfit-2, fig.cap="Fitting significant (p<0.05) environmental vectors onto ordination of S. fortis microbiome."}
+```{r envfit-2, fig.cap="Fitting significant (p<0.05) environmental vectors onto ordination of _S. fortis_ microbiome."}
 set.seed(1984)
 dist_micro <- vegdist(wisconsin(microbiomes$sf)) # distance matrix
 ordi_micro <- metaMDS(dist_micro, trace=F) # ordination
@@ -941,7 +941,7 @@ plot(ordi_micro, display="sites") # plot
 plot(ef, p.max = 0.05) # arrows
 ```
 
-```{r envfit-3, fig.cap="Fitting significant (p<0.05) environmental vectors onto ordination of W. bursa microbiome."}
+```{r envfit-3, fig.cap="Fitting significant (p<0.05) environmental vectors onto ordination of _W. bursa_ microbiome."}
 set.seed(1984)
 dist_micro <- vegdist(wisconsin(microbiomes$wb)) # distance matrix
 ordi_micro <- metaMDS(dist_micro, trace = F) # ordination
