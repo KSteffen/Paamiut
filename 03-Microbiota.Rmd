@@ -423,7 +423,7 @@ otu_table_pso <- as.data.frame(pso@otu_table)
 df.pd <- pd(t(otu_table_pso), tree, include.root=F) 
 df.pd["unified_ID"] <- rownames(df.pd)
 #df.pd: PD = Faith's Phylogenetic diversity, SR= species richness 
-div <- as.data.frame(diversity(t(otumat), index = "shannon"))
+div <- as.data.frame(vegan::diversity(t(otumat), index = "shannon"))
 div["spec"] <- str_sub(rownames(div),1,2)
 colnames(div) <- c( "Shannon_diversity","spec")
 div["unified_ID"] <- rownames(div)
