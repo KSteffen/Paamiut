@@ -900,8 +900,7 @@ For all _G. barretti_ and _S. fortis_ depth is a significant constraint of the m
 
 In an alternative approach, we fit environmental vectors onto an ordination of the microbiota. This method allows to include all environmental parameters (regardless of collinearity). Length of the arrow indicates strength of the predictor (environmental parameter).
 
-```{r envfit-1, fig.cap="Fitting significant (p<0.05) environmental vectors onto ordination of _G. barretti_ microbiome."}
-set.seed(1984)
+```{r envfit-1, cache=TRUE, fig.cap="Fitting significant (p<0.05) environmental vectors onto ordination of _G. barretti_ microbiome."}
 microbiome<-read.csv("data/OTU_all_R.csv", header=T, sep=";") 
 meta_data <- read.csv("data/Steffen_et_al_metadata_PANGAEA.csv", header=T, sep=";")
 
@@ -927,28 +926,33 @@ ef <- envfit(ordi_micro, mds$gb_md, permutations = 999) # fitting arrows; STRATA
 ef
 # r Goodness of fit statistic: Squared correlation coefficient
 # I will report r^2 i.e. goodness of fit rather than correlaiton because correlation with a distance matrix is not meaningful for understanding
+
+#pdf(file = "data/Gb_NMDS.pdf", width = 5, height = 5)
 plot(ordi_micro, display="sites") #plot
 plot(ef, p.max = 0.05) #arrows
+#dev.off()
 ```
 
-```{r envfit-2, fig.cap="Fitting significant (p<0.05) environmental vectors onto ordination of _S. fortis_ microbiome."}
-set.seed(1984)
+```{r envfit-2, cache=TRUE, fig.cap="Fitting significant (p<0.05) environmental vectors onto ordination of _S. fortis_ microbiome."}
 dist_micro <- vegdist(wisconsin(microbiomes$sf)) # distance matrix
 ordi_micro <- metaMDS(dist_micro, trace=F) # ordination
 ef <- envfit(ordi_micro, mds$sf_md, permutations = 999) # fitting arrows
 ef
+#pdf(file = "data/Sf_NMDS.pdf", width = 5, height = 5)
 plot(ordi_micro, display="sites") # plot
 plot(ef, p.max = 0.05) # arrows
+#dev.off()
 ```
 
-```{r envfit-3, fig.cap="Fitting significant (p<0.05) environmental vectors onto ordination of _W. bursa_ microbiome."}
-set.seed(1984)
+```{r envfit-3, cache=TRUE, fig.cap="Fitting significant (p<0.05) environmental vectors onto ordination of _W. bursa_ microbiome."}
 dist_micro <- vegdist(wisconsin(microbiomes$wb)) # distance matrix
 ordi_micro <- metaMDS(dist_micro, trace = F) # ordination
 ef <- envfit(ordi_micro, mds$wb_md, permutations = 999) # fitting arrows
 ef
+#pdf(file = "data/Wb_NMDS.pdf", width = 5, height = 5)
 plot(ordi_micro, display="sites") # plot
 plot(ef, p.max = 0.05) # arrows
+#dev.off()
 ```
 
 ### Hierarchical clustering {#Hclust} 
@@ -1086,7 +1090,6 @@ pheatmap(k,
 #)
 
 ```
-
 
 ```{r bioenv, eval=F, echo=F}
 ### Environmental/explanatory variables with maximum (Rank) correlation with community dissimilarities
@@ -1419,14 +1422,13 @@ ggplot(df_phylum, aes(x=Sample_ID, y=variable, fill=Phylum))+geom_bar(stat="iden
                   breaks = c("Acidobacteria", "Actinobacteria", "Bacteroidetes", "Chlamydiae", "Chloroflexi", "Cyanobacteria", "Deferribacteres", "Deinococcus.Thermus", "Firmicutes", "Gemmatimonadetes", "Nitrospinae", "Nitrospirae", 
 "PAUC34f", "Planctomycetes", "Poribacteria", "Proteobacteria", "SBR1093", "Spirochaetae", "Tectomicrobia", "Thaumarchaeota", 
 "unclassified", "Verrucomicrobia"),
-                  values = c("#b8c4f6", "#ffaaaf", "#3d1349", "#B6B2A9", "#01559d", "#CACAC8", "#E1DED7", "#CEC7C1", "#9A9B9D", "#019c51", "#b10060", "#49ca00", "#dd8e00", "#f282ff", "#AFA79D", "#ff633f", "#ec0040", "#010b92", "#cf00aa", "#aba900", "#ffffff", "#fce300"
-),
-                  labels = c("Acidobacteria", "Actinobacteria", "Bacteroidetes", "Chlamydiae", "Chloroflexi", "Cyanobacteria", "Deferribacteres", "Deinococcus.Thermus", "Firmicutes", "Gemmatimonadetes", "Nitrospinae", "Nitrospirae", 
-                             "PAUC34f", "Planctomycetes", "Poribacteria", "Proteobacteria", "SBR1093", "Spirochaetae", "Tectomicrobia", "Thaumarchaeota", 
-                             "unclassified", "Verrucomicrobia")
-                  )
+                  values = c("#b8c4f6", "#ffaaaf", "#3d1349", "#B6B2A9", "#01559d", "#CACAC8", "#E1DED7", "#CEC7C1", "#9A9B9D", "#019c51", "#b10060", "#49ca00", "#dd8e00", "#f282ff", "#AFA79D", "#ff633f", "#ec0040", "#010b92", "#cf00aa", "#aba900", "#ffffff", "#fce300"),
+                  labels = c("Acidobacteria", "Actinobacteria", "Bacteroidetes", "Chlamydiae", "Chloroflexi", "Cyanobacteria", "Deferribacteres", "Deinococcus Thermus", "Firmicutes", "Gemmatimonadetes", "Nitrospinae", "Nitrospirae", "PAUC34f", "Planctomycetes", "Poribacteria", "Proteobacteria", "SBR1093", "Spirochaetae", "Tectomicrobia", "Thaumarchaeota", "unclassified", "Verrucomicrobia")
+                  )#+guides(fill = guide_legend(ncol = 6)) #for print
   
-  
+
+#ggsave("rel_abdc.pdf", plot=last_plot(), path="data/", device = "pdf", units = "mm", width = 175, height = 120, , useDingbats=FALSE)
+
 # facet  
 #df_phylum["spec"] <- str_sub(df_phylum$Sample_ID,1,2)
 #md <- meta_data[,c("unified_ID", "Depth")]
@@ -1437,7 +1439,6 @@ ggplot(df_phylum, aes(x=Sample_ID, y=variable, fill=Phylum))+geom_bar(stat="iden
 #  breaks = c("Acidobacteria", "Actinobacteria", "Bacteroidetes", "Chlamydiae", "Chloroflexi", "Cyanobacteria", "Deferribacteres", "Deinococcus.Thermus", "Firmicutes", "Gemmatimonadetes", "Nitrospinae", "Nitrospirae", "PAUC34f", "Planctomycetes", "Poribacteria", "Proteobacteria", "SBR1093", "Spirochaetae", "Tectomicrobia", "Thaumarchaeota", "unclassified", "Verrucomicrobia"),
 #  values = c("#b8c4f6","#ffaaaf","#3d1349","#ffffff","#01559d","#ffffff","#ffffff","#ffffff","#ffffff","#019c51","#b10060","#49ca00","#dd8e00","#f282ff","#ffffff","#ff633f","#ec0040","#010b92","#cf00aa","#aba900","#ffffff","#fce300"),
 #  labels = c("Acidobacteria", "Actinobacteria", "Bacteroidetes", "Chlamydiae", "Chloroflexi", "Cyanobacteria", "Deferribacteres", "Deinococcus.Thermus", "Firmicutes", "Gemmatimonadetes", "Nitrospinae", "Nitrospirae", "PAUC34f", "Planctomycetes", "Poribacteria", "Proteobacteria", "SBR1093", "Spirochaetae", "Tectomicrobia", "Thaumarchaeota", "unclassified", "Verrucomicrobia")      )
-
 ```
 
 
@@ -1934,7 +1935,7 @@ wb_response <- response$wb
 
 rabdc_gb["XOTU"] <- rownames(rabdc_gb)
 gb_heatmap <- full_join(rabdc_gb, gb_response)
-gb_heatmap <- melt(gb_heatmap, id.vars=c("XOTU", "inc_dec_estimate", "inc_dec_p_val", "classification"))
+gb_heatmap <- melt(gb_heatmap, id.vars=c("XOTU", "inc_dec_estimate", "inc_dec_p_val",  "fdr", "classification"))
 md <- meta_data[,c("unified_ID", "Depth")]
 colnames(md) <- c("variable", "Depth")
 gb_heatmap <- left_join(gb_heatmap, md)
@@ -1948,7 +1949,7 @@ gb_heatmap_d <- gb_heatmap[gb_heatmap$classification=="decreasing",]
 #sf
 rabdc_sf["XOTU"] <- rownames(rabdc_sf)
 sf_heatmap <- full_join(rabdc_sf, sf_response)
-sf_heatmap <- melt(sf_heatmap, id.vars=c("XOTU", "inc_dec_estimate", "inc_dec_p_val", "classification"))
+sf_heatmap <- melt(sf_heatmap, id.vars=c("XOTU", "inc_dec_estimate", "inc_dec_p_val",  "fdr", "classification"))
 md <- meta_data[,c("unified_ID", "Depth")]
 colnames(md) <- c("variable", "Depth")
 sf_heatmap <- left_join(sf_heatmap, md)
@@ -1962,7 +1963,7 @@ sf_heatmap_d <- sf_heatmap[sf_heatmap$classification=="decreasing",]
 #wb
 rabdc_wb["XOTU"] <- rownames(rabdc_wb)
 wb_heatmap <- full_join(rabdc_wb, wb_response)
-wb_heatmap <- melt(wb_heatmap, id.vars=c("XOTU", "inc_dec_estimate", "inc_dec_p_val", "classification"))
+wb_heatmap <- melt(wb_heatmap, id.vars=c("XOTU", "inc_dec_estimate", "inc_dec_p_val",  "fdr", "classification"))
 md <- meta_data[,c("unified_ID", "Depth")]
 colnames(md) <- c("variable", "Depth")
 wb_heatmap <- left_join(wb_heatmap, md)
@@ -1978,16 +1979,25 @@ gb_heatmap_i["spec"] <-c("Geodia barretti")
 sf_heatmap_i["spec"] <-c("Stryphnus fortis")
 wb_heatmap_i["spec"] <-c("Weberella bursa")
 increase <- rbind(gb_heatmap_i, sf_heatmap_i, wb_heatmap_i)
-inc <- ggplot(increase, aes(x=as.factor(Depth), y=name, fill=value))+facet_grid(.~spec, space = "free", scales="free")+geom_tile()+theme_classic()+theme(axis.text.x = element_text(angle = 90, hjust = 1))+xlab("Depth")+ylab("OTUs")+ggtitle("OTUs increasing")+scale_fill_viridis_c(option = "plasma")+theme(plot.background=element_blank(), panel.border=element_blank(), legend.title=element_blank(),legend.position="bottom")
+inc <- ggplot(increase, aes(x=as.factor(Depth), y=name, fill=value))+xlab("Depth")+ylab("OTUs")+ggtitle("OTUs increasing")+theme_classic(base_size=7)+
+  theme(panel.border = element_rect(fill=NA, colour = "black", size = 1), strip.background = element_blank(),strip.placement = "inside", legend.position="none", axis.text.x= element_text(angle = 90, hjust = 1), strip.text.x = element_text(face = "italic"))+
+  geom_tile()+facet_grid(.~spec, space = "free", scales="free", drop=T)+scale_fill_viridis_c(option = "plasma")
 
 gb_heatmap_d["spec"] <-c("Geodia barretti")
 sf_heatmap_d["spec"] <-c("Stryphnus fortis")
 wb_heatmap_d["spec"] <-c("Weberella bursa")
 decrease <- rbind(gb_heatmap_d, sf_heatmap_d, wb_heatmap_d)
-dec <- ggplot(decrease, aes(x=as.factor(Depth), y=name, fill=value))+facet_grid(.~spec, space = "free", scales="free", drop=T)+geom_tile()+theme_classic()+theme(axis.text.x = element_text(angle = 90, hjust = 1))+xlab("Depth")+ylab("OTUs")+ggtitle("OTUs decreasing")+scale_fill_viridis_c(option = "plasma")+theme(plot.background=element_blank(), panel.border=element_blank(), legend.title=element_blank(),legend.position="bottom")
+dec <- ggplot(decrease, aes(x=as.factor(Depth), y=name, fill=value))+xlab("Depth")+ylab("OTUs")+ggtitle("OTUs decreasing")+theme_classic(base_size=7)+
+  theme(panel.border = element_rect(fill=NA, colour = "black", size = 1), strip.background = element_blank(),strip.placement = "inside",legend.position="bottom", legend.title=element_blank(),axis.text.x = element_text(angle = 90, hjust = 1), strip.text.x = element_text(face = "italic"))+
+  geom_tile()+facet_grid(.~spec, space = "free", scales="free", drop=T)+scale_fill_viridis_c(option = "plasma")
 
 library(gridExtra)
 grid.arrange(inc, dec, nrow=1)
+
+#k <- grid.arrange(inc, dec, nrow=1)
+#ggsave("inc_dec_20200630.pdf", plot=k, path="~/Documents/Metabolomics/Depth_Gradient_study/Writing/2020_finalisation/Figures/", device = "pdf", units = "mm", width = 175, height = 245, useDingbats=FALSE)
+
+
 
 gb_nums <- c(length(unique(gb_heatmap$name)), length(unique(gb_heatmap_i$name)), length(unique(gb_heatmap_d$name)))
 sf_nums <- c(length(unique(sf_heatmap$name)), length(unique(sf_heatmap_i$name)), length(unique(sf_heatmap_d$name)))
@@ -2299,13 +2309,17 @@ dist <- pw_dist(ali, anno)
 rm(ali, anno, dist)
 ```
 
-```{r ecotypes-cortest, echo=F, eval=F}
+```{r ecotypes-cortest, eval=F}
 ### ====================cor test fdr instead of ttest fdr ==========================
 
 ali <- read.alignment("data/gb_reads_for_phylogeny_MAFFT.fasta", "fasta")
 anno <- read.csv("data/gb_OTUs_overall_rabdc_annotated.csv", header=T, sep=",")
 
-head(anno)
+#ali <- read.alignment("data/sf_reads_for_phylogeny_MAFFT.fasta", "fasta")
+#anno <- read.csv("data/sf_OTUs_overall_rabdc_annotated.csv", header=T, sep=",")
+
+#head(anno)
+#head(ali)
 
 pw_dist2 <- function(ali, anno){
   dist <- as.matrix(dist.alignment(ali, matrix = "similarity" ))  #https://www.researchgate.net/post/Homology_similarity_and_identity-can_anyone_help_with_these_terms
@@ -2317,6 +2331,7 @@ pw_dist2 <- function(ali, anno){
   # Remove irrelevant entries, i.e. self-comparison and similarities below the threshold, this step now speeds up later steps, but not mandatory
   dist <- dist[dist$value>=0.97,]
   dist <- dist[!dist$value==1,]
+  colnames(dist) <- c("Var1", "Var2", "value")
   
   # This removes AB - BA duplicates
   cols <- c("Var1", "Var2")
@@ -2333,8 +2348,8 @@ pw_dist2 <- function(ali, anno){
   anno["OTU_num"] <- str_replace(anno$XOTU, "X", "")
   anno <- anno[,c("OTU_num", "shallow_mean", "deep_mean", "classification", "inc_dec_p_val", "fdr")]
   anno["cat"] <- c("none")
-  anno$cat[anno$fdr<0.05 & anno$classification=="decreasing"] <- c("shallow") # can be set to "inc_dec_p_val" instead for less stringency
-  anno$cat[anno$fdr<0.05 & anno$classification=="increasing"] <- c("deep") # can be set to "inc_dec_p_val" instead for less stringency
+  anno$cat[anno$inc_dec_p_val<0.05 & anno$classification=="decreasing"] <- c("decreasing") # can be set to "inc_dec_p_val" instead for less stringency/ "frd" for increased stringency
+  anno$cat[anno$inc_dec_p_val<0.05 & anno$classification=="increasing"] <- c("increasing") # can be set to "inc_dec_p_val" instead for less stringency/ "frd" for increased stringency
   anno <- anno[,c("OTU_num", "cat")]
   anno$OTU_num <- as.numeric(anno$OTU_num)
   colnames(anno) <- c("Var1", "Var1_cat")
@@ -2350,9 +2365,21 @@ pw_dist2 <- function(ali, anno){
 }
 
 dist <- pw_dist2(ali, anno)
-dist <- data.frame(unique(c(dist$Var1, dist$Var2)))
-colnames(dist) <- c("OTU_ID")
-OTU_dist_taxonomy <- left_join(dist, taxonomy)
+
+# create csv file
+#write.csv(dist, "data/gb_similarity_cor.csv", row.names = F) # GB
+#write.csv(dist, "data/sf_similarity_cor.csv", row.names = F) # SF
+# In W. bursa, none of the OTUs are different  (ttest_fdr < 0.05) comparing shallow and deep specimens
+rm(ali, anno, dist)
+
+#dist <- data.frame(unique(c(dist$Var1, dist$Var2)))
+#colnames(dist) <- c("OTU_ID")
+#OTU_dist_taxonomy <- left_join(dist, taxonomy)
+
+# For less stringent sister OTU annotation:
+dist$Var1 <- str_replace(dist$Var1, "196900", "")
+dist$Var2 <- str_replace(dist$Var2, "196900", "")
+dist <- dist[,c("Var1", "Var2")]
 ```
 
 ```{r sequence-similarity-2, echo=T, eval=T}

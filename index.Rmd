@@ -129,10 +129,11 @@ sample_coords <- na.omit(sample_coords)
 world <- ne_countries(scale = "medium", returnclass = "sf")
 sample_map2 <- ggplot(data = world) +geom_sf() +
   coord_sf(xlim = c(-95, 0), ylim = c(45, 75), expand =T)+
-  geom_point(data=sample_coords, aes(x=sample_coords$Longitude, y=sample_coords$Latitude))+
   annotate("rect", xmin=-68.78077, xmax=-57.96573, ymin=61.147942 , ymax=66.38245, alpha = .2)+
-  ggtitle("Sample map")+xlab("Longitude")+ylab("Latitude")
+  geom_point(data=sample_coords, aes(x=sample_coords$Longitude, y=sample_coords$Latitude, col=Species))+
+  ggtitle("Sample map")+xlab("Longitude")+ylab("Latitude")+theme_bw()+theme(legend.position = "none")
 sample_map2
+#Green Sf, Blue=Wb, Red=Gb
 ```
 
 ```{r sample-map2, fig.cap="Detailed map of the sampling site, samples represented by dots are coloured according to sponge species."}

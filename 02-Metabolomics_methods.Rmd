@@ -523,7 +523,7 @@ geom_line(aes(x=RT, y=Gb13, color="red", alpha=0.5))+
 geom_line(aes(x=RT, y=Gb14, color="red", alpha=0.5))+
 geom_line(aes(x=RT, y=Gb18, color="red", alpha=0.5))+
 geom_line(aes(x=RT, y=Gb20, color="red", alpha=0.5))+
-xlab("RT")+ylab("Signal intensity")+ggtitle("Overlay chromatograms from G. barretti HILIC positive")+theme(legend.position = "none")
+xlab("RT")+ylab("Signal intensity")+ggtitle("Overlay chromatograms from G. barretti HILIC positive")+theme_classic(base_size=7)+theme(legend.position = "none")
 
 sf_chrom <- read.csv("data/Sf_all_chromatograms.csv", header=T, sep=";")
 sf_chrom[, c("Sf10_RT", "Sf11_RT","Sf12_RT","Sf13_RT","Sf14_RT","Sf15_RT","Sf2_RT","Sf3_RT","Sf4_RT","Sf5_RT","Sf6_RT","Sf7_RT")]<- list(NULL)
@@ -545,7 +545,7 @@ geom_line(aes(x=RT, y=Sf13, color="red", alpha=0.5))+
 geom_line(aes(x=RT, y=Sf14, color="red", alpha=0.5))+
 geom_line(aes(x=RT, y=Sf15, color="red", alpha=0.5))+
 xlab("RT")+ylab("Signal intensity")+ggtitle("Overlay chromatograms from S. fortis HILIC positive")+
-theme_classic()+theme(legend.position = "none")
+theme_classic(base_size=7)+theme(legend.position = "none")
 
 wb_chrom <- read.csv("data/Wb_all_chromatograms.csv", header=T, sep=";")
 wb_chrom[, c("Wb10_RT","Wb11_RT","Wb12_RT","Wb13_RT","Wb14_RT","Wb15_RT","Wb16_RT", "Wb17_RT","Wb2_RT","Wb3_RT","Wb4_RT","Wb5_RT","Wb6_RT","Wb7_RT","Wb8_RT")]<- list(NULL)
@@ -569,10 +569,15 @@ geom_line(aes(x=RT, y=Wb15, color="red", alpha=0.5))+
 geom_line(aes(x=RT, y=Wb16, color="red", alpha=0.5))+
 geom_line(aes(x=RT, y=Wb17, color="red", alpha=0.5))+
 xlab("RT")+ylab("Signal intensity")+ggtitle("Overlay chromatograms from W. bursa HILIC positive")+
-theme_classic()+theme(legend.position = "none")
+theme_classic(base_size=7)+theme(legend.position = "none")
 
 library(gridExtra)
-grid.arrange(p_gb_chrom, p_sf_chrom, p_wb_chrom, nrow=3)
+k <- grid.arrange(p_gb_chrom, p_sf_chrom, p_wb_chrom, nrow=3)
+k
+#ggsave("chroms_20200701.pdf", plot=k, path="data/", device = "pdf", units = "mm", width = 175, height = 90, useDingbats=FALSE)
+
+
+
 rm(p_gb_chrom, p_sf_chrom, p_wb_chrom, gb_chrom, sf_chrom, wb_chrom)
 ```
 
@@ -637,7 +642,7 @@ pca_wrapper <- function(metabolome, md, my_title){
 hp_pca <- pca_wrapper(hilic_pos, md, "Hilic pos")
 hn_pca <- pca_wrapper(hilic_neg, md, "Hilic neg")
 rp_pca <- pca_wrapper(rp_pos, md, "RP pos")
-rn_pca <- pca_wrapper(rp_neg, md, "RP pos")
+rn_pca <- pca_wrapper(rp_neg, md, "RP neg")
 
 library(gridExtra)
 grid.arrange(hp_pca, hn_pca, rp_pca, rn_pca, nrow=2)
@@ -823,8 +828,13 @@ cleaned["Experiment"] <- c(rep("HILIC pos", 3), rep("HILIC neg", 3), rep("RP pos
 write.csv(cleaned,"data/cleaned_opls_diagnostics.csv", row.names = F)
 ```
 
-```{r ropls-figure, fig.cap="Example output for OPLS models generated with ROPLS. This is HILIC positive cleaned data set for G. barretti.", out.width="150%"}
+```{r ropls-figure, fig.cap="Example output for OPLS models generated with ROPLS. This is HILIC positive cleaned data set for _G. barretti_.", out.width="150%"}
 knitr::include_graphics("data/opls_Gb_Hp.jpeg")
+
+# R2X:  The fraction of the variation of the X variables explained by the model.
+# R2Y:  The fraction of the variation of the Y variables explained by the model.
+# Q2X:  The fraction of the variation of the X variables predicted by the model.
+# Q2Y:  The fraction of the variation of the Y variables predicted by the model.
 ```
 
 In the same manner, we can analyse the two remaining sets produced by different filtering options.
@@ -847,7 +857,7 @@ md <- meta_data[,c("Species", "Depth", "Latitude", "Longitude", "YEAR", "MeanBot
 hp_pca <- pca_wrapper(hilic_pos, md, "Hilic pos")
 hn_pca <- pca_wrapper(hilic_neg, md, "Hilic neg")
 rp_pca <- pca_wrapper(rp_pos, md, "RP pos")
-rn_pca <- pca_wrapper(rp_neg, md, "RP pos")
+rn_pca <- pca_wrapper(rp_neg, md, "RP neg")
 
 grid.arrange(hp_pca, hn_pca, rp_pca, rn_pca, nrow=2)
 
@@ -894,7 +904,7 @@ md <- meta_data[,c("Species", "Depth", "Latitude", "Longitude", "YEAR", "MeanBot
 hp_pca <- pca_wrapper(hilic_pos, md, "Hilic pos")
 hn_pca <- pca_wrapper(hilic_neg, md, "Hilic neg")
 rp_pca <- pca_wrapper(rp_pos, md, "RP pos")
-rn_pca <- pca_wrapper(rp_neg, md, "RP pos")
+rn_pca <- pca_wrapper(rp_neg, md, "RP neg")
 
 grid.arrange(hp_pca, hn_pca, rp_pca, rn_pca, nrow=2)
 
