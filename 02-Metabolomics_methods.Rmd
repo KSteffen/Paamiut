@@ -23,7 +23,7 @@ During the sampling on the Pâmiut cruises, the sponges remained on deck or in t
 
 __Laboratory methods and data acquisition__
 
-Metabolites were separated in connection to downstream mass spectrometry (HRMS) analysis using two different chromatographic columns (UPLC): a hydrophilic interaction liquid chromatography (HILIC) column that retains polar compounds, and a reversed-phase (RP) column that favours retention of non-polar compounds. All samples were processed in randomized order using glass instruments during the extraction to avoid chemical contamination.
+Metabolites were separated in connection to downstream mass spectrometry (HRMS) analysis using two different chromatographic columns (UPLC): a hydrophilic interaction liquid chromatography (HILIC) column that retains polar compounds, and a reversed-phase (RP) column that favours retention of non-polar compounds. All samples were processed in randomized  using glass instruments during the extraction to avoid chemical contamination.
 
 __Mass spectrometry analysis__
 
@@ -40,7 +40,7 @@ Chromatographic separation in RP was performed on an Acquity UPLC BEH C18 column
 __Data acquisition__
 
 Data acquisition was performed using MS^E^ mode, and lock mass correction was applied using a solution of leucine enkephalin in both positive and negative mode. Ionization parameters were set as follows in positive/negative mode; the capillary voltage was 1kV/1.5 kV, the cone voltage was 30 V/25 V, the source offset was 50/60 and the source temperature was set to 120°C. Nitrogen was used as desolvation and cone gas with gas flows of 800 l/h and 50 l/h, respectively, and desolvation temperature was set to 500°C/450°C. For MS^E^ acquisition a collision energy ramp from 20--45 eV was used with argon as collision gas. The instrument was calibrated in the _m/z_ range 50--1500 using sodium formate prior to each analysis.
-All study samples were analysed in both RP and HILIC, in positive and negative ionization mode, resulting in four metabolite datasets per sponge specimen. The column and sample cone was cleaned in between each analysis mode. Prior to each analysis ten QC injections were made to condition the column, and to ensure stable retention times and signal intensities. The study samples were analysed in randomized order with QC injections interspaced every 6^th^ injection.
+All study samples were analysed in both RP and HILIC, in positive and negative ionization mode, resulting in four metabolite datasets per sponge specimen. The column and sample cone was cleaned in between each analysis mode. Prior to each analysis ten QC injections were made to condition the column, and to ensure stable retention times and signal intensities. The study samples were analysed in randomized  with QC injections interspaced every 6^th^ injection.
 
 __MS data processing__
 
@@ -54,7 +54,7 @@ An overview of the number of features and PC groups annotated by CAMERA, as well
 
 ### Peak picking with XCMS and annotation with CAMERA
 
-We processed samples from all three sponnge species in random order with interspersed injection of a combined QC sample to monitor stability of the UPLC-HRMS run. The acquired signals/spectra were converted to netCDF format using the Program DataBridge, and thereafter sorted into four folders, three for the sponge species (Gb, Sf, Wb) and one for the QC samples (QC). Peak picking and combination of pseudospectra is performed with the R package xcms, the subsequent annotation of adducts and isotopes with the R package CAMERA.
+We processed samples from all three sponnge species in random  with interspersed injection of a combined QC sample to monitor stability of the UPLC-HRMS run. The acquired signals/spectra were converted to netCDF format using the Program DataBridge, and thereafter sorted into four folders, three for the sponge species (Gb, Sf, Wb) and one for the QC samples (QC). Peak picking and combination of pseudospectra is performed with the R package xcms, the subsequent annotation of adducts and isotopes with the R package CAMERA.
 
 
 ### HILIC (Hydrophilic interaction chromatography) column with positive ESI (electron spray ionisation)
@@ -572,11 +572,10 @@ xlab("RT")+ylab("Signal intensity")+ggtitle("Overlay chromatograms from W. bursa
 theme_classic(base_size=7)+theme(legend.position = "none")
 
 library(gridExtra)
-k <- grid.arrange(p_gb_chrom, p_sf_chrom, p_wb_chrom, nrow=3)
-k
+grid.arrange(p_gb_chrom, p_sf_chrom, p_wb_chrom, nrow=3)
+
+#k <- grid.arrange(p_gb_chrom, p_sf_chrom, p_wb_chrom, nrow=3)
 #ggsave("chroms_20200701.pdf", plot=k, path="data/", device = "pdf", units = "mm", width = 175, height = 90, useDingbats=FALSE)
-
-
 
 rm(p_gb_chrom, p_sf_chrom, p_wb_chrom, gb_chrom, sf_chrom, wb_chrom)
 ```
@@ -1054,7 +1053,7 @@ metabolite_stats <- function(mets) {
     corr <- cor.test(mets[,n], mets$Depth, method = "spearman")
     results$cor_rho[n] <- corr$estimate
     results$cor_p.value[n] <- corr$p.value
-    tt <- t.test(mets[,n][mets$Depth<1000], mets[,n][mets$Depth>1000])
+    tt <- t.test(mets[,n][mets$Depth<1000], mets[,n][mets$Depth>1000], var.equal = T)
     results$t.test_stat[n] <- tt$statistic
     results$t.test_param[n] <- tt$parameter
     results$t.test_p.val[n] <- tt$p.value
@@ -1154,7 +1153,7 @@ metabolite_stats <- function(mets) {
     corr <- cor.test(mets[,n], mets$Depth, method = "spearman")
     results$cor_rho[n] <- corr$estimate
     results$cor_p.value[n] <- corr$p.value
-    tt <- t.test(mets[,n][mets$Depth<1000], mets[,n][mets$Depth>1000])
+    tt <- t.test(mets[,n][mets$Depth<1000], mets[,n][mets$Depth>1000], var.equal = T)
     results$t.test_stat[n] <- tt$statistic
     results$t.test_param[n] <- tt$parameter
     results$t.test_p.val[n] <- tt$p.value
@@ -1200,7 +1199,7 @@ mets_stats$metabolite <- Metabolites
 
 kable(mets_stats, longtable = T, booktabs = T, caption = "Depth response fro _S. fortis_ metabolites as approximated by different methods.") %>%
   add_header_above(c("","depth correlation" = 3, "depth groups" = 4)) %>%
-  kable_styling(bootstrap_options = c("striped","hover", "bordered", "condensed", "responsive"), font_size = 12, full_width = F,latex_options = c("striped", "scale_down"))
+  kable_styling(bootstrap_options = c("striped","hover", "bed", "condensed", "responsive"), font_size = 12, full_width = F,latex_options = c("striped", "scale_down"))
 
 ```
 

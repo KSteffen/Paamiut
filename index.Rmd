@@ -99,13 +99,7 @@ We hope to contribute to good science by providing reproducible documentation of
 
 ## Experimental setup 
 
-Three demosponge species _Geodia barretti_ (n=20), _Stryphnus fortis_ (n=15), and _Weberella bursa_ (n=17) (Fig \@ref(fig:sponges)) were sampled in the Davis Strait between Canada and Greenland (61.147942-66.38245 Lat,-68.78077- -57.96573 Lon) from 244 m to 1467 m depth (Fig \@ref(fig:sample-map1), \@ref(fig:sample-map2)). Temperature and salinity _in situ_ were recorded. All sample metadata is deposited at [PANGAEA](https://doi.pangaea.de/10.1594/PANGAEA.909246). All data for these analyses can be downloaded here.
-
-```{r data_src, eval=F}
-library(xfun)
-xfun::pkg_load2(c("base64enc", "htmltools", "mime"))
-xfun::embed_dir('data/', text = 'Download full data')
-```
+Three demosponge species _Geodia barretti_ (n=20), _Stryphnus fortis_ (n=15), and _Weberella bursa_ (n=17) (Fig \@ref(fig:sponges)) were sampled in the Davis Strait between Canada and Greenland (61.147942-66.38245 Lat,-68.78077- -57.96573 Lon) from 244 m to 1467 m depth (Fig \@ref(fig:sample-map1), \@ref(fig:sample-map2)). Temperature and salinity _in situ_ were recorded. Sample metadata is deposited at [PANGAEA](https://doi.pangaea.de/10.1594/PANGAEA.909246). 
 
 
 ### Map
@@ -120,7 +114,6 @@ library(ggrepel)
 library(sf)
 library(rnaturalearth)
 library(rnaturalearthdata)
-
 
 sample_coords <- read.csv("data/Steffen_et_al_metadata_PANGAEA.csv", header=T, sep=";")
 sample_coords <- sample_coords[,c("Species",  "unified_ID", "Latitude", "Longitude")]
